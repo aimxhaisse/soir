@@ -11,7 +11,9 @@ std::vector<std::string> StringSplit(const std::string &str, char delim) {
   std::string item;
 
   while (getline(ss, item, delim)) {
-    tokens.push_back(item);
+    if (!item.empty()) {
+      tokens.push_back(item);
+    }
   }
 
   return tokens;
