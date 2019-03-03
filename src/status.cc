@@ -26,6 +26,9 @@ std::ostream &operator<<(std::ostream &os, const Status &status) {
   case OK:
     str_code = "OK";
     break;
+  case INTERNAL_ERROR:
+    str_code = "INTERNAL_ERROR";
+    break;
   default:
     str_code = "UNKNOWN";
     break;

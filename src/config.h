@@ -7,6 +7,8 @@
 
 #include <yaml-cpp/yaml.h>
 
+#include "status.h"
+
 namespace soir {
 
 // Config provides a wrapper to access settings from configuration
@@ -18,7 +20,8 @@ public:
   explicit Config(const YAML::Node &node);
 
   // Create a new config from a path.
-  static std::unique_ptr<Config> LoadFromPath(const std::string &path);
+  static StatusOr<std::unique_ptr<Config>>
+  LoadFromPath(const std::string &path);
 
   // Create a new config from a string.
   static std::unique_ptr<Config> LoadFromString(const std::string &content);

@@ -1,6 +1,7 @@
 #ifndef SOIR_STATUS_H
 #define SOIR_STATUS_H
 
+#include <cassert>
 #include <iosfwd>
 #include <string>
 
@@ -9,6 +10,7 @@ namespace soir {
 // List of all status code available in Soir.
 enum StatusCode {
   OK = 0,
+  INTERNAL_ERROR,
 };
 
 // Helper class to wrap status codes and attach messages to it. This
@@ -29,6 +31,32 @@ public:
 private:
   const StatusCode code_;
   const std::string message_;
+};
+
+// Helper class to attach an object to a Status. The object is valid
+// only if the status code is OK.
+template <typename T> class StatusOr {
+public:
+  StatusOr() : status_(StatusCode::INTERNAL_ERROR), value_() {}
+  StatusOr(StatusCode code) : status_(code), value_() {}
+  StatusOr(const Status &status) : status_(status), value_() {}
+  StatusOr(const T &value) : status_(StatusCode::OK), value_(value) {}
+  StatusOr(T &&value) : status_(StatusCode::OK), value_(std::move(value)) {}
+
+  const Status &GetStatus() const { return status_; }
+
+  // Whether or not the status is OK.
+  bool Ok() const { return status_ == StatusCode::OK; }
+
+  // This will crash if the status is not OK.
+  T ValueOrDie() const {
+    assert(status_ == StatusCode::OK);
+    return value_;
+  }
+
+private:
+  Status status_;
+  T value_;
 };
 
 std::ostream &operator<<(std::ostream &os, const Status &status);

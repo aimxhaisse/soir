@@ -9,14 +9,15 @@ namespace soir {
 
 Config::Config(const YAML::Node &node) : node_(node) {}
 
-std::unique_ptr<Config> Config::LoadFromPath(const std::string &path) {
+StatusOr<std::unique_ptr<Config>>
+Config::LoadFromPath(const std::string &path) {
   try {
     YAML::Node node = YAML::LoadFile(path);
     return std::make_unique<Config>(node);
   } catch (const std::exception &error) {
     LOG(WARNING) << "Unable to load '" << path << "': " << error.what() << ".";
   }
-  return std::unique_ptr<Config>(nullptr);
+  return StatusCode::INTERNAL_ERROR;
 }
 
 std::unique_ptr<Config> Config::LoadFromString(const std::string &content) {

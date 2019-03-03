@@ -1,8 +1,9 @@
 #include "config.h"
 
+using namespace soir;
+
 int main() {
-  std::unique_ptr<soir::Config> config =
-      soir::Config::LoadFromPath("/dev/null");
+  StatusOr<std::unique_ptr<Config>> config = Config::LoadFromPath("/dev/null");
 
   return 42;
 }
