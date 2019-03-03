@@ -26,7 +26,8 @@ fmt:
 	$(FMT) -i -style Chromium $(SRCS)
 
 clean:
-	rm -rf $(OBJS) $(DEPS) $(PRGM) $(TEST)
+	rm -rf $(OBJS) $(DEPS) $(PRGM)
+	rm -rf $(OBJS_TEST) $(DEPS_TEST) $(TEST)
 
 re: clean all
 
@@ -43,3 +44,4 @@ test: $(TEST)
 	$(TEST)
 
 -include $(DEPS)
+-include $(DEPS_TEST)
