@@ -10,6 +10,7 @@ namespace soir {
 // List of all status code available in Soir.
 enum StatusCode {
   OK = 0,
+  INVALID_CONFIG_FILE,
   INTERNAL_ERROR,
 };
 
@@ -49,7 +50,7 @@ public:
   bool Ok() const { return status_ == StatusCode::OK; }
 
   // This will crash if the status is not OK.
-  T ValueOrDie() const {
+  T &ValueOrDie() {
     assert(status_ == StatusCode::OK);
     return value_;
   }

@@ -24,7 +24,8 @@ public:
   LoadFromPath(const std::string &path);
 
   // Create a new config from a string.
-  static std::unique_ptr<Config> LoadFromString(const std::string &content);
+  static StatusOr<std::unique_ptr<Config>>
+  LoadFromString(const std::string &content);
 
   // Get a setting from the config, fallback to defaults if there is
   // no such setting defined.

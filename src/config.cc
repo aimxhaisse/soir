@@ -20,14 +20,15 @@ Config::LoadFromPath(const std::string &path) {
   return StatusCode::INTERNAL_ERROR;
 }
 
-std::unique_ptr<Config> Config::LoadFromString(const std::string &content) {
+StatusOr<std::unique_ptr<Config>>
+Config::LoadFromString(const std::string &content) {
   try {
     YAML::Node node = YAML::Load(content);
     return std::make_unique<Config>(node);
   } catch (const std::exception &error) {
     LOG(WARNING) << "Unable to load YAML from string: " << error.what() << ".";
+    return Status(StatusCode::INVALID_CONFIG_FILE, error.what());
   }
-  return std::unique_ptr<Config>(nullptr);
 }
 
 std::unique_ptr<Config> Config::GetConfig(const std::string &location) const {
