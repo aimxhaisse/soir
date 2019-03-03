@@ -5,8 +5,8 @@
 CXXFLAGS = -g -Wall -std=c++14 $(shell freetype-config --cflags) -Isrc
 LDLIBS = -lglog -lgflags -lyaml-cpp -lsfml-graphics -lsfml-window -lsfml-system
 
-PRGM := soir
-TEST := soir_test
+PRGM := bin/soir
+TEST := bin/soir_test
 CXX  := clang++
 FMT  := clang-format
 
@@ -40,6 +40,6 @@ $(TEST): $(OBJS_TEST)
 	$(CXX) $(OBJS_TEST) $(LDLIBS) -lgtest -o $@
 
 test: $(TEST)
-	./$(TEST)
+	$(TEST)
 
 -include $(DEPS)

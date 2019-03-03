@@ -1,4 +1,3 @@
 *.d
 *.o
-soir
-soir_test
+bin/
