@@ -15,12 +15,13 @@ namespace soir {
 // we don't try to hide YAML from the interface.
 class Config {
 public:
-  // Let this private to make it explicit that this class needs to be
-  // instantiated using LoadFromPath.
   explicit Config(const YAML::Node &node);
 
   // Create a new config from a path.
   static std::unique_ptr<Config> LoadFromPath(const std::string &path);
+
+  // Create a new config from a string.
+  static std::unique_ptr<Config> LoadFromString(const std::string &content);
 
   // Get a setting from the config, fallback to defaults if there is
   // no such setting defined.
