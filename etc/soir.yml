@@ -1,0 +1,22 @@
+# Soir's main configuration file.
+
+# Main settings.
+core:
+
+  # Title of the window.
+  title: "Soir"
+
+  # Whether or not to run Soir in fullscreen mode.
+  fullscreen: true
+
+  # Resolution of the window.
+  width: 400
+  height: 300
+
+  # Maximum number of FPS to use.
+  max_fps: 60
+
+  # Font to use to display debug informations such as the current FPS rate.
+  hud_font:
+    name: "Lucida Grande"
+    size: 12.0
