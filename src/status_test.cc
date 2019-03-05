@@ -15,7 +15,8 @@ TEST(StatusTest, Reuse) {
   Status status;
 
   status = StatusCode::INTERNAL_ERROR;
-  EXPECT_FALSE(status.Ok());
+
+  EXPECT_EQ(status, StatusCode::INTERNAL_ERROR);
 }
 
 TEST(StatusOr, Default) {
