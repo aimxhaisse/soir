@@ -13,6 +13,9 @@ constexpr const int kDefaultWidth = 400;
 // Default height for the window -- core.height
 constexpr const int kDefaultHeight = 300;
 
+// Default value for maximum number of FPS -- core.max_fps
+constexpr const int kDefaultFpsMax = 60;
+
 // Default title for the window -- core.title
 constexpr const char *kDefaultTitle = "Soir ~";
 
@@ -31,9 +34,9 @@ Status Soir::InitWindow() {
   const int height = core_config_->Get<int>("core.height", kDefaultHeight);
   const std::string title =
       core_config_->Get<std::string>("core.title", kDefaultTitle);
+
   const bool is_fullscreen =
       core_config_->Get<bool>("core.fullscreen", kDefaultFullscreen);
-
   unsigned int style = 0;
   if (is_fullscreen) {
     style |= sf::Style::Fullscreen;
@@ -41,6 +44,10 @@ Status Soir::InitWindow() {
 
   window_ =
       std::make_unique<sf::Window>(sf::VideoMode(width, height), title, style);
+
+  window_->setVerticalSyncEnabled(true);
+  window_->setFramerateLimit(
+      core_config_->Get<int>("core.fps_max", kDefaultFpsMax));
 
   return StatusCode::OK;
 } // namespace soir

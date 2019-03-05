@@ -7,14 +7,14 @@ core:
   title: "Soir"
 
   # Whether or not to run Soir in fullscreen mode.
-  fullscreen: false
+  fullscreen: true
 
   # Resolution of the window.
   width: 400
   height: 300
 
   # Maximum number of FPS to use.
-  max_fps: 60
+  fps_max: 60
 
   # Font to use to display debug informations such as the current FPS rate.
   hud_font:
