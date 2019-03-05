@@ -11,6 +11,17 @@ Status::Status(StatusCode code, const std::string &message)
 
 Status::Status(StatusCode code) : code_(code) {}
 
+Status::Status(const Status &status)
+    : code_(status.code_), message_(status.message_) {}
+
+Status &Status::operator=(const Status &status) {
+  if (this != &status) {
+    code_ = status.code_;
+    message_ = status.message_;
+  }
+  return *this;
+}
+
 bool Status::operator==(StatusCode code) const { return code_ == code; }
 
 bool Status::operator!=(StatusCode code) const { return !operator==(code); }

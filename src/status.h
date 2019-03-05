@@ -21,8 +21,10 @@ class Status {
 public:
   Status();
   Status(StatusCode code, const std::string &message);
-  explicit Status(StatusCode code);
+  Status(StatusCode code);
+  Status(const Status &status);
 
+  Status &operator=(const Status &status);
   bool operator==(StatusCode code) const;
   bool operator!=(StatusCode code) const;
 
@@ -30,8 +32,8 @@ public:
   const std::string &Message() const;
 
 private:
-  const StatusCode code_;
-  const std::string message_;
+  StatusCode code_;
+  std::string message_;
 };
 
 // Helper class to attach an object to a Status. The object is valid
