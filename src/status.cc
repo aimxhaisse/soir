@@ -51,7 +51,10 @@ std::ostream &operator<<(std::ostream &os, const Status &status) {
   if (status == StatusCode::OK) {
     os << str_code;
   } else {
-    os << str_code << " (" << status.Message() << ")";
+    os << str_code;
+    if (!status.Message().empty()) {
+      os << " (" << status.Message() << ")";
+    }
   }
 
   return os;

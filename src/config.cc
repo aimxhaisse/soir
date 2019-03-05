@@ -15,9 +15,9 @@ Config::LoadFromPath(const std::string &path) {
     YAML::Node node = YAML::LoadFile(path);
     return std::make_unique<Config>(node);
   } catch (const std::exception &error) {
-    LOG(WARNING) << "Unable to load '" << path << "': " << error.what() << ".";
+    RETURN_ERROR(StatusCode::INVALID_CONFIG_FILE,
+                 "Unable to load '" << path << "': " << error.what() << ".");
   }
-  return StatusCode::INTERNAL_ERROR;
 }
 
 StatusOr<std::unique_ptr<Config>>
@@ -26,8 +26,8 @@ Config::LoadFromString(const std::string &content) {
     YAML::Node node = YAML::Load(content);
     return std::make_unique<Config>(node);
   } catch (const std::exception &error) {
-    LOG(WARNING) << "Unable to load YAML from string: " << error.what() << ".";
-    return Status(StatusCode::INVALID_CONFIG_FILE, error.what());
+    RETURN_ERROR(StatusCode::INVALID_CONFIG_FILE,
+                 "Unable to load YAML from string: " << error.what() << ".");
   }
 }
 

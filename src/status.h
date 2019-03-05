@@ -3,6 +3,7 @@
 
 #include <cassert>
 #include <iosfwd>
+#include <sstream>
 #include <string>
 
 namespace soir {
@@ -30,6 +31,7 @@ public:
 
   StatusCode Code() const;
   const std::string &Message() const;
+  std::string &Message();
 
 private:
   StatusCode code_;
@@ -62,8 +64,42 @@ private:
   T value_;
 };
 
+// Nicely prints a status to a stream.
 std::ostream &operator<<(std::ostream &os, const Status &status);
 
+// Feed the status message with a stream.
+Status &operator<<(Status &status, std::ostream &os);
+
+// Helper to immediately return if status is not OK.
+#define RETURN_IF_ERROR(status)                                                \
+  do {                                                                         \
+    if (status != StatusCode::OK) {                                            \
+      return status;                                                           \
+    }                                                                          \
+  } while (false)
+
+// Similar but assigns the value otherwise.
+#define ASSIGN_OR_RETURN(what, status)                                         \
+  do {                                                                         \
+    RETURN_IF_ERROR(status.GetStatus());                                       \
+    what = status.ValueOrDie();                                                \
+  } while (false)
+
+// Similar but moves instead of assigning.
+#define MOVE_OR_RETURN(what, status)                                           \
+  do {                                                                         \
+    RETURN_IF_ERROR(status.GetStatus());                                       \
+    what = std::move(status.ValueOrDie());                                     \
+  } while (false)
+
 } // namespace soir
+
+// Makes an error status with
+#define RETURN_ERROR(code, what)                                               \
+  do {                                                                         \
+    std::stringstream message;                                                 \
+    message << what;                                                           \
+    return Status(code, message.str());                                        \
+  } while (false)
 
 #endif // SOIR_STATUS_H

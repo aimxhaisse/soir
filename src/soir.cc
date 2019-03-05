@@ -8,12 +8,7 @@ namespace soir {
 constexpr const char *kCoreConfigPath = "etc/soir.yml";
 
 Status Soir::Init() {
-  StatusOr<std::unique_ptr<Config>> config_or =
-      Config::LoadFromPath(kCoreConfigPath);
-  if (!config_or.Ok()) {
-    return config_or.GetStatus();
-  }
-  core_config_ = std::move(config_or.ValueOrDie());
+  MOVE_OR_RETURN(core_config_, Config::LoadFromPath(kCoreConfigPath));
 
   return StatusCode::OK;
 }
@@ -29,7 +24,6 @@ int main(int ac, char **av) {
   ::google::InitGoogleLogging(av[0]);
 
   Soir soir;
-
   Status status = soir.Init();
   if (status == StatusCode::OK) {
     status = soir.Run();
