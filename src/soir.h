@@ -27,6 +27,7 @@ private:
   Status InitWindow();
 
   std::unique_ptr<Config> core_config_;
+  std::unique_ptr<Config> midi_profiles_config_;
   std::unique_ptr<sf::Window> window_;
 };
 

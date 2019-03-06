@@ -11,6 +11,7 @@ Config::Config(const YAML::Node &node) : node_(node) {}
 
 StatusOr<std::unique_ptr<Config>>
 Config::LoadFromPath(const std::string &path) {
+  LOG(INFO) << "Loading configuration file " << path;
   try {
     YAML::Node node = YAML::LoadFile(path);
     return std::make_unique<Config>(node);

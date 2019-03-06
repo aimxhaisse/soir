@@ -1,0 +1,44 @@
+# Midi profiles of synthesizer supported by Soir.
+
+profiles:
+
+  - Electribe EMX-2:
+      # Name of the device.
+      name: "electribe"
+
+      # Model of the device.
+      model: "EMX-2"
+
+      # Midi tag of the device (as broadcasted).
+      midi_tag: "electribe2 PAD/KNOB"
+
+      # Midi rules.
+      rules:
+        # This is tricky but once mastered, a convenient way to
+        # describe MIDI events.
+        #
+        # Each key  is the name  of the event, combined  with the
+        # device  name it  is later  used in  the live  config as
+        # MNEMOs  (for  instance here,  if  the  rule matches,  a
+        # "electribe.kick"  event will  be  emited to  interested
+        # mods).
+        #
+        # The value has the following form: mask/value where:
+        #
+        # - mask is a binary mask,
+        # - value is the expected value once masked.
+        #
+        # For instance, the MIDI event "Note on channel 9" can be
+        # expressed has follow:
+        #
+        # 0xFF000000/0x98000000
+        #
+        # 0xFF000000 will retain only the first byte of the MIDI
+        # event. A MIDI "note on" event matches "0x90", a MIDI
+        # event on channel "9" matches "0x08", so we get both by
+        # using 0x98000000 as a value.
+        kick: "0xFF000000/0x98000000"
+        bass: "0xFF000000/0x92000000"
+        motive: "0xFF000000/0x94000000"
+
+
