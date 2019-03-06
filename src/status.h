@@ -79,20 +79,20 @@ Status &operator<<(Status &status, std::ostream &os);
   } while (false)
 
 // Similar but assigns the value otherwise.
-#define ASSIGN_OR_RETURN(what, status)                                         \
+#define ASSIGN_OR_RETURN(what, expr)                                           \
   do {                                                                         \
-    RETURN_IF_ERROR(status.GetStatus());                                       \
-    what = status.ValueOrDie();                                                \
+    auto __status_or = expr;                                                   \
+    RETURN_IF_ERROR(__status_or.GetStatus());                                  \
+    what = __status_or.ValueOrDie();                                           \
   } while (false)
 
 // Similar but moves instead of assigning.
-#define MOVE_OR_RETURN(what, status)                                           \
+#define MOVE_OR_RETURN(what, expr)                                             \
   do {                                                                         \
-    RETURN_IF_ERROR(status.GetStatus());                                       \
-    what = std::move(status.ValueOrDie());                                     \
+    auto __status_or = expr;                                                   \
+    RETURN_IF_ERROR(__status_or.GetStatus());                                  \
+    what = std::move(__status_or.ValueOrDie());                                \
   } while (false)
-
-} // namespace soir
 
 // Makes an error status with
 #define RETURN_ERROR(code, what)                                               \
@@ -101,5 +101,7 @@ Status &operator<<(Status &status, std::ostream &os);
     message << what;                                                           \
     return Status(code, message.str());                                        \
   } while (false)
+
+} // namespace soir
 
 #endif // SOIR_STATUS_H
