@@ -12,6 +12,7 @@ namespace soir {
 enum StatusCode {
   OK = 0,
   INVALID_CONFIG_FILE,
+  INTERNAL_MIDI_ERROR,
   INTERNAL_ERROR,
 };
 
