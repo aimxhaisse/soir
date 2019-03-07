@@ -2,7 +2,7 @@
 
 #include <glog/logging.h>
 
-#include "midi_device.h"
+#include "midi.h"
 
 namespace soir {
 

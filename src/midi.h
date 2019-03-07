@@ -1,5 +1,5 @@
-#ifndef SOIR_MIDI_DEVICE_H
-#define SOIR_MIDI_DEVICE_H
+#ifndef SOIR_MIDI_H
+#define SOIR_MIDI_H
 
 #include <RtMidi.h>
 
