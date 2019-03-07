@@ -16,6 +16,10 @@ class MidiDevice {
 public:
   MidiDevice(const std::string &name, int port);
 
+  // Whether or not to enable verbose debugging of incoming events. By
+  // default this is false.
+  void SetDebugging(bool debugging);
+
   // Initializes connection to the MIDI device.
   Status Init();
 
@@ -30,6 +34,7 @@ private:
   RtMidiIn midi_;
   std::string name_;
   int port_;
+  bool debugging_;
 };
 
 } // namespace soir

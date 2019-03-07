@@ -7,7 +7,9 @@
 namespace soir {
 
 MidiDevice::MidiDevice(const std::string &name, int port)
-    : name_(name), port_(port) {}
+    : name_(name), port_(port), debugging_(false) {}
+
+void MidiDevice::SetDebugging(bool debugging) { debugging_ = debugging; }
 
 Status MidiDevice::Init() {
   midi_.openPort(port_);
@@ -23,7 +25,9 @@ Status MidiDevice::PollMessages(MidiMessages *messages) {
     if (message.empty()) {
       break;
     }
-    DumpMessage(message);
+    if (debugging_) {
+      DumpMessage(message);
+    }
     messages->push_back(message);
   }
 
