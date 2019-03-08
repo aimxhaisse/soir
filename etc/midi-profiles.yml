@@ -40,5 +40,3 @@ profiles:
         kick: "0xFF000000/0x98000000"
         bass: "0xFF000000/0x92000000"
         motive: "0xFF000000/0x94000000"
-
-
