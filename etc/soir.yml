@@ -7,7 +7,7 @@ core:
   title: "Soir"
 
   # Whether or not to run Soir in fullscreen mode.
-  fullscreen: true
+  fullscreen: false
 
   # Resolution of the window.
   width: 400

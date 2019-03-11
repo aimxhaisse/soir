@@ -29,6 +29,8 @@ Status Soir::Init() {
   MOVE_OR_RETURN(core_config_, Config::LoadFromPath(kCoreConfigPath));
   MOVE_OR_RETURN(midi_config_, Config::LoadFromPath(kMidiConfigPath));
 
+  midi_router_ = std::make_unique<MidiRouter>();
+
   RETURN_IF_ERROR(InitWindow());
 
   return StatusCode::OK;
@@ -60,7 +62,6 @@ Status Soir::InitWindow() {
 Status Soir::Run() {
   while (window_->isOpen()) {
     midi_router_->SyncDevices();
-
     sf::Event event;
     while (window_->pollEvent(event)) {
       if (event.type == sf::Event::Closed ||

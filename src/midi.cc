@@ -1,4 +1,5 @@
 #include <iostream>
+#include <map>
 
 #include <glog/logging.h>
 
@@ -6,16 +7,16 @@
 
 namespace soir {
 
-MidiDevice::MidiDevice(std::unique_ptr<RtMidiIn> rtmidi,
-                       const std::string &name, int port)
-    : rtmidi_(std::move(rtmidi)), name_(name), port_(port) {}
+MidiDevice::MidiDevice(const std::string &name, int port)
+    : name_(name), port_(port) {}
 
 Status MidiDevice::Init() {
   try {
+    rtmidi_ = std::make_unique<RtMidiIn>();
     rtmidi_->openPort(port_);
   } catch (RtMidiError &error) {
     RETURN_ERROR(StatusCode::INTERNAL_MIDI_ERROR,
-                 "Unable to open MIDI port, port="
+                 "Unable to connect to MIDI device port="
                      << port_ << ", name=" << name_
                      << ", error=" << error.what());
   }
@@ -63,31 +64,39 @@ Status MidiRouter::ProcessEvents() {
 }
 
 Status MidiRouter::SyncDevices() {
-  bool continue_registering_devices = false;
-  do {
-    try {
-      std::unique_ptr<RtMidiIn> rtmidi = std::make_unique<RtMidiIn>();
-      for (int i = 0; i < rtmidi->getPortCount(); ++i) {
-        const std::string name = rtmidi->getPortName(i);
-        if (midi_devices_.find(name) != midi_devices_.end()) {
-          continue;
-        }
-        continue_registering_devices = true;
-        auto device = std::make_unique<MidiDevice>(std::move(rtmidi), name, i);
-        Status status = device->Init();
-        if (status == StatusCode::OK) {
-          midi_devices_[name] = std::move(device);
-          LOG(INFO) << "New MIDI device connected, name=" << name;
-        } else {
-          LOG(WARNING) << "Failed to connect MIDI device, name=" << name
-                       << ", status=" << status;
-        }
-      }
-    } catch (RtMidiError &error) {
-      RETURN_ERROR(StatusCode::INTERNAL_MIDI_ERROR,
-                   "Unable to initialize MIDI, error=" << error.what());
+  // Get connected devices.
+  std::unique_ptr<RtMidiIn> rtmidi = std::make_unique<RtMidiIn>();
+  std::map<std::string, int> devices;
+  for (int i = 0; i < rtmidi->getPortCount(); ++i) {
+    devices[rtmidi->getPortName(i)] = i;
+  }
+
+  // First pass, register new devices.
+  for (const auto &it : devices) {
+    const std::string &name = it.first;
+    const int port = it.second;
+    if (midi_devices_.find(name) != midi_devices_.end()) {
+      continue;
     }
-  } while (continue_registering_devices);
+    auto device = std::make_unique<MidiDevice>(name, port);
+    Status status = device->Init();
+    if (status == StatusCode::OK) {
+      LOG(INFO) << "New MIDI device connected, name=" << name;
+      midi_devices_[name] = std::move(device);
+    }
+  }
+
+  // Second pass, delete disconnected devices.
+  auto it = midi_devices_.begin();
+  while (it != midi_devices_.end()) {
+    if (devices.find(it->first) == devices.end()) {
+      LOG(INFO) << "MIDI device disconnected, name=" << it->first;
+      it = midi_devices_.erase(it);
+    } else {
+      ++it;
+    }
+  }
+
   return StatusCode::OK;
 }
 

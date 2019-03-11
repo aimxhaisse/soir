@@ -1,7 +1,7 @@
 #ifndef SOIR_MIDI_H
 #define SOIR_MIDI_H
 
-#include <map>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -19,8 +19,7 @@ using MidiMnemo = std::string;
 class MidiDevice {
 public:
   // Creates a MIDI device from a port.
-  MidiDevice(std::unique_ptr<RtMidiIn> rtmidi, const std::string &name,
-             int port);
+  MidiDevice(const std::string &name, int port);
 
   // Initializes connection to the MIDI device.
   Status Init();
@@ -57,7 +56,7 @@ public:
 
 private:
   // Map of MIDI device names to corresponding attached MIDI devices.
-  std::map<std::string, std::unique_ptr<MidiDevice>> midi_devices_;
+  std::unordered_map<std::string, std::unique_ptr<MidiDevice>> midi_devices_;
 };
 
 } // namespace soir
