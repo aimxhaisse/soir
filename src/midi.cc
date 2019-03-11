@@ -6,36 +6,35 @@
 
 namespace soir {
 
-Status RtMidiSocket::OpenPort(int port) {
+MidiDevice::MidiDevice(std::unique_ptr<RtMidiIn> rtmidi,
+                       const std::string &name, int port)
+    : rtmidi_(std::move(rtmidi)), name_(name), port_(port) {}
+
+Status MidiDevice::Init() {
   try {
-    midi_.openPort(port);
+    rtmidi_->openPort(port_);
   } catch (RtMidiError &error) {
     RETURN_ERROR(StatusCode::INTERNAL_MIDI_ERROR,
-                 "Unable to open MIDI port '" << port << "': " << error.what());
+                 "Unable to open MIDI port, port="
+                     << port_ << ", name=" << name_
+                     << ", error=" << error.what());
   }
   return StatusCode::OK;
 }
-
-Status RtMidiSocket::GetMessage(MidiMessage *message) {
-  try {
-    midi_.getMessage(message);
-  } catch (RtMidiError &error) {
-    RETURN_ERROR(StatusCode::INTERNAL_MIDI_ERROR,
-                 "Unable to get MIDI message: " << error.what());
-  }
-  return StatusCode::OK;
-}
-
-MidiDevice::MidiDevice(const std::string &name,
-                       std::unique_ptr<MidiSocket> socket)
-    : name_(name), socket_(std::move(socket)), debugging_(false) {}
 
 void MidiDevice::SetDebugging(bool debugging) { debugging_ = debugging; }
 
 Status MidiDevice::PollMessages(MidiMessages *messages) {
   while (true) {
     MidiMessage message;
-    RETURN_IF_ERROR(socket_->GetMessage(&message));
+    try {
+      rtmidi_->getMessage(&message);
+    } catch (RtMidiError &error) {
+      RETURN_ERROR(StatusCode::INTERNAL_MIDI_ERROR,
+                   "Unable to get MIDI messages, port="
+                       << port_ << ", name=" << name_
+                       << ", error=" << error.what());
+    }
     if (message.empty()) {
       break;
     }
@@ -44,37 +43,14 @@ Status MidiDevice::PollMessages(MidiMessages *messages) {
     }
     messages->push_back(message);
   }
-
   return StatusCode::OK;
 }
 
 void MidiDevice::DumpMessage(const MidiMessage &msg) const {
   for (const auto &part : msg) {
-    LOG(INFO) << "MidiDevice name=" << name_ << " received event=" << std::hex
+    LOG(INFO) << "MidiDevice name=" << name_ << ", received event=" << std::hex
               << part;
   }
-}
-
-bool MidiRouter::HasDevice(const std::string &name) const {
-  return midi_devices_.find(name) != midi_devices_.end();
-}
-
-bool MidiRouter::RemoveDevice(const std::string &name) {
-  return midi_devices_.erase(name);
-}
-
-Status MidiRouter::RegisterDevice(const std::string &name,
-                                  std::unique_ptr<MidiDevice> device) {
-  if (HasDevice(name)) {
-    RETURN_ERROR(StatusCode::INTERNAL_MIDI_ERROR,
-                 "Can't register MIDI device, '" << name
-                                                 << "' is already registered");
-  }
-
-  midi_devices_[name] = std::move(device);
-  LOG(INFO) << "MIDI device '" << name << "' has been registered";
-
-  return StatusCode::OK;
 }
 
 Status MidiRouter::ProcessEvents() {
@@ -83,6 +59,35 @@ Status MidiRouter::ProcessEvents() {
     RETURN_IF_ERROR(kv.second->PollMessages(&messages));
     messages.clear();
   }
+  return StatusCode::OK;
+}
+
+Status MidiRouter::SyncDevices() {
+  bool continue_registering_devices = false;
+  do {
+    try {
+      std::unique_ptr<RtMidiIn> rtmidi = std::make_unique<RtMidiIn>();
+      for (int i = 0; i < rtmidi->getPortCount(); ++i) {
+        const std::string name = rtmidi->getPortName(i);
+        if (midi_devices_.find(name) != midi_devices_.end()) {
+          continue;
+        }
+        continue_registering_devices = true;
+        auto device = std::make_unique<MidiDevice>(std::move(rtmidi), name, i);
+        Status status = device->Init();
+        if (status == StatusCode::OK) {
+          midi_devices_[name] = std::move(device);
+          LOG(INFO) << "New MIDI device connected, name=" << name;
+        } else {
+          LOG(WARNING) << "Failed to connect MIDI device, name=" << name
+                       << ", status=" << status;
+        }
+      }
+    } catch (RtMidiError &error) {
+      RETURN_ERROR(StatusCode::INTERNAL_MIDI_ERROR,
+                   "Unable to initialize MIDI, error=" << error.what());
+    }
+  } while (continue_registering_devices);
   return StatusCode::OK;
 }
 

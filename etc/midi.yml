@@ -1,0 +1,6 @@
+# Midi profiles of synthesizer supported by Soir.
+
+devices:
+  - Sonic:
+      name: "Sonic Pi"
+      tag: "Sonic Pi"

@@ -4,6 +4,7 @@
 #include <SFML/Window.hpp>
 
 #include "config.h"
+#include "midi.h"
 #include "status.h"
 
 namespace soir {
@@ -27,7 +28,8 @@ private:
   Status InitWindow();
 
   std::unique_ptr<Config> core_config_;
-  std::unique_ptr<Config> midi_profiles_config_;
+  std::unique_ptr<Config> midi_config_;
+  std::unique_ptr<MidiRouter> midi_router_;
   std::unique_ptr<sf::Window> window_;
 };
 

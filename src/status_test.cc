@@ -37,13 +37,6 @@ TEST(StatusOr, Ko) {
   StatusOr<int> status(StatusCode::INTERNAL_ERROR);
 
   EXPECT_FALSE(status.Ok());
-  EXPECT_DEATH(status.ValueOrDie(), "");
-}
-
-TEST(StatusOr, Death) {
-  StatusOr<int> status;
-
-  EXPECT_DEATH(status.ValueOrDie(), "");
 }
 
 } // namespace

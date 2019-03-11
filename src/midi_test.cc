@@ -70,21 +70,12 @@ protected:
   std::unique_ptr<MidiRouter> router_;
 };
 
-TEST_F(MidiRouterTest, RegisterOk) {
-  EXPECT_FALSE(router_->HasDevice("electribe"));
-  EXPECT_EQ(router_->RegisterDevice("electribe", MakeDummyDevice("electribe")),
-            StatusCode::OK);
-  EXPECT_TRUE(router_->HasDevice("electribe"));
-  EXPECT_EQ(router_->RegisterDevice("electribe", MakeDummyDevice("electribe")),
-            StatusCode::INTERNAL_MIDI_ERROR);
+TEST_F(MidiRouterTest, RemoveOk) {
+  EXPECT_EQ(router_->ProcessEvents(), StatusCode::OK);
 }
 
-TEST_F(MidiRouterTest, RemoveOk) {
-  router_->RegisterDevice("electribe", MakeDummyDevice("electribe"));
-  router_->HasDevice("electribe");
-  EXPECT_TRUE(router_->RemoveDevice("electribe"));
-  EXPECT_FALSE(router_->HasDevice("electribe"));
-  EXPECT_FALSE(router_->RemoveDevice("electribe"));
+TEST_F(MidiRouterTest, SyncDevices) {
+  EXPECT_EQ(router_->SyncDevices(), StatusCode::OK);
 }
 
 } // namespace

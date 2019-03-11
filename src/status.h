@@ -83,8 +83,8 @@ Status &operator<<(Status &status, std::ostream &os);
 #define ASSIGN_OR_RETURN(what, expr)                                           \
   do {                                                                         \
     auto __status_or = expr;                                                   \
-    RETURN_IF_ERROR(__status_or.GetStatus());                                  \
     what = __status_or.ValueOrDie();                                           \
+    RETURN_IF_ERROR(__status_or.GetStatus());                                  \
   } while (false)
 
 // Similar but moves instead of assigning.
