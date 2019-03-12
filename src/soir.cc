@@ -44,7 +44,7 @@ Status Soir::InitWindow() {
 
   const bool is_fullscreen =
       core_config_->Get<bool>("core.fullscreen", kDefaultFullscreen);
-  unsigned int style = 0;
+  unsigned int style = sf::Style::Titlebar;
   if (is_fullscreen) {
     style |= sf::Style::Fullscreen;
   }
@@ -62,6 +62,7 @@ Status Soir::InitWindow() {
 Status Soir::Run() {
   while (window_->isOpen()) {
     midi_router_->SyncDevices();
+    midi_router_->ProcessEvents();
     sf::Event event;
     while (window_->pollEvent(event)) {
       if (event.type == sf::Event::Closed ||
