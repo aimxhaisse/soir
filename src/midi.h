@@ -95,6 +95,9 @@ private:
 
   // Map of MIDI device names to corresponding attached MIDI devices.
   std::unordered_map<std::string, std::unique_ptr<MidiDevice>> midi_devices_;
+
+  // Map of MIDI device to MIDI rules.
+  std::unordered_map<std::string, std::vector<MidiRule>> midi_rules_;
 };
 
 } // namespace soir

@@ -1,3 +1,4 @@
+#include <iomanip>
 #include <iostream>
 #include <map>
 
@@ -58,11 +59,12 @@ Status MidiDevice::PollMessages(MidiMessages *messages) {
   return StatusCode::OK;
 }
 
-void MidiDevice::DumpMessage(const MidiMessage &msg) const {
-  for (const auto &part : msg) {
-    LOG(INFO) << "MidiDevice name=" << name_ << ", received event=" << std::hex
-              << part;
-  }
+void MidiDevice::DumpMessage(const MidiMessage &message) const {
+  uint32_t msg = 0x00000000;
+  memcpy(&msg, message.data(), std::max(message.size(), sizeof(msg)));
+  LOG(INFO) << "MidiDevice name=" << name_ << ", received event=0x"
+            << std::setfill('0') << std::setw(8) << std::hex
+            << utils::SwapEndian(msg);
 }
 
 Status MidiRule::Init(const std::string &name, const std::string &filter) {
@@ -94,13 +96,29 @@ const std::string &MidiRule::Name() const { return name_; }
 Status MidiRouter::Init() {
   MOVE_OR_RETURN(midi_config_, Config::LoadFromPath(kMidiConfigPath));
 
-  // Register MIDI devices from config file.
   for (const auto &device : midi_config_->GetConfigs("devices")) {
     const std::string tag = device->Get<std::string>("tag");
     if (tag.empty()) {
       RETURN_ERROR(StatusCode::INVALID_CONFIG_FILE,
                    "Unable to find 'tag' for MIDI device (required)");
     }
+
+    const std::string name = device->Get<std::string>("name");
+    if (name.empty()) {
+      RETURN_ERROR(StatusCode::INVALID_CONFIG_FILE,
+                   "Unable to find 'name' for MIDI device (required)");
+    }
+
+    const std::map<std::string, std::string> rules =
+        device->Get<std::map<std::string, std::string>>("rules");
+    for (const auto &rule : rules) {
+      MidiRule r;
+      RETURN_IF_ERROR(r.Init(rule.first, rule.second));
+      midi_rules_[tag].push_back(r);
+      LOG(INFO) << "Registered MIDI rule for device=" << tag
+                << ", rule=" << rule.first;
+    }
+
     midi_configs_[tag] = std::make_unique<Config>(*device);
     LOG(INFO) << "Registered new MIDI device tag=" << tag;
   }
@@ -114,6 +132,14 @@ Status MidiRouter::ProcessEvents() {
   MidiMessages messages;
   for (auto &kv : midi_devices_) {
     RETURN_IF_ERROR(kv.second->PollMessages(&messages));
+    for (const auto &message : messages) {
+      for (const auto &rule : midi_rules_[kv.first]) {
+        if (rule.Matches(message)) {
+          LOG(INFO) << "Matching MIDI rule for device=" << kv.first
+                    << ", rule=" << rule.Name();
+        }
+      }
+    }
     messages.clear();
   }
   return StatusCode::OK;
