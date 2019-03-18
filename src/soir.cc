@@ -7,9 +7,6 @@ namespace soir {
 // Relative path to the core configuration file.
 constexpr const char *kCoreConfigPath = "etc/soir.yml";
 
-// Relative path to the midi profiles configuration file.
-constexpr const char *kMidiConfigPath = "etc/midi.yml";
-
 // Default width for the window -- core.width
 constexpr const int kDefaultWidth = 400;
 
@@ -27,9 +24,10 @@ constexpr bool kDefaultFullscreen = false;
 
 Status Soir::Init() {
   MOVE_OR_RETURN(core_config_, Config::LoadFromPath(kCoreConfigPath));
-  MOVE_OR_RETURN(midi_config_, Config::LoadFromPath(kMidiConfigPath));
 
   midi_router_ = std::make_unique<MidiRouter>();
+
+  RETURN_IF_ERROR(midi_router_->Init());
 
   RETURN_IF_ERROR(InitWindow());
 
@@ -61,7 +59,6 @@ Status Soir::InitWindow() {
 
 Status Soir::Run() {
   while (window_->isOpen()) {
-    midi_router_->SyncDevices();
     midi_router_->ProcessEvents();
     sf::Event event;
     while (window_->pollEvent(event)) {

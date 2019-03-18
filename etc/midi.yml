@@ -1,6 +1,5 @@
 # Midi profiles of synthesizer supported by Soir.
 
 devices:
-  - Sonic:
-      name: "Sonic Pi"
-      tag: "Sonic Pi"
+  - name: "Digitakt"
+    tag: "Digitakt Elektron MIDI"

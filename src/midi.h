@@ -7,6 +7,7 @@
 
 #include <RtMidi.h>
 
+#include "config.h"
 #include "status.h"
 
 namespace soir {
@@ -46,15 +47,25 @@ private:
 // convert them to a MidiEvent, and route those to interested mods.
 class MidiRouter {
 public:
+  // Initializes the MIDI router.
+  Status Init();
+
   // Poll MIDI messages from all known MIDI devices, if a MIDI device
   // returns an error (disconnected), it is removed from the list of map
   // of devices.
   Status ProcessEvents();
 
+private:
   // Synchronizes connected MIDI devices.
   Status SyncDevices();
 
-private:
+  // Main MIDI config file, contains specific device profiles.
+  std::unique_ptr<Config> midi_config_;
+
+  // Map of configurations of MIDI devices, this is static and
+  // initialized at startup.
+  std::unordered_map<std::string, std::unique_ptr<Config>> midi_configs_;
+
   // Map of MIDI device names to corresponding attached MIDI devices.
   std::unordered_map<std::string, std::unique_ptr<MidiDevice>> midi_devices_;
 };

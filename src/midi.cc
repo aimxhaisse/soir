@@ -7,6 +7,9 @@
 
 namespace soir {
 
+// Relative path to the midi profiles configuration file.
+constexpr const char *kMidiConfigPath = "etc/midi.yml";
+
 MidiDevice::MidiDevice(const std::string &name, int port)
     : name_(name), port_(port) {}
 
@@ -54,6 +57,25 @@ void MidiDevice::DumpMessage(const MidiMessage &msg) const {
   }
 }
 
+Status MidiRouter::Init() {
+  MOVE_OR_RETURN(midi_config_, Config::LoadFromPath(kMidiConfigPath));
+
+  // Register MIDI devices from config file.
+  for (const auto &device : midi_config_->GetConfigs("devices")) {
+    const std::string tag = device->Get<std::string>("tag");
+    if (tag.empty()) {
+      RETURN_ERROR(StatusCode::INVALID_CONFIG_FILE,
+                   "Unable to find 'tag' for MIDI device (required)");
+    }
+    midi_configs_[tag] = std::make_unique<Config>(*device);
+    LOG(INFO) << "Registered new MIDI device tag=" << tag;
+  }
+
+  RETURN_IF_ERROR(SyncDevices());
+
+  return StatusCode::OK;
+}
+
 Status MidiRouter::ProcessEvents() {
   MidiMessages messages;
   for (auto &kv : midi_devices_) {
@@ -76,6 +98,11 @@ Status MidiRouter::SyncDevices() {
     const std::string &name = it.first;
     const int port = it.second;
     if (midi_devices_.find(name) != midi_devices_.end()) {
+      continue;
+    }
+    if (midi_configs_.find(name) == midi_configs_.end()) {
+      LOG(INFO) << "Ignored connected MIDI device name=" << name
+                << " (unknown device)";
       continue;
     }
     auto device = std::make_unique<MidiDevice>(name, port);
