@@ -1,6 +1,7 @@
 #ifndef SOIR_MIDI_H
 #define SOIR_MIDI_H
 
+#include <cstdint>
 #include <unordered_map>
 #include <utility>
 #include <vector>
@@ -41,6 +42,37 @@ private:
   const std::string name_;
   const int port_;
   bool debugging_;
+};
+
+// Represents a MIDI rule. This is a simplification (at least for
+// now), we only support MIDI messages up to 4 bytes (this allows
+// simple matches). 8 bytes would be a simple move but it makes
+// writing rules more verbose.
+//
+// This representation is similar to networking. For instance, to
+// match MIDI events "note on channel 9", you want to select the
+// first byte so the mask is 0xFF000000, you want it on channel 0x08
+// for event type 0x90, so the rule is 0xFF000000/0x98000000.
+class MidiRule {
+public:
+  // Initializes the rule, returns an error if the filter is not valid.
+  Status Init(const std::string &name, const std::string &filter);
+
+  // Whether or not this rule matches the incoming MIDI message.
+  bool Matches(const MidiMessage &message) const;
+
+  // Name of the rule.
+  const std::string &Name() const;
+
+private:
+  // Mask of the rule.
+  uint32_t mask_;
+
+  // Value to match.
+  uint32_t value_;
+
+  // Name of the rule.
+  std::string name_;
 };
 
 // MidiRouter scans available MIDI devices, polls events from those,

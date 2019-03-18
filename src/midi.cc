@@ -4,6 +4,7 @@
 #include <glog/logging.h>
 
 #include "midi.h"
+#include "utils.h"
 
 namespace soir {
 
@@ -56,6 +57,32 @@ void MidiDevice::DumpMessage(const MidiMessage &msg) const {
               << part;
   }
 }
+
+Status MidiRule::Init(const std::string &name, const std::string &filter) {
+  const std::vector<std::string> parts = utils::StringSplit(filter, '/');
+  if (parts.size() != 2) {
+    RETURN_ERROR(StatusCode::INVALID_CONFIG_FILE,
+                 "Invalid MIDI rule: filter does not follow X/Y format, filter="
+                     << filter);
+  }
+
+  mask_ = utils::SwapEndian(std::strtoul(parts[0].c_str(), 0, 16));
+  value_ = utils::SwapEndian(std::strtoul(parts[1].c_str(), 0, 16));
+
+  name_ = name;
+
+  return StatusCode::OK;
+}
+
+bool MidiRule::Matches(const MidiMessage &message) const {
+  // Kind-of hackish but efficient way to match a midi message against
+  // a midi event.
+  uint32_t msg = 0x00000000;
+  memcpy(&msg, message.data(), std::max(message.size(), sizeof(msg)));
+  return ((msg & mask_) == value_);
+}
+
+const std::string &MidiRule::Name() const { return name_; }
 
 Status MidiRouter::Init() {
   MOVE_OR_RETURN(midi_config_, Config::LoadFromPath(kMidiConfigPath));
