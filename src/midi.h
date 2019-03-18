@@ -65,13 +65,8 @@ public:
   const std::string &Name() const;
 
 private:
-  // Mask of the rule.
   uint32_t mask_;
-
-  // Value to match.
   uint32_t value_;
-
-  // Name of the rule.
   std::string name_;
 };
 

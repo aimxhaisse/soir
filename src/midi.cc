@@ -8,8 +8,15 @@
 
 namespace soir {
 
+namespace {
+
 // Relative path to the midi profiles configuration file.
 constexpr const char *kMidiConfigPath = "etc/midi.yml";
+
+// Default value for device debugging -- devices.<x>.debug
+constexpr const bool kDefaultDebugDevice = false;
+
+} // namespace
 
 MidiDevice::MidiDevice(const std::string &name, int port)
     : name_(name), port_(port) {}
@@ -127,17 +134,28 @@ Status MidiRouter::SyncDevices() {
     if (midi_devices_.find(name) != midi_devices_.end()) {
       continue;
     }
-    if (midi_configs_.find(name) == midi_configs_.end()) {
+
+    auto config_it = midi_configs_.find(name);
+    if (config_it == midi_configs_.end()) {
       LOG(INFO) << "Ignored connected MIDI device name=" << name
                 << " (unknown device)";
       continue;
     }
+
     auto device = std::make_unique<MidiDevice>(name, port);
     Status status = device->Init();
-    if (status == StatusCode::OK) {
-      LOG(INFO) << "New MIDI device connected, name=" << name;
-      midi_devices_[name] = std::move(device);
+
+    if (status != StatusCode::OK) {
+      LOG(WARNING) << "Failed to connect MIDI device, name=" << name
+                   << ", status=" << status;
+      continue;
     }
+
+    const Config &config = *config_it->second;
+    device->SetDebugging(config.Get<bool>("debug", kDefaultDebugDevice));
+
+    LOG(INFO) << "New MIDI device connected, name=" << name;
+    midi_devices_[name] = std::move(device);
   }
 
   // Second pass, delete disconnected devices.

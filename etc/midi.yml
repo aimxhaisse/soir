@@ -1,5 +1,6 @@
 # Midi profiles of synthesizer supported by Soir.
 
 devices:
-  - name: "Digitakt"
+  - name: "digitakt"
     tag: "Digitakt Elektron MIDI"
+    debug: true
