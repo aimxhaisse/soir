@@ -17,6 +17,9 @@ constexpr const char *kMidiConfigPath = "etc/midi.yml";
 // Default value for device debugging -- devices.<x>.debug
 constexpr const bool kDefaultDebugDevice = false;
 
+// MIDI event type for note one.
+constexpr const char *kMidiEventNoteOn = "note_on";
+
 } // namespace
 
 MidiDevice::MidiDevice(const std::string &name, int port)
@@ -67,28 +70,56 @@ void MidiDevice::DumpMessage(const MidiMessage &message) const {
             << utils::SwapEndian(msg);
 }
 
-Status MidiRule::Init(const std::string &name, const std::string &filter) {
-  const std::vector<std::string> parts = utils::StringSplit(filter, '/');
-  if (parts.size() != 2) {
+Status MidiRule::Init(const Config &config) {
+  const std::string name = config.Get<std::string>("name");
+  if (name.empty()) {
     RETURN_ERROR(StatusCode::INVALID_CONFIG_FILE,
-                 "Invalid MIDI rule: filter does not follow X/Y format, filter="
-                     << filter);
+                 "No name found for MIDI rule (required)");
+  }
+  name_ = name;
+
+  const std::string type = config.Get<std::string>("type");
+  if (type == kMidiEventNoteOn) {
+    type_ = NOTE_ON;
+  } else {
+    type_ = NONE;
   }
 
-  mask_ = utils::SwapEndian(std::strtoul(parts[0].c_str(), 0, 16));
-  value_ = utils::SwapEndian(std::strtoul(parts[1].c_str(), 0, 16));
-
-  name_ = name;
+  const uint32_t channel = config.Get<uint32_t>("channel");
+  if (channel) {
+    channel_ = channel;
+  }
 
   return StatusCode::OK;
 }
 
 bool MidiRule::Matches(const MidiMessage &message) const {
-  // Kind-of hackish but efficient way to match a midi message against
-  // a midi event.
   uint32_t msg = 0x00000000;
   memcpy(&msg, message.data(), std::max(message.size(), sizeof(msg)));
-  return ((msg & mask_) == value_);
+  msg = utils::SwapEndian(msg);
+
+  const uint8_t status = message[0];
+
+  if (type_) {
+    if (*type_ == EventType::NOTE_ON) {
+      // Somehow, MIDI specs define 'note off' as a 'note on' with a
+      // velocity of 0, so we need to exclude it from this.
+      const bool is_note_on = (status & 0xF0) == 0x90;
+      const bool has_velocity = (msg & 0x0000FF00) != 0;
+      if (!(is_note_on && has_velocity)) {
+        return false;
+      }
+    }
+  }
+
+  if (channel_) {
+    const uint8_t chan = status & 0x0F;
+    if (!(chan == *channel_)) {
+      return false;
+    }
+  }
+
+  return true;
 }
 
 const std::string &MidiRule::Name() const { return name_; }
@@ -109,14 +140,14 @@ Status MidiRouter::Init() {
                    "Unable to find 'name' for MIDI device (required)");
     }
 
-    const std::map<std::string, std::string> rules =
-        device->Get<std::map<std::string, std::string>>("rules");
+    const std::vector<std::unique_ptr<Config>> rules =
+        device->GetConfigs("rules");
     for (const auto &rule : rules) {
       MidiRule r;
-      RETURN_IF_ERROR(r.Init(rule.first, rule.second));
+      RETURN_IF_ERROR(r.Init(*rule));
       midi_rules_[tag].push_back(r);
       LOG(INFO) << "Registered MIDI rule for device=" << tag
-                << ", rule=" << rule.first;
+                << ", rule=" << r.Name();
     }
 
     midi_configs_[tag] = std::make_unique<Config>(*device);
