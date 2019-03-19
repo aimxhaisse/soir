@@ -11,3 +11,21 @@ devices:
       - name: "snare"
         type: "note_on"
         channel: 1
+      - name: "tom"
+        type: "note_on"
+        channel: 2
+      - name: "clap"
+        type: "note_on"
+        channel: 3
+      - name: "cowbell"
+        type: "note_on"
+        channel: 4
+      - name: "closed_hat"
+        type: "note_on"
+        channel: 5
+      - name: "open_hat"
+        type: "note_on"
+        channel: 6
+      - name: "cymbal"
+        type: "note_on"
+        channel: 7
