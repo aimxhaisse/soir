@@ -85,8 +85,8 @@ Status MidiRule::Init(const Config &config) {
     type_ = NONE;
   }
 
-  const uint32_t channel = config.Get<uint32_t>("channel");
-  if (channel) {
+  const int channel = config.Get<int>("channel", -1);
+  if (channel != -1) {
     channel_ = channel;
   }
 
@@ -100,23 +100,19 @@ bool MidiRule::Matches(const MidiMessage &message) const {
 
   const uint8_t status = message[0];
 
-  if (type_) {
-    if (*type_ == EventType::NOTE_ON) {
-      // Somehow, MIDI specs define 'note off' as a 'note on' with a
-      // velocity of 0, so we need to exclude it from this.
-      const bool is_note_on = (status & 0xF0) == 0x90;
-      const bool has_velocity = (msg & 0x0000FF00) != 0;
-      if (!(is_note_on && has_velocity)) {
-        return false;
-      }
+  if (type_ && *type_ == EventType::NOTE_ON) {
+    // Somehow, MIDI specs define 'note off' as a 'note on' with a
+    // velocity of 0, so we need to exclude it from this.
+    const bool is_note_on = (status & 0xF0) == 0x90;
+    const bool has_velocity = (msg & 0x0000FF00) != 0;
+    if (!(is_note_on && has_velocity)) {
+      return false;
     }
   }
 
-  if (channel_) {
-    const uint8_t chan = status & 0x0F;
-    if (!(chan == *channel_)) {
-      return false;
-    }
+  const uint8_t chan = status & 0x0F;
+  if (channel_ && !(*channel_ == chan)) {
+    return false;
   }
 
   return true;
