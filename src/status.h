@@ -14,6 +14,7 @@ enum StatusCode {
   INVALID_CONFIG_FILE,
   INTERNAL_MIDI_ERROR,
   INTERNAL_ERROR,
+  UNKNOWN_MOD_TYPE,
 };
 
 // Helper class to wrap status codes and attach messages to it. This

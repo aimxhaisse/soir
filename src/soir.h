@@ -11,16 +11,10 @@ namespace soir {
 
 class Soir {
 public:
-  // Initializes Soir:
-  //
-  // - loads configuration file,
-  // - sets up the window.
+  // Initializes Soir.
   Status Init();
 
-  // Main loop of Soir:
-  //
-  // - polls MIDI events,
-  // - refreshes the screen.
+  // Main loop of Soir.
   Status Run();
 
 private:

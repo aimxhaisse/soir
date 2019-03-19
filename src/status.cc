@@ -46,6 +46,9 @@ std::ostream &operator<<(std::ostream &os, const Status &status) {
   case INTERNAL_ERROR:
     str_code = "INTERNAL_ERROR";
     break;
+  case UNKNOWN_MOD_TYPE:
+    str_code = "UNKNOWN_MOD_TYPE";
+    break;
   default:
     str_code = "UNKNOWN";
     break;
