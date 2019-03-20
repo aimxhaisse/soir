@@ -9,18 +9,14 @@
 
 namespace soir {
 
-// Abstract class to represent a mod.
 class Mod {
 public:
   virtual ~Mod() {}
-
-  // Factory method to create a mod from a specific type.
-  static StatusOr<std::unique_ptr<Mod>> MakeMod(const std::string &type);
-
   virtual Status Init(const Config &config) = 0;
+
+  static StatusOr<std::unique_ptr<Mod>> MakeMod(const std::string &type);
 };
 
-// List of mods sequentially called to modify a graphic layer.
 class Layer {
 public:
   void AppendMod(std::unique_ptr<Mod> mod);
@@ -29,8 +25,12 @@ private:
   std::vector<std::unique_ptr<Mod>> mods_;
 };
 
-// Sandbox for now, to be moved to a dedicated mod directory.
 class ModText : public Mod {
+public:
+  Status Init(const Config &config);
+};
+
+class ModDebug : public Mod {
 public:
   Status Init(const Config &config);
 };
