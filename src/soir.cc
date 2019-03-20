@@ -69,7 +69,7 @@ Status Soir::InitMods() {
       std::unique_ptr<Mod> mod;
       MOVE_OR_RETURN(mod, Mod::MakeMod(mod_type));
       RETURN_IF_ERROR(mod->Init(*mod_config));
-      layer->emplace_back(std::move(mod));
+      layer->AppendMod(std::move(mod));
     }
     layers_.emplace_back(std::move(layer));
   }

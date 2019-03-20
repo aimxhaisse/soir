@@ -20,13 +20,20 @@ public:
   virtual Status Init(const Config &config) = 0;
 };
 
+// List of mods sequentially called to modify a graphic layer.
+class Layer {
+public:
+  void AppendMod(std::unique_ptr<Mod> mod);
+
+private:
+  std::vector<std::unique_ptr<Mod>> mods_;
+};
+
 // Sandbox for now, to be moved to a dedicated mod directory.
 class ModText : public Mod {
 public:
   Status Init(const Config &config);
 };
-
-using Layer = std::vector<std::unique_ptr<Mod>>;
 
 } // namespace soir
 

@@ -6,8 +6,8 @@
 #include <SFML/Window.hpp>
 
 #include "config.h"
+#include "gfx.h"
 #include "midi.h"
-#include "mod.h"
 #include "status.h"
 
 namespace soir {
