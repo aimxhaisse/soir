@@ -76,6 +76,7 @@ Status Soir::InitMods() {
 Status Soir::Run() {
   while (window_->isOpen()) {
     midi_router_->ProcessEvents();
+
     sf::Event event;
     while (window_->pollEvent(event)) {
       if (event.type == sf::Event::Closed ||
@@ -84,6 +85,12 @@ Status Soir::Run() {
         window_->close();
       }
     }
+
+    window_->clear(sf::Color::Black);
+    for (auto &layer : layers_) {
+      layer->Render(*window_.get());
+    }
+    window_->display();
   }
 
   return StatusCode::OK;

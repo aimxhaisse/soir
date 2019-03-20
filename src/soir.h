@@ -25,7 +25,7 @@ private:
   std::unique_ptr<Config> mods_config_;
   std::vector<std::unique_ptr<Layer>> layers_;
   std::unique_ptr<MidiRouter> midi_router_;
-  std::unique_ptr<sf::Window> window_;
+  std::unique_ptr<sf::RenderWindow> window_;
 };
 
 } // namespace soir

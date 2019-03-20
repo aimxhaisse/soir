@@ -49,6 +49,9 @@ std::ostream &operator<<(std::ostream &os, const Status &status) {
   case UNKNOWN_MOD_TYPE:
     str_code = "UNKNOWN_MOD_TYPE";
     break;
+  case INVALID_FONT_FILE:
+    str_code = "INVALID_FONT_FILE";
+    break;
   default:
     str_code = "UNKNOWN";
     break;

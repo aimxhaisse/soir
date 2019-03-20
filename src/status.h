@@ -14,6 +14,7 @@ enum StatusCode {
   INTERNAL_MIDI_ERROR,
   INTERNAL_ERROR,
   UNKNOWN_MOD_TYPE,
+  INVALID_FONT_FILE,
 };
 
 class Status {
