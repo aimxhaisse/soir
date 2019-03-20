@@ -8,7 +8,6 @@
 
 namespace soir {
 
-// List of all status code available in Soir.
 enum StatusCode {
   OK = 0,
   INVALID_CONFIG_FILE,
@@ -17,9 +16,6 @@ enum StatusCode {
   UNKNOWN_MOD_TYPE,
 };
 
-// Helper class to wrap status codes and attach messages to it. This
-// is meant to be used everywhere we need to possibly return an error.
-// This class is inspired from protobuf's status interface.
 class Status {
 public:
   Status();
@@ -40,8 +36,6 @@ private:
   std::string message_;
 };
 
-// Helper class to attach an object to a Status. The object is valid
-// only if the status code is OK.
 template <typename T> class StatusOr {
 public:
   StatusOr() : status_(StatusCode::INTERNAL_ERROR), value_() {}
@@ -52,10 +46,8 @@ public:
 
   const Status &GetStatus() const { return status_; }
 
-  // Whether or not the status is OK.
   bool Ok() const { return status_ == StatusCode::OK; }
 
-  // This will crash if the status is not OK.
   T &ValueOrDie() {
     assert(status_ == StatusCode::OK);
     return value_;
@@ -66,13 +58,10 @@ private:
   T value_;
 };
 
-// Nicely prints a status to a stream.
 std::ostream &operator<<(std::ostream &os, const Status &status);
 
-// Feed the status message with a stream.
 Status &operator<<(Status &status, std::ostream &os);
 
-// Helper to immediately return if status is not OK.
 #define RETURN_IF_ERROR(status)                                                \
   do {                                                                         \
     if (status != StatusCode::OK) {                                            \
@@ -80,7 +69,6 @@ Status &operator<<(Status &status, std::ostream &os);
     }                                                                          \
   } while (false)
 
-// Similar but assigns the value otherwise.
 #define ASSIGN_OR_RETURN(what, expr)                                           \
   do {                                                                         \
     auto __status_or = expr;                                                   \
@@ -88,7 +76,6 @@ Status &operator<<(Status &status, std::ostream &os);
     RETURN_IF_ERROR(__status_or.GetStatus());                                  \
   } while (false)
 
-// Similar but moves instead of assigning.
 #define MOVE_OR_RETURN(what, expr)                                             \
   do {                                                                         \
     auto __status_or = expr;                                                   \
@@ -96,7 +83,6 @@ Status &operator<<(Status &status, std::ostream &os);
     what = std::move(__status_or.ValueOrDie());                                \
   } while (false)
 
-// Makes an error status with
 #define RETURN_ERROR(code, what)                                               \
   do {                                                                         \
     std::stringstream message;                                                 \

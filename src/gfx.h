@@ -13,7 +13,6 @@ class Mod {
 public:
   virtual ~Mod() {}
   virtual Status Init(const Config &config) = 0;
-
   static StatusOr<std::unique_ptr<Mod>> MakeMod(const std::string &type);
 };
 

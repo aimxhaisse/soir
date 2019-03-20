@@ -4,10 +4,7 @@
 
 namespace soir {
 
-// Relative path to the core configuration file.
 constexpr const char *kCoreConfigPath = "etc/soir.yml";
-
-// Relative path to the mods configuration file.
 constexpr const char *kModsConfigPath = "etc/mods.yml";
 
 // Default width for the window -- core.width

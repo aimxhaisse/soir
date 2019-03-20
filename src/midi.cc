@@ -11,14 +11,12 @@ namespace soir {
 
 namespace {
 
-// Relative path to the midi profiles configuration file.
 constexpr const char *kMidiConfigPath = "etc/midi.yml";
+
+constexpr const char *kMidiEventNoteOn = "note_on";
 
 // Default value for device debugging -- devices.<x>.debug
 constexpr const bool kDefaultDebugDevice = false;
-
-// MIDI event type for note one.
-constexpr const char *kMidiEventNoteOn = "note_on";
 
 } // namespace
 
