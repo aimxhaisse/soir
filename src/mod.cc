@@ -2,7 +2,7 @@
 
 namespace soir {
 
-StatusOr<std::unique_ptr<Mod>> MakeMod(const std::string &type) {
+StatusOr<std::unique_ptr<Mod>> Mod::MakeMod(const std::string &type) {
   if (type == "text") {
     return {std::make_unique<ModText>()};
   }

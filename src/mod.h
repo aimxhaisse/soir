@@ -26,6 +26,8 @@ public:
   Status Init(const Config &config);
 };
 
+using Layer = std::vector<std::unique_ptr<Mod>>;
+
 } // namespace soir
 
 #endif // SOIR_MOD_H

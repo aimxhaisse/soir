@@ -7,6 +7,9 @@ namespace soir {
 // Relative path to the core configuration file.
 constexpr const char *kCoreConfigPath = "etc/soir.yml";
 
+// Relative path to the mods configuration file.
+constexpr const char *kModsConfigPath = "etc/mods.yml";
+
 // Default width for the window -- core.width
 constexpr const int kDefaultWidth = 400;
 
@@ -24,12 +27,13 @@ constexpr bool kDefaultFullscreen = false;
 
 Status Soir::Init() {
   MOVE_OR_RETURN(core_config_, Config::LoadFromPath(kCoreConfigPath));
+  MOVE_OR_RETURN(mods_config_, Config::LoadFromPath(kModsConfigPath));
 
   midi_router_ = std::make_unique<MidiRouter>();
 
   RETURN_IF_ERROR(midi_router_->Init());
-
   RETURN_IF_ERROR(InitWindow());
+  RETURN_IF_ERROR(InitMods());
 
   return StatusCode::OK;
 }
@@ -54,6 +58,21 @@ Status Soir::InitWindow() {
   window_->setFramerateLimit(
       core_config_->Get<int>("core.fps_max", kDefaultFpsMax));
 
+  return StatusCode::OK;
+}
+
+Status Soir::InitMods() {
+  for (const auto &layers_config : mods_config_->GetConfigs("root")) {
+    std::unique_ptr<Layer> layer = std::make_unique<Layer>();
+    for (const auto &mod_config : layers_config->GetConfigs("units")) {
+      const std::string mod_type = mod_config->Get<std::string>("type");
+      std::unique_ptr<Mod> mod;
+      MOVE_OR_RETURN(mod, Mod::MakeMod(mod_type));
+      RETURN_IF_ERROR(mod->Init(*mod_config));
+      layer->emplace_back(std::move(mod));
+    }
+    layers_.emplace_back(std::move(layer));
+  }
   return StatusCode::OK;
 }
 

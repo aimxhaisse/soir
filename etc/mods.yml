@@ -6,6 +6,5 @@ root:
         params:
           text: "S O I R"
           position: center
-      - type: flicker
   - units:
       - type: debug
