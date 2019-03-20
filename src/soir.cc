@@ -51,8 +51,8 @@ Status Soir::InitWindow() {
     style |= sf::Style::Fullscreen;
   }
 
-  window_ =
-      std::make_unique<sf::Window>(sf::VideoMode(width, height), title, style);
+  window_ = std::make_unique<sf::RenderWindow>(sf::VideoMode(width, height),
+                                               title, style);
 
   window_->setVerticalSyncEnabled(true);
   window_->setFramerateLimit(

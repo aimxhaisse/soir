@@ -3,7 +3,7 @@
 
 #include <vector>
 
-#include <SFML/Window.hpp>
+#include <SFML/Graphics.hpp>
 
 #include "config.h"
 #include "gfx.h"
