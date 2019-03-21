@@ -28,22 +28,6 @@ private:
   std::vector<std::unique_ptr<Mod>> mods_;
 };
 
-class ModText : public Mod {
-public:
-  Status Init(const Config &config);
-  void Render(sf::RenderWindow &window);
-
-private:
-  sf::Font font_;
-  sf::Text text_;
-};
-
-class ModDebug : public Mod {
-public:
-  Status Init(const Config &config);
-  void Render(sf::RenderWindow &window);
-};
-
 } // namespace soir
 
 #endif // SOIR_MOD_H
