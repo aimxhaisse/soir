@@ -11,18 +11,20 @@
 
 namespace soir {
 
+class Context;
+
 class Mod {
 public:
   virtual ~Mod() {}
-  virtual Status Init(const Config &config) = 0;
-  virtual void Render(sf::RenderWindow &window) = 0;
+  virtual Status Init(Context &ctx, const Config &config) = 0;
+  virtual void Render(Context &ctx) = 0;
   static StatusOr<std::unique_ptr<Mod>> MakeMod(const std::string &type);
 };
 
 class Layer {
 public:
   void AppendMod(std::unique_ptr<Mod> mod);
-  void Render(sf::RenderWindow &window);
+  void Render(Context &ctx);
 
 private:
   std::vector<std::unique_ptr<Mod>> mods_;

@@ -1,8 +1,9 @@
 #include "mods/text.h"
+#include "soir.h"
 
 namespace soir {
 
-Status ModText::Init(const Config &config) {
+Status ModText::Init(Context &ctx, const Config &config) {
   constexpr const char *font_file = "etc/fonts/pixel-operator.ttf";
   if (!font_.loadFromFile(font_file)) {
     RETURN_ERROR(StatusCode::INVALID_FONT_FILE,
@@ -19,6 +20,6 @@ Status ModText::Init(const Config &config) {
   return StatusCode::OK;
 }
 
-void ModText::Render(sf::RenderWindow &window) { window.draw(text_); }
+void ModText::Render(Context &ctx) { ctx.window->draw(text_); }
 
 } // namespace soir

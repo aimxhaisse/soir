@@ -1,6 +1,7 @@
 #include "gfx.h"
 #include "mods/debug.h"
 #include "mods/text.h"
+#include "soir.h"
 
 namespace soir {
 
@@ -20,9 +21,9 @@ void Layer::AppendMod(std::unique_ptr<Mod> mod) {
   mods_.emplace_back(std::move(mod));
 }
 
-void Layer::Render(sf::RenderWindow &window) {
+void Layer::Render(Context &ctx) {
   for (auto &mod : mods_) {
-    mod->Render(window);
+    mod->Render(ctx);
   }
 }
 

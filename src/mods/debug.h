@@ -7,8 +7,8 @@ namespace soir {
 
 class ModDebug : public Mod {
 public:
-  Status Init(const Config &config);
-  void Render(sf::RenderWindow &window);
+  Status Init(Context &ctx, const Config &config);
+  void Render(Context &ctx);
 };
 
 } // namespace soir
