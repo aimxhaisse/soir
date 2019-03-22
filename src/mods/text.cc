@@ -20,6 +20,6 @@ Status ModText::Init(Context &ctx, const Config &config) {
   return StatusCode::OK;
 }
 
-void ModText::Render(Context &ctx) { ctx.window->draw(text_); }
+void ModText::Render(Context &ctx) { ctx.Window()->draw(text_); }
 
 } // namespace soir

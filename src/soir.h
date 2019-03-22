@@ -12,10 +12,18 @@
 
 namespace soir {
 
+class Soir;
+
 class Context {
+  friend class Soir;
+
 public:
-  Config *core_config = nullptr;
-  sf::RenderWindow *window = nullptr;
+  Config *CoreConfig();
+  sf::RenderWindow *Window();
+
+private:
+  Config *core_config_ = nullptr;
+  sf::RenderWindow *window_ = nullptr;
 };
 
 class Soir {

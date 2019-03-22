@@ -22,6 +22,10 @@ constexpr const char *kDefaultTitle = "Soir ~";
 // Default for fullscreen mode -- core.fullscreen
 constexpr bool kDefaultFullscreen = false;
 
+Config *Context::CoreConfig() { return core_config_; }
+
+sf::RenderWindow *Context::Window() { return window_; }
+
 Status Soir::Init() {
   MOVE_OR_RETURN(core_config_, Config::LoadFromPath(kCoreConfigPath));
   MOVE_OR_RETURN(mods_config_, Config::LoadFromPath(kModsConfigPath));
@@ -31,8 +35,8 @@ Status Soir::Init() {
   RETURN_IF_ERROR(midi_router_->Init());
   RETURN_IF_ERROR(InitWindow());
 
-  context_.core_config = core_config_.get();
-  context_.window = window_.get();
+  context_.core_config_ = core_config_.get();
+  context_.window_ = window_.get();
 
   RETURN_IF_ERROR(InitMods());
 
