@@ -9,15 +9,13 @@
 
 #include <RtMidi.h>
 
+#include "common.h"
 #include "config.h"
 #include "status.h"
 
 namespace soir {
 
 class Callback;
-
-using MidiMessages = std::vector<MidiMessage>;
-using MidiMnemo = std::string;
 
 class MidiDevice {
 public:
@@ -56,7 +54,7 @@ private:
 class MidiRouter {
 public:
   Status Init();
-  Status BindCallback(const std::string &mnemo, const Callback &cb);
+  Status BindCallback(const MidiMnemo &mnemo, const Callback &cb);
   Status ClearCallback(const Callback &callback);
   Status ProcessEvents();
 
@@ -67,7 +65,7 @@ private:
   std::unordered_map<std::string, std::unique_ptr<Config>> midi_configs_;
   std::unordered_map<std::string, std::unique_ptr<MidiDevice>> midi_devices_;
   std::unordered_map<std::string, std::vector<MidiRule>> midi_rules_;
-  std::unordered_map<std::string, std::vector<Callback>> midi_bindings_;
+  std::unordered_map<MidiMnemo, std::vector<Callback>> midi_bindings_;
 };
 
 } // namespace soir

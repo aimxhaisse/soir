@@ -155,7 +155,7 @@ Status MidiRouter::Init() {
   return StatusCode::OK;
 }
 
-Status MidiRouter::BindCallback(const std::string &mnemo, const Callback &cb) {
+Status MidiRouter::BindCallback(const MidiMnemo &mnemo, const Callback &cb) {
   midi_bindings_[mnemo].push_back(cb);
 
   return StatusCode::OK;

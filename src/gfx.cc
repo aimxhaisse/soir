@@ -20,7 +20,7 @@ Mod::~Mod() {
   }
 }
 
-Status Mod::BindCallback(const std::string &mnemo, const Callback &cb) {
+Status Mod::BindCallback(const MidiMnemo &mnemo, const Callback &cb) {
   const Status status = ctx_.Router()->BindCallback(mnemo, cb);
 
   if (status == StatusCode::OK) {

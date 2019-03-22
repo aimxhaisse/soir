@@ -38,10 +38,13 @@ private:
   Status InitWindow();
   Status InitMods();
 
+  // Order is important here, layers need to be destroyed prior MIDI
+  // router and context.
+  std::vector<std::unique_ptr<Layer>> layers_;
+
   Context ctx_;
   std::unique_ptr<Config> core_config_;
   std::unique_ptr<Config> mods_config_;
-  std::vector<std::unique_ptr<Layer>> layers_;
   std::unique_ptr<sf::RenderWindow> window_;
   std::unique_ptr<MidiRouter> midi_router_;
 };

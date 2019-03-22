@@ -6,12 +6,11 @@
 
 #include <SFML/Graphics.hpp>
 
+#include "common.h"
 #include "config.h"
 #include "status.h"
 
 namespace soir {
-
-using MidiMessage = std::vector<unsigned char>;
 
 class Context;
 
@@ -38,7 +37,7 @@ public:
   // This can be called in the Init() to register a callback that will
   // be triggered upon the given MIDI mnemo. Once the Init() is done,
   // the callback may start firing.
-  Status BindCallback(const std::string &mnemo, const Callback &cb);
+  Status BindCallback(const MidiMnemo &mnemo, const Callback &cb);
 
   virtual Status Init(const Config &config) { return StatusCode::OK; }
   virtual void Render() {}
