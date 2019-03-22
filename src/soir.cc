@@ -26,6 +26,8 @@ Config *Context::CoreConfig() { return core_config_; }
 
 sf::RenderWindow *Context::Window() { return window_; }
 
+MidiRouter *Context::Router() { return midi_router_; }
+
 Status Soir::Init() {
   MOVE_OR_RETURN(core_config_, Config::LoadFromPath(kCoreConfigPath));
   MOVE_OR_RETURN(mods_config_, Config::LoadFromPath(kModsConfigPath));
@@ -35,8 +37,9 @@ Status Soir::Init() {
   RETURN_IF_ERROR(midi_router_->Init());
   RETURN_IF_ERROR(InitWindow());
 
-  context_.core_config_ = core_config_.get();
-  context_.window_ = window_.get();
+  ctx_.core_config_ = core_config_.get();
+  ctx_.window_ = window_.get();
+  ctx_.midi_router_ = midi_router_.get();
 
   RETURN_IF_ERROR(InitMods());
 
@@ -72,8 +75,8 @@ Status Soir::InitMods() {
     for (const auto &mod_config : layers_config->GetConfigs("units")) {
       const std::string mod_type = mod_config->Get<std::string>("type");
       std::unique_ptr<Mod> mod;
-      MOVE_OR_RETURN(mod, Mod::MakeMod(mod_type));
-      RETURN_IF_ERROR(mod->Init(context_, *mod_config));
+      MOVE_OR_RETURN(mod, Mod::MakeMod(ctx_, mod_type));
+      RETURN_IF_ERROR(mod->Init(*mod_config));
       layer->AppendMod(std::move(mod));
     }
     layers_.emplace_back(std::move(layer));
@@ -96,7 +99,7 @@ Status Soir::Run() {
 
     window_->clear(sf::Color::Black);
     for (auto &layer : layers_) {
-      layer->Render(context_);
+      layer->Render();
     }
     window_->display();
   }

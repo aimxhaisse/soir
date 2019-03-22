@@ -1,9 +1,11 @@
+#include <algorithm>
 #include <iomanip>
 #include <iostream>
 #include <map>
 
 #include <glog/logging.h>
 
+#include "gfx.h"
 #include "midi.h"
 #include "utils.h"
 
@@ -153,8 +155,25 @@ Status MidiRouter::Init() {
   return StatusCode::OK;
 }
 
+Status MidiRouter::BindCallback(const std::string &mnemo, const Callback &cb) {
+  midi_bindings_[mnemo].push_back(cb);
+
+  return StatusCode::OK;
+}
+
+Status MidiRouter::ClearCallback(const Callback &callback) {
+  for (auto &binding : midi_bindings_) {
+    std::remove(binding.second.begin(), binding.second.end(), callback);
+  }
+
+  return StatusCode::OK;
+}
+
 Status MidiRouter::ProcessEvents() {
   MidiMessages messages;
+
+  // If we need to optimize something, that's probably the place since
+  // complexity is quite bad. For now, let's now care.
   for (auto &kv : midi_devices_) {
     RETURN_IF_ERROR(kv.second->PollMessages(&messages));
     for (const auto &message : messages) {
@@ -162,6 +181,10 @@ Status MidiRouter::ProcessEvents() {
         if (rule.Matches(message)) {
           LOG(INFO) << "Matching MIDI rule for device=" << kv.first
                     << ", rule=" << rule.Name();
+          const std::string mnemo = kv.first + '.' + rule.Name();
+          for (auto &binding : midi_bindings_[mnemo]) {
+            binding.Call(message);
+          }
         }
       }
     }

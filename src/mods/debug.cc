@@ -2,10 +2,10 @@
 
 namespace soir {
 
-Status ModDebug::Init(Context &ctx, const Config &config) {
-  return StatusCode::OK;
-}
+ModDebug::ModDebug(Context &ctx) : Mod(ctx) {}
 
-void ModDebug::Render(Context &ctx) {}
+Status ModDebug::Init(const Config &config) { return StatusCode::OK; }
+
+void ModDebug::Render() {}
 
 } // namespace soir

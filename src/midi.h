@@ -14,7 +14,8 @@
 
 namespace soir {
 
-using MidiMessage = std::vector<unsigned char>;
+class Callback;
+
 using MidiMessages = std::vector<MidiMessage>;
 using MidiMnemo = std::string;
 
@@ -55,6 +56,8 @@ private:
 class MidiRouter {
 public:
   Status Init();
+  Status BindCallback(const std::string &mnemo, const Callback &cb);
+  Status ClearCallback(const Callback &callback);
   Status ProcessEvents();
 
 private:
@@ -64,6 +67,7 @@ private:
   std::unordered_map<std::string, std::unique_ptr<Config>> midi_configs_;
   std::unordered_map<std::string, std::unique_ptr<MidiDevice>> midi_devices_;
   std::unordered_map<std::string, std::vector<MidiRule>> midi_rules_;
+  std::unordered_map<std::string, std::vector<Callback>> midi_bindings_;
 };
 
 } // namespace soir
