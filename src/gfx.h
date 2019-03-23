@@ -1,6 +1,7 @@
 #ifndef SOIR_MOD_H
 #define SOIR_MOD_H
 
+#include <functional>
 #include <string>
 #include <vector>
 
@@ -18,6 +19,7 @@ class Context;
 // unregister safely modules.
 class Callback {
 public:
+  Callback() {}
   explicit Callback(std::function<void(const MidiMessage &)> func);
 
   void SetId(const std::string &id);
@@ -31,13 +33,13 @@ private:
 
 class Mod {
 public:
-  Mod(Context &ctx) : ctx_(ctx) {}
+  Mod(Context &ctx);
   virtual ~Mod();
 
   // This can be called in the Init() to register a callback that will
   // be triggered upon the given MIDI mnemo. Once the Init() is done,
   // the callback may start firing.
-  Status BindCallback(const MidiMnemo &mnemo, const Callback &cb);
+  Status BindCallback(const MidiMnemo &mnemo, Callback cb);
 
   virtual Status Init(const Config &config) { return StatusCode::OK; }
   virtual void Render() {}
@@ -46,10 +48,8 @@ public:
                                                 const std::string &type);
 
 protected:
+  std::string id_;
   Context &ctx_;
-
-private:
-  std::vector<Callback> callbacks_;
 };
 
 class Layer {

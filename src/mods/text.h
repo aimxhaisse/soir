@@ -12,6 +12,8 @@ public:
   void Render();
 
 private:
+  void OnEvent(const MidiMessage &message);
+
   sf::Font font_;
   sf::Text text_;
 };

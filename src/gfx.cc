@@ -14,20 +14,25 @@ void Callback::Call(const MidiMessage &msg) { func_(msg); }
 
 bool Callback::operator==(const Callback &rhs) const { return rhs.id_ == id_; }
 
-Mod::~Mod() {
-  for (auto &callback : callbacks_) {
-    ctx_.Router()->ClearCallback(callback);
-  }
+Mod::Mod(Context &ctx) : ctx_(ctx) {
+  // Set the Mod address as part of the dentifier of the callback,
+  // sucks but is good-enough since we cleanup everything in
+  // destructor. Multiple callbacks from the same callback will have
+  // the same identifier. That's fine.
+  std::stringstream ss;
+  ss << this;
+  id_ = ss.str();
 }
 
-Status Mod::BindCallback(const MidiMnemo &mnemo, const Callback &cb) {
-  const Status status = ctx_.Router()->BindCallback(mnemo, cb);
+Mod::~Mod() {
+  Callback cb;
+  cb.SetId(id_);
+  ctx_.Router()->ClearCallback(cb);
+}
 
-  if (status == StatusCode::OK) {
-    callbacks_.push_back(cb);
-  }
-
-  return status;
+Status Mod::BindCallback(const MidiMnemo &mnemo, Callback cb) {
+  cb.SetId(id_);
+  return ctx_.Router()->BindCallback(mnemo, cb);
 }
 
 StatusOr<std::unique_ptr<Mod>> Mod::MakeMod(Context &ctx,

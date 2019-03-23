@@ -182,6 +182,7 @@ Status MidiRouter::ProcessEvents() {
           LOG(INFO) << "Matching MIDI rule for device=" << kv.first
                     << ", rule=" << rule.Name();
           const std::string mnemo = kv.first + '.' + rule.Name();
+          LOG(INFO) << mnemo;
           for (auto &binding : midi_bindings_[mnemo]) {
             binding.Call(message);
           }
