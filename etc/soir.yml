@@ -9,6 +9,9 @@ core:
   # Whether or not to run Soir in fullscreen mode.
   fullscreen: false
 
+  # Whether or not to allow resizes.
+  resize: true
+
   # Resolution of the window.
   width: 400
   height: 300

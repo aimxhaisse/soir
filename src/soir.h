@@ -27,10 +27,18 @@ public:
   sf::Texture *CurrentTexture();
   sf::Sprite *CurrentSprite();
 
+  // Size of the window.
+  int WindowWidth() const;
+  int WindowHeight() const;
+
+  // Size of the texture, this can be different in case the window is
+  // resized or if we want to get cool stretching effects.
   int Width() const;
   int Height() const;
 
 private:
+  int width_ = 0;
+  int height_ = 0;
   Config *core_config_ = nullptr;
   sf::RenderWindow *window_ = nullptr;
   sf::Texture *current_txt_ = nullptr;

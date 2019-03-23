@@ -22,6 +22,9 @@ constexpr const char *kDefaultTitle = "Soir ~";
 // Default for fullscreen mode -- core.fullscreen
 constexpr bool kDefaultFullscreen = false;
 
+// Default for resize mode -- core.resize
+constexpr bool kDefaultResize = false;
+
 Config *Context::CoreConfig() { return core_config_; }
 
 sf::RenderWindow *Context::Window() { return window_; }
@@ -32,9 +35,13 @@ sf::Sprite *Context::CurrentSprite() { return current_sprite_; }
 
 MidiRouter *Context::Router() { return midi_router_; }
 
-int Context::Width() const { return window_->getSize().x; }
+int Context::WindowWidth() const { return window_->getSize().x; }
 
-int Context::Height() const { return window_->getSize().y; }
+int Context::WindowHeight() const { return window_->getSize().y; }
+
+int Context::Width() const { return width_; }
+
+int Context::Height() const { return height_; }
 
 Status Soir::Init() {
   MOVE_OR_RETURN(core_config_, Config::LoadFromPath(kCoreConfigPath));
@@ -65,6 +72,11 @@ Status Soir::InitWindow() {
   unsigned int style = sf::Style::Titlebar;
   if (is_fullscreen) {
     style |= sf::Style::Fullscreen;
+  }
+
+  const bool is_resize = core_config_->Get<bool>("core.resize", kDefaultResize);
+  if (is_resize) {
+    style |= sf::Style::Resize;
   }
 
   window_ = std::make_unique<sf::RenderWindow>(sf::VideoMode(width, height),
