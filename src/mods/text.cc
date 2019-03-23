@@ -32,6 +32,14 @@ Status ModText::Init(const Config &config) {
 
 void ModText::Render() { ctx_.Window()->draw(text_); }
 
-void ModText::ShiftLetters(const MidiMessage &) {}
+void ModText::ShiftLetters(const MidiMessage &) {
+  std::string text = text_.getString();
+  if (!text.empty()) {
+    const char first = text[0];
+    text.erase(0, 1);
+    text.push_back(first);
+    text_.setString(text);
+  }
+}
 
 } // namespace soir
