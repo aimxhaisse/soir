@@ -52,11 +52,16 @@ protected:
 
 class Layer {
 public:
+  explicit Layer(Context &ctx);
+
+  Status Init();
   void AppendMod(std::unique_ptr<Mod> mod);
   void Render();
 
 private:
+  Context &ctx_;
   std::vector<std::unique_ptr<Mod>> mods_;
+  std::unique_ptr<sf::Texture> texture_;
 };
 
 } // namespace soir

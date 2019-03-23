@@ -2,6 +2,7 @@
 
 root:
   - units:
+      - type: noise
       - type: text
         params:
           text: "SOIR"

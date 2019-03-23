@@ -2,6 +2,7 @@
 
 #include "gfx.h"
 #include "mods/debug.h"
+#include "mods/noise.h"
 #include "mods/text.h"
 #include "soir.h"
 
@@ -70,9 +71,20 @@ StatusOr<std::unique_ptr<Mod>> Mod::MakeMod(Context &ctx,
   if (type == "debug") {
     return {std::make_unique<ModDebug>(ctx)};
   }
+  if (type == "noise") {
+    return {std::make_unique<ModNoise>(ctx)};
+  }
 
   RETURN_ERROR(StatusCode::UNKNOWN_MOD_TYPE,
                "Unrecognized mode type, type='" << type << "'");
+}
+
+Layer::Layer(Context &ctx) : ctx_(ctx) {}
+
+Status Layer::Init() {
+  texture_ = std::make_unique<sf::Texture>();
+  texture_->create(ctx_.Width(), ctx_.Height());
+  return StatusCode::OK;
 }
 
 void Layer::AppendMod(std::unique_ptr<Mod> mod) {
@@ -80,9 +92,21 @@ void Layer::AppendMod(std::unique_ptr<Mod> mod) {
 }
 
 void Layer::Render() {
+  sf::Sprite sprite;
+
+  ctx_.current_txt_ = texture_.get();
+  ctx_.current_sprite_ = &sprite;
+
+  sprite.setTexture(*ctx_.CurrentTexture());
+
   for (auto &mod : mods_) {
     mod->Render();
   }
+
+  ctx_.Window()->draw(sprite);
+
+  ctx_.current_txt_ = nullptr;
+  ctx_.current_sprite_ = nullptr;
 }
 
 } // namespace soir

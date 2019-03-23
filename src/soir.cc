@@ -26,7 +26,15 @@ Config *Context::CoreConfig() { return core_config_; }
 
 sf::RenderWindow *Context::Window() { return window_; }
 
+sf::Texture *Context::CurrentTexture() { return current_txt_; }
+
+sf::Sprite *Context::CurrentSprite() { return current_sprite_; }
+
 MidiRouter *Context::Router() { return midi_router_; }
+
+int Context::Width() const { return window_->getSize().x; }
+
+int Context::Height() const { return window_->getSize().y; }
 
 Status Soir::Init() {
   MOVE_OR_RETURN(core_config_, Config::LoadFromPath(kCoreConfigPath));
@@ -71,7 +79,8 @@ Status Soir::InitWindow() {
 
 Status Soir::InitMods() {
   for (const auto &layers_config : mods_config_->GetConfigs("root")) {
-    std::unique_ptr<Layer> layer = std::make_unique<Layer>();
+    std::unique_ptr<Layer> layer = std::make_unique<Layer>(ctx_);
+    RETURN_IF_ERROR(layer->Init());
     for (const auto &mod_config : layers_config->GetConfigs("units")) {
       const std::string mod_type = mod_config->Get<std::string>("type");
       std::unique_ptr<Mod> mod;

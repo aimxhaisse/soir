@@ -17,15 +17,24 @@ class Soir;
 // Global-like object passed to all modules to draw on the window.
 class Context {
   friend class Soir;
+  friend class Layer;
 
 public:
   Config *CoreConfig();
   sf::RenderWindow *Window();
   MidiRouter *Router();
 
+  sf::Texture *CurrentTexture();
+  sf::Sprite *CurrentSprite();
+
+  int Width() const;
+  int Height() const;
+
 private:
   Config *core_config_ = nullptr;
   sf::RenderWindow *window_ = nullptr;
+  sf::Texture *current_txt_ = nullptr;
+  sf::Sprite *current_sprite_ = nullptr;
   MidiRouter *midi_router_;
 };
 
