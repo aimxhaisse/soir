@@ -3,7 +3,7 @@
 devices:
   - name: "digitakt"
     tag: "Digitakt Elektron MIDI"
-    debug: false
+    debug: true
     rules:
       - name: "kick"
         type: "note_on"

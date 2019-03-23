@@ -7,7 +7,7 @@
 namespace soir {
 
 using MidiMnemo = std::string;
-using MidiMessage = std::vector<unsigned char>;
+class MidiMessage;
 using MidiMessages = std::vector<MidiMessage>;
 
 } // namespace soir

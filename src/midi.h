@@ -17,6 +17,32 @@ namespace soir {
 
 class Callback;
 
+class MidiMessage {
+public:
+  explicit MidiMessage(const std::vector<unsigned char> data);
+
+  static constexpr const uint32_t STATUS_MASK = 0xF0000000;
+  static constexpr const uint32_t CHAN_MASK = 0x0F000000;
+  static constexpr const uint32_t VEL_MASK = 0x0000FF00;
+
+  static constexpr const uint8_t NOTE_ON = 0x90;
+  static constexpr const uint8_t NOTE_OFF = 0x80;
+
+  inline uint32_t Raw() const { return msg_; }
+
+  inline uint8_t Status() const { return (msg_ & STATUS_MASK) >> 24; }
+  inline uint8_t Channel() const { return (msg_ & CHAN_MASK) >> 28; }
+  inline uint8_t Vel() const { return (msg_ & VEL_MASK) >> 8; }
+
+  inline bool NoteOn() const { return Status() == NOTE_ON && Vel() != 0; }
+  inline bool NoteOff() const {
+    return Status() == NOTE_OFF || (Status() == NOTE_ON && Vel() == 0);
+  }
+
+private:
+  uint32_t msg_;
+};
+
 class MidiDevice {
 public:
   MidiDevice(const std::string &name, int port);
@@ -45,9 +71,10 @@ private:
   enum EventType {
     NONE,
     NOTE_ON,
+    NOTE_OFF,
   };
 
-  std::experimental::optional<EventType> type_;
+  EventType type_ = EventType::NONE;
   std::experimental::optional<uint8_t> channel_;
   std::string name_;
 };

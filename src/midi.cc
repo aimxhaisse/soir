@@ -22,6 +22,11 @@ constexpr const bool kDefaultDebugDevice = false;
 
 } // namespace
 
+MidiMessage::MidiMessage(const std::vector<unsigned char> msg) : msg_(0) {
+  memcpy(&msg_, msg.data(), std::max(msg.size(), sizeof(msg_)));
+  msg_ = utils::SwapEndian(msg_);
+}
+
 MidiDevice::MidiDevice(const std::string &name, int port)
     : name_(name), port_(port) {}
 
@@ -42,22 +47,22 @@ void MidiDevice::SetDebugging(bool debugging) { debugging_ = debugging; }
 
 Status MidiDevice::PollMessages(MidiMessages *messages) {
   while (true) {
-    MidiMessage message;
+    std::vector<unsigned char> raw_message;
     try {
-      rtmidi_->getMessage(&message);
+      rtmidi_->getMessage(&raw_message);
     } catch (RtMidiError &error) {
       RETURN_ERROR(StatusCode::INTERNAL_MIDI_ERROR,
                    "Unable to get MIDI messages, port="
                        << port_ << ", name=" << name_
                        << ", error=" << error.what());
     }
-    if (message.empty()) {
+    if (raw_message.empty()) {
       break;
     }
     if (debugging_) {
-      DumpMessage(message);
+      DumpMessage(MidiMessage(raw_message));
     }
-    messages->push_back(message);
+    messages->push_back(MidiMessage(raw_message));
   }
   return StatusCode::OK;
 }
@@ -65,11 +70,8 @@ Status MidiDevice::PollMessages(MidiMessages *messages) {
 const std::string &MidiDevice::Name() const { return name_; }
 
 void MidiDevice::DumpMessage(const MidiMessage &message) const {
-  uint32_t msg = 0x00000000;
-  memcpy(&msg, message.data(), std::max(message.size(), sizeof(msg)));
   LOG(INFO) << "MidiDevice name=" << name_ << ", received event=0x"
-            << std::setfill('0') << std::setw(8) << std::hex
-            << utils::SwapEndian(msg);
+            << std::setfill('0') << std::setw(8) << std::hex << message.Raw();
 }
 
 Status MidiRule::Init(const Config &config) {
@@ -83,8 +85,6 @@ Status MidiRule::Init(const Config &config) {
   const std::string type = config.Get<std::string>("type");
   if (type == kMidiEventNoteOn) {
     type_ = NOTE_ON;
-  } else {
-    type_ = NONE;
   }
 
   const int channel = config.Get<int>("channel", -1);
@@ -96,24 +96,25 @@ Status MidiRule::Init(const Config &config) {
 }
 
 bool MidiRule::Matches(const MidiMessage &message) const {
-  uint32_t msg = 0x00000000;
-  memcpy(&msg, message.data(), std::max(message.size(), sizeof(msg)));
-  msg = utils::SwapEndian(msg);
-
-  const uint8_t status = message[0];
-
-  if (type_ && *type_ == EventType::NOTE_ON) {
-    // Somehow, MIDI specs define 'note off' as a 'note on' with a
-    // velocity of 0, so we need to exclude it from this.
-    const bool is_note_on = (status & 0xF0) == 0x90;
-    const bool has_velocity = (msg & 0x0000FF00) != 0;
-    if (!(is_note_on && has_velocity)) {
+  switch (type_) {
+  case EventType::NOTE_ON:
+    if (!message.NoteOn()) {
       return false;
     }
+    break;
+
+  case EventType::NOTE_OFF:
+    if (!message.NoteOff()) {
+      return false;
+    }
+    break;
+
+  case EventType::NONE:
+  default:
+    break;
   }
 
-  const uint8_t chan = status & 0x0F;
-  if (channel_ && !(*channel_ == chan)) {
+  if (channel_ && *channel_ != message.Channel()) {
     return false;
   }
 
