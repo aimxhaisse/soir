@@ -47,7 +47,6 @@ protected:
   Status BindCallbacks(const Config &mod_config);
 
   std::map<std::string, Callback> callbacks_;
-  std::string id_;
   Context &ctx_;
 };
 
