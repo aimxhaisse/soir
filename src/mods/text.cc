@@ -10,9 +10,8 @@ namespace soir {
 ModText::ModText(Context &ctx) : Mod(ctx) {}
 
 Status ModText::Init(const Config &config) {
-  RETURN_IF_ERROR(
-      BindCallback("Digitakt Elektron MIDI.kick",
-                   Callback(std::bind(&ModText::OnEvent, this, _1))));
+  RETURN_IF_ERROR(BindCallback(
+      "digitakt.kick", Callback(std::bind(&ModText::OnEvent, this, _1))));
 
   constexpr const char *font_file = "etc/fonts/pixel-operator.ttf";
   if (!font_.loadFromFile(font_file)) {

@@ -62,6 +62,8 @@ Status MidiDevice::PollMessages(MidiMessages *messages) {
   return StatusCode::OK;
 }
 
+const std::string &MidiDevice::Name() const { return name_; }
+
 void MidiDevice::DumpMessage(const MidiMessage &message) const {
   uint32_t msg = 0x00000000;
   memcpy(&msg, message.data(), std::max(message.size(), sizeof(msg)));
@@ -122,34 +124,7 @@ const std::string &MidiRule::Name() const { return name_; }
 
 Status MidiRouter::Init() {
   MOVE_OR_RETURN(midi_config_, Config::LoadFromPath(kMidiConfigPath));
-
-  for (const auto &device : midi_config_->GetConfigs("devices")) {
-    const std::string tag = device->Get<std::string>("tag");
-    if (tag.empty()) {
-      RETURN_ERROR(StatusCode::INVALID_CONFIG_FILE,
-                   "Unable to find 'tag' for MIDI device (required)");
-    }
-
-    const std::string name = device->Get<std::string>("name");
-    if (name.empty()) {
-      RETURN_ERROR(StatusCode::INVALID_CONFIG_FILE,
-                   "Unable to find 'name' for MIDI device (required)");
-    }
-
-    const std::vector<std::unique_ptr<Config>> rules =
-        device->GetConfigs("rules");
-    for (const auto &rule : rules) {
-      MidiRule r;
-      RETURN_IF_ERROR(r.Init(*rule));
-      midi_rules_[tag].push_back(r);
-      LOG(INFO) << "Registered MIDI rule for device=" << tag
-                << ", rule=" << r.Name();
-    }
-
-    midi_configs_[tag] = std::make_unique<Config>(*device);
-    LOG(INFO) << "Registered new MIDI device tag=" << tag;
-  }
-
+  RETURN_IF_ERROR(InitRules());
   RETURN_IF_ERROR(SyncDevices());
 
   return StatusCode::OK;
@@ -179,10 +154,8 @@ Status MidiRouter::ProcessEvents() {
     for (const auto &message : messages) {
       for (const auto &rule : midi_rules_[kv.first]) {
         if (rule.Matches(message)) {
-          LOG(INFO) << "Matching MIDI rule for device=" << kv.first
-                    << ", rule=" << rule.Name();
-          const std::string mnemo = kv.first + '.' + rule.Name();
-          LOG(INFO) << mnemo;
+          const std::string mnemo = kv.second->Name() + '.' + rule.Name();
+          LOG(INFO) << "MIDI event mnemo=" << mnemo;
           for (auto &binding : midi_bindings_[mnemo]) {
             binding.Call(message);
           }
@@ -191,6 +164,37 @@ Status MidiRouter::ProcessEvents() {
     }
     messages.clear();
   }
+  return StatusCode::OK;
+}
+
+Status MidiRouter::InitRules() {
+  for (const auto &device_config : midi_config_->GetConfigs("devices")) {
+    const std::string tag = device_config->Get<std::string>("tag");
+    if (tag.empty()) {
+      RETURN_ERROR(StatusCode::INVALID_CONFIG_FILE,
+                   "Unable to find 'tag' for MIDI device (required)");
+    }
+
+    const std::string name = device_config->Get<std::string>("name");
+    if (name.empty()) {
+      RETURN_ERROR(StatusCode::INVALID_CONFIG_FILE,
+                   "Unable to find 'name' for MIDI device (required)");
+    }
+
+    const std::vector<std::unique_ptr<Config>> rules =
+        device_config->GetConfigs("rules");
+    for (const auto &rule : rules) {
+      MidiRule r;
+      RETURN_IF_ERROR(r.Init(*rule));
+      midi_rules_[tag].push_back(r);
+      LOG(INFO) << "Registered MIDI rule for device=" << tag
+                << ", rule=" << r.Name();
+    }
+
+    midi_configs_[tag] = std::make_unique<Config>(*device_config);
+    LOG(INFO) << "Registered new MIDI device tag=" << tag;
+  }
+
   return StatusCode::OK;
 }
 
@@ -204,33 +208,39 @@ Status MidiRouter::SyncDevices() {
 
   // First pass, register new devices.
   for (const auto &it : devices) {
-    const std::string &name = it.first;
+    const std::string &tag = it.first;
     const int port = it.second;
-    if (midi_devices_.find(name) != midi_devices_.end()) {
+    if (midi_devices_.find(tag) != midi_devices_.end()) {
       continue;
     }
 
-    auto config_it = midi_configs_.find(name);
+    auto config_it = midi_configs_.find(tag);
     if (config_it == midi_configs_.end()) {
-      LOG(INFO) << "Ignored connected MIDI device name=" << name
+      LOG(INFO) << "Ignored connected MIDI device tag=" << tag
                 << " (unknown device)";
       continue;
+    }
+    const Config &config = *config_it->second;
+
+    const std::string name = config.Get<std::string>("name");
+    if (name.empty()) {
+      RETURN_ERROR(StatusCode::INVALID_CONFIG_FILE,
+                   "No name found for MIDI rule (required)");
     }
 
     auto device = std::make_unique<MidiDevice>(name, port);
     Status status = device->Init();
 
     if (status != StatusCode::OK) {
-      LOG(WARNING) << "Failed to connect MIDI device, name=" << name
+      LOG(WARNING) << "Failed to connect MIDI device, tag=" << tag
                    << ", status=" << status;
       continue;
     }
 
-    const Config &config = *config_it->second;
     device->SetDebugging(config.Get<bool>("debug", kDefaultDebugDevice));
 
-    LOG(INFO) << "New MIDI device connected, name=" << name;
-    midi_devices_[name] = std::move(device);
+    LOG(INFO) << "New MIDI device connected, tag=" << tag;
+    midi_devices_[tag] = std::move(device);
   }
 
   // Second pass, delete disconnected devices.

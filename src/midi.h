@@ -24,6 +24,7 @@ public:
   Status Init();
   void SetDebugging(bool debugging);
   Status PollMessages(MidiMessages *messages);
+  const std::string &Name() const;
 
 private:
   void DumpMessage(const MidiMessage &msg) const;
@@ -59,6 +60,7 @@ public:
   Status ProcessEvents();
 
 private:
+  Status InitRules();
   Status SyncDevices();
 
   std::unique_ptr<Config> midi_config_;
