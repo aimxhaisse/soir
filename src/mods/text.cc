@@ -10,8 +10,9 @@ namespace soir {
 ModText::ModText(Context &ctx) : Mod(ctx) {}
 
 Status ModText::Init(const Config &config) {
-  RETURN_IF_ERROR(BindCallback(
-      "digitakt.kick", Callback(std::bind(&ModText::OnEvent, this, _1))));
+  RegisterCallback("shiftLetters",
+                   Callback(std::bind(&ModText::ShiftLetters, this, _1)));
+  RETURN_IF_ERROR(BindCallbacks(config));
 
   constexpr const char *font_file = "etc/fonts/pixel-operator.ttf";
   if (!font_.loadFromFile(font_file)) {
@@ -31,8 +32,6 @@ Status ModText::Init(const Config &config) {
 
 void ModText::Render() { ctx_.Window()->draw(text_); }
 
-void ModText::OnEvent(const MidiMessage &message) {
-  LOG(INFO) << "ModText OnEvent called \\o/";
-}
+void ModText::ShiftLetters(const MidiMessage &) {}
 
 } // namespace soir

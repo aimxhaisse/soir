@@ -1,3 +1,5 @@
+#include <glog/logging.h>
+
 #include "gfx.h"
 #include "mods/debug.h"
 #include "mods/text.h"
@@ -30,9 +32,33 @@ Mod::~Mod() {
   ctx_.Router()->ClearCallback(cb);
 }
 
-Status Mod::BindCallback(const MidiMnemo &mnemo, Callback cb) {
-  cb.SetId(id_);
-  return ctx_.Router()->BindCallback(mnemo, cb);
+void Mod::RegisterCallback(const std::string &callback_name,
+                           const Callback &cb) {
+  callbacks_[callback_name] = cb;
+}
+
+Status Mod::BindCallbacks(const Config &mod_config) {
+  const auto bindings =
+      mod_config.Get<std::map<std::string, std::vector<std::string>>>(
+          "bindings");
+
+  for (const auto &it : bindings) {
+    const std::string &mnemo = it.first;
+    for (const std::string &callback_name : it.second) {
+      if (callbacks_.find(callback_name) == callbacks_.end()) {
+        RETURN_ERROR(StatusCode::INVALID_CONFIG_FILE,
+                     "Unable to bind MIDI mnemo=" << mnemo << " to callback="
+                                                  << callback_name
+                                                  << " (doesn't exist)");
+      }
+      RETURN_IF_ERROR(
+          ctx_.Router()->BindCallback(mnemo, callbacks_[callback_name]));
+      LOG(INFO) << "Callback " << callback_name << " now listening to "
+                << mnemo;
+    }
+  }
+
+  return StatusCode::OK;
 }
 
 StatusOr<std::unique_ptr<Mod>> Mod::MakeMod(Context &ctx,

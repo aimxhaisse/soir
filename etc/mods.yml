@@ -6,5 +6,7 @@ root:
         params:
           text: "S O I R"
           position: center
+        bindings:
+          digitakt.kick: ["shiftLetters"]
   - units:
       - type: debug

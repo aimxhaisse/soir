@@ -8,11 +8,11 @@ namespace soir {
 class ModText : public Mod {
 public:
   ModText(Context &ctx);
-  Status Init(const Config &config);
-  void Render();
+  Status Init(const Config &config) override;
+  void Render() override;
 
 private:
-  void OnEvent(const MidiMessage &message);
+  void ShiftLetters(const MidiMessage &);
 
   sf::Font font_;
   sf::Text text_;

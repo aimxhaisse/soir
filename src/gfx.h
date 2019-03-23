@@ -36,18 +36,17 @@ public:
   Mod(Context &ctx);
   virtual ~Mod();
 
-  // This can be called in the Init() to register a callback that will
-  // be triggered upon the given MIDI mnemo. Once the Init() is done,
-  // the callback may start firing.
-  Status BindCallback(const MidiMnemo &mnemo, Callback cb);
-
   virtual Status Init(const Config &config) { return StatusCode::OK; }
-  virtual void Render() {}
+  virtual void Render() = 0;
 
   static StatusOr<std::unique_ptr<Mod>> MakeMod(Context &ctx,
                                                 const std::string &type);
 
 protected:
+  void RegisterCallback(const std::string &callback_name, const Callback &cb);
+  Status BindCallbacks(const Config &mod_config);
+
+  std::map<std::string, Callback> callbacks_;
   std::string id_;
   Context &ctx_;
 };
