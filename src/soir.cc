@@ -7,11 +7,17 @@ namespace soir {
 constexpr const char *kCoreConfigPath = "etc/soir.yml";
 constexpr const char *kModsConfigPath = "etc/mods.yml";
 
-// Default width for the window -- core.width
-constexpr const int kDefaultWidth = 400;
+// Default width for the window -- core.window_width
+constexpr const int kDefaultWindowWidth = 1440;
 
-// Default height for the window -- core.height
-constexpr const int kDefaultHeight = 300;
+// Default height for the window -- core.window_height
+constexpr const int kDefaultWindowHeight = 900;
+
+// Default width for the window -- core.buffer_width
+constexpr const int kDefaultBufferWidth = 400;
+
+// Default height for the window -- core.buffer_height
+constexpr const int kDefaultBufferHeight = 300;
 
 // Default value for maximum number of FPS -- core.max_fps
 constexpr const int kDefaultFpsMax = 60;
@@ -29,7 +35,7 @@ Config *Context::CoreConfig() { return core_config_; }
 
 sf::RenderWindow *Context::Window() { return window_; }
 
-sf::Texture *Context::CurrentTexture() { return current_txt_; }
+sf::RenderTexture *Context::CurrentTexture() { return current_txt_; }
 
 sf::Sprite *Context::CurrentSprite() { return current_sprite_; }
 
@@ -39,9 +45,9 @@ int Context::WindowWidth() const { return window_->getSize().x; }
 
 int Context::WindowHeight() const { return window_->getSize().y; }
 
-int Context::Width() const { return width_; }
+int Context::BufferWidth() const { return buffer_width_; }
 
-int Context::Height() const { return height_; }
+int Context::BufferHeight() const { return buffer_height_; }
 
 Status Soir::Init() {
   MOVE_OR_RETURN(core_config_, Config::LoadFromPath(kCoreConfigPath));
@@ -62,8 +68,17 @@ Status Soir::Init() {
 }
 
 Status Soir::InitWindow() {
-  const int width = core_config_->Get<int>("core.width", kDefaultWidth);
-  const int height = core_config_->Get<int>("core.height", kDefaultHeight);
+  const int buffer_width =
+      core_config_->Get<int>("core.buffer_width", kDefaultBufferWidth);
+  const int buffer_height =
+      core_config_->Get<int>("core.buffer_height", kDefaultBufferHeight);
+  ctx_.buffer_width_ = buffer_width;
+  ctx_.buffer_height_ = buffer_height;
+
+  const int window_width =
+      core_config_->Get<int>("core.window_width", kDefaultWindowWidth);
+  const int window_height =
+      core_config_->Get<int>("core.window_height", kDefaultWindowHeight);
   const std::string title =
       core_config_->Get<std::string>("core.title", kDefaultTitle);
 
@@ -79,8 +94,8 @@ Status Soir::InitWindow() {
     style |= sf::Style::Resize;
   }
 
-  window_ = std::make_unique<sf::RenderWindow>(sf::VideoMode(width, height),
-                                               title, style);
+  window_ = std::make_unique<sf::RenderWindow>(
+      sf::VideoMode(window_width, window_height), title, style);
 
   window_->setVerticalSyncEnabled(true);
   window_->setFramerateLimit(

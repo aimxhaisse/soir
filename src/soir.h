@@ -24,7 +24,7 @@ public:
   sf::RenderWindow *Window();
   MidiRouter *Router();
 
-  sf::Texture *CurrentTexture();
+  sf::RenderTexture *CurrentTexture();
   sf::Sprite *CurrentSprite();
 
   // Size of the window.
@@ -33,15 +33,15 @@ public:
 
   // Size of the texture, this can be different in case the window is
   // resized or if we want to get cool stretching effects.
-  int Width() const;
-  int Height() const;
+  int BufferWidth() const;
+  int BufferHeight() const;
 
 private:
-  int width_ = 0;
-  int height_ = 0;
+  int buffer_width_ = 0;
+  int buffer_height_ = 0;
   Config *core_config_ = nullptr;
   sf::RenderWindow *window_ = nullptr;
-  sf::Texture *current_txt_ = nullptr;
+  sf::RenderTexture *current_txt_ = nullptr;
   sf::Sprite *current_sprite_ = nullptr;
   MidiRouter *midi_router_;
 };

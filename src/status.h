@@ -15,6 +15,7 @@ enum StatusCode {
   INTERNAL_ERROR,
   UNKNOWN_MOD_TYPE,
   INVALID_FONT_FILE,
+  INTERNAL_GFX_ERROR,
 };
 
 class Status {

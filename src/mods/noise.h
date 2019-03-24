@@ -25,8 +25,8 @@ private:
 
   int iter_;
   Mode mode_;
-  std::vector<std::unique_ptr<sf::Uint8[]>> monochrome_;
-  std::vector<std::unique_ptr<sf::Uint8[]>> color_;
+  std::vector<std::unique_ptr<sf::Texture>> monochrome_;
+  std::vector<std::unique_ptr<sf::Texture>> color_;
 };
 
 } // namespace soir

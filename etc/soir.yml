@@ -12,9 +12,13 @@ core:
   # Whether or not to allow resizes.
   resize: true
 
+  # Resolution of the buffer.
+  buffer_width: 400
+  buffer_height: 300
+
   # Resolution of the window.
-  width: 400
-  height: 300
+  window_width: 1440
+  window_height: 900
 
   # Maximum number of FPS to use.
   fps_max: 60

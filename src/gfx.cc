@@ -82,11 +82,8 @@ StatusOr<std::unique_ptr<Mod>> Mod::MakeMod(Context &ctx,
 Layer::Layer(Context &ctx) : ctx_(ctx) {}
 
 Status Layer::Init() {
-  ctx_.width_ = ctx_.WindowWidth();
-  ctx_.height_ = ctx_.WindowHeight();
-
-  texture_ = std::make_unique<sf::Texture>();
-  texture_->create(ctx_.Width(), ctx_.Height());
+  texture_ = std::make_unique<sf::RenderTexture>();
+  texture_->create(ctx_.BufferWidth(), ctx_.BufferHeight());
 
   return StatusCode::OK;
 }
@@ -95,33 +92,37 @@ void Layer::AppendMod(std::unique_ptr<Mod> mod) {
   mods_.emplace_back(std::move(mod));
 }
 
-void Layer::Render() {
-  sf::Sprite sprite;
-
-  ctx_.current_txt_ = texture_.get();
-  ctx_.current_sprite_ = &sprite;
-
-  sprite.setTexture(*ctx_.CurrentTexture());
-
+void Layer::InitSprite(sf::Sprite &sprite) {
   const double window_w = static_cast<double>(ctx_.WindowWidth());
   const double window_h = static_cast<double>(ctx_.WindowHeight());
-  const double w = static_cast<double>(ctx_.Width());
-  const double h = static_cast<double>(ctx_.Height());
+  const double w = static_cast<double>(ctx_.BufferWidth());
+  const double h = static_cast<double>(ctx_.BufferHeight());
 
   if (window_w && window_h && w && h) {
     const double ratio_x = window_w / w;
     const double ratio_y = window_h / h;
     sprite.setScale(std::max(1.0, ratio_x), std::max(1.0, ratio_y));
   }
+}
 
+void Layer::Render() {
+  sf::Sprite sprite;
+  InitSprite(sprite);
+
+  texture_->clear(sf::Color::Transparent);
+
+  ctx_.current_txt_ = texture_.get();
+  ctx_.current_sprite_ = &sprite;
   for (auto &mod : mods_) {
     mod->Render();
   }
-
-  ctx_.Window()->draw(sprite);
-
   ctx_.current_txt_ = nullptr;
   ctx_.current_sprite_ = nullptr;
+
+  texture_->display();
+  sprite.setTexture(texture_->getTexture());
+
+  ctx_.Window()->draw(sprite);
 }
 
 } // namespace soir

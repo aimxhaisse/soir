@@ -36,10 +36,11 @@ void ModText::CenterText() {
   const sf::FloatRect bounds = text_.getLocalBounds();
   text_.setOrigin(bounds.left + bounds.width / 2.0f,
                   bounds.top + bounds.height / 2.0f);
-  text_.setPosition(sf::Vector2f(ctx_.Width() / 2.0f, ctx_.Height() / 2.0f));
+  text_.setPosition(
+      sf::Vector2f(ctx_.BufferWidth() / 2.0f, ctx_.BufferHeight() / 2.0f));
 }
 
-void ModText::Render() { ctx_.Window()->draw(text_); }
+void ModText::Render() { ctx_.CurrentTexture()->draw(text_); }
 
 void ModText::ShiftLetters(const MidiMessage &) {
   std::string text = text_.getString();

@@ -27,13 +27,13 @@ Status ModNoise::Init(const Config &config) {
   monochrome_.reserve(kFrameNumber);
   color_.reserve(kFrameNumber);
 
-  const int w = ctx_.Width();
-  const int h = ctx_.Height();
+  const int w = ctx_.BufferWidth();
+  const int h = ctx_.BufferHeight();
 
   for (int i = 0; i < kFrameNumber; ++i) {
     const int buffer_size = w * h * 4;
-    monochrome_.emplace_back(std::make_unique<sf::Uint8[]>(buffer_size));
-    color_.emplace_back(std::make_unique<sf::Uint8[]>(buffer_size));
+    auto mono = std::make_unique<sf::Uint8[]>(buffer_size);
+    auto color = std::make_unique<sf::Uint8[]>(buffer_size);
     for (int x = 0; x < w; ++x) {
       for (int y = 0; y < h; ++y) {
         const auto r = static_cast<sf::Uint8>(std::rand());
@@ -42,17 +42,33 @@ Status ModNoise::Init(const Config &config) {
         const auto a = static_cast<sf::Uint8>(std::rand());
         const int pos = (y * w * 4) + (x * 4);
 
-        monochrome_[i].get()[pos] = r;
-        monochrome_[i].get()[pos + 1] = r;
-        monochrome_[i].get()[pos + 2] = r;
-        monochrome_[i].get()[pos + 3] = r;
+        mono.get()[pos] = r;
+        mono.get()[pos + 1] = r;
+        mono.get()[pos + 2] = r;
+        mono.get()[pos + 3] = r;
 
-        color_[i].get()[pos] = r;
-        color_[i].get()[pos + 1] = g;
-        color_[i].get()[pos + 2] = b;
-        color_[i].get()[pos + 3] = a;
+        color.get()[pos] = r;
+        color.get()[pos + 1] = g;
+        color.get()[pos + 2] = b;
+        color.get()[pos + 3] = a;
       }
     }
+
+    auto mono_txt = std::make_unique<sf::Texture>();
+    if (!mono_txt->create(w, h)) {
+      RETURN_ERROR(INTERNAL_GFX_ERROR,
+                   "Unable to create texture of size " << w << "x" << h);
+    }
+    mono_txt->update(mono.get(), w, h, 0, 0);
+    monochrome_.emplace_back(std::move(mono_txt));
+
+    auto color_txt = std::make_unique<sf::Texture>();
+    if (!color_txt->create(w, h)) {
+      RETURN_ERROR(INTERNAL_GFX_ERROR,
+                   "Unable to create texture of size " << w << "x" << h);
+    }
+    color_txt->update(color.get(), w, h, 0, 0);
+    color_.emplace_back(std::move(color_txt));
   }
   return StatusCode::OK;
 }
@@ -70,12 +86,12 @@ void ModNoise::SwitchMonochrome(const MidiMessage &) { mode_ = MONOCHROME; }
 void ModNoise::SwitchColor(const MidiMessage &) { mode_ = COLOR; }
 
 void ModNoise::Render() {
-  const int w = ctx_.Width();
-  const int h = ctx_.Height();
-  auto &buffers = mode_ == MONOCHROME ? monochrome_ : color_;
-  ctx_.CurrentTexture()->update(buffers[iter_ % kFrameNumber].get(), w, h, 0,
-                                0);
-  ++iter_;
+  iter_ = (iter_ + 1) % kFrameNumber;
+
+  sf::Texture &txt = (mode_ == MONOCHROME) ? *(monochrome_[iter_].get())
+                                           : *(color_[iter_].get());
+
+  ctx_.CurrentTexture()->draw(sf::Sprite(txt));
 }
 
 } // namespace soir

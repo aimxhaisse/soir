@@ -59,9 +59,11 @@ public:
   void Render();
 
 private:
+  void InitSprite(sf::Sprite &sprite);
+
   Context &ctx_;
   std::vector<std::unique_ptr<Mod>> mods_;
-  std::unique_ptr<sf::Texture> texture_;
+  std::unique_ptr<sf::RenderTexture> texture_;
 };
 
 } // namespace soir

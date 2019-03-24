@@ -52,6 +52,9 @@ std::ostream &operator<<(std::ostream &os, const Status &status) {
   case INVALID_FONT_FILE:
     str_code = "INVALID_FONT_FILE";
     break;
+  case INTERNAL_GFX_ERROR:
+    str_code = "INTERNAL_GFX_ERROR";
+    break;
   default:
     str_code = "UNKNOWN";
     break;
