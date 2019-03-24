@@ -7,6 +7,8 @@ namespace soir {
 
 class ModNoise : public Mod {
 public:
+  static constexpr const char *kModName = "noise";
+
   ModNoise(Context &ctx);
   Status Init(const Config &config);
   void Render();

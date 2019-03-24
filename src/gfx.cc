@@ -65,13 +65,13 @@ Status Mod::BindCallbacks(const Config &mod_config) {
 
 StatusOr<std::unique_ptr<Mod>> Mod::MakeMod(Context &ctx,
                                             const std::string &type) {
-  if (type == "text") {
+  if (type == ModText::kModName) {
     return {std::make_unique<ModText>(ctx)};
   }
-  if (type == "debug") {
+  if (type == ModDebug::kModName) {
     return {std::make_unique<ModDebug>(ctx)};
   }
-  if (type == "noise") {
+  if (type == ModNoise::kModName) {
     return {std::make_unique<ModNoise>(ctx)};
   }
 

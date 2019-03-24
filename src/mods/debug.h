@@ -7,6 +7,8 @@ namespace soir {
 
 class ModDebug : public Mod {
 public:
+  static constexpr const char *kModName = "debug";
+
   ModDebug(Context &ctx);
   Status Init(const Config &config);
   void Render();

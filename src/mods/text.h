@@ -7,6 +7,8 @@ namespace soir {
 
 class ModText : public Mod {
 public:
+  static constexpr const char *kModName = "text";
+
   ModText(Context &ctx);
   Status Init(const Config &config) override;
   void Render() override;
