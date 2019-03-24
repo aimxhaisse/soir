@@ -14,6 +14,7 @@ public:
   void Render() override;
 
 private:
+  void CenterText();
   void ShiftLetters(const MidiMessage &);
 
   sf::Font font_;

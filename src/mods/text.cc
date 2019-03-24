@@ -27,7 +27,16 @@ Status ModText::Init(const Config &config) {
   text_.setFillColor(sf::Color::Green);
   text_.setStyle(sf::Text::Bold);
 
+  CenterText();
+
   return StatusCode::OK;
+}
+
+void ModText::CenterText() {
+  const sf::FloatRect bounds = text_.getLocalBounds();
+  text_.setOrigin(bounds.left + bounds.width / 2.0f,
+                  bounds.top + bounds.height / 2.0f);
+  text_.setPosition(sf::Vector2f(ctx_.Width() / 2.0f, ctx_.Height() / 2.0f));
 }
 
 void ModText::Render() { ctx_.Window()->draw(text_); }
