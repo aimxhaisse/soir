@@ -55,6 +55,9 @@ std::ostream &operator<<(std::ostream &os, const Status &status) {
   case INTERNAL_GFX_ERROR:
     str_code = "INTERNAL_GFX_ERROR";
     break;
+  case INVALID_SHADER_FILE:
+    str_code = "INVALID_SHADER_FILE";
+    break;
   default:
     str_code = "UNKNOWN";
     break;

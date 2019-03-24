@@ -13,8 +13,8 @@ core:
   resize: true
 
   # Resolution of the buffer.
-  buffer_width: 400
-  buffer_height: 300
+  buffer_width: 320
+  buffer_height: 200
 
   # Resolution of the window.
   window_width: 1440

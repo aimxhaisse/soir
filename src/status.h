@@ -16,6 +16,7 @@ enum StatusCode {
   UNKNOWN_MOD_TYPE,
   INVALID_FONT_FILE,
   INTERNAL_GFX_ERROR,
+  INVALID_SHADER_FILE,
 };
 
 class Status {
