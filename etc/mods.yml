@@ -3,6 +3,8 @@
 root:
   - units:
       - type: noise
+        bindings:
+          digitakt.kick: ["switchMode"]
       - type: text
         params:
           text: "SOIR"

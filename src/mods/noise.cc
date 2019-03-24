@@ -59,9 +59,9 @@ Status ModNoise::Init(const Config &config) {
 
 void ModNoise::SwitchMode(const MidiMessage &m) {
   if (mode_ == MONOCHROME) {
-    SwitchColor(m);
+    mode_ = COLOR;
   } else {
-    SwitchMonochrome(m);
+    mode_ = MONOCHROME;
   }
 }
 

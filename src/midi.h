@@ -31,7 +31,7 @@ public:
   inline uint32_t Raw() const { return msg_; }
 
   inline uint8_t Status() const { return (msg_ & STATUS_MASK) >> 24; }
-  inline uint8_t Channel() const { return (msg_ & CHAN_MASK) >> 28; }
+  inline uint8_t Channel() const { return (msg_ & CHAN_MASK) >> 24; }
   inline uint8_t Vel() const { return (msg_ & VEL_MASK) >> 8; }
 
   inline bool NoteOn() const { return Status() == NOTE_ON && Vel() != 0; }
