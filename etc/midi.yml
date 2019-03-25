@@ -2,7 +2,7 @@
 
 devices:
   - name: "digitakt"
-    tag: "Digitakt Elektron MIDI"
+    tag: "Elektron Digitakt Digitakt in 1"
     debug: true
     rules:
       - name: "kick"

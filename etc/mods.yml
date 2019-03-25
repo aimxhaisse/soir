@@ -11,6 +11,3 @@ root:
           position: center
         bindings:
           digitakt.kick: ["shiftLetters"]
-      - type: exp
-  - units:
-      - type: debug

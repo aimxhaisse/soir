@@ -22,7 +22,7 @@ constexpr const bool kDefaultDebugDevice = false;
 
 } // namespace
 
-MidiMessage::MidiMessage(const std::vector<unsigned char> msg) : msg_(0) {
+MidiMessage::MidiMessage(const std::vector<unsigned char> &msg) : msg_(0) {
   memcpy(&msg_, msg.data(), std::max(msg.size(), sizeof(msg_)));
   msg_ = utils::SwapEndian(msg_);
 }

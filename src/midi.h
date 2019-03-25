@@ -19,7 +19,7 @@ class Callback;
 
 class MidiMessage {
 public:
-  explicit MidiMessage(const std::vector<unsigned char> data);
+  explicit MidiMessage(const std::vector<unsigned char> &data);
 
   static constexpr const uint32_t STATUS_MASK = 0xF0000000;
   static constexpr const uint32_t CHAN_MASK = 0x0F000000;
