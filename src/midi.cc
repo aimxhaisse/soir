@@ -114,7 +114,7 @@ bool MidiRule::Matches(const MidiMessage &message) const {
     break;
   }
 
-  if (channel_ && *channel_ != message.Channel()) {
+  if (channel_.has_value() && channel_.value() != message.Channel()) {
     return false;
   }
 

@@ -2,7 +2,7 @@
 #define SOIR_MIDI_H
 
 #include <cstdint>
-#include <experimental/optional>
+#include <optional>
 #include <unordered_map>
 #include <utility>
 #include <vector>
@@ -75,7 +75,7 @@ private:
   };
 
   EventType type_ = EventType::NONE;
-  std::experimental::optional<uint8_t> channel_;
+  std::optional<uint8_t> channel_;
   std::string name_;
 };
 
