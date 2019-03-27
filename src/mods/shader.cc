@@ -1,11 +1,11 @@
-#include "exp.h"
+#include "shader.h"
 #include "soir.h"
 
 namespace soir {
 
-ModExp::ModExp(Context &ctx) : Mod(ctx) {}
+ModShader::ModShader(Context &ctx) : Mod(ctx) {}
 
-Status ModExp::Init(const Config &config) {
+Status ModShader::Init(const Config &config) {
   if (!sf::Shader::isAvailable()) {
     RETURN_ERROR(INTERNAL_GFX_ERROR,
                  "Shaders aren't supported on this hardware");
@@ -21,6 +21,6 @@ Status ModExp::Init(const Config &config) {
   return StatusCode::OK;
 }
 
-void ModExp::Render() { ctx_.CurrentTexture()->draw(overlay_, &shader_); }
+void ModShader::Render() { ctx_.CurrentTexture()->draw(overlay_, &shader_); }
 
 } // namespace soir

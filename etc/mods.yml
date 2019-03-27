@@ -2,6 +2,7 @@
 
 root:
   - units:
+      - type: shader
       - type: noise
         bindings:
           digitakt.kick: ["switchMode"]

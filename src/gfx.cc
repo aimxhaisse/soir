@@ -2,7 +2,7 @@
 
 #include "gfx.h"
 #include "mods/debug.h"
-#include "mods/exp.h"
+#include "mods/shader.h"
 #include "mods/noise.h"
 #include "mods/text.h"
 #include "soir.h"
@@ -75,8 +75,8 @@ StatusOr<std::unique_ptr<Mod>> Mod::MakeMod(Context &ctx,
   if (type == ModNoise::kModName) {
     return {std::make_unique<ModNoise>(ctx)};
   }
-  if (type == ModExp::kModName) {
-    return {std::make_unique<ModExp>(ctx)};
+  if (type == ModShader::kModName) {
+    return {std::make_unique<ModShader>(ctx)};
   }
 
   RETURN_ERROR(StatusCode::UNKNOWN_MOD_TYPE,

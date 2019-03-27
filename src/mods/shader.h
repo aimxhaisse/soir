@@ -5,11 +5,11 @@
 
 namespace soir {
 
-class ModExp : public Mod {
+class ModShader : public Mod {
 public:
-  static constexpr const char *kModName = "exp";
+  static constexpr const char *kModName = "shader";
 
-  ModExp(Context &ctx);
+  ModShader(Context &ctx);
   Status Init(const Config &config);
   void Render();
 
