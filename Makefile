@@ -3,7 +3,7 @@
 # Good old makefile, for now.
 
 CXXFLAGS = -g -Wall -std=c++17 $(shell freetype-config --cflags) -Isrc
-LDLIBS = -lglog -lgflags -lyaml-cpp -lsfml-graphics -lsfml-window -lsfml-system -lrtmidi
+LDLIBS = -lglog -lgflags -lyaml-cpp -lsfml-graphics -lsfml-window -lsfml-system -lrtmidi -lboost_filesystem
 
 PRGM := bin/soir
 TEST := bin/soir_test

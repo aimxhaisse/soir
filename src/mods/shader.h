@@ -1,6 +1,10 @@
 #ifndef SOIR_MOD_EXP_H
 #define SOIR_MOD_EXP_H
 
+// For <reasons>, filesystem is not yet available in Mac OS' version
+// of C++17.
+#include <boost/filesystem.hpp>
+
 #include "gfx.h"
 
 namespace soir {
@@ -14,9 +18,12 @@ public:
   void Render();
 
 private:
+  void MaybeReloadShader();
+
   std::unique_ptr<sf::RenderTexture> texture_;
   sf::RectangleShape overlay_;
-  sf::Shader shader_;
+  std::unique_ptr<sf::Shader> shader_;
+  std::time_t version_;
 };
 
 } // namespace soir
