@@ -35,9 +35,13 @@ Config *Context::CoreConfig() { return core_config_; }
 
 sf::RenderWindow *Context::Window() { return window_; }
 
-sf::RenderTexture *Context::CurrentTexture() { return current_txt_; }
+sf::RenderTexture *Context::CurrentTexture() {
+  return current_layer_->Texture();
+}
 
 sf::Sprite *Context::CurrentSprite() { return current_sprite_; }
+
+Layer *Context::CurrentLayer() { return current_layer_; }
 
 MidiRouter *Context::Router() { return midi_router_; }
 
@@ -135,7 +139,9 @@ Status Soir::Run() {
 
     window_->clear(sf::Color::Black);
     for (auto &layer : layers_) {
+      ctx_.current_layer_ = layer.get();
       layer->Render();
+      ctx_.current_layer_ = nullptr;
     }
     window_->display();
   }

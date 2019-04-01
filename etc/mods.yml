@@ -2,7 +2,6 @@
 
 root:
   - units:
-      - type: shader
       - type: noise
         bindings:
           digitakt.kick: ["switchMode"]
@@ -12,3 +11,4 @@ root:
           position: center
         bindings:
           digitakt.kick: ["shiftLetters"]
+      - type: shader

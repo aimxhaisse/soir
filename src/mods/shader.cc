@@ -18,9 +18,22 @@ Status ModShader::Init(const Config &config) {
   overlay_.setSize(sf::Vector2f(ctx_.BufferWidth(), ctx_.BufferHeight()));
   overlay_.setFillColor(sf::Color::Red);
 
+  texture_ = std::make_unique<sf::RenderTexture>();
+  if (!texture_->create(ctx_.BufferWidth(), ctx_.BufferHeight())) {
+    RETURN_ERROR(INTERNAL_GFX_ERROR,
+                 "Unable to create shader texture with width="
+                     << ctx_.BufferWidth()
+                     << ", height=" << ctx_.BufferHeight());
+  }
+
   return StatusCode::OK;
 }
 
-void ModShader::Render() { ctx_.CurrentTexture()->draw(overlay_, &shader_); }
+void ModShader::Render() {
+  shader_.setUniform("texture", sf::Shader::CurrentTexture);
+  texture_->clear();
+  texture_->draw(sf::Sprite(ctx_.CurrentTexture()->getTexture()), &shader_);
+  ctx_.CurrentLayer()->SwapTexture(texture_);
+}
 
 } // namespace soir

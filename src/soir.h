@@ -26,6 +26,7 @@ public:
 
   sf::RenderTexture *CurrentTexture();
   sf::Sprite *CurrentSprite();
+  Layer *CurrentLayer();
 
   // Size of the window.
   int WindowWidth() const;
@@ -41,8 +42,8 @@ private:
   int buffer_height_ = 0;
   Config *core_config_ = nullptr;
   sf::RenderWindow *window_ = nullptr;
-  sf::RenderTexture *current_txt_ = nullptr;
   sf::Sprite *current_sprite_ = nullptr;
+  Layer *current_layer_ = nullptr;
   MidiRouter *midi_router_;
 };
 

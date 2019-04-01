@@ -14,6 +14,7 @@ public:
   void Render();
 
 private:
+  std::unique_ptr<sf::RenderTexture> texture_;
   sf::RectangleShape overlay_;
   sf::Shader shader_;
 };

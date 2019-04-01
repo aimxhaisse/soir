@@ -2,8 +2,8 @@
 
 #include "gfx.h"
 #include "mods/debug.h"
-#include "mods/shader.h"
 #include "mods/noise.h"
+#include "mods/shader.h"
 #include "mods/text.h"
 #include "soir.h"
 
@@ -92,6 +92,12 @@ Status Layer::Init() {
   return StatusCode::OK;
 }
 
+sf::RenderTexture *Layer::Texture() { return texture_.get(); }
+
+void Layer::SwapTexture(std::unique_ptr<sf::RenderTexture> &texture) {
+  texture_.swap(texture);
+}
+
 void Layer::AppendMod(std::unique_ptr<Mod> mod) {
   mods_.emplace_back(std::move(mod));
 }
@@ -115,12 +121,10 @@ void Layer::Render() {
 
   texture_->clear(sf::Color::Transparent);
 
-  ctx_.current_txt_ = texture_.get();
   ctx_.current_sprite_ = &sprite;
   for (auto &mod : mods_) {
     mod->Render();
   }
-  ctx_.current_txt_ = nullptr;
   ctx_.current_sprite_ = nullptr;
 
   texture_->display();

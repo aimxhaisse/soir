@@ -55,6 +55,8 @@ public:
   explicit Layer(Context &ctx);
 
   Status Init();
+  sf::RenderTexture *Texture();
+  void SwapTexture(std::unique_ptr<sf::RenderTexture> &texture);
   void AppendMod(std::unique_ptr<Mod> mod);
   void Render();
 
