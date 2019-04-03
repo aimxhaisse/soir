@@ -128,8 +128,6 @@ Status Soir::InitMods() {
 
 Status Soir::Run() {
   while (window_->isOpen()) {
-    ctx_.clock_.restart();
-
     midi_router_->ProcessEvents();
 
     sf::Event event;
