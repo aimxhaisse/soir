@@ -5,7 +5,7 @@
 
 namespace soir {
 
-constexpr const char *kShaderPath = "etc/shaders/exp.vert";
+constexpr const char *kShaderDir = "etc/shaders/";
 
 ModShader::ModShader(Context &ctx) : Mod(ctx) {}
 
@@ -14,6 +14,8 @@ Status ModShader::Init(const Config &config) {
     RETURN_ERROR(INTERNAL_GFX_ERROR,
                  "Shaders aren't supported on this hardware");
   }
+
+  path_ = std::string(kShaderDir) + config.Get<std::string>("params.shader");
 
   MaybeReloadShader();
 
@@ -33,7 +35,7 @@ Status ModShader::Init(const Config &config) {
 
 void ModShader::MaybeReloadShader() {
   auto new_version =
-      boost::filesystem::last_write_time(boost::filesystem::path(kShaderPath));
+      boost::filesystem::last_write_time(boost::filesystem::path(path_));
   if (new_version != version_) {
     // Even if we fail to load it, we want to override the version
     // here so that we don't retry to load the shader again. We'll
@@ -41,11 +43,11 @@ void ModShader::MaybeReloadShader() {
     version_ = new_version;
 
     std::unique_ptr<sf::Shader> new_shader = std::make_unique<sf::Shader>();
-    if (new_shader->loadFromFile(kShaderPath, sf::Shader::Fragment)) {
+    if (new_shader->loadFromFile(path_, sf::Shader::Fragment)) {
       shader_.swap(new_shader);
-      LOG(INFO) << "Reloaded shader";
+      LOG(INFO) << "Reloaded shader " << path_;
     } else {
-      LOG(WARNING) << "Unable to load shader file " << kShaderPath;
+      LOG(WARNING) << "Unable to load shader file " << path_;
     }
   }
 }

@@ -12,3 +12,5 @@ root:
         bindings:
           digitakt.kick: ["shiftLetters"]
       - type: shader
+        params:
+          shader: "exp.vert"
