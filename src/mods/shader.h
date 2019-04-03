@@ -21,7 +21,6 @@ private:
   void MaybeReloadShader();
 
   std::unique_ptr<sf::RenderTexture> texture_;
-  sf::RectangleShape overlay_;
   std::unique_ptr<sf::Shader> shader_;
   std::string path_;
   std::time_t version_;

@@ -19,9 +19,6 @@ Status ModShader::Init(const Config &config) {
 
   MaybeReloadShader();
 
-  overlay_.setSize(sf::Vector2f(ctx_.BufferWidth(), ctx_.BufferHeight()));
-  overlay_.setFillColor(sf::Color::Red);
-
   texture_ = std::make_unique<sf::RenderTexture>();
   if (!texture_->create(ctx_.BufferWidth(), ctx_.BufferHeight())) {
     RETURN_ERROR(INTERNAL_GFX_ERROR,
