@@ -51,14 +51,20 @@ void ModShader::MaybeReloadShader() {
 
 void ModShader::Render() {
   MaybeReloadShader();
-  if (!shader_) {
-    return;
+
+  texture_->clear();
+
+  if (shader_) {
+    shader_->setUniform("texture", sf::Shader::CurrentTexture);
+
+    const sf::Time time = ctx_.Clock().getElapsedTime();
+    shader_->setUniform("time_s", time.asSeconds());
+    shader_->setUniform("time_ms", time.asMilliseconds());
+
+    texture_->draw(sf::Sprite(ctx_.CurrentTexture()->getTexture()),
+                   shader_.get());
   }
 
-  shader_->setUniform("texture", sf::Shader::CurrentTexture);
-  texture_->clear();
-  texture_->draw(sf::Sprite(ctx_.CurrentTexture()->getTexture()),
-                 shader_.get());
   ctx_.CurrentLayer()->SwapTexture(texture_);
 }
 
