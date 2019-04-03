@@ -27,6 +27,7 @@ public:
   sf::RenderTexture *CurrentTexture();
   sf::Sprite *CurrentSprite();
   Layer *CurrentLayer();
+  const sf::Clock &Clock() const;
 
   // Size of the window.
   int WindowWidth() const;
@@ -45,6 +46,7 @@ private:
   sf::Sprite *current_sprite_ = nullptr;
   Layer *current_layer_ = nullptr;
   MidiRouter *midi_router_;
+  sf::Clock clock_;
 };
 
 class Soir {

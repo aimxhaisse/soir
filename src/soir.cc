@@ -43,6 +43,8 @@ sf::Sprite *Context::CurrentSprite() { return current_sprite_; }
 
 Layer *Context::CurrentLayer() { return current_layer_; }
 
+const sf::Clock &Context::Clock() const { return clock_; }
+
 MidiRouter *Context::Router() { return midi_router_; }
 
 int Context::WindowWidth() const { return window_->getSize().x; }
@@ -126,6 +128,8 @@ Status Soir::InitMods() {
 
 Status Soir::Run() {
   while (window_->isOpen()) {
+    ctx_.clock_.restart();
+
     midi_router_->ProcessEvents();
 
     sf::Event event;
