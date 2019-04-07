@@ -61,6 +61,10 @@ void ModShader::Render() {
     shader_->setUniform("time_s", time.asSeconds());
     shader_->setUniform("time_ms", time.asMilliseconds());
 
+    shader_->setUniform(
+        "resolution", sf::Glsl::Vec2(static_cast<float>(ctx_.BufferWidth()),
+                                     static_cast<float>(ctx_.BufferHeight())));
+
     texture_->draw(sf::Sprite(ctx_.CurrentTexture()->getTexture()),
                    shader_.get());
   }
