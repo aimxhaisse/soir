@@ -61,7 +61,7 @@ public:
   void Render();
 
 private:
-  void InitSprite(sf::Sprite &sprite);
+  sf::Sprite MakeSprite();
 
   Context &ctx_;
   std::vector<std::unique_ptr<Mod>> mods_;

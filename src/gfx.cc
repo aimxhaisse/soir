@@ -102,7 +102,11 @@ void Layer::AppendMod(std::unique_ptr<Mod> mod) {
   mods_.emplace_back(std::move(mod));
 }
 
-void Layer::InitSprite(sf::Sprite &sprite) {
+sf::Sprite Layer::MakeSprite() {
+  sf::Sprite sprite;
+
+  sprite.setTexture(texture_->getTexture());
+
   const double window_w = static_cast<double>(ctx_.WindowWidth());
   const double window_h = static_cast<double>(ctx_.WindowHeight());
   const double w = static_cast<double>(ctx_.BufferWidth());
@@ -111,26 +115,19 @@ void Layer::InitSprite(sf::Sprite &sprite) {
   if (window_w && window_h && w && h) {
     const double ratio_x = window_w / w;
     const double ratio_y = window_h / h;
-    sprite.setScale(std::max(1.0, ratio_x), std::max(1.0, ratio_y));
+    sprite.setScale(ratio_x, ratio_y);
   }
+
+  return sprite;
 }
 
 void Layer::Render() {
-  sf::Sprite sprite;
-  InitSprite(sprite);
-
-  texture_->clear(sf::Color::Transparent);
-
-  ctx_.current_sprite_ = &sprite;
+  texture_->clear(sf::Color::Blue);
   for (auto &mod : mods_) {
     mod->Render();
   }
-  ctx_.current_sprite_ = nullptr;
-
   texture_->display();
-  sprite.setTexture(texture_->getTexture());
-
-  ctx_.Window()->draw(sprite);
+  ctx_.Window()->draw(MakeSprite());
 }
 
 } // namespace soir

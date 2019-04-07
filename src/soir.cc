@@ -39,17 +39,15 @@ sf::RenderTexture *Context::CurrentTexture() {
   return current_layer_->Texture();
 }
 
-sf::Sprite *Context::CurrentSprite() { return current_sprite_; }
-
 Layer *Context::CurrentLayer() { return current_layer_; }
 
 const sf::Clock &Context::Clock() const { return clock_; }
 
 MidiRouter *Context::Router() { return midi_router_; }
 
-int Context::WindowWidth() const { return window_->getSize().x; }
+int Context::WindowWidth() const { return window_width_; }
 
-int Context::WindowHeight() const { return window_->getSize().y; }
+int Context::WindowHeight() const { return window_height_; }
 
 int Context::BufferWidth() const { return buffer_width_; }
 
@@ -81,9 +79,9 @@ Status Soir::InitWindow() {
   ctx_.buffer_width_ = buffer_width;
   ctx_.buffer_height_ = buffer_height;
 
-  const int window_width =
+  ctx_.window_width_ =
       core_config_->Get<int>("core.window_width", kDefaultWindowWidth);
-  const int window_height =
+  ctx_.window_height_ =
       core_config_->Get<int>("core.window_height", kDefaultWindowHeight);
   const std::string title =
       core_config_->Get<std::string>("core.title", kDefaultTitle);
@@ -101,7 +99,7 @@ Status Soir::InitWindow() {
   }
 
   window_ = std::make_unique<sf::RenderWindow>(
-      sf::VideoMode(window_width, window_height), title, style);
+      sf::VideoMode(ctx_.window_width_, ctx_.window_height_), title, style);
 
   window_->setVerticalSyncEnabled(true);
   window_->setFramerateLimit(

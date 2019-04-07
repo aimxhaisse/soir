@@ -25,7 +25,6 @@ public:
   MidiRouter *Router();
 
   sf::RenderTexture *CurrentTexture();
-  sf::Sprite *CurrentSprite();
   Layer *CurrentLayer();
   const sf::Clock &Clock() const;
 
@@ -39,13 +38,21 @@ public:
   int BufferHeight() const;
 
 private:
+  // This is somewhat a lie, this is not updated whenever the window
+  // is resized because SFML already handles scales automatically. We
+  // can consider the window size as being the one set from the
+  // beginning, so this is cached.
+  int window_width_ = 0;
+  int window_height_ = 0;
+
   int buffer_width_ = 0;
   int buffer_height_ = 0;
+
   Config *core_config_ = nullptr;
   sf::RenderWindow *window_ = nullptr;
-  sf::Sprite *current_sprite_ = nullptr;
   Layer *current_layer_ = nullptr;
-  MidiRouter *midi_router_;
+  MidiRouter *midi_router_ = nullptr;
+
   sf::Clock clock_;
 };
 
