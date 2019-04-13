@@ -24,6 +24,8 @@ private:
   std::unique_ptr<sf::Shader> shader_;
   std::string path_;
   std::time_t version_;
+
+  std::string glsl_defaults_;
 };
 
 } // namespace soir

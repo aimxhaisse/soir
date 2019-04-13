@@ -1,3 +1,5 @@
+#include <istream>
+
 #include <glog/logging.h>
 
 #include "shader.h"
@@ -6,6 +8,18 @@
 namespace soir {
 
 constexpr const char *kShaderDir = "etc/shaders/";
+constexpr const char *kShaderUniforms = "etc/shaders/uniforms.vert";
+constexpr const char *kShaderCommon = "etc/shaders/common.vert";
+
+namespace {
+
+std::string FileToString(const std::string &path) {
+  std::ifstream ifs(path);
+  return std::string((std::istreambuf_iterator<char>(ifs)),
+                     (std::istreambuf_iterator<char>()));
+}
+
+} // namespace
 
 ModShader::ModShader(Context &ctx) : Mod(ctx) {}
 
@@ -13,6 +27,15 @@ Status ModShader::Init(const Config &config) {
   if (!sf::Shader::isAvailable()) {
     RETURN_ERROR(INTERNAL_GFX_ERROR,
                  "Shaders aren't supported on this hardware");
+  }
+
+  for (const auto &path : {kShaderUniforms, kShaderCommon}) {
+    const std::string contents = FileToString(path);
+    if (contents.empty()) {
+      RETURN_ERROR(INVALID_SHADER_FILE,
+                   "Unable to find shader file '" << path << "'.");
+    }
+    glsl_defaults_ += contents;
   }
 
   path_ = std::string(kShaderDir) + config.Get<std::string>("params.shader");
@@ -40,7 +63,8 @@ void ModShader::MaybeReloadShader() {
     version_ = new_version;
 
     std::unique_ptr<sf::Shader> new_shader = std::make_unique<sf::Shader>();
-    if (new_shader->loadFromFile(path_, sf::Shader::Fragment)) {
+    if (new_shader->loadFromMemory(glsl_defaults_ + FileToString(path_),
+                                   sf::Shader::Fragment)) {
       shader_.swap(new_shader);
       LOG(INFO) << "Reloaded shader " << path_;
     } else {
