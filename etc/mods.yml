@@ -13,4 +13,4 @@ root:
           digitakt.kick: ["shiftLetters"]
       - type: shader
         params:
-          shader: "alien.vert"
+          shader: "spirals.vert"

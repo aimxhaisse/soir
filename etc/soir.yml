@@ -7,14 +7,14 @@ core:
   title: "Soir"
 
   # Whether or not to run Soir in fullscreen mode.
-  fullscreen: false
+  fullscreen: flase
 
   # Whether or not to allow resizes.
   resize: true
 
   # Resolution of the buffer.
-  buffer_width: 320
-  buffer_height: 200
+  buffer_width: 1400
+  buffer_height: 900
 
   # Resolution of the window.
   window_width: 1440
