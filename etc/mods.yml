@@ -13,4 +13,4 @@ root:
           digitakt.kick: ["shiftLetters"]
       - type: shader
         params:
-          shader: "spirals.vert"
+          shader: "cripoudant.vert"
