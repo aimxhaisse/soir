@@ -1,8 +1,6 @@
 #ifndef SOIR_MOD_EXP_H
 #define SOIR_MOD_EXP_H
 
-// For <reasons>, filesystem is not yet available in Mac OS' version
-// of C++17.
 #include <boost/filesystem.hpp>
 
 #include "gfx.h"

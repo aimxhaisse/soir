@@ -5,12 +5,15 @@ root:
       - type: noise
         bindings:
           digitakt.kick: ["switchMode"]
+      - type: shader
+        params:
+          shader: "cripoudant.vert"
+      - type: carousel
+        params:
+          directory: "etc/images"
       - type: text
         params:
           text: "SOIR"
           position: center
         bindings:
           digitakt.kick: ["shiftLetters"]
-      - type: shader
-        params:
-          shader: "cripoudant.vert"

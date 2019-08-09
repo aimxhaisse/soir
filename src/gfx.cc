@@ -1,6 +1,7 @@
 #include <glog/logging.h>
 
 #include "gfx.h"
+#include "mods/carousel.h"
 #include "mods/debug.h"
 #include "mods/noise.h"
 #include "mods/shader.h"
@@ -77,6 +78,9 @@ StatusOr<std::unique_ptr<Mod>> Mod::MakeMod(Context &ctx,
   }
   if (type == ModShader::kModName) {
     return {std::make_unique<ModShader>(ctx)};
+  }
+  if (type == ModCarousel::kModName) {
+    return {std::make_unique<ModCarousel>(ctx)};
   }
 
   RETURN_ERROR(StatusCode::UNKNOWN_MOD_TYPE,
