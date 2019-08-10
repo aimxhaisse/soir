@@ -14,3 +14,6 @@ root:
         params:
           shader: "opacity.vert"
           value: 0.6
+  - mods:
+      - type: debug
+
