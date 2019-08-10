@@ -112,7 +112,7 @@ Status Soir::InitMods() {
   for (const auto &layers_config : mods_config_->GetConfigs("root")) {
     std::unique_ptr<Layer> layer = std::make_unique<Layer>(ctx_);
     RETURN_IF_ERROR(layer->Init());
-    for (const auto &mod_config : layers_config->GetConfigs("units")) {
+    for (const auto &mod_config : layers_config->GetConfigs("mods")) {
       const std::string mod_type = mod_config->Get<std::string>("type");
       std::unique_ptr<Mod> mod;
       MOVE_OR_RETURN(mod, Mod::MakeMod(ctx_, mod_type));

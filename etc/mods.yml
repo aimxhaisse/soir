@@ -1,7 +1,7 @@
 # Mods.
 
 root:
-  - units:
+  - mods:
       - type: noise
         bindings:
           digitakt.kick: ["switchMode"]
