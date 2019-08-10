@@ -16,13 +16,22 @@ public:
   void Render();
 
 private:
+  Status InitScalingMode(const Config &config);
+  Status LoadTextures(const Config &config);
+
   void SwitchImage(const MidiMessage &);
+
+  enum ScalingMode {
+    NONE,
+    AUTO,
+  };
 
   // Map of image names to textures.
   using Textures = std::map<std::string, std::unique_ptr<sf::Texture>>;
 
   Textures textures_;
   Textures::iterator current_texture_;
+  ScalingMode scaling_mode_;
 };
 
 } // namespace soir
