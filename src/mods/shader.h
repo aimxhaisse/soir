@@ -15,6 +15,8 @@ public:
   Status Init(const Config &config);
   void Render();
 
+  sf::Shader &GetShader();
+
 private:
   void MaybeReloadShader();
 

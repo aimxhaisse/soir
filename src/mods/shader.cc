@@ -96,4 +96,6 @@ void ModShader::Render() {
   ctx_.CurrentLayer()->SwapTexture(texture_);
 }
 
+sf::Shader &ModShader::GetShader() { return *shader_; }
+
 } // namespace soir

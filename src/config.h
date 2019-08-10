@@ -8,6 +8,7 @@
 #include <yaml-cpp/yaml.h>
 
 #include "status.h"
+#include "utils.h"
 
 namespace soir {
 

@@ -33,7 +33,7 @@ private:
 
 class Mod {
 public:
-  Mod(Context &ctx);
+  explicit Mod(Context &ctx);
   virtual ~Mod();
 
   virtual Status Init(const Config &config) { return StatusCode::OK; }

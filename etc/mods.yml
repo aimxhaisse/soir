@@ -2,19 +2,15 @@
 
 root:
   - mods:
-      - type: noise
-        bindings:
-          digitakt.kick: ["switchMode"]
-      - type: shader
-        params:
-          shader: "cripoudant.vert"
       - type: carousel
         params:
           scaling: "auto"
           directory: "etc/images"
-      - type: text
-        params:
-          text: "SOIR"
-          position: center
+  - mods:
+      - type: noise
         bindings:
-          digitakt.kick: ["shiftLetters"]
+          digitakt.kick: ["switchMode"]
+      - type: opacity
+        params:
+          shader: "opacity.vert"
+          value: 0.6

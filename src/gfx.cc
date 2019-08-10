@@ -4,6 +4,7 @@
 #include "mods/carousel.h"
 #include "mods/debug.h"
 #include "mods/noise.h"
+#include "mods/opacity.h"
 #include "mods/shader.h"
 #include "mods/text.h"
 #include "soir.h"
@@ -82,6 +83,9 @@ StatusOr<std::unique_ptr<Mod>> Mod::MakeMod(Context &ctx,
   if (type == ModCarousel::kModName) {
     return {std::make_unique<ModCarousel>(ctx)};
   }
+  if (type == ModOpacity::kModName) {
+    return {std::make_unique<ModOpacity>(ctx)};
+  }
 
   RETURN_ERROR(StatusCode::UNKNOWN_MOD_TYPE,
                "Unrecognized mode type, type='" << type << "'");
@@ -126,12 +130,12 @@ sf::Sprite Layer::MakeSprite() {
 }
 
 void Layer::Render() {
-  texture_->clear(sf::Color::Blue);
+  texture_->clear(sf::Color::Transparent);
   for (auto &mod : mods_) {
     mod->Render();
   }
   texture_->display();
-  ctx_.Window()->draw(MakeSprite());
+  ctx_.Window()->draw(MakeSprite(), sf::RenderStates(sf::BlendAdd));
 }
 
 } // namespace soir
