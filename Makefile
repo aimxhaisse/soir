@@ -37,7 +37,7 @@ GENS_GRPC := $(SRCS_GRPC:.proto=.grpc.pb.cc)
 OBJS_GRPC := $(SRCS_GRPC:.proto=.grpc.pb.o)
 HEAD_GRPC := $(SRCS_GRPC:.proto=.grpc.pb.h) $(SRCS_GRPC:.proto=.grpc.pb.d)
 
-GTEST_VERSION 	:= v1.10.x
+GTEST_VERSION 	:= v1.14.0
 
 .PHONY: all fmt clean test
 
@@ -49,6 +49,7 @@ help:
 	@echo "make fmt         # format code"
 	@echo "make clean       # clean all build artifacts"
 	@echo "make test        # run unit tests"
+	@echo "make deps        # prepare deps"
 	@echo ""
 
 all: $(MAETHSTRO) $(TEST)
@@ -67,6 +68,8 @@ bin:
 
 build:
 	mkdir -p build
+
+deps: $(DEPS_GTEST)
 
 %.o: %.cc $(ALL_DEPS)
 	$(CXX) $(CXXFLAGS) -MMD -MP -c $< -o $@
@@ -92,7 +95,7 @@ $(DEPS):
 $(DEPS_GTEST_DIR): $(DEPS)
 	git clone https://github.com/google/googletest.git $@
 	touch $(DEPS)/*
-	cd $(DEPS_GTEST_DIR) && git checkout origin/$(GTEST_VERSION) -b $(GTEST_VERSION)
+	cd $(DEPS_GTEST_DIR) && git checkout $(GTEST_VERSION) -b $(GTEST_VERSION)
 
 $(DEPS_GTEST): $(DEPS_GTEST_DIR)
 	cd $(DEPS_GTEST_DIR) && mkdir -p build && cd build && cmake .. && make
