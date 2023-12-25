@@ -1,0 +1,244 @@
+# Waves configuration.
+
+maethstro:
+  port: 8100
+  host: 0.0.0.0
+  bpm: 140
+
+  liquid:
+    host: liquidsoap
+    port: 8101
+    mount: /waves
+    password: 9mRTjfIRvh+4gEwakEl1bw
+
+  tracks:
+
+  # Blocks track.
+  #
+  # Played randomly at the exact moment a block is built on the
+  # blockchain. There are 4 initial snares here, panned at different
+  # stereo positions to give some non-predictability. Later we might
+  # re-render them with different pitchshifts if we want to be
+  # fancier.
+  - name: blocks
+    instrument:
+      type: sampler
+      sample_dir: ../data/waves/daw_data/samples/merge/
+      events:
+      - midi_note: 60
+        midi_chan: 1
+        sample: BLOCK_21
+      - midi_note: 61
+        midi_chan: 1
+        sample: BLOCK_22
+      - midi_note: 62
+        midi_chan: 1
+        sample: BLOCK_23
+      - midi_note: 63
+        midi_chan: 1
+        sample: BLOCK_24
+      - midi_note: 64
+        midi_chan: 1
+        sample: BLOCK_25
+      - midi_note: 65
+        midi_chan: 1
+        sample: BLOCK_26
+      - midi_note: 66
+        midi_chan: 1
+        sample: BLOCK_27
+      - midi_note: 67
+        midi_chan: 1
+        sample: BLOCK_28
+      - midi_note: 68
+        midi_chan: 1
+        sample: BLOCK_29
+      - midi_note: 69
+        midi_chan: 1
+        sample: BLOCK_30
+      - midi_note: 70
+        midi_chan: 1
+        sample: BLOCK_31
+      - midi_note: 71
+        midi_chan: 1
+        sample: BLOCK_32
+      - midi_note: 72
+        midi_chan: 1
+        sample: BLOCK_33
+      - midi_note: 73
+        midi_chan: 1
+        sample: BLOCK_34
+      - midi_note: 74
+        midi_chan: 1
+        sample: BLOCK_35
+      - midi_note: 75
+        midi_chan: 1
+        sample: BLOCK_36
+      - midi_note: 76
+        midi_chan: 1
+        sample: BLOCK_37
+      - midi_note: 77
+        midi_chan: 1
+        sample: BLOCK_38
+      - midi_note: 78
+        midi_chan: 1
+        sample: BLOCK_39
+      - midi_note: 79
+        midi_chan: 1
+        sample: BLOCK_40
+    effects: []
+
+  # Drums track.
+  #
+  # There should be at least one playing all the time to give some
+  # rythm to the track. All can be layed together somewhat nicely.
+  - name: drums
+    instrument:
+      type: sampler
+      sample_dir: ../data/waves/daw_data/samples/merge/
+      events:
+      - midi_note: 60
+        midi_chan: 2
+        sample: DRUMS_CH_1
+      - midi_note: 61
+        midi_chan: 2
+        sample: DRUMS_HH_1
+      - midi_note: 62
+        midi_chan: 2
+        sample: DRUMS_KP_1
+      - midi_note: 63
+        midi_chan: 2
+        sample: DRUMS_KS_1
+      - midi_note: 64
+        midi_chan: 2
+        sample: DRUMS_OH_1
+      - midi_note: 65
+        midi_chan: 2
+        sample: DRUMS_PCH_1
+      - midi_note: 66
+        midi_chan: 2
+        sample: DRUMS_SHAKE_3
+      - midi_note: 67
+        midi_chan: 2
+        sample: DRUMS_SHAKE_4
+      - midi_note: 68
+        midi_chan: 2
+        sample: DRUMS_SHAKE_5
+      - midi_note: 69
+        midi_chan: 2
+        sample: DRUMS_SN_1
+    effects: []
+
+  # Bass track.
+  #
+  # Similar to the drums: everything can be played together here
+  # somewhat nicely.
+  - name: bass
+    instrument:
+      type: sampler
+      sample_dir: ../data/waves/daw_data/samples/merge/
+      events:
+      - midi_note: 60
+        midi_chan: 3
+        sample: BASS_DARK_STAB_1
+      - midi_note: 61
+        midi_chan: 3
+        sample: BASS_MAIN_1
+      - midi_note: 62
+        midi_chan: 3
+        sample: BASS_MID_1
+      - midi_note: 63
+        midi_chan: 3
+        sample: BASS_MID_MOTIV_1
+      - midi_note: 64
+        midi_chan: 3
+        sample: BASS_MINISTAB_1
+      - midi_note: 65
+        midi_chan: 3
+        sample: BASS_STABS_1
+    effects: []
+
+  # FX track.
+  #
+  # Similar to the drums & bass: everything can be played together
+  # here somewhat nicely. This is without rythm and similarly to the
+  # blocks samples we could maybe add more space here with panning or
+  # specific effects.
+  - name: fx
+    instrument:
+      type: sampler
+      sample_dir: ../data/waves/daw_data/samples/merge/
+      events:
+      - midi_note: 60
+        midi_chan: 4
+        sample: FX_BREATH_1
+      - midi_note: 61
+        midi_chan: 4
+        sample: FX_SIDECHAIN_1
+      - midi_note: 62
+        midi_chan: 4
+        sample: FX_VOICE_2
+    effects: []
+
+  # Organ track.
+  #
+  # Similar to the drums, bass and fx: everything can be played together
+  # here somewhat nicely.
+  - name: organ
+    instrument:
+      type: sampler
+      sample_dir: ../data/waves/daw_data/samples/merge/
+      events:
+      - midi_note: 60
+        midi_chan: 5
+        sample: PAD_ORGAN_6
+      - midi_note: 61
+        midi_chan: 5
+        sample: PAD_ORGAN_7
+    effects: []
+
+  # Booms track.
+  #
+  # This one is a bit special, from time to time we start a sequence
+  # with a big boom. Only one at a time should be played. That's it.
+  - name: booms
+    instrument:
+      type: sampler
+      sample_dir: ../data/waves/daw_data/samples/merge/
+      events:
+      - midi_note: 60
+        midi_chan: 6
+        sample: BOOMS_5
+      - midi_note: 61
+        midi_chan: 6
+        sample: BOOMS_6
+      - midi_note: 62
+        midi_chan: 6
+        sample: BOOMS_7
+      - midi_note: 63
+        midi_chan: 6
+        sample: BOOMS_8
+    effects: []
+
+  # M1ch3l.
+  #
+  # Unsure how we should use this one for now.
+  - name: m1ch3l
+    instrument:
+      type: sampler
+      sample_dir: ../data/waves/daw_data/samples/merge/
+      events:
+      - midi_note: 60
+        midi_chan: 7
+        sample: ROCKY_THE_MERGE_BOUNCED_1
+    effects: []
+
+  # Do the Merge.
+  - name: merge
+    instrument:
+      type: sampler
+      sample_dir: ../data/waves/daw_data/samples/merge/
+      events:
+      - midi_note: 60
+        midi_chan: 8
+        sample: DO_MERGE
+    effects: []
