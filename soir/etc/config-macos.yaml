@@ -1,0 +1,19 @@
+# Waves configuration.
+
+maethstro:
+  port: 8100
+  host: 0.0.0.0
+  liquid:
+    host: 127.0.0.1
+    port: 8101
+    osc_port: 7777
+    mount: /waves
+    password: 9mRTjfIRvh+4gEwakEl1bw
+  tracks:
+  - name: bass
+    instrument:
+      path: ../data/waves/daw_data/VST3/Darwin/sfizz.vst3
+      preset: ../data/waves/daw_data/Presets/ambz-salamander-darwin.vstpreset
+    effects:
+    - path: ../data/waves/daw_data/VST3/Darwin/Mauve_1.0.vst3
+      preset: ../data/waves/daw_data/Presets/mauve-bass-1.vstpreset
