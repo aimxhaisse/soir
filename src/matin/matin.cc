@@ -1,4 +1,3 @@
-
 #include "matin.hh"
 
 namespace maethstro {

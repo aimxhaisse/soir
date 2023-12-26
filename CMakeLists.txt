@@ -15,11 +15,16 @@ add_library(maethstro_matin
   src/matin/matin.cc
 )
 
+add_library(maethstro_common
+  src/common/config.cc
+)
+
 add_executable(maethstro
   src/main.cc
 )
 
 target_link_libraries(maethstro
+  maethstro_common
   maethstro_matin
   absl::strings
   absl::log
