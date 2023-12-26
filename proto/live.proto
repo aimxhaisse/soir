@@ -1,0 +1,23 @@
+// Maethstro L I V E
+//
+// There are two services:
+//
+// Midi: processes incoming requests from Matin
+// Soir: processes incoming requests from Midi 
+
+syntax = "proto3";
+
+package proto;
+
+message MatinLiveUpdate {
+  message Request {
+    string user = 1;
+    string code = 2;
+  }
+
+  message Response {}
+}
+
+service Midi {
+  rpc LiveUpdate(MatinLiveUpdate.Request) returns (MatinLiveUpdate.Response) {}
+}
