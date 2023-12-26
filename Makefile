@@ -26,6 +26,9 @@ clean:
 full-clean: clean
 	rm -rf $(DEPS_ABSEIL) $(BUILD_DIR)
 
+test: all
+	./$(BUILD_DIR)/maethstro_common_test
+
 # Build
 
 $(BUILD_DIR):
@@ -34,7 +37,7 @@ $(BUILD_DIR):
 $(BINARY): deps $(BUILD_DIR)
 	cd $(BUILD_DIR) && \
 	cmake -DABSL_PROPAGATE_CXX_STD=ON .. && \
-	cmake --build . --target maethstro && \
+	cmake --build . --target all && \
 	cp maethstro ../$(BINARY)
 
 # Deps
