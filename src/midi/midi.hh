@@ -1,13 +1,13 @@
 #pragma once
 
-#include "absl/status/status.h"
+#include <absl/status/status.h>
 
 namespace maethstro {
 
-class Matin {
+class Midi {
  public:
-  Matin();
-  ~Matin();
+  Midi();
+  ~Midi();
 
   absl::Status Init();
   absl::Status Run();
