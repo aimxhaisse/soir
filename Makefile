@@ -24,12 +24,18 @@ clean:
 	rm -rf $(BINARY)
 
 full-clean: clean
-	rm -f $(DEPS_ABSEIL)
+	rm -rf $(DEPS_ABSEIL) $(BUILD_DIR)
 
 # Build
 
-$(BINARY):
-	cd $(BUILD_DIR) && cmake .. && cmake --build . && cp maethstro ../$(BINARY)
+$(BUILD_DIR):
+	mkdir -p $@
+
+$(BINARY): deps $(BUILD_DIR)
+	cd $(BUILD_DIR) && \
+	cmake -DABSL_PROPAGATE_CXX_STD=ON .. && \
+	cmake --build . --target maethstro && \
+	cp maethstro ../$(BINARY)
 
 # Deps
 
@@ -38,5 +44,5 @@ $(DEPS_ABSEIL):
 	cd $@ && \
 	mkdir build && \
 	cd build && \
-	cmake -DABSL_BUILD_TESTING=ON -DABSL_USE_GOOGLETEST_HEAD=ON -DCMAKE_CXX_STANDARD=20 .. && \
+	cmake -DABSL_BUILD_TESTING=ON -DABSL_USE_GOOGLETEST_HEAD=ON -DCMAKE_CXX_STANDARD=20 -DABSL_PROPAGATE_CXX_STD=ON .. && \
 	cmake --build . --target all
