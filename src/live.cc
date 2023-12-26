@@ -2,6 +2,8 @@
 #include <absl/log/log.h>
 #include <absl/strings/str_cat.h>
 
+#include "common/signal.h"
+
 #include "live.hh"
 
 namespace maethstro {
@@ -24,25 +26,31 @@ absl::Status Live::Preamble() {
 absl::Status Live::Standalone() {
   LOG(INFO) << "Running in standalone mode";
 
+  auto status = WaitForExitSignal();
+  if (!status.ok()) {
+    LOG(ERROR) << "Unable to wait for exit signal: " << status;
+    return status;
+  }
+
   return absl::OkStatus();
 }
 
 absl::Status Live::Matin() {
-  LOG(ERROR) << "matin mode not yet implemented";
+  LOG(ERROR) << "Matin mode not yet implemented";
 
-  return absl::UnimplementedError("matin mode not yet implemented");
+  return absl::UnimplementedError("Matin mode not yet implemented");
 }
 
 absl::Status Live::Midi() {
-  LOG(ERROR) << "midi mode not yet implemented";
+  LOG(ERROR) << "Midi mode not yet implemented";
 
-  return absl::UnimplementedError("midi mode not yet implemented");
+  return absl::UnimplementedError("Midi mode not yet implemented");
 }
 
 absl::Status Live::Soir() {
-  LOG(ERROR) << "soir mode not yet implemented";
+  LOG(ERROR) << "Soir mode not yet implemented";
 
-  return absl::UnimplementedError("soir mode not yet implemented");
+  return absl::UnimplementedError("Soir mode not yet implemented");
 }
 
 }  // namespace maethstro
