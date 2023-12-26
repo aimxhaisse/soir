@@ -1,38 +1,37 @@
 # MAETHSTRO L I V E
+#
+# A sad Makefile that can't actually compile: Abseil does not support
+# simple unix linking without being a nightmare. It instead mimmics
+# what we'd expect from a stupid simple Makefile, calling cmake when
+# needed.
 
-# Variables
+BUILD_DIR	:= build
+BIN_DIR		:= bin
+BINARY		:= $(BIN_DIR)/maethstro
 
 DEPS_DIR 	:= deps
 DEPS_ABSEIL	:= $(DEPS_DIR)/abseil
 
-BIN_DIR 	:= bin
-BINARY 		:= $(BIN_DIR)/maethstro
-
-SRCS_LIVE 	:= $(filter-out $(wildcard src/*test.cc src/*/*test.cc), $(wildcard src/*.cc src/*/*.cc))
-OBJS_LIVE 	:= $(SRCS_LIVE:.cc=.o)
-DEPS_LIVE 	:= $(OBJS_LIVE:.o=.d)
-
-CXXFLAGS 	:= -O3 -Wall -Wno-unused-local-typedef -Wno-deprecated-declarations -std=c++20 -I.
-
-.PHONY: all build deps re clean full-clean
+.PHONY: all deps clean full-clean $(BINARY)
 
 # Commands
 
-all: build
-
-build: $(BINARY)
+all: $(BINARY)
 
 deps: $(DEPS_ABSEIL)
 
-re: clean all
-
 clean:
-	rm -rf $(OBJS_LIVE) $(DEPS_LIVE) $(BINARY)
+	rm -rf $(BINARY)
 
 full-clean: clean
 	rm -f $(DEPS_ABSEIL)
 
-# Dependencies
+# Build
+
+$(BINARY):
+	cd $(BUILD_DIR) && cmake .. && cmake --build . && cp maethstro ../$(BINARY)
+
+# Deps
 
 $(DEPS_ABSEIL):
 	git clone https://github.com/abseil/abseil-cpp.git $@ && \
@@ -41,11 +40,3 @@ $(DEPS_ABSEIL):
 	cd build && \
 	cmake -DABSL_BUILD_TESTING=ON -DABSL_USE_GOOGLETEST_HEAD=ON -DCMAKE_CXX_STANDARD=20 .. && \
 	cmake --build . --target all
-
-# Build
-
-$(BINARY): deps $(OBJS_LIVE)
-	clang++ $(OBJS_LIVE) -o $@
-
-%.o: %.cc
-	$(CXX) $(CXXFLAGS) -MMD -MP -c $< -o $@
