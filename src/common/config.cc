@@ -11,14 +11,14 @@ Config::Config(const YAML::Node& node) : node_(node) {}
 
 absl::StatusOr<std::unique_ptr<Config>> Config::LoadFromPath(
     const std::string& path) {
-  LOG(INFO) << "loading configuration file " << path;
+  LOG(INFO) << "Loading configuration file " << path;
 
   try {
     YAML::Node node = YAML::LoadFile(path);
     return std::make_unique<Config>(node);
   } catch (const std::exception& error) {
     return absl::InvalidArgumentError(
-        absl::StrCat("unable to load '", path, "': ", error.what(), "."));
+        absl::StrCat("Unable to load '", path, "': ", error.what(), "."));
   }
 }
 
@@ -29,7 +29,7 @@ absl::StatusOr<std::unique_ptr<Config>> Config::LoadFromString(
     return std::make_unique<Config>(node);
   } catch (const std::exception& error) {
     return absl::InvalidArgumentError(
-        absl::StrCat("unable to load configuration: ", error.what(), "."));
+        absl::StrCat("Unable to load configuration: ", error.what(), "."));
   }
 }
 

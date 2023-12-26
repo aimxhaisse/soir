@@ -7,8 +7,6 @@
 #
 # Standalone edition.
 
-mode: standalone
-
 # MATIN configuration.
 matin:
   # Watches all Python files in this directory and send them live to

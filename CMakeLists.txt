@@ -22,12 +22,17 @@ add_compile_definitions(MAETHSTRO_VERSION=${VERSION})
 
 add_executable(maethstro
   src/main.cc
+  src/live.cc
 )
 
-target_link_libraries(maethstro
+target_link_libraries(
+  maethstro
+  absl::base
+  absl::log
+  absl::status
+  absl::flags
+  absl::flags_parse
   maethstro_common
   maethstro_matin
   maethstro_midi
-  absl::log
-  absl::status
 )
