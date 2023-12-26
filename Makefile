@@ -14,13 +14,17 @@ DEPS_LIVE 	:= $(OBJS_LIVE:.o=.d)
 
 CXXFLAGS 	:= -O3 -Wall -Wno-unused-local-typedef -Wno-deprecated-declarations -std=c++20 -I.
 
-.PHONY: all deps clean
+.PHONY: all build deps re clean full-clean
 
 # Commands
 
-all: $(BINARY)
+all: build
+
+build: $(BINARY)
 
 deps: $(DEPS_ABSEIL)
+
+re: clean all
 
 clean:
 	rm -rf $(OBJS_LIVE) $(DEPS_LIVE) $(BINARY)
