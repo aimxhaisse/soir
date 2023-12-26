@@ -1,0 +1,36 @@
+# Maethstro
+#  _       ___  __     __  _____ 
+# | |     |_ _| \ \   / / | ____|
+# | |      | |   \ \ / /  |  _|  
+# | |___   | |    \ V /   | |___ 
+# |_____| |___|    \_/    |_____|
+#
+# Standalone edition.
+
+mode: standalone
+
+# MATIN configuration.
+matin:
+  # Watches all Python files in this directory and send them live to
+  # Midi upon change.
+  directory: live
+
+  # Where to find the Maethstro Midi service. This can be remote in
+  # case of collaborations but in the standalone mode it uses a local
+  # connection.
+  midi:
+    grpc:
+      host: 127.0.0.1
+      port: 7000
+
+# MIDI configuration.
+midi:
+  grpc:
+    host: 127.0.0.1
+    port: 7000
+
+# SOIR configuration.
+soir:
+  grpc:
+    host: 127.0.0.1
+    port: 7001
