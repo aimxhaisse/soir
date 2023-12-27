@@ -1,8 +1,10 @@
 #include <absl/flags/usage.h>
 #include <absl/log/log.h>
 #include <absl/strings/str_cat.h>
+#include <thread>
 
 #include "common/signal.h"
+#include "matin/matin.hh"
 #include "midi/midi.hh"
 
 #include "live.hh"
@@ -28,12 +30,27 @@ absl::Status Live::StandaloneMode(const Config& config) {
   LOG(INFO) << "Running in standalone mode";
 
   auto midi = Midi();
+  auto matin = Matin();
 
   auto status = midi.Init(config);
   if (!status.ok()) {
     LOG(ERROR) << "Unable to initialize midi: " << status;
     return status;
   }
+
+  status = matin.Init(config);
+  if (!status.ok()) {
+    LOG(ERROR) << "Unable to initialize matin: " << status;
+    return status;
+  }
+
+  std::thread matin_thread([&matin]() {
+    auto status = matin.Run();
+    if (!status.ok()) {
+      LOG(ERROR) << "Unable to run matin: " << status;
+      exit(1);
+    }
+  });
 
   status = WaitForExitSignal();
   if (!status.ok()) {
@@ -47,11 +64,19 @@ absl::Status Live::StandaloneMode(const Config& config) {
     return status;
   }
 
+  status = matin.Stop();
+  if (!status.ok()) {
+    LOG(ERROR) << "Unable to stop matin: " << status;
+    return status;
+  }
+
   status = midi.Wait();
   if (!status.ok()) {
     LOG(ERROR) << "Unable to wait for midi: " << status;
     return status;
   }
+
+  matin_thread.join();
 
   return absl::OkStatus();
 }
