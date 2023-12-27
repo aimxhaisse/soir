@@ -7,16 +7,18 @@ project(
 )
 set(CMAKE_CXX_STANDARD 20)
 
+add_subdirectory(deps/abseil)
+
 find_package(yaml-cpp REQUIRED)
 find_package(GTest REQUIRED)
 
-add_subdirectory(deps/abseil)
+include_directories(${YAML_INCLUDE_DIRS})
+include_directories(src)
+
 add_subdirectory(proto)
 add_subdirectory(src/common)
 add_subdirectory(src/matin)
 add_subdirectory(src/midi)
-
-include_directories(${YAML_INCLUDE_DIRS})
 
 add_compile_definitions(MAETHSTRO_VERSION=${VERSION})
 

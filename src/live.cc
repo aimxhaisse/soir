@@ -23,7 +23,7 @@ absl::Status Live::Preamble() {
   return absl::OkStatus();
 }
 
-absl::Status Live::Standalone() {
+absl::Status Live::Standalone(const Config& config) {
   LOG(INFO) << "Running in standalone mode";
 
   auto status = WaitForExitSignal();
@@ -35,19 +35,19 @@ absl::Status Live::Standalone() {
   return absl::OkStatus();
 }
 
-absl::Status Live::Matin() {
+absl::Status Live::Matin(const Config& config) {
   LOG(ERROR) << "Matin mode not yet implemented";
 
   return absl::UnimplementedError("Matin mode not yet implemented");
 }
 
-absl::Status Live::Midi() {
+absl::Status Live::Midi(const Config& config) {
   LOG(ERROR) << "Midi mode not yet implemented";
 
   return absl::UnimplementedError("Midi mode not yet implemented");
 }
 
-absl::Status Live::Soir() {
+absl::Status Live::Soir(const Config& config) {
   LOG(ERROR) << "Soir mode not yet implemented";
 
   return absl::UnimplementedError("Soir mode not yet implemented");
