@@ -45,13 +45,13 @@ int main(int argc, char* argv[]) {
 
   std::string mode = absl::GetFlag(FLAGS_mode);
   if (mode == kModeStandalone) {
-    status = maethstro::Live::RunStandalone(**config);
+    status = maethstro::Live::StandaloneMode(**config);
   } else if (mode == kModeMatin) {
-    status = maethstro::Live::RunMatin(**config);
+    status = maethstro::Live::MatinMode(**config);
   } else if (mode == kModeMidi) {
-    status = maethstro::Live::RunMidi(**config);
+    status = maethstro::Live::MidiMode(**config);
   } else if (mode == kModeSoir) {
-    status = maethstro::Live::RunSoir(**config);
+    status = maethstro::Live::SoirMode(**config);
   } else {
     LOG(ERROR) << "Unknown mode: " << mode;
     return static_cast<int>(absl::StatusCode::kInvalidArgument);
