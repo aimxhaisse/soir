@@ -11,6 +11,7 @@ BINARY		:= $(BIN_DIR)/maethstro
 
 DEPS_DIR 	:= deps
 DEPS_ABSEIL	:= $(DEPS_DIR)/abseil
+DEPS_PROTOBUF	:= $(DEPS_DIR)/protobuf
 
 .PHONY: all deps clean full-clean $(BINARY)
 
@@ -18,13 +19,14 @@ DEPS_ABSEIL	:= $(DEPS_DIR)/abseil
 
 all: $(BINARY)
 
-deps: $(DEPS_ABSEIL)
+deps: $(DEPS_ABSEIL) $(DEPS_PROTOBUF)
 
 clean:
 	rm -rf $(BINARY)
+	cd $(BUILD_DIR) && make clean
 
 full-clean: clean
-	rm -rf $(DEPS_ABSEIL) $(BUILD_DIR)
+	rm -rf $(DEPS_ABSEIL) $(DEPS_PROTOBUF)
 
 test: all
 	./$(BUILD_DIR)/maethstro_common_test
@@ -36,16 +38,23 @@ $(BUILD_DIR):
 
 $(BINARY): deps $(BUILD_DIR)
 	cd $(BUILD_DIR) && \
-	cmake -DABSL_PROPAGATE_CXX_STD=ON .. && \
-	cmake --build . --target all && \
+	cmake \
+		-Dprotobuf_ABSL_PROVIDER=package	\
+		-DABSL_PROPAGATE_CXX_STD=ON  		\
+		-DABSL_BUILD_TESTING=ON 		\
+	        -DABSL_BUILD_TEST_HELPERS=ON		\
+	        -DABSL_USE_EXTERNAL_GOOGLETEST=ON  	\
+		.. && \
+	cmake --build . --target maethstro -j 16 && \
 	cp maethstro ../$(BINARY)
 
 # Deps
 
 $(DEPS_ABSEIL):
-	git clone https://github.com/abseil/abseil-cpp.git $@ && \
+	git clone https://github.com/abseil/abseil-cpp.git $@
+
+$(DEPS_PROTOBUF):
+	git clone https://github.com/protocolbuffers/protobuf.git $@ && \
 	cd $@ && \
-	mkdir build && \
-	cd build && \
-	cmake -DABSL_BUILD_TESTING=ON -DABSL_USE_GOOGLETEST_HEAD=ON -DCMAKE_CXX_STANDARD=20 -DABSL_PROPAGATE_CXX_STD=ON .. && \
-	cmake --build . --target all
+	git checkout v25.1 && \
+	git submodule update --init --recursive

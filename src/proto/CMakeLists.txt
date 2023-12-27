@@ -2,7 +2,6 @@
 
 find_package(protobuf CONFIG REQUIRED)
 find_package(gRPC CONFIG REQUIRED)
-find_package(Threads)
 
 set(PROTO_FILES live.proto)
 
@@ -10,6 +9,7 @@ add_library(maethstro_proto live.proto)
 target_link_libraries(maethstro_proto
     PUBLIC
         protobuf::libprotobuf
+        protobuf::libprotoc
         gRPC::grpc
         gRPC::grpc++
 )

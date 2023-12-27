@@ -6,8 +6,11 @@ project(
   LANGUAGES CXX
 )
 set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(ABSL_ENABLE_INSTALL ON)
 
 add_subdirectory(deps/abseil)
+add_subdirectory(deps/protobuf)
 
 find_package(yaml-cpp REQUIRED)
 find_package(GTest REQUIRED)
@@ -15,7 +18,7 @@ find_package(GTest REQUIRED)
 include_directories(${YAML_INCLUDE_DIRS})
 include_directories(src)
 
-add_subdirectory(proto)
+add_subdirectory(src/proto)
 add_subdirectory(src/common)
 add_subdirectory(src/matin)
 add_subdirectory(src/midi)

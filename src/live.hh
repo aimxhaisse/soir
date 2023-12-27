@@ -11,10 +11,11 @@ constexpr const char* kVersion = "0.0.1-alpha.1";
 class Live {
  public:
   static absl::Status Preamble();
-  static absl::Status Standalone(const Config& config);
-  static absl::Status Matin(const Config& config);
-  static absl::Status Midi(const Config& config);
-  static absl::Status Soir(const Config& config);
+
+  static absl::Status RunStandalone(const Config& config);
+  static absl::Status RunMatin(const Config& config);
+  static absl::Status RunMidi(const Config& config);
+  static absl::Status RunSoir(const Config& config);
 };
 
 }  // namespace maethstro
