@@ -11,6 +11,7 @@ set(ABSL_ENABLE_INSTALL ON)
 
 add_subdirectory(deps/abseil)
 add_subdirectory(deps/protobuf)
+add_subdirectory(deps/efsw)
 
 find_package(yaml-cpp REQUIRED)
 find_package(GTest REQUIRED)

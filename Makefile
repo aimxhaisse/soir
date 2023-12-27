@@ -12,6 +12,7 @@ BINARY		:= $(BIN_DIR)/maethstro
 DEPS_DIR 	:= deps
 DEPS_ABSEIL	:= $(DEPS_DIR)/abseil
 DEPS_PROTOBUF	:= $(DEPS_DIR)/protobuf
+DEPS_EFSW	:= $(DEPS_DIR)/efsw
 
 .PHONY: all deps clean full-clean $(BINARY)
 
@@ -19,14 +20,14 @@ DEPS_PROTOBUF	:= $(DEPS_DIR)/protobuf
 
 all: $(BINARY)
 
-deps: $(DEPS_ABSEIL) $(DEPS_PROTOBUF)
+deps: $(DEPS_ABSEIL) $(DEPS_PROTOBUF) $(DEPS_EFSW)
 
 clean:
 	rm -rf $(BINARY)
 	cd $(BUILD_DIR) && make clean
 
 full-clean: clean
-	rm -rf $(DEPS_ABSEIL) $(DEPS_PROTOBUF)
+	rm -rf $(DEPS_ABSEIL) $(DEPS_PROTOBUF) $(DEPS_EFSW)
 
 test: all
 	./$(BUILD_DIR)/maethstro_common_test
@@ -44,6 +45,7 @@ $(BINARY): deps $(BUILD_DIR)
 		-DABSL_BUILD_TESTING=ON 		\
 	        -DABSL_BUILD_TEST_HELPERS=ON		\
 	        -DABSL_USE_EXTERNAL_GOOGLETEST=ON  	\
+		-DBUILD_SHARED_LIBS=OFF			\
 		.. && \
 	cmake --build . --target maethstro -j 16 && \
 	cp maethstro ../$(BINARY)
@@ -58,3 +60,8 @@ $(DEPS_PROTOBUF):
 	cd $@ && \
 	git checkout v25.1 && \
 	git submodule update --init --recursive
+
+$(DEPS_EFSW):
+	git clone https://github.com/SpartanJ/efsw.git $@ && \
+	cd $@ && \
+	git checkout 1.3.1

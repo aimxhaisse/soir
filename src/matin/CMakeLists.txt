@@ -5,4 +5,5 @@ add_library(maethstro_matin
 target_link_libraries(maethstro_matin
   maethstro_proto
   maethstro_common
+  efsw
 )
