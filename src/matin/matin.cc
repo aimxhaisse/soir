@@ -1,7 +1,9 @@
 #include <absl/log/log.h>
 #include <absl/strings/str_cat.h>
 #include <grpc++/grpc++.h>
+#include <filesystem>
 #include <regex>
+#include <vector>
 
 #include "common/utils.hh"
 #include "matin.hh"
@@ -30,9 +32,36 @@ absl::Status Matin::Init(const Config& config) {
   file_watcher_->addWatch(settings_.directory,
                           static_cast<efsw::FileWatchListener*>(this), true);
 
+  auto status = InitialLiveUpdate();
+  if (!status.ok()) {
+    LOG(ERROR) << "Failed to send initial live update to Midi: "
+               << status.message();
+    return status;
+  }
+
   LOG(INFO) << "Matin initialized with settings: " << settings_.directory
             << ", " << settings_.midi_grpc_host << ", "
             << settings_.midi_grpc_port;
+
+  return absl::OkStatus();
+}
+
+absl::Status Matin::InitialLiveUpdate() const {
+  std::vector<std::filesystem::path> files;
+  std::copy(std::filesystem::directory_iterator(settings_.directory),
+            std::filesystem::directory_iterator(), std::back_inserter(files));
+  std::sort(files.begin(), files.end());
+  for (const auto& file : files) {
+    if (IsLiveCodingFile(file.filename())) {
+      auto status_or = LiveUpdate(
+          absl::StrCat(settings_.directory, "/", std::string(file.filename())));
+      if (!status_or.ok()) {
+        LOG(ERROR) << "Failed to send initial live update to Midi: "
+                   << status_or.message();
+        return status_or;
+      }
+    }
+  }
 
   return absl::OkStatus();
 }
