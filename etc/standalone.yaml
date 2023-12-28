@@ -9,6 +9,10 @@
 
 # MATIN configuration.
 matin:
+  # Name of the user, will likely be later moved to a Unix username or
+  # so.
+  username: mxs
+
   # Watches all Python files in this directory and send them live to
   # Midi upon change.
   directory: live

@@ -30,7 +30,8 @@ full-clean: clean
 	rm -rf $(DEPS_ABSEIL) $(DEPS_PROTOBUF) $(DEPS_EFSW)
 
 test: all
-	./$(BUILD_DIR)/maethstro_common_test
+	./$(BUILD_DIR)/src/common/maethstro_common_test
+	./$(BUILD_DIR)/src/matin/maethstro_matin_test
 
 # Build
 
@@ -47,7 +48,9 @@ $(BINARY): deps $(BUILD_DIR)
 	        -DABSL_USE_EXTERNAL_GOOGLETEST=ON  	\
 		-DBUILD_SHARED_LIBS=OFF			\
 		.. && \
-	cmake --build . --target maethstro -j 16 && \
+	cmake --build . 				\
+		-j 16 	 				\
+		--target maethstro maethstro_matin_test maethstro_common_test && \
 	cp maethstro ../$(BINARY)
 
 # Deps

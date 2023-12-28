@@ -1,6 +1,7 @@
 add_library(maethstro_common
   config.cc
   signal.cc
+  utils.cc
 )
 
 target_link_libraries(maethstro_common
