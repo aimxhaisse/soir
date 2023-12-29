@@ -13,6 +13,7 @@ DEPS_DIR 	:= deps
 DEPS_ABSEIL	:= $(DEPS_DIR)/abseil
 DEPS_PROTOBUF	:= $(DEPS_DIR)/protobuf
 DEPS_EFSW	:= $(DEPS_DIR)/efsw
+DEPS_PYBIND	:= $(DEPS_DIR)/pybind11
 
 .PHONY: all deps clean full-clean $(BINARY)
 
@@ -20,14 +21,14 @@ DEPS_EFSW	:= $(DEPS_DIR)/efsw
 
 all: $(BINARY)
 
-deps: $(DEPS_ABSEIL) $(DEPS_PROTOBUF) $(DEPS_EFSW)
+deps: $(DEPS_ABSEIL) $(DEPS_PROTOBUF) $(DEPS_EFSW) $(DEPS_PYBIND)
 
 clean:
 	rm -rf $(BINARY)
 	cd $(BUILD_DIR) && make clean
 
 full-clean: clean
-	rm -rf $(DEPS_ABSEIL) $(DEPS_PROTOBUF) $(DEPS_EFSW)
+	rm -rf $(DEPS_ABSEIL) $(DEPS_PROTOBUF) $(DEPS_EFSW) $(DEPS_PYBIND)
 
 test: all
 	./$(BUILD_DIR)/src/common/maethstro_common_test
@@ -68,3 +69,8 @@ $(DEPS_EFSW):
 	git clone https://github.com/SpartanJ/efsw.git $@ && \
 	cd $@ && \
 	git checkout 1.3.1
+
+$(DEPS_PYBIND):
+	git clone https://github.com/pybind/pybind11.git $@ && \
+	cd $@ && \
+	git checkout v2.11.1

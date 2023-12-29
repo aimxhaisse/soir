@@ -2,8 +2,10 @@
 
 #include <absl/status/status.h>
 #include <grpc++/grpc++.h>
+#include <pybind11/pybind11.h>
 
 #include "common/config.hh"
+#include "engine.hh"
 #include "live.grpc.pb.h"
 
 namespace maethstro {
@@ -19,6 +21,7 @@ class Midi : proto::Midi::Service {
   ~Midi();
 
   absl::Status Init(const Config& config);
+  absl::Status Run();
   absl::Status Wait();
   absl::Status Stop();
 
@@ -30,6 +33,7 @@ class Midi : proto::Midi::Service {
   MidiSettings settings_;
 
   std::unique_ptr<grpc::Server> grpc_;
+  std::unique_ptr<Engine> engine_;
 };
 
 }  // namespace maethstro

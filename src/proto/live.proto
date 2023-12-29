@@ -11,8 +11,8 @@ package proto;
 
 message MatinLiveUpdate {
   message Request {
-    string username = 1;
-    string code = 2;
+    optional string username = 1;
+    optional string code = 2;
   }
 
   message Response {}

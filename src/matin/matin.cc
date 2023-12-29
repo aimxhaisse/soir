@@ -17,7 +17,7 @@ Matin::Matin() : file_pattern_("^[a-z0-9_\\-]+\\.py") {
 Matin::~Matin() {}
 
 absl::Status Matin::Init(const Config& config) {
-  settings_.username = config.Get<int>("matin.username");
+  settings_.username = config.Get<std::string>("matin.username");
   settings_.directory = config.Get<std::string>("matin.directory");
   settings_.midi_grpc_host = config.Get<std::string>("matin.midi.grpc.host");
   settings_.midi_grpc_port = config.Get<int>("matin.midi.grpc.port");
@@ -79,6 +79,12 @@ absl::Status Matin::Stop() {
 
   file_watcher_->removeWatch(settings_.directory);
   file_watcher_.reset();
+
+  return absl::OkStatus();
+}
+
+absl::Status Matin::Wait() {
+  LOG(INFO) << "Matin properly shut down";
 
   return absl::OkStatus();
 }

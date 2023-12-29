@@ -24,6 +24,7 @@ class Matin : efsw::FileWatchListener {
   absl::Status Init(const Config& config);
   absl::Status Run();
   absl::Status Stop();
+  absl::Status Wait();
 
   // Returns true if the filename matches the pattern for a live
   // coding file from the watched directory.

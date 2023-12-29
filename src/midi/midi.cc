@@ -12,6 +12,13 @@ absl::Status Midi::Init(const Config& config) {
   settings_.grpc_host = config.Get<std::string>("midi.grpc.host");
   settings_.grpc_port = config.Get<int>("midi.grpc.port");
 
+  engine_ = std::make_unique<Engine>();
+  auto status = engine_->Init(config);
+  if (!status.ok()) {
+    LOG(ERROR) << "Unable to initialize engine: " << status;
+    return status;
+  }
+
   LOG(INFO) << "Initializing Midi with GPRC host " << settings_.grpc_host
             << " and port " << settings_.grpc_port;
 
@@ -33,8 +40,18 @@ absl::Status Midi::Init(const Config& config) {
   return absl::OkStatus();
 }
 
+absl::Status Midi::Run() {
+  LOG(INFO) << "Midi running";
+
+  engine_->Run().IgnoreError();
+  grpc_->Wait();
+
+  return absl::OkStatus();
+}
+
 absl::Status Midi::Wait() {
   grpc_->Wait();
+  engine_->Wait().IgnoreError();
 
   LOG(INFO) << "Midi properly shut down";
 
@@ -44,6 +61,7 @@ absl::Status Midi::Wait() {
 absl::Status Midi::Stop() {
   LOG(INFO) << "Midi shutting down";
 
+  engine_->Stop().IgnoreError();
   grpc_->Shutdown();
 
   return absl::OkStatus();
@@ -52,6 +70,22 @@ absl::Status Midi::Stop() {
 grpc::Status Midi::LiveUpdate(grpc::ServerContext* context,
                               const proto::MatinLiveUpdate_Request* request,
                               proto::MatinLiveUpdate_Response* response) {
+  if (!request->has_username()) {
+    return grpc::Status(grpc::StatusCode::INVALID_ARGUMENT, "Missing username");
+  }
+  if (!request->has_code()) {
+    return grpc::Status(grpc::StatusCode::INVALID_ARGUMENT, "Missing code");
+  }
+
+  LOG(INFO) << "Midi received live update request from " << request->username()
+            << "@" << context->peer();
+
+  auto status = engine_->UpdateCode(request->code());
+  if (!status.ok()) {
+    LOG(ERROR) << "Unable to update live code: " << status;
+    return grpc::Status(grpc::StatusCode::INTERNAL, "Unable to evaluate code");
+  }
+
   return grpc::Status::OK;
 }
 
