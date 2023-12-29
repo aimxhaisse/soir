@@ -27,6 +27,7 @@ matin:
 
 # MIDI configuration.
 midi:
+  initial_bpm: 120
   grpc:
     host: 127.0.0.1
     port: 7000
