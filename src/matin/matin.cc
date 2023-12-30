@@ -32,7 +32,7 @@ absl::Status Matin::Init(const Config& config) {
   file_watcher_->addWatch(settings_.directory,
                           static_cast<efsw::FileWatchListener*>(this), true);
 
-  auto status = InitialLiveUpdate();
+  auto status = InitialCodeUpdate();
   if (!status.ok()) {
     LOG(ERROR) << "Failed to send initial live update to Midi: "
                << status.message();
@@ -46,14 +46,14 @@ absl::Status Matin::Init(const Config& config) {
   return absl::OkStatus();
 }
 
-absl::Status Matin::InitialLiveUpdate() const {
+absl::Status Matin::InitialCodeUpdate() const {
   std::vector<std::filesystem::path> files;
   std::copy(std::filesystem::directory_iterator(settings_.directory),
             std::filesystem::directory_iterator(), std::back_inserter(files));
   std::sort(files.begin(), files.end());
   for (const auto& file : files) {
     if (IsLiveCodingFile(file.filename())) {
-      auto status_or = LiveUpdate(
+      auto status_or = SendCodeUpdate(
           absl::StrCat(settings_.directory, "/", std::string(file.filename())));
       if (!status_or.ok()) {
         LOG(ERROR) << "Failed to send initial live update to Midi: "
@@ -93,7 +93,7 @@ bool Matin::IsLiveCodingFile(const std::string& filename) const {
   return std::regex_match(filename, file_pattern_);
 }
 
-absl::Status Matin::LiveUpdate(const std::string& filename) const {
+absl::Status Matin::SendCodeUpdate(const std::string& filename) const {
   auto contents_or = utils::GetFileContents(filename);
   if (!contents_or.ok()) {
     LOG(ERROR) << "Failed to read file: " << contents_or.status().message();
@@ -101,20 +101,22 @@ absl::Status Matin::LiveUpdate(const std::string& filename) const {
   }
 
   grpc::ClientContext context;
-  proto::MatinLiveUpdate_Request update;
-  proto::MatinLiveUpdate_Response response;
+  proto::MidiUpdate_Request update;
+  proto::MidiUpdate_Response response;
 
-  update.set_username(settings_.username);
-  update.set_code(contents_or.value());
+  proto::MidiUpdate_Code* code_update = update.mutable_code();
 
-  grpc::Status status = midi_stub_->LiveUpdate(&context, update, &response);
+  code_update->set_username(settings_.username);
+  code_update->set_code(contents_or.value());
+
+  grpc::Status status = midi_stub_->Update(&context, update, &response);
   if (!status.ok()) {
-    LOG(ERROR) << "Failed to push Live update to Midi: "
+    LOG(ERROR) << "Failed to push code update to Midi: "
                << status.error_message();
-    return absl::InternalError("Failed to push Live update to Midi");
+    return absl::InternalError("Failed to push code update to Midi");
   }
 
-  LOG(INFO) << "Live update pushed to Midi for file: " << filename;
+  LOG(INFO) << "Code update pushed to Midi for file: " << filename;
 
   return absl::OkStatus();
 }
@@ -131,7 +133,7 @@ void Matin::handleFileAction(efsw::WatchID watchid, const std::string& dir,
   }
 
   // Ignore errors here, we might be able to reconnect at a later stage.
-  LiveUpdate(absl::StrCat(dir, filename)).IgnoreError();
+  SendCodeUpdate(absl::StrCat(dir, filename)).IgnoreError();
 }
 
 }  // namespace maethstro

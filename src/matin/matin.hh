@@ -31,10 +31,10 @@ class Matin : efsw::FileWatchListener {
   bool IsLiveCodingFile(const std::string& filename) const;
 
   // Sends the content of all live coding files at start-up to Midi via gRPC.
-  absl::Status InitialLiveUpdate() const;
+  absl::Status InitialCodeUpdate() const;
 
   // Sends the content of the updated file to Midi via gRPC.
-  absl::Status LiveUpdate(const std::string& filename) const;
+  absl::Status SendCodeUpdate(const std::string& filename) const;
 
  private:
   // Callback for efsw::FileWatchListener.

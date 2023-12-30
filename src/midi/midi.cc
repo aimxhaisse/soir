@@ -67,23 +67,34 @@ absl::Status Midi::Stop() {
   return absl::OkStatus();
 }
 
-grpc::Status Midi::LiveUpdate(grpc::ServerContext* context,
-                              const proto::MatinLiveUpdate_Request* request,
-                              proto::MatinLiveUpdate_Response* response) {
-  if (!request->has_username()) {
-    return grpc::Status(grpc::StatusCode::INVALID_ARGUMENT, "Missing username");
-  }
-  if (!request->has_code()) {
-    return grpc::Status(grpc::StatusCode::INVALID_ARGUMENT, "Missing code");
-  }
+grpc::Status Midi::Update(grpc::ServerContext* context,
+                          const proto::MidiUpdate_Request* request,
+                          proto::MidiUpdate_Response* response) {
 
-  LOG(INFO) << "Midi received live update request from " << request->username()
-            << "@" << context->peer();
+  switch (request->request_case()) {
 
-  auto status = engine_->UpdateCode(request->code());
-  if (!status.ok()) {
-    LOG(ERROR) << "Unable to update live code: " << status;
-    return grpc::Status(grpc::StatusCode::INTERNAL, "Unable to evaluate code");
+    case proto::MidiUpdate_Request::kCode: {
+      auto update_code = request->code();
+      if (!update_code.has_username()) {
+        return grpc::Status(grpc::StatusCode::INVALID_ARGUMENT,
+                            "Missing username");
+      }
+      if (!update_code.has_code()) {
+        return grpc::Status(grpc::StatusCode::INVALID_ARGUMENT, "Missing code");
+      }
+
+      auto status = engine_->UpdateCode(update_code.code());
+      if (!status.ok()) {
+        LOG(ERROR) << "Unable to update live code: " << status;
+        return grpc::Status(grpc::StatusCode::INTERNAL,
+                            "Unable to evaluate code");
+      }
+      return grpc::Status::OK;
+    }
+
+    default:
+      return grpc::Status(grpc::StatusCode::INVALID_ARGUMENT,
+                          "Invalid update type");
   }
 
   return grpc::Status::OK;

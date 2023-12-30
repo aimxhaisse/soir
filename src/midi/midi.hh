@@ -25,9 +25,9 @@ class Midi : proto::Midi::Service {
   absl::Status Wait();
   absl::Status Stop();
 
-  grpc::Status LiveUpdate(grpc::ServerContext* context,
-                          const proto::MatinLiveUpdate_Request* request,
-                          proto::MatinLiveUpdate_Response* response) override;
+  grpc::Status Update(grpc::ServerContext* context,
+                      const proto::MidiUpdate_Request* request,
+                      proto::MidiUpdate_Response* response) override;
 
  private:
   MidiSettings settings_;
