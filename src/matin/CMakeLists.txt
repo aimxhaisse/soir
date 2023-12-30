@@ -1,5 +1,6 @@
 add_library(maethstro_matin
   matin.cc
+  subscriber.cc
 )
 
 target_link_libraries(maethstro_matin

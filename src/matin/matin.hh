@@ -6,6 +6,7 @@
 
 #include "common/config.hh"
 #include "live.grpc.pb.h"
+#include "subscriber.hh"
 
 namespace maethstro {
 
@@ -43,6 +44,7 @@ class Matin : efsw::FileWatchListener {
                         std::string old_filename) override;
 
   MatinSettings settings_;
+  std::unique_ptr<matin::Subscriber> subscriber_;
   std::unique_ptr<proto::Midi::Stub> midi_stub_;
   std::unique_ptr<efsw::FileWatcher> file_watcher_;
   std::regex file_pattern_;

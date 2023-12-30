@@ -29,10 +29,17 @@ absl::Status Matin::Init(const Config& config) {
     return absl::InternalError("Failed to create MIDI gRPC stub");
   }
 
+  subscriber_ = std::make_unique<matin::Subscriber>();
+  auto status = subscriber_->Init(config);
+  if (!status.ok()) {
+    LOG(ERROR) << "Failed to initialize subscriber: " << status.message();
+    return status;
+  }
+
   file_watcher_->addWatch(settings_.directory,
                           static_cast<efsw::FileWatchListener*>(this), true);
 
-  auto status = InitialCodeUpdate();
+  status = InitialCodeUpdate();
   if (!status.ok()) {
     LOG(ERROR) << "Failed to send initial live update to Midi: "
                << status.message();
@@ -69,7 +76,16 @@ absl::Status Matin::InitialCodeUpdate() const {
 absl::Status Matin::Run() {
   LOG(INFO) << "Matin running";
 
+  std::thread subscriber_thread([this]() {
+    auto status = subscriber_->Run();
+    if (!status.ok()) {
+      LOG(ERROR) << "Subscriber failed: " << status.message();
+    }
+  });
+
   file_watcher_->watch();
+
+  subscriber_thread.join();
 
   return absl::OkStatus();
 }
@@ -80,11 +96,21 @@ absl::Status Matin::Stop() {
   file_watcher_->removeWatch(settings_.directory);
   file_watcher_.reset();
 
+  auto status = subscriber_->Stop();
+  if (!status.ok()) {
+    LOG(ERROR) << "Subscriber failed to stop: " << status.message();
+  }
+
   return absl::OkStatus();
 }
 
 absl::Status Matin::Wait() {
   LOG(INFO) << "Matin properly shut down";
+
+  auto status = subscriber_->Wait();
+  if (!status.ok()) {
+    LOG(ERROR) << "Subscriber failed to wait: " << status.message();
+  }
 
   return absl::OkStatus();
 }
