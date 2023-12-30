@@ -25,9 +25,6 @@ struct Callback {
   }
 };
 
-// This is the context that is available to Python code.
-struct Context {};
-
 // This is the main engine that runs the Python code and schedules
 // callbacks. It uses a temporal recursion pattern to avoid time
 // drifts (this is heavily inspired from Extempore & Sonic PI).
@@ -63,8 +60,10 @@ class Engine {
   void Shutdown();
 
  private:
+  // Updated by the Python thread only.
   std::set<Callback, Callback> callbacks_;
 
+  // Updated by the main thread/gRPC threads.
   std::mutex loop_mutex_;
   std::condition_variable loop_cv_;
   std::list<std::string> code_updates_;

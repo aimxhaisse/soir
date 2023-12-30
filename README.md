@@ -12,4 +12,4 @@ changes:
 - Better failure on config changes
 - More unit tests around the Midi code
 - Check if it makes sense to use absl Mutexes instead of C++20
-
+- Find a way to document what we export via Pybind
