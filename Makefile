@@ -33,6 +33,7 @@ full-clean: clean
 test: all
 	./$(BUILD_DIR)/src/common/maethstro_common_test
 	./$(BUILD_DIR)/src/matin/maethstro_matin_test
+	./$(BUILD_DIR)/src/matin/maethstro_midi_test
 
 # Build
 
@@ -51,7 +52,7 @@ $(BINARY): deps $(BUILD_DIR)
 		.. && \
 	cmake --build . 				\
 		-j 16 	 				\
-		--target maethstro maethstro_matin_test maethstro_common_test && \
+		--target maethstro maethstro_matin_test maethstro_midi_test maethstro_common_test && \
 	cp maethstro ../$(BINARY)
 
 # Deps

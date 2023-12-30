@@ -25,6 +25,9 @@ struct Callback {
   }
 };
 
+// This is the context that is available to Python code.
+struct Context {};
+
 // This is the main engine that runs the Python code and schedules
 // callbacks. It uses a temporal recursion pattern to avoid time
 // drifts (this is heavily inspired from Extempore & Sonic PI).
@@ -36,6 +39,9 @@ struct Callback {
 // - code updates are pushed from an external thread via UpdateCode()
 //
 // This allows callbacks to interact with Python without GIL issues.
+//
+// We'll need to update this model in case we want to schedule
+// callbacks from other threads.
 class Engine {
  public:
   Engine();
@@ -52,7 +58,9 @@ class Engine {
   absl::Status Schedule(const absl::Time& at, CallbackFunc func);
   absl::Status Beat(const absl::Time& now);
 
+  // Those can be called from Python.
   void SetBPM(uint16_t bpm);
+  void Shutdown();
 
  private:
   std::set<Callback, Callback> callbacks_;
