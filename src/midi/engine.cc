@@ -6,12 +6,14 @@
 
 namespace maethstro {
 
-Engine::Engine() {}
+Engine::Engine() : notifier_(nullptr) {}
 
 Engine::~Engine() {}
 
-absl::Status Engine::Init(const Config& config) {
+absl::Status Engine::Init(const Config& config, Notifier* notifier) {
   LOG(INFO) << "Initializing engine";
+
+  notifier_ = notifier;
 
   SetBPM(config.Get<uint16_t>("midi.initial_bpm"));
   auto status = Beat(absl::Now());

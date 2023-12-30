@@ -1,6 +1,7 @@
 add_library(maethstro_midi
   midi.cc
   engine.cc
+  notifier.cc
 )
 
 target_link_libraries(maethstro_midi

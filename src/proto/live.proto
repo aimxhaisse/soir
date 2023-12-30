@@ -27,7 +27,7 @@ message MidiUpdate {
 }
 
 
-message MidiNotification {
+message MidiNotifications {
   message Request {}
 
   // Log message from Midi.
@@ -50,5 +50,5 @@ service Midi {
   rpc Update(MidiUpdate.Request) returns (MidiUpdate.Response) {}
 
   // Used by Matin to receive notifications.
-  rpc Notifications(MidiNotification.Request) returns (stream MidiNotification.Response) {}
+  rpc Notifications(MidiNotifications.Request) returns (stream MidiNotifications.Response) {}
 }

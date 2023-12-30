@@ -5,6 +5,7 @@
 #include <mutex>
 
 #include "common/config.hh"
+#include "notifier.hh"
 
 namespace py = pybind11;
 
@@ -44,7 +45,7 @@ class Engine {
   Engine();
   ~Engine();
 
-  absl::Status Init(const Config& config);
+  absl::Status Init(const Config& config, Notifier* notifier);
   absl::Status Run();
   absl::Status Stop();
   absl::Status Wait();
@@ -60,6 +61,8 @@ class Engine {
   void Shutdown();
 
  private:
+  Notifier* notifier_;
+
   // Updated by the Python thread only.
   std::set<Callback, Callback> callbacks_;
 

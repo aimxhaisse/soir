@@ -7,6 +7,7 @@
 #include "common/config.hh"
 #include "engine.hh"
 #include "live.grpc.pb.h"
+#include "notifier.hh"
 
 namespace maethstro {
 
@@ -29,9 +30,15 @@ class Midi : proto::Midi::Service {
                       const proto::MidiUpdate_Request* request,
                       proto::MidiUpdate_Response* response) override;
 
+  grpc::Status Notifications(
+      grpc::ServerContext* context,
+      const proto::MidiNotifications_Request* request,
+      grpc::ServerWriter<proto::MidiNotifications_Response>* writer) override;
+
  private:
   MidiSettings settings_;
 
+  std::unique_ptr<Notifier> notifier_;
   std::unique_ptr<grpc::Server> grpc_;
   std::unique_ptr<Engine> engine_;
 };
