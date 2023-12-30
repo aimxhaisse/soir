@@ -2,26 +2,17 @@
 #include <absl/time/clock.h>
 #include <pybind11/embed.h>
 
+#include "bindings.hh"
 #include "engine.hh"
 
-// PyBind requires modules to be defined in the global scope, as a
-// result we need a way to access the engine globally.
-maethstro::Engine* gEngine = nullptr;
-
-PYBIND11_EMBEDDED_MODULE(live, m) {
-  m.doc() = "Maethstro L I V E module";
-
-  m.def("log", []() {});
-  m.def(
-      "set_bpm", [](int bpm) { gEngine->Live_SetBPM(bpm); }, "Sets the BPM");
-}
+namespace py = pybind11;
 
 namespace maethstro {
 
 Engine::Engine() : notifier_(nullptr) {}
 
 Engine::~Engine() {
-  gEngine = nullptr;
+  bindings::ResetEngine();
 }
 
 absl::Status Engine::Init(const Config& config, Notifier* notifier) {
@@ -36,12 +27,11 @@ absl::Status Engine::Init(const Config& config, Notifier* notifier) {
     return status;
   }
 
-  if (gEngine != nullptr) {
-    LOG(ERROR) << "Engine already initialized, unable to run multiple "
-                  "instances at the same time";
-    return absl::InternalError("Engine already initialized");
+  status = bindings::SetEngine(this);
+  if (!status.ok()) {
+    LOG(ERROR) << "Unable to set engine: " << status;
+    return status;
   }
-  gEngine = this;
 
   running_ = true;
 
@@ -53,6 +43,20 @@ void Engine::Live_SetBPM(uint16_t bpm) {
 
   bpm_ = bpm;
   beat_us_ = 60.0 / bpm_ * 1000000;
+}
+
+uint16_t Engine::Live_GetBPM() const {
+  return bpm_;
+}
+
+void Engine::Live_Log(const std::string& message) {
+  proto::MidiNotifications_Response notification;
+
+  auto* log = notification.mutable_log();
+  log->set_source("logs");
+  log->set_notification(message);
+
+  notifier_->Notify(notification);
 }
 
 absl::Status Engine::Beat(const absl::Time& now) {

@@ -1,13 +1,10 @@
 #pragma once
 
-#include <absl/numeric/int128.h>
 #include <condition_variable>
 #include <mutex>
 
 #include "common/config.hh"
 #include "notifier.hh"
-
-namespace py = pybind11;
 
 namespace maethstro {
 
@@ -58,6 +55,8 @@ class Engine {
 
   // Those are part of the Live module and can be called from Python.
   void Live_SetBPM(uint16_t bpm);
+  uint16_t Live_GetBPM() const;
+  void Live_Log(const std::string& message);
 
  private:
   Notifier* notifier_;

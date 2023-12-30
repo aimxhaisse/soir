@@ -1,4 +1,5 @@
 add_library(maethstro_midi
+  bindings.cc
   midi.cc
   engine.cc
   notifier.cc
