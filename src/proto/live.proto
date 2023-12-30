@@ -9,6 +9,7 @@ syntax = "proto3";
 
 package proto;
 
+// Used to send a code update to Midi.
 message MatinLiveUpdate {
   message Request {
     optional string username = 1;
@@ -18,6 +19,28 @@ message MatinLiveUpdate {
   message Response {}
 }
 
+message MidiLiveNotification {
+  message Request {}
+
+  // Log message from Midi.
+  message Log {
+    optional string source = 1;
+    optional string notification = 2;
+  }
+
+  // Nofification from Midi.
+  message Notification {
+    oneof notification {
+      Log log = 1;
+    }
+  }
+}
+
+// Midi service.
 service Midi {
+  // Used by Matin to send code updates.
   rpc LiveUpdate(MatinLiveUpdate.Request) returns (MatinLiveUpdate.Response) {}
+
+  // Used by Matin to receive notifications.
+  rpc LiveNotifications(MidiLiveNotification.Request) returns (stream MidiLiveNotification.Notification) {}
 }
