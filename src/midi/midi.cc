@@ -51,7 +51,6 @@ absl::Status Midi::Run() {
   LOG(INFO) << "Midi running";
 
   engine_->Run().IgnoreError();
-  grpc_->Wait();
 
   return absl::OkStatus();
 }

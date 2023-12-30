@@ -33,7 +33,7 @@ full-clean: clean
 test: all
 	./$(BUILD_DIR)/src/common/maethstro_common_test
 	./$(BUILD_DIR)/src/matin/maethstro_matin_test
-	./$(BUILD_DIR)/src/matin/maethstro_midi_test
+	./$(BUILD_DIR)/src/midi/maethstro_midi_test
 
 # Build
 

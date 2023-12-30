@@ -56,7 +56,10 @@ void Engine::Live_Log(const std::string& message) {
   log->set_source("logs");
   log->set_notification(message);
 
-  notifier_->Notify(notification);
+  auto status = notifier_->Notify(notification);
+  if (!status.ok()) {
+    LOG(WARNING) << "Unable to send log notification: " << status;
+  }
 }
 
 absl::Status Engine::Beat(const absl::Time& now) {
