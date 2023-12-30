@@ -56,9 +56,8 @@ class Engine {
   absl::Status Schedule(const absl::Time& at, CallbackFunc func);
   absl::Status Beat(const absl::Time& now);
 
-  // Those can be called from Python.
-  void SetBPM(uint16_t bpm);
-  void Shutdown();
+  // Those are part of the Live module and can be called from Python.
+  void Live_SetBPM(uint16_t bpm);
 
  private:
   Notifier* notifier_;
@@ -70,11 +69,11 @@ class Engine {
   std::mutex loop_mutex_;
   std::condition_variable loop_cv_;
   std::list<std::string> code_updates_;
-  bool running_;
+  bool running_ = false;
 
-  uint64_t current_beat_;
+  uint64_t current_beat_ = 0;
   uint64_t beat_us_;
-  uint16_t bpm_;
+  uint16_t bpm_ = 120;
 };
 
 }  // namespace maethstro

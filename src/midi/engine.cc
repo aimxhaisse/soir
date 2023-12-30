@@ -4,30 +4,51 @@
 
 #include "engine.hh"
 
+// PyBind requires modules to be defined in the global scope, as a
+// result we need a way to access the engine globally.
+maethstro::Engine* gEngine = nullptr;
+
+PYBIND11_EMBEDDED_MODULE(live, m) {
+  m.doc() = "Maethstro L I V E module";
+
+  m.def("log", []() {});
+  m.def(
+      "set_bpm", [](int bpm) { gEngine->Live_SetBPM(bpm); }, "Sets the BPM");
+}
+
 namespace maethstro {
 
 Engine::Engine() : notifier_(nullptr) {}
 
-Engine::~Engine() {}
+Engine::~Engine() {
+  gEngine = nullptr;
+}
 
 absl::Status Engine::Init(const Config& config, Notifier* notifier) {
   LOG(INFO) << "Initializing engine";
 
   notifier_ = notifier;
 
-  SetBPM(config.Get<uint16_t>("midi.initial_bpm"));
+  Live_SetBPM(config.Get<uint16_t>("midi.initial_bpm"));
   auto status = Beat(absl::Now());
   if (!status.ok()) {
     LOG(ERROR) << "Unable to schedule first beat: " << status;
     return status;
   }
 
+  if (gEngine != nullptr) {
+    LOG(ERROR) << "Engine already initialized, unable to run multiple "
+                  "instances at the same time";
+    return absl::InternalError("Engine already initialized");
+  }
+  gEngine = this;
+
   running_ = true;
 
   return absl::OkStatus();
 }
 
-void Engine::SetBPM(uint16_t bpm) {
+void Engine::Live_SetBPM(uint16_t bpm) {
   LOG(INFO) << "Setting BPM to " << bpm;
 
   bpm_ = bpm;
