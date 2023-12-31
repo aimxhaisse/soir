@@ -37,7 +37,7 @@ int main(int argc, char* argv[]) {
   }
 
   std::string config_file = absl::GetFlag(FLAGS_config);
-  auto config = maethstro::Config::LoadFromPath(config_file);
+  auto config = maethstro::common::Config::LoadFromPath(config_file);
   if (!config.ok()) {
     LOG(ERROR) << "Failed to load configuration file: " << config_file;
     return config.status().raw_code();

@@ -21,9 +21,8 @@ const char* config_yaml = R"eof(
 
 # MATIN configuration.
 matin:
-  # Name of the user, will likely be later moved to a Unix username or
-  # so.
-  username: mxs
+  # Name of the user.
+  user: mxs
 
   # Watches all Python files in this directory and send them live to
   # Midi upon change.
@@ -54,7 +53,7 @@ soir:
 class MatinTest : public testing::Test {
  protected:
   void SetUp() override {
-    auto config_or = Config::LoadFromString(config_yaml);
+    auto config_or = common::Config::LoadFromString(config_yaml);
     ASSERT_TRUE(config_or.ok());
     config_ = std::move(*config_or);
 
@@ -71,7 +70,7 @@ class MatinTest : public testing::Test {
   }
 
   std::unique_ptr<midi::Midi> midi_;
-  std::unique_ptr<Config> config_;
+  std::unique_ptr<common::Config> config_;
 };
 
 TEST_F(MatinTest, Init) {

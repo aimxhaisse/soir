@@ -23,7 +23,7 @@ class Midi : proto::Midi::Service {
   Midi();
   ~Midi();
 
-  absl::Status Init(const Config& config);
+  absl::Status Init(const common::Config& config);
   absl::Status Start();
   absl::Status Stop();
 

@@ -13,8 +13,7 @@ package proto;
 message MidiUpdate {
   // Code update.
   message Code {
-    optional string username = 1;
-    optional string code = 2;
+    optional string code = 1;
   }
   
   message Request {

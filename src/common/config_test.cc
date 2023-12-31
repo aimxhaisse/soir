@@ -3,6 +3,7 @@
 #include "config.hh"
 
 namespace maethstro {
+namespace common {
 namespace {
 
 class ConfigTest : public testing::Test {};
@@ -37,4 +38,5 @@ settings:
 }
 
 }  // namespace
+}  // namespace common
 }  // namespace maethstro

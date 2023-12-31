@@ -6,6 +6,7 @@
 
 #include "common/config.hh"
 #include "live.grpc.pb.h"
+#include "utils.hh"
 
 namespace maethstro {
 namespace matin {
@@ -16,13 +17,14 @@ class Subscriber {
   Subscriber();
   ~Subscriber();
 
-  absl::Status Init(const Config& config);
+  absl::Status Init(const common::Config& config);
   absl::Status Start();
   absl::Status Stop();
 
   absl::Status Run();
 
  private:
+  std::string user_;
   std::thread thread_;
 
   std::string midi_grpc_host_;

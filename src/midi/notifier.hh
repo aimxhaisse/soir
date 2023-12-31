@@ -34,7 +34,7 @@ class Notifier {
   Notifier();
   ~Notifier();
 
-  absl::Status Init(const Config& config);
+  absl::Status Init(const common::Config& config);
 
   // Ownership of the subscriber is handled by the caller, it must be
   // sure the subscriber pointer is always valid while subscribed.

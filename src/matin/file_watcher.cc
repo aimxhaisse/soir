@@ -4,6 +4,7 @@
 
 #include "common/utils.hh"
 #include "file_watcher.hh"
+#include "utils.hh"
 
 namespace maethstro {
 namespace matin {
@@ -14,8 +15,8 @@ FileWatcher::FileWatcher() : file_pattern_("^[a-z0-9_\\-]+\\.py") {
 
 FileWatcher::~FileWatcher() {}
 
-absl::Status FileWatcher::Init(const Config& config) {
-  username_ = config.Get<std::string>("matin.username");
+absl::Status FileWatcher::Init(const common::Config& config) {
+  user_ = config.Get<std::string>("matin.user");
   directory_ = config.Get<std::string>("matin.directory");
   midi_grpc_host_ = config.Get<std::string>("matin.midi.grpc.host");
   midi_grpc_port_ = config.Get<int>("matin.midi.grpc.port");
@@ -68,19 +69,20 @@ absl::Status FileWatcher::Stop() {
 }
 
 absl::Status FileWatcher::SendCodeUpdate(const std::string& filename) const {
-  auto contents_or = utils::GetFileContents(filename);
+  auto contents_or = common::utils::GetFileContents(filename);
   if (!contents_or.ok()) {
     LOG(ERROR) << "Failed to read file: " << contents_or.status().message();
     return contents_or.status();
   }
 
   grpc::ClientContext context;
+
+  utils::InitContext(&context, user_);
+
   proto::MidiUpdate_Request update;
   proto::MidiUpdate_Response response;
-
   proto::MidiUpdate_Code* code_update = update.mutable_code();
 
-  code_update->set_username(username_);
   code_update->set_code(contents_or.value());
 
   grpc::Status status = midi_stub_->Update(&context, update, &response);

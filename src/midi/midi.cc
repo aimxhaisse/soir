@@ -9,7 +9,7 @@ Midi::Midi() {}
 
 Midi::~Midi() {}
 
-absl::Status Midi::Init(const Config& config) {
+absl::Status Midi::Init(const common::Config& config) {
   settings_.grpc_host = config.Get<std::string>("midi.grpc.host");
   settings_.grpc_port = config.Get<int>("midi.grpc.port");
 
@@ -89,10 +89,6 @@ grpc::Status Midi::Update(grpc::ServerContext* context,
 
     case proto::MidiUpdate_Request::kCode: {
       auto update_code = request->code();
-      if (!update_code.has_username()) {
-        return grpc::Status(grpc::StatusCode::INVALID_ARGUMENT,
-                            "Missing username");
-      }
       if (!update_code.has_code()) {
         return grpc::Status(grpc::StatusCode::INVALID_ARGUMENT, "Missing code");
       }

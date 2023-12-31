@@ -2,6 +2,7 @@ add_library(maethstro_matin
   matin.cc
   subscriber.cc
   file_watcher.cc
+  utils.cc
 )
 
 target_link_libraries(maethstro_matin

@@ -16,7 +16,7 @@ Engine::~Engine() {
   bindings::ResetEngine();
 }
 
-absl::Status Engine::Init(const Config& config, Notifier* notifier) {
+absl::Status Engine::Init(const common::Config& config, Notifier* notifier) {
   LOG(INFO) << "Initializing engine";
 
   notifier_ = notifier;

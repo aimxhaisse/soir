@@ -4,9 +4,10 @@
 #include <ctime>
 #include <mutex>
 
-#include "signal.h"
+#include "signal.hh"
 
 namespace maethstro {
+namespace common {
 
 namespace {
 
@@ -65,4 +66,5 @@ absl::Status WaitForExitSignal() {
   return absl::OkStatus();
 }
 
+}  // namespace common
 }  // namespace maethstro

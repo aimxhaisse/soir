@@ -21,9 +21,8 @@ const char* config_yaml = R"eof(
 
 # MATIN configuration.
 matin:
-  # Name of the user, will likely be later moved to a Unix username or
-  # so.
-  username: mxs
+  # Name of the user.
+  user: mxs
 
   # Watches all Python files in this directory and send them live to
   # Midi upon change.
@@ -52,7 +51,7 @@ soir:
 )eof";
 
 TEST_F(MidiTest, Init) {
-  auto config = Config::LoadFromString(config_yaml);
+  auto config = common::Config::LoadFromString(config_yaml);
 
   ASSERT_TRUE(config.ok());
 

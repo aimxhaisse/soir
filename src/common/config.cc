@@ -6,6 +6,7 @@
 #include "config.hh"
 
 namespace maethstro {
+namespace common {
 
 Config::Config(const YAML::Node& node) : node_(node) {}
 
@@ -61,4 +62,5 @@ YAML::Node Config::GetChildNode(const std::string& location) const {
   return current;
 }
 
+}  // namespace common
 }  // namespace maethstro

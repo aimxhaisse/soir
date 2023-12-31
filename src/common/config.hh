@@ -7,6 +7,7 @@
 #include <vector>
 
 namespace maethstro {
+namespace common {
 
 class Config {
  public:
@@ -39,4 +40,5 @@ class Config {
   YAML::Node node_;
 };
 
+}  // namespace common
 }  // namespace maethstro

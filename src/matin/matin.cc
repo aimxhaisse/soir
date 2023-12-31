@@ -11,7 +11,7 @@ Matin::Matin() {}
 
 Matin::~Matin() {}
 
-absl::Status Matin::Init(const Config& config) {
+absl::Status Matin::Init(const common::Config& config) {
   file_watcher_ = std::make_unique<FileWatcher>();
   auto status = file_watcher_->Init(config);
   if (!status.ok()) {

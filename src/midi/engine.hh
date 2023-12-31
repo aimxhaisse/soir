@@ -43,7 +43,7 @@ class Engine {
   Engine();
   ~Engine();
 
-  absl::Status Init(const Config& config, Notifier* notifier);
+  absl::Status Init(const common::Config& config, Notifier* notifier);
   absl::Status Start();
   absl::Status Stop();
 

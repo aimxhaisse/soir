@@ -2,6 +2,7 @@
 #include <absl/strings/str_split.h>
 
 #include "subscriber.hh"
+#include "utils.hh"
 
 namespace maethstro {
 namespace matin {
@@ -10,7 +11,8 @@ Subscriber::Subscriber() {}
 
 Subscriber::~Subscriber() {}
 
-absl::Status Subscriber::Init(const Config& config) {
+absl::Status Subscriber::Init(const common::Config& config) {
+  user_ = config.Get<std::string>("matin.user");
   midi_grpc_host_ = config.Get<std::string>("matin.midi.grpc.host");
   midi_grpc_port_ = config.Get<int>("matin.midi.grpc.port");
 
@@ -20,6 +22,8 @@ absl::Status Subscriber::Init(const Config& config) {
   if (!midi_stub_) {
     return absl::InternalError("Failed to create MIDI gRPC stub");
   }
+
+  utils::InitContext(&context_, user_);
 
   LOG(INFO) << "Subscriber initialized with settings: " << midi_grpc_host_
             << ", " << midi_grpc_port_;

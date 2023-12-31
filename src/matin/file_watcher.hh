@@ -16,7 +16,7 @@ class FileWatcher : efsw::FileWatchListener {
   FileWatcher();
   ~FileWatcher();
 
-  absl::Status Init(const Config& config);
+  absl::Status Init(const common::Config& config);
   absl::Status Start();
   absl::Status Stop();
 
@@ -38,7 +38,7 @@ class FileWatcher : efsw::FileWatchListener {
 
   std::thread thread_;
 
-  std::string username_;
+  std::string user_;
   std::string directory_;
   std::string midi_grpc_host_;
   int midi_grpc_port_;

@@ -42,7 +42,7 @@ Notifier::Notifier() {}
 
 Notifier::~Notifier() {}
 
-absl::Status Notifier::Init(const Config& config) {
+absl::Status Notifier::Init(const common::Config& config) {
   return absl::OkStatus();
 }
 

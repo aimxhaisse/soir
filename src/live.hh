@@ -12,10 +12,10 @@ class Live {
  public:
   static absl::Status Preamble();
 
-  static absl::Status StandaloneMode(const Config& config);
-  static absl::Status MatinMode(const Config& config);
-  static absl::Status MidiMode(const Config& config);
-  static absl::Status SoirMode(const Config& config);
+  static absl::Status StandaloneMode(const common::Config& config);
+  static absl::Status MatinMode(const common::Config& config);
+  static absl::Status MidiMode(const common::Config& config);
+  static absl::Status SoirMode(const common::Config& config);
 };
 
 }  // namespace maethstro

@@ -2,7 +2,7 @@
 #include <absl/log/log.h>
 #include <absl/strings/str_cat.h>
 
-#include "common/signal.h"
+#include "common/signal.hh"
 #include "matin/matin.hh"
 #include "midi/midi.hh"
 
@@ -25,7 +25,7 @@ absl::Status Live::Preamble() {
   return absl::OkStatus();
 }
 
-absl::Status Live::StandaloneMode(const Config& config) {
+absl::Status Live::StandaloneMode(const common::Config& config) {
   LOG(INFO) << "Running in standalone mode";
 
   auto midi = midi::Midi();
@@ -54,7 +54,7 @@ absl::Status Live::StandaloneMode(const Config& config) {
     return status;
   }
 
-  status = WaitForExitSignal();
+  status = common::WaitForExitSignal();
   if (!status.ok()) {
     LOG(ERROR) << "Unable to wait for exit signal: " << status;
     return status;
@@ -75,19 +75,19 @@ absl::Status Live::StandaloneMode(const Config& config) {
   return absl::OkStatus();
 }
 
-absl::Status Live::MatinMode(const Config& config) {
+absl::Status Live::MatinMode(const common::Config& config) {
   LOG(ERROR) << "Matin mode not yet implemented";
 
   return absl::UnimplementedError("Matin mode not yet implemented");
 }
 
-absl::Status Live::MidiMode(const Config& config) {
+absl::Status Live::MidiMode(const common::Config& config) {
   LOG(ERROR) << "Midi mode not yet implemented";
 
   return absl::UnimplementedError("Midi mode not yet implemented");
 }
 
-absl::Status Live::SoirMode(const Config& config) {
+absl::Status Live::SoirMode(const common::Config& config) {
   LOG(ERROR) << "Soir mode not yet implemented";
 
   return absl::UnimplementedError("Soir mode not yet implemented");
