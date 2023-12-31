@@ -62,11 +62,12 @@ class Engine {
   void UnregisterCb(const CbId& id);
 
   // Those are part of the Live module and can be called from Python.
-  void SetBPM(uint16_t bpm);
-  uint16_t GetBPM() const;
+  float SetBPM(float bpm);
+  float GetBPM() const;
   void Log(const std::string& user, const std::string& message);
   std::string GetUser() const;
   void Beat(const absl::Time& now);
+  void At(float beat, const CbId& id, CbFunc func);
 
  private:
   std::thread thread_;
@@ -85,7 +86,7 @@ class Engine {
 
   uint64_t current_beat_ = 0;
   uint64_t beat_us_;
-  uint16_t bpm_ = 120;
+  float bpm_ = 120.0;
   std::string current_user_;
 };
 

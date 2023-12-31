@@ -30,30 +30,15 @@ void bindings::ResetEngine() {
   gEngine_ = nullptr;
 }
 
-PYBIND11_EMBEDDED_MODULE(live, m) {
-  m.doc() = "Maethstro L I V E";
+PYBIND11_EMBEDDED_MODULE(__live, m) {
+  m.doc() = "Maethstro Internal Live Module";
 
-  m.def(
-      "set_bpm",
-      [](int bpm) {
-        gEngine_->SetBPM(bpm);
-        return gEngine_->GetBPM();
-      },
-      "Sets the BPM");
-
-  m.def(
-      "get_bpm", []() { return gEngine_->GetBPM(); }, "Retrieves the BPM");
-
-  m.def(
-      "get_user", []() { return gEngine_->GetUser(); },
-      "Retrieves the current user");
-
-  m.def(
-      "log",
-      [](const std::string& message) {
-        gEngine_->Log(gEngine_->GetUser(), message);
-      },
-      "Logs a message");
+  m.def("__set_bpm", [](int bpm) { return gEngine_->SetBPM(bpm); });
+  m.def("__get_bpm", []() { return gEngine_->GetBPM(); });
+  m.def("__get_user", []() { return gEngine_->GetUser(); });
+  m.def("__log", [](const std::string& message) {
+    gEngine_->Log(gEngine_->GetUser(), message);
+  });
 }
 
 }  // namespace midi

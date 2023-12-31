@@ -4,12 +4,14 @@
 
 #include "bindings.hh"
 #include "engine.hh"
+#include "init.hh"
 
 namespace py = pybind11;
 
 namespace maethstro {
 namespace midi {
 
+const char kEngineUser[] = "engine";
 const char kBeatCbId[] = "beat";
 
 Engine::Engine() : notifier_(nullptr) {}
@@ -83,6 +85,14 @@ void Engine::UnregisterCb(const CbId& id) {
 absl::Status Engine::Run() {
   py::scoped_interpreter guard;
 
+  try {
+    current_user_ = kEngineUser;
+    py::exec(kInitEnginePy, py::globals(), py::globals());
+  } catch (py::error_already_set& e) {
+    LOG(ERROR) << "Python error: " << e.what();
+    return absl::InternalError("Python error");
+  }
+
   while (true) {
     // We assume there is always at least one callback in the queue
     // due to the beat scheduling.
@@ -139,14 +149,15 @@ absl::Status Engine::Run() {
   return absl::OkStatus();
 }
 
-void Engine::SetBPM(uint16_t bpm) {
+float Engine::SetBPM(float bpm) {
   LOG(INFO) << "Setting BPM to " << bpm;
 
   bpm_ = bpm;
-  beat_us_ = 60.0 / bpm_ * 1000000;
+  beat_us_ = 60.0 / bpm_ * 1000000.0;
+  return bpm_;
 }
 
-uint16_t Engine::GetBPM() const {
+float Engine::GetBPM() const {
   return bpm_;
 }
 

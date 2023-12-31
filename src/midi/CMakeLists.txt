@@ -1,7 +1,12 @@
+file(READ engine.py INIT_ENGINE_PY)
+
+configure_file(init.cc.in init.cc @ONLY)
+
 add_library(maethstro_midi
   bindings.cc
-  midi.cc
   engine.cc
+  init.cc
+  midi.cc
   notifier.cc
 )
 
