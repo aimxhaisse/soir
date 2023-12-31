@@ -1,11 +1,10 @@
 #pragma once
 
 #include <absl/status/status.h>
-#include <efsw/efsw.hpp>
 #include <regex>
 
 #include "common/config.hh"
-#include "live.grpc.pb.h"
+#include "file_watcher.hh"
 #include "subscriber.hh"
 
 namespace maethstro {
@@ -18,7 +17,7 @@ struct MatinSettings {
   int midi_grpc_port;
 };
 
-class Matin : efsw::FileWatchListener {
+class Matin {
  public:
   Matin();
   ~Matin();
@@ -28,27 +27,10 @@ class Matin : efsw::FileWatchListener {
   absl::Status Stop();
   absl::Status Wait();
 
-  // Returns true if the filename matches the pattern for a live
-  // coding file from the watched directory.
-  bool IsLiveCodingFile(const std::string& filename) const;
-
-  // Sends the content of all live coding files at start-up to Midi via gRPC.
-  absl::Status InitialCodeUpdate() const;
-
-  // Sends the content of the updated file to Midi via gRPC.
-  absl::Status SendCodeUpdate(const std::string& filename) const;
-
  private:
-  // Callback for efsw::FileWatchListener.
-  void handleFileAction(efsw::WatchID watchid, const std::string& dir,
-                        const std::string& filename, efsw::Action action,
-                        std::string old_filename) override;
-
   MatinSettings settings_;
   std::unique_ptr<matin::Subscriber> subscriber_;
-  std::unique_ptr<proto::Midi::Stub> midi_stub_;
-  std::unique_ptr<efsw::FileWatcher> file_watcher_;
-  std::regex file_pattern_;
+  std::unique_ptr<FileWatcher> file_watcher_;
 };
 
 }  // namespace matin

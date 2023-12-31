@@ -1,6 +1,7 @@
 add_library(maethstro_matin
   matin.cc
   subscriber.cc
+  file_watcher.cc
 )
 
 target_link_libraries(maethstro_matin
@@ -10,7 +11,7 @@ target_link_libraries(maethstro_matin
 )
 
 add_executable(maethstro_matin_test
-  matin_test.cc
+  file_watcher_test.cc
 )
 
 target_link_libraries(
