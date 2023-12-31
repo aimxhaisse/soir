@@ -45,7 +45,14 @@ PYBIND11_EMBEDDED_MODULE(live, m) {
       "get_bpm", []() { return gEngine_->Live_GetBPM(); }, "Retrieves the BPM");
 
   m.def(
-      "log", [](const std::string& message) { gEngine_->Live_Log(message); },
+      "get_user", []() { return gEngine_->Live_GetUser(); },
+      "Retrieves the current user");
+
+  m.def(
+      "log",
+      [](const std::string& message) {
+        gEngine_->Live_Log(gEngine_->Live_GetUser(), message);
+      },
       "Logs a message");
 }
 

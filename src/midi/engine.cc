@@ -76,7 +76,7 @@ absl::Status Engine::Run() {
     // due to the beat scheduling.
     auto next = callbacks_.begin();
 
-    std::list<std::string> updates;
+    std::list<CodeUpdate> updates;
     {
       std::unique_lock<std::mutex> lock(loop_mutex_);
       loop_cv_.wait_until(lock, absl::ToChronoTime(next->at), [this, next] {
@@ -111,9 +111,11 @@ absl::Status Engine::Run() {
     // recursions, to be as precise on time as possible. It's OK if a
     // code update takes 10ms to be applied, but not OK if it's a kick
     // event for example.
-    for (const auto& code : updates) {
+    for (const auto& update : updates) {
+      current_user_ = update.user;
+
       try {
-        py::exec(code.c_str(), py::globals(), py::globals());
+        py::exec(update.code.c_str(), py::globals(), py::globals());
       } catch (py::error_already_set& e) {
         LOG(ERROR) << "Python error: " << e.what();
       }
@@ -134,17 +136,22 @@ uint16_t Engine::Live_GetBPM() const {
   return bpm_;
 }
 
-void Engine::Live_Log(const std::string& message) {
+void Engine::Live_Log(const std::string& user, const std::string& message) {
   proto::MidiNotifications_Response notification;
 
   auto* log = notification.mutable_log();
-  log->set_source("logs");
+
+  log->set_source(user);
   log->set_notification(message);
 
   auto status = notifier_->Notify(notification);
   if (!status.ok()) {
     LOG(WARNING) << "Unable to send log notification: " << status;
   }
+}
+
+std::string Engine::Live_GetUser() const {
+  return current_user_;
 }
 
 absl::Status Engine::Beat(const absl::Time& now) {
@@ -170,10 +177,11 @@ absl::Status Engine::Schedule(const absl::Time& at, CallbackFunc func) {
   return absl::OkStatus();
 }
 
-absl::Status Engine::UpdateCode(const std::string& code) {
+absl::Status Engine::UpdateCode(const std::string& user,
+                                const std::string& code) {
   {
     std::lock_guard<std::mutex> lock(loop_mutex_);
-    code_updates_.push_back(code);
+    code_updates_.push_back(CodeUpdate{user, code});
     loop_cv_.notify_all();
   }
 

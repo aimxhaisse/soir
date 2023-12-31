@@ -85,6 +85,14 @@ grpc::Status Midi::Update(grpc::ServerContext* context,
                           const proto::MidiUpdate_Request* request,
                           proto::MidiUpdate_Response* response) {
 
+  auto user_it = context->client_metadata().find("user");
+  if (user_it == context->client_metadata().end()) {
+    return grpc::Status(grpc::StatusCode::UNAUTHENTICATED,
+                        "Missing user metadata");
+  }
+  const std::string user =
+      std::string(user_it->second.begin(), user_it->second.end());
+
   switch (request->request_case()) {
 
     case proto::MidiUpdate_Request::kCode: {
@@ -93,7 +101,7 @@ grpc::Status Midi::Update(grpc::ServerContext* context,
         return grpc::Status(grpc::StatusCode::INVALID_ARGUMENT, "Missing code");
       }
 
-      auto status = engine_->UpdateCode(update_code.code());
+      auto status = engine_->UpdateCode(user, update_code.code());
       if (!status.ok()) {
         LOG(ERROR) << "Unable to update live code: " << status;
         return grpc::Status(grpc::StatusCode::INTERNAL,

@@ -72,8 +72,8 @@ absl::Status Subscriber::Run() {
         auto entries = absl::StrSplit(response.log().notification(), '\n');
 
         for (const auto& entry : entries) {
-          LOG(INFO) << "\e[1;42mL I V E \e[0m\e[1;32m ("
-                    << response.log().source() << ")>\e[0m " << entry;
+          LOG(INFO) << "\e[1;42mL I V E \e[0m\e[1;32m "
+                    << response.log().source() << ">\e[0m " << entry;
         }
 
         break;

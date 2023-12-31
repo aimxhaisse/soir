@@ -83,6 +83,7 @@ absl::Status Notifier::Notify(
 
   for (auto subscriber : subscribers_) {
     auto status = subscriber->Notify(notification);
+
     if (!status.ok()) {
       LOG(ERROR) << "Unable to notify subscriber: " << status;
     }

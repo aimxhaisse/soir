@@ -24,6 +24,12 @@ struct Callback {
   }
 };
 
+// Represents a code update coming from Matin.
+struct CodeUpdate {
+  std::string user;
+  std::string code;
+};
+
 // This is the main engine that runs the Python code and schedules
 // callbacks. It uses a temporal recursion pattern to avoid time
 // drifts (this is heavily inspired from Extempore & Sonic PI).
@@ -51,14 +57,15 @@ class Engine {
 
   // This is called from another thread to evaluate a piece of Python
   // code coming from Matin. Code is executed from the Run() loop.
-  absl::Status UpdateCode(const std::string& code);
+  absl::Status UpdateCode(const std::string& user, const std::string& code);
   absl::Status Schedule(const absl::Time& at, CallbackFunc func);
   absl::Status Beat(const absl::Time& now);
 
   // Those are part of the Live module and can be called from Python.
   void Live_SetBPM(uint16_t bpm);
   uint16_t Live_GetBPM() const;
-  void Live_Log(const std::string& message);
+  void Live_Log(const std::string& user, const std::string& message);
+  std::string Live_GetUser() const;
 
  private:
   std::thread thread_;
@@ -71,12 +78,13 @@ class Engine {
   // Updated by the main thread/gRPC threads.
   std::mutex loop_mutex_;
   std::condition_variable loop_cv_;
-  std::list<std::string> code_updates_;
+  std::list<CodeUpdate> code_updates_;
   bool running_ = false;
 
   uint64_t current_beat_ = 0;
   uint64_t beat_us_;
   uint16_t bpm_ = 120;
+  std::string current_user_;
 };
 
 }  // namespace midi
