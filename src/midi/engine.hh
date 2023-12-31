@@ -9,17 +9,21 @@
 namespace maethstro {
 namespace midi {
 
-using CbFunc = std::function<void(const absl::Time& now)>;
-using CbId = std::string;
+using CbFunc = std::function<void()>;
+using MicroBeat = uint64_t;
 
-// Scheduled callback at a given time.
-struct ScheduledCb {
-  absl::Time at;
-  CbId id;
+static constexpr uint64_t OneBeat = 1000000;
 
-  bool operator()(const ScheduledCb& a, const ScheduledCb& b) const {
-    return a.at < b.at;
-  }
+// Scheduled callback at a given beat.
+struct Cb {
+  // We use micro-beat units to prevent any precision loss with floats
+  // which would lead to time drifts. We don't store any time here
+  // because BPM can evolve at any moment, affecting the overall
+  // scheduling.
+  MicroBeat at;
+  CbFunc func;
+
+  bool operator()(const Cb& a, const Cb& b) const { return a.at < b.at; }
 };
 
 // Represents a code update coming from Matin.
@@ -57,17 +61,16 @@ class Engine {
   // code coming from Matin. Code is executed from the Run() loop.
   absl::Status UpdateCode(const std::string& user, const std::string& code);
 
-  void Schedule(const absl::Time& at, const CbId& id);
-  void RegisterCb(const CbId& id, CbFunc func);
-  void UnregisterCb(const CbId& id);
+  absl::Time MicroBeatToTime(MicroBeat beat) const;
+  uint64_t MicroBeatToBeat(MicroBeat beat) const;
+  void Schedule(MicroBeat at, const CbFunc& func);
 
   // Those are part of the Live module and can be called from Python.
   float SetBPM(float bpm);
   float GetBPM() const;
   void Log(const std::string& user, const std::string& message);
   std::string GetUser() const;
-  void Beat(const absl::Time& now);
-  void At(float beat, const CbId& id, CbFunc func);
+  void Beat();
 
  private:
   std::thread thread_;
@@ -75,8 +78,7 @@ class Engine {
   Notifier* notifier_;
 
   // Updated by the Python thread only.
-  std::set<ScheduledCb, ScheduledCb> schedule_;
-  std::map<CbId, CbFunc> callbacks_;
+  std::set<Cb, Cb> schedule_;
 
   // Updated by the main thread/gRPC threads.
   std::mutex loop_mutex_;
@@ -84,9 +86,10 @@ class Engine {
   std::list<CodeUpdate> code_updates_;
   bool running_ = false;
 
-  uint64_t current_beat_ = 0;
-  uint64_t beat_us_;
+  MicroBeat current_beat_ = 0;
+  absl::Time current_time_;
   float bpm_ = 120.0;
+  uint64_t beat_us_ = 0;
   std::string current_user_;
 };
 

@@ -12,7 +12,6 @@ namespace maethstro {
 namespace midi {
 
 const char kEngineUser[] = "engine";
-const char kBeatCbId[] = "beat";
 
 Engine::Engine() : notifier_(nullptr) {}
 
@@ -24,11 +23,10 @@ absl::Status Engine::Init(const common::Config& config, Notifier* notifier) {
   LOG(INFO) << "Initializing engine";
 
   notifier_ = notifier;
-
+  current_time_ = absl::Now();
   SetBPM(config.Get<uint16_t>("midi.initial_bpm"));
 
-  RegisterCb(kBeatCbId, [this](const absl::Time& now) { return Beat(now); });
-  Beat(absl::Now());
+  Beat();
 
   auto status = bindings::SetEngine(this);
   if (!status.ok()) {
@@ -70,16 +68,15 @@ absl::Status Engine::Stop() {
   return absl::OkStatus();
 }
 
-void Engine::RegisterCb(const CbId& id, CbFunc func) {
-  LOG(INFO) << "Registering callback " << id;
+absl::Time Engine::MicroBeatToTime(MicroBeat beat) const {
+  MicroBeat diff_mb = beat - current_beat_;
+  uint64_t diff_us = (diff_mb * beat_us_) / 1000000.0;
 
-  callbacks_.insert({id, func});
+  return current_time_ + absl::Microseconds(diff_us);
 }
 
-void Engine::UnregisterCb(const CbId& id) {
-  LOG(INFO) << "Unregistering callback " << id;
-
-  callbacks_.erase(id);
+uint64_t Engine::MicroBeatToBeat(MicroBeat beat) const {
+  return beat / OneBeat;
 }
 
 absl::Status Engine::Run() {
@@ -97,13 +94,16 @@ absl::Status Engine::Run() {
     // We assume there is always at least one callback in the queue
     // due to the beat scheduling.
     auto next = schedule_.begin();
+    auto at_time = Engine::MicroBeatToTime(next->at);
 
     std::list<CodeUpdate> updates;
     {
       std::unique_lock<std::mutex> lock(loop_mutex_);
-      loop_cv_.wait_until(lock, absl::ToChronoTime(next->at), [this, next] {
-        return !running_ || !code_updates_.empty() || next->at <= absl::Now();
-      });
+      loop_cv_.wait_until(lock, absl::ToChronoTime(at_time),
+                          [this, next, at_time] {
+                            return !running_ || !code_updates_.empty() ||
+                                   at_time <= absl::Now();
+                          });
 
       if (!running_) {
         LOG(INFO) << "Received stop signal";
@@ -116,19 +116,11 @@ absl::Status Engine::Run() {
     }
 
     // Process next callback if time has passed.
-    if (next->at <= absl::Now()) {
+    if (at_time <= absl::Now()) {
+      current_time_ = at_time;
+      current_beat_ = next->at;
       schedule_.erase(next);
-
-      auto it = callbacks_.find(next->id);
-      if (it == callbacks_.end()) {
-        LOG(INFO) << "Callback " << next->id << " not found, skipped";
-      } else {
-        // Here we don't use now() as a parameter to the callback to
-        // avoid drifts. Instead, we pass the time at which it is
-        // expected to be scheduled, so that any drift is corrected on
-        // the next scheduling.
-        it->second(next->at);
-      }
+      next->func();
     }
 
     // Code updates are performed in a second time, after the temporal
@@ -154,6 +146,7 @@ float Engine::SetBPM(float bpm) {
 
   bpm_ = bpm;
   beat_us_ = 60.0 / bpm_ * 1000000.0;
+
   return bpm_;
 }
 
@@ -179,22 +172,20 @@ std::string Engine::GetUser() const {
   return current_user_;
 }
 
-void Engine::Beat(const absl::Time& now) {
-  LOG(INFO) << "Beat " << current_beat_;
-  current_beat_ += 1;
-  Schedule(now + absl::Microseconds(beat_us_), kBeatCbId);
+void Engine::Beat() {
+  LOG(INFO) << "Beat " << MicroBeatToBeat(current_beat_);
+
+  Schedule(current_beat_ + OneBeat, [this]() { Beat(); });
 }
 
-void Engine::Schedule(const absl::Time& at, const CbId& id) {
-  LOG(INFO) << "Scheduling callback " << id << " at " << at;
-
+void Engine::Schedule(MicroBeat at, const CbFunc& cb) {
   // This is stupid simple because we currently don't support
   // scheduling callbacks from multiple threads. So it is assumed here
   // we are running in the context of Run(). If we ever support
   // external scheduling, we'll need to wake up the Run loop here in
   // case the next scheduled callback changes.
 
-  schedule_.insert({at, id});
+  schedule_.insert({at, cb});
 }
 
 absl::Status Engine::UpdateCode(const std::string& user,
