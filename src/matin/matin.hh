@@ -23,9 +23,8 @@ class Matin {
   ~Matin();
 
   absl::Status Init(const Config& config);
-  absl::Status Run();
+  absl::Status Start();
   absl::Status Stop();
-  absl::Status Wait();
 
  private:
   MatinSettings settings_;

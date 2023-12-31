@@ -53,13 +53,11 @@ absl::Status Live::StandaloneMode(const Config& config) {
     return status;
   }
 
-  std::thread matin_thread([&matin]() {
-    auto status = matin.Run();
-    if (!status.ok()) {
-      LOG(ERROR) << "Unable to run matin: " << status;
-      exit(1);
-    }
-  });
+  status = matin.Start();
+  if (!status.ok()) {
+    LOG(ERROR) << "Unable to start matin: " << status;
+    return status;
+  }
 
   status = WaitForExitSignal();
   if (!status.ok()) {
@@ -70,12 +68,6 @@ absl::Status Live::StandaloneMode(const Config& config) {
   status = matin.Stop();
   if (!status.ok()) {
     LOG(ERROR) << "Unable to stop matin: " << status;
-    return status;
-  }
-
-  status = matin.Wait();
-  if (!status.ok()) {
-    LOG(ERROR) << "Unable to wait for matin: " << status;
     return status;
   }
 
@@ -91,7 +83,6 @@ absl::Status Live::StandaloneMode(const Config& config) {
     return status;
   }
 
-  matin_thread.join();
   midi_thread.join();
 
   return absl::OkStatus();

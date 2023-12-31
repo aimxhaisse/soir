@@ -27,6 +27,17 @@ absl::Status Subscriber::Init(const Config& config) {
   return absl::OkStatus();
 }
 
+absl::Status Subscriber::Start() {
+  thread_ = std::thread([this]() {
+    auto status = Run();
+    if (!status.ok()) {
+      LOG(ERROR) << "Subscriber failed: " << status.message();
+    }
+  });
+
+  return absl::OkStatus();
+}
+
 absl::Status Subscriber::Run() {
   proto::MidiNotifications_Request request;
 
@@ -71,13 +82,14 @@ absl::Status Subscriber::Stop() {
 
   context_.TryCancel();
 
-  return absl::OkStatus();
-}
+  {
+    std::unique_lock<std::mutex> lock(mutex_);
+    cond_.wait(lock, [this] { return stopped_; });
+  }
 
-absl::Status Subscriber::Wait() {
-  std::unique_lock<std::mutex> lock(mutex_);
-
-  cond_.wait(lock, [this] { return stopped_; });
+  if (thread_.joinable()) {
+    thread_.join();
+  }
 
   LOG(INFO) << "Subscriber properly shut down";
 

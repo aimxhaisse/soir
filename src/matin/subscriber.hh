@@ -4,6 +4,7 @@
 #include <grpc++/grpc++.h>
 #include <condition_variable>
 #include <mutex>
+#include <thread>
 
 #include "common/config.hh"
 #include "live.grpc.pb.h"
@@ -18,11 +19,14 @@ class Subscriber {
   ~Subscriber();
 
   absl::Status Init(const Config& config);
-  absl::Status Run();
+  absl::Status Start();
   absl::Status Stop();
-  absl::Status Wait();
+
+  absl::Status Run();
 
  private:
+  std::thread thread_;
+
   std::string midi_grpc_host_;
   int midi_grpc_port_;
   std::unique_ptr<proto::Midi::Stub> midi_stub_;
