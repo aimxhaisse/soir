@@ -8,87 +8,91 @@
 
 from enum import Enum
 
-from __live import (
-    __set_bpm,
-    __get_bpm,
-    __log
+from _live import (
+    _schedule,
+    _set_bpm,
+    _get_bpm,
+    _get_current_beat,
+    _log
 )
 
 
-class __LiveLoop:
+class _LiveLoop:
     """A live loop.
     """
-    class State(Enum):
-        """The state of a live loop.
-        """
-        RUNNING = 0
-        SCHEDULED = 1
-        STOPPED = 2
-    
     def __init__(self, name: str, beats: int, align: int, func: callable):
         self.name = name
         self.beats = beats
         self.align = align
         self.func = func
-        self.time = 0
-        self.state = __LiveLoop.State.STOPPED
 
-    def __call__(self, *args, **kwargs):
-        """Schedules the live loop if it is not running.
+    def fire(self):
+        """Temporal recursion scheduling of the live loop.
         """
-        if self.state == __LiveLoop.State.STOPPED:
-            self.state = __LiveLoop.State.SCHEDULED
-            self.func(*args, **kwargs)
+        at = _get_current_beat() + 1
+        if self.align:
+            at = self.beats - at % self.align
+
+        def loop():
+            self.func()
+            _schedule(self.beats, loop)
+
+        _schedule(at, loop)
 
 
-
-__live_loops = dict()
-__current_loop = None
+_live_loops = dict()
+_current_loop = None
 
 
 def log(message: str) -> None:
     """Log a message to the console.
     """
-    __log(message)
+    _log(message)
 
     
 def set_bpm(bpm: float) -> float:
     """Set the BPM of the current session.
     """
-    return __set_bpm(bpm)
+    return _set_bpm(bpm)
 
 
 def get_bpm() -> float:
     """Get the BPM of the current session.
     """
-    return __get_bpm()
+    return _get_bpm()
 
 
 def sleep(beats: float):
     """Sleep for the duration of the current loop.
     """
-    if not __current_loop:
+    if not _current_loop:
         raise RuntimeError('Cannot sleep outside of a live loop.')
     current_loop.time += beats
 
 
 def live_loop(*args, **kwargs):
     """Decorator to declare a live loop.
+
+    This is actually not a standard Python decorator:
+
+    - we want to schedule the function for execution at definition time,
+    - we don't want it to be directly callable.
     """
     beats = kwargs.get('beats', 4)
     align = kwargs.get('align', beats)
 
-    def decorator(f):
-        """Decorator to declare a live loop.
-        """
-        def wrapper(*args, **kwargs):
-            """Actual wrapper that handles rescheduling.
-            """
-            name = f.__name__
+    def decorator(func):
+        name = func.__name__
+        if name not in _live_loops:
+            ll = _LiveLoop(name, beats, align, func)
+            ll.fire()
+            _live_loops[name] = ll
+        else:
+            ll = _live_loops[name]
+            ll.beats = beats
+            ll.align = align
+            ll.func = func
 
-            if name not in __live_loops__:
-                __live_loops__[name] = __LiveLoop(name, beats, align, f)
-            
-            return f(*args, **kwargs)
+        return lambda: None
 
     return decorator

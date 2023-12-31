@@ -23,7 +23,7 @@ struct Cb {
   MicroBeat at;
   CbFunc func;
 
-  bool operator()(const Cb& a, const Cb& b) const { return a.at < b.at; }
+  bool operator()(const Cb& a, const Cb& b) const { return a.at <= b.at; }
 };
 
 // Represents a code update coming from Matin.

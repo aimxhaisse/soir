@@ -84,7 +84,7 @@ absl::Status Engine::Run() {
 
   try {
     current_user_ = kEngineUser;
-    py::exec(kInitEnginePy, py::globals(), py::globals());
+    py::exec(kInitEnginePy);
   } catch (py::error_already_set& e) {
     LOG(ERROR) << "Python error: " << e.what();
     return absl::InternalError("Python error");
@@ -117,10 +117,14 @@ absl::Status Engine::Run() {
 
     // Process next callback if time has passed.
     if (at_time <= absl::Now()) {
+      // This is set before the callback is executed so that it can
+      // retrieve accurate timing information.
       current_time_ = at_time;
       current_beat_ = next->at;
-      schedule_.erase(next);
+
       next->func();
+
+      schedule_.erase(next);
     }
 
     // Code updates are performed in a second time, after the temporal
@@ -131,7 +135,7 @@ absl::Status Engine::Run() {
       current_user_ = update.user;
 
       try {
-        py::exec(update.code.c_str(), py::globals(), py::globals());
+        py::exec(update.code.c_str());
       } catch (py::error_already_set& e) {
         LOG(ERROR) << "Python error: " << e.what();
       }
