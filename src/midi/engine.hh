@@ -73,7 +73,7 @@ class Engine {
   Notifier* notifier_;
 
   // Updated by the Python thread only.
-  std::set<Callback, Callback> callbacks_;
+  std::set<Callback, Callback> schedule_;
 
   // Updated by the main thread/gRPC threads.
   std::mutex loop_mutex_;

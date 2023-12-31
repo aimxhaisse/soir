@@ -74,7 +74,7 @@ absl::Status Engine::Run() {
   while (true) {
     // We assume there is always at least one callback in the queue
     // due to the beat scheduling.
-    auto next = callbacks_.begin();
+    auto next = schedule_.begin();
 
     std::list<CodeUpdate> updates;
     {
@@ -95,7 +95,7 @@ absl::Status Engine::Run() {
 
     // Process next callback if time has passed.
     if (next->at <= absl::Now()) {
-      callbacks_.erase(next);
+      schedule_.erase(next);
 
       // Here we don't use now() as a parameter to the callback to
       // avoid drifts. Instead, we pass the time at which it is
@@ -172,7 +172,7 @@ absl::Status Engine::Schedule(const absl::Time& at, CallbackFunc func) {
   // external scheduling, we'll need to wake up the Run loop here in
   // case the next scheduled callback changes.
 
-  callbacks_.insert({at, func});
+  schedule_.insert({at, func});
 
   return absl::OkStatus();
 }
