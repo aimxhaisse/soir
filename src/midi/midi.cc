@@ -48,19 +48,14 @@ absl::Status Midi::Init(const Config& config) {
   return absl::OkStatus();
 }
 
-absl::Status Midi::Run() {
+absl::Status Midi::Start() {
   LOG(INFO) << "Midi running";
 
-  engine_->Run().IgnoreError();
-
-  return absl::OkStatus();
-}
-
-absl::Status Midi::Wait() {
-  grpc_->Wait();
-  engine_->Wait().IgnoreError();
-
-  LOG(INFO) << "Midi properly shut down";
+  auto status = engine_->Start();
+  if (!status.ok()) {
+    LOG(ERROR) << "Unable to start engine: " << status;
+    return status;
+  }
 
   return absl::OkStatus();
 }
@@ -79,6 +74,9 @@ absl::Status Midi::Stop() {
   }
 
   grpc_->Shutdown();
+  grpc_->Wait();
+
+  LOG(INFO) << "Midi properly shut down";
 
   return absl::OkStatus();
 }

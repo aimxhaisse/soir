@@ -2,8 +2,6 @@
 
 #include <absl/status/status.h>
 #include <grpc++/grpc++.h>
-#include <condition_variable>
-#include <mutex>
 #include <thread>
 
 #include "common/config.hh"
@@ -31,10 +29,6 @@ class Subscriber {
   int midi_grpc_port_;
   std::unique_ptr<proto::Midi::Stub> midi_stub_;
   grpc::ClientContext context_;
-
-  std::mutex mutex_;
-  std::condition_variable cond_;
-  bool stopped_ = false;
 };
 
 }  // namespace matin

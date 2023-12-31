@@ -3,6 +3,7 @@
 #include <absl/status/status.h>
 #include <grpc++/grpc++.h>
 #include <pybind11/pybind11.h>
+#include <thread>
 
 #include "common/config.hh"
 #include "engine.hh"
@@ -23,8 +24,7 @@ class Midi : proto::Midi::Service {
   ~Midi();
 
   absl::Status Init(const Config& config);
-  absl::Status Run();
-  absl::Status Wait();
+  absl::Status Start();
   absl::Status Stop();
 
   grpc::Status Update(grpc::ServerContext* context,

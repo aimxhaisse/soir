@@ -39,49 +39,31 @@ absl::Status Engine::Init(const Config& config, Notifier* notifier) {
   return absl::OkStatus();
 }
 
-void Engine::Live_SetBPM(uint16_t bpm) {
-  LOG(INFO) << "Setting BPM to " << bpm;
+absl::Status Engine::Start() {
+  LOG(INFO) << "Starting engine";
 
-  bpm_ = bpm;
-  beat_us_ = 60.0 / bpm_ * 1000000;
+  thread_ = std::thread([this]() {
+    auto status = Run();
+    if (!status.ok()) {
+      LOG(ERROR) << "Engine failed: " << status;
+    }
+  });
+
+  return absl::OkStatus();
 }
 
-uint16_t Engine::Live_GetBPM() const {
-  return bpm_;
-}
+absl::Status Engine::Stop() {
+  LOG(INFO) << "Stopping engine";
 
-void Engine::Live_Log(const std::string& message) {
-  proto::MidiNotifications_Response notification;
-
-  auto* log = notification.mutable_log();
-  log->set_source("logs");
-  log->set_notification(message);
-
-  auto status = notifier_->Notify(notification);
-  if (!status.ok()) {
-    LOG(WARNING) << "Unable to send log notification: " << status;
+  {
+    std::lock_guard<std::mutex> lock(loop_mutex_);
+    running_ = false;
+    loop_cv_.notify_all();
   }
-}
 
-absl::Status Engine::Beat(const absl::Time& now) {
-  LOG(INFO) << "Beat " << current_beat_;
+  thread_.join();
 
-  current_beat_ += 1;
-
-  return Schedule(now + absl::Microseconds(beat_us_),
-                  [this](const absl::Time& now) { return Beat(now); });
-}
-
-absl::Status Engine::Schedule(const absl::Time& at, CallbackFunc func) {
-  LOG(INFO) << "Scheduling callback at " << at;
-
-  // This is stupid simple because we currently don't support
-  // scheduling callbacks from multiple threads. So it is assumed here
-  // we are running in the context of Run(). If we ever support
-  // external scheduling, we'll need to wake up the Run loop here in
-  // case the next scheduled callback changes.
-
-  callbacks_.insert({at, func});
+  LOG(INFO) << "Engine stopped";
 
   return absl::OkStatus();
 }
@@ -141,19 +123,50 @@ absl::Status Engine::Run() {
   return absl::OkStatus();
 }
 
-absl::Status Engine::Stop() {
-  LOG(INFO) << "Stopping engine";
+void Engine::Live_SetBPM(uint16_t bpm) {
+  LOG(INFO) << "Setting BPM to " << bpm;
 
-  {
-    std::lock_guard<std::mutex> lock(loop_mutex_);
-    running_ = false;
-    loop_cv_.notify_all();
-  }
-
-  return absl::OkStatus();
+  bpm_ = bpm;
+  beat_us_ = 60.0 / bpm_ * 1000000;
 }
 
-absl::Status Engine::Wait() {
+uint16_t Engine::Live_GetBPM() const {
+  return bpm_;
+}
+
+void Engine::Live_Log(const std::string& message) {
+  proto::MidiNotifications_Response notification;
+
+  auto* log = notification.mutable_log();
+  log->set_source("logs");
+  log->set_notification(message);
+
+  auto status = notifier_->Notify(notification);
+  if (!status.ok()) {
+    LOG(WARNING) << "Unable to send log notification: " << status;
+  }
+}
+
+absl::Status Engine::Beat(const absl::Time& now) {
+  LOG(INFO) << "Beat " << current_beat_;
+
+  current_beat_ += 1;
+
+  return Schedule(now + absl::Microseconds(beat_us_),
+                  [this](const absl::Time& now) { return Beat(now); });
+}
+
+absl::Status Engine::Schedule(const absl::Time& at, CallbackFunc func) {
+  LOG(INFO) << "Scheduling callback at " << at;
+
+  // This is stupid simple because we currently don't support
+  // scheduling callbacks from multiple threads. So it is assumed here
+  // we are running in the context of Run(). If we ever support
+  // external scheduling, we'll need to wake up the Run loop here in
+  // case the next scheduled callback changes.
+
+  callbacks_.insert({at, func});
+
   return absl::OkStatus();
 }
 

@@ -38,6 +38,20 @@ absl::Status Subscriber::Start() {
   return absl::OkStatus();
 }
 
+absl::Status Subscriber::Stop() {
+  LOG(INFO) << "Subscriber shutting down";
+
+  context_.TryCancel();
+
+  if (thread_.joinable()) {
+    thread_.join();
+  }
+
+  LOG(INFO) << "Subscriber properly shut down";
+
+  return absl::OkStatus();
+}
+
 absl::Status Subscriber::Run() {
   proto::MidiNotifications_Request request;
 
@@ -48,7 +62,6 @@ absl::Status Subscriber::Run() {
 
   proto::MidiNotifications_Response response;
   while (stream->Read(&response)) {
-
     switch (response.notification_case()) {
 
       case proto::MidiNotifications_Response::kLog: {
@@ -66,32 +79,7 @@ absl::Status Subscriber::Run() {
         LOG(WARNING) << "Unknown notification type: "
                      << response.notification_case();
     }
-
-    {
-      std::lock_guard<std::mutex> lock(mutex_);
-      stopped_ = true;
-      cond_.notify_all();
-    }
   }
-
-  return absl::OkStatus();
-}
-
-absl::Status Subscriber::Stop() {
-  LOG(INFO) << "Subscriber shutting down";
-
-  context_.TryCancel();
-
-  {
-    std::unique_lock<std::mutex> lock(mutex_);
-    cond_.wait(lock, [this] { return stopped_; });
-  }
-
-  if (thread_.joinable()) {
-    thread_.join();
-  }
-
-  LOG(INFO) << "Subscriber properly shut down";
 
   return absl::OkStatus();
 }

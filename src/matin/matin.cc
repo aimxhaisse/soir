@@ -60,6 +60,8 @@ absl::Status Matin::Stop() {
     LOG(WARNING) << "File watcher failed to stop: " << status.message();
   }
 
+  LOG(INFO) << "Matin stopped";
+
   return absl::OkStatus();
 }
 

@@ -1,7 +1,6 @@
 #include <absl/flags/usage.h>
 #include <absl/log/log.h>
 #include <absl/strings/str_cat.h>
-#include <thread>
 
 #include "common/signal.h"
 #include "matin/matin.hh"
@@ -30,23 +29,13 @@ absl::Status Live::StandaloneMode(const Config& config) {
   LOG(INFO) << "Running in standalone mode";
 
   auto midi = midi::Midi();
-
   auto status = midi.Init(config);
   if (!status.ok()) {
-    LOG(ERROR) << "Unable to initialize midi: " << status;
+    LOG(ERROR) << "Unable to start midi: " << status;
     return status;
   }
 
-  std::thread midi_thread([&midi]() {
-    auto status = midi.Run();
-    if (!status.ok()) {
-      LOG(ERROR) << "Unable to run midi: " << status;
-      exit(1);
-    }
-  });
-
   auto matin = matin::Matin();
-
   status = matin.Init(config);
   if (!status.ok()) {
     LOG(ERROR) << "Unable to initialize matin: " << status;
@@ -56,6 +45,12 @@ absl::Status Live::StandaloneMode(const Config& config) {
   status = matin.Start();
   if (!status.ok()) {
     LOG(ERROR) << "Unable to start matin: " << status;
+    return status;
+  }
+
+  status = midi.Start();
+  if (!status.ok()) {
+    LOG(ERROR) << "Unable to start midi: " << status;
     return status;
   }
 
@@ -76,14 +71,6 @@ absl::Status Live::StandaloneMode(const Config& config) {
     LOG(ERROR) << "Unable to stop midi: " << status;
     return status;
   }
-
-  status = midi.Wait();
-  if (!status.ok()) {
-    LOG(ERROR) << "Unable to wait for midi: " << status;
-    return status;
-  }
-
-  midi_thread.join();
 
   return absl::OkStatus();
 }

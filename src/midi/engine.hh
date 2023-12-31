@@ -44,9 +44,10 @@ class Engine {
   ~Engine();
 
   absl::Status Init(const Config& config, Notifier* notifier);
-  absl::Status Run();
+  absl::Status Start();
   absl::Status Stop();
-  absl::Status Wait();
+
+  absl::Status Run();
 
   // This is called from another thread to evaluate a piece of Python
   // code coming from Matin. Code is executed from the Run() loop.
@@ -60,6 +61,8 @@ class Engine {
   void Live_Log(const std::string& message);
 
  private:
+  std::thread thread_;
+
   Notifier* notifier_;
 
   // Updated by the Python thread only.

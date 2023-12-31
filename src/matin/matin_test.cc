@@ -64,6 +64,7 @@ class MatinTest : public testing::Test {
   }
 
   void TearDown() override {
+    LOG(INFO) << "Tearing down";
     ASSERT_TRUE(midi_->Stop().ok());
     midi_.reset();
     config_.reset();
@@ -76,7 +77,7 @@ class MatinTest : public testing::Test {
 TEST_F(MatinTest, Init) {
   Matin matin;
 
-  ASSERT_TRUE(matin.Init(**config_).ok());
+  ASSERT_TRUE(matin.Init(*config_).ok());
   ASSERT_TRUE(matin.Start().ok());
   ASSERT_TRUE(matin.Stop().ok());
 }

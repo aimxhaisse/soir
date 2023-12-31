@@ -1,6 +1,5 @@
 #include <absl/log/log.h>
 #include <gtest/gtest.h>
-#include <thread>
 
 #include "midi.hh"
 
@@ -60,19 +59,8 @@ TEST_F(MidiTest, Init) {
   Midi midi;
 
   ASSERT_TRUE(midi.Init(**config).ok());
-
-  std::thread midi_thread([&midi]() {
-    auto status = midi.Run();
-    if (!status.ok()) {
-      LOG(ERROR) << "Unable to run midi: " << status;
-      exit(1);
-    }
-  });
-
+  ASSERT_TRUE(midi.Start().ok());
   ASSERT_TRUE(midi.Stop().ok());
-  ASSERT_TRUE(midi.Wait().ok());
-
-  midi_thread.join();
 }
 
 }  // namespace
