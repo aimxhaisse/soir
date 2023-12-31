@@ -9,17 +9,15 @@
 namespace maethstro {
 namespace midi {
 
-using CallbackFunc = std::function<absl::Status(const absl::Time& now)>;
+using CbFunc = std::function<void(const absl::Time& now)>;
+using CbId = std::string;
 
-struct Callback {
-  // When the callback is meant to be executed.
+// Scheduled callback at a given time.
+struct ScheduledCb {
   absl::Time at;
+  CbId id;
 
-  // Callbacks take the current time to be able to perform
-  // temporal recursion without drifts.
-  CallbackFunc func;
-
-  bool operator()(const Callback& a, const Callback& b) const {
+  bool operator()(const ScheduledCb& a, const ScheduledCb& b) const {
     return a.at < b.at;
   }
 };
@@ -58,14 +56,17 @@ class Engine {
   // This is called from another thread to evaluate a piece of Python
   // code coming from Matin. Code is executed from the Run() loop.
   absl::Status UpdateCode(const std::string& user, const std::string& code);
-  absl::Status Schedule(const absl::Time& at, CallbackFunc func);
-  absl::Status Beat(const absl::Time& now);
+
+  void Schedule(const absl::Time& at, const CbId& id);
+  void RegisterCb(const CbId& id, CbFunc func);
+  void UnregisterCb(const CbId& id);
 
   // Those are part of the Live module and can be called from Python.
-  void Live_SetBPM(uint16_t bpm);
-  uint16_t Live_GetBPM() const;
-  void Live_Log(const std::string& user, const std::string& message);
-  std::string Live_GetUser() const;
+  void SetBPM(uint16_t bpm);
+  uint16_t GetBPM() const;
+  void Log(const std::string& user, const std::string& message);
+  std::string GetUser() const;
+  void Beat(const absl::Time& now);
 
  private:
   std::thread thread_;
@@ -73,7 +74,8 @@ class Engine {
   Notifier* notifier_;
 
   // Updated by the Python thread only.
-  std::set<Callback, Callback> schedule_;
+  std::set<ScheduledCb, ScheduledCb> schedule_;
+  std::map<CbId, CbFunc> callbacks_;
 
   // Updated by the main thread/gRPC threads.
   std::mutex loop_mutex_;

@@ -10,6 +10,8 @@ namespace py = pybind11;
 namespace maethstro {
 namespace midi {
 
+const char kBeatCbId[] = "beat";
+
 Engine::Engine() : notifier_(nullptr) {}
 
 Engine::~Engine() {
@@ -21,14 +23,12 @@ absl::Status Engine::Init(const common::Config& config, Notifier* notifier) {
 
   notifier_ = notifier;
 
-  Live_SetBPM(config.Get<uint16_t>("midi.initial_bpm"));
-  auto status = Beat(absl::Now());
-  if (!status.ok()) {
-    LOG(ERROR) << "Unable to schedule first beat: " << status;
-    return status;
-  }
+  SetBPM(config.Get<uint16_t>("midi.initial_bpm"));
 
-  status = bindings::SetEngine(this);
+  RegisterCb(kBeatCbId, [this](const absl::Time& now) { return Beat(now); });
+  Beat(absl::Now());
+
+  auto status = bindings::SetEngine(this);
   if (!status.ok()) {
     LOG(ERROR) << "Unable to set engine: " << status;
     return status;
@@ -68,6 +68,18 @@ absl::Status Engine::Stop() {
   return absl::OkStatus();
 }
 
+void Engine::RegisterCb(const CbId& id, CbFunc func) {
+  LOG(INFO) << "Registering callback " << id;
+
+  callbacks_.insert({id, func});
+}
+
+void Engine::UnregisterCb(const CbId& id) {
+  LOG(INFO) << "Unregistering callback " << id;
+
+  callbacks_.erase(id);
+}
+
 absl::Status Engine::Run() {
   py::scoped_interpreter guard;
 
@@ -97,13 +109,15 @@ absl::Status Engine::Run() {
     if (next->at <= absl::Now()) {
       schedule_.erase(next);
 
-      // Here we don't use now() as a parameter to the callback to
-      // avoid drifts. Instead, we pass the time at which it is
-      // expected to be scheduled, so that any drift is corrected on
-      // the next scheduling.
-      auto status = next->func(next->at);
-      if (!status.ok()) {
-        LOG(ERROR) << "Callback failed: " << status;
+      auto it = callbacks_.find(next->id);
+      if (it == callbacks_.end()) {
+        LOG(INFO) << "Callback " << next->id << " not found, skipped";
+      } else {
+        // Here we don't use now() as a parameter to the callback to
+        // avoid drifts. Instead, we pass the time at which it is
+        // expected to be scheduled, so that any drift is corrected on
+        // the next scheduling.
+        it->second(next->at);
       }
     }
 
@@ -125,18 +139,18 @@ absl::Status Engine::Run() {
   return absl::OkStatus();
 }
 
-void Engine::Live_SetBPM(uint16_t bpm) {
+void Engine::SetBPM(uint16_t bpm) {
   LOG(INFO) << "Setting BPM to " << bpm;
 
   bpm_ = bpm;
   beat_us_ = 60.0 / bpm_ * 1000000;
 }
 
-uint16_t Engine::Live_GetBPM() const {
+uint16_t Engine::GetBPM() const {
   return bpm_;
 }
 
-void Engine::Live_Log(const std::string& user, const std::string& message) {
+void Engine::Log(const std::string& user, const std::string& message) {
   proto::MidiNotifications_Response notification;
 
   auto* log = notification.mutable_log();
@@ -150,21 +164,18 @@ void Engine::Live_Log(const std::string& user, const std::string& message) {
   }
 }
 
-std::string Engine::Live_GetUser() const {
+std::string Engine::GetUser() const {
   return current_user_;
 }
 
-absl::Status Engine::Beat(const absl::Time& now) {
+void Engine::Beat(const absl::Time& now) {
   LOG(INFO) << "Beat " << current_beat_;
-
   current_beat_ += 1;
-
-  return Schedule(now + absl::Microseconds(beat_us_),
-                  [this](const absl::Time& now) { return Beat(now); });
+  Schedule(now + absl::Microseconds(beat_us_), kBeatCbId);
 }
 
-absl::Status Engine::Schedule(const absl::Time& at, CallbackFunc func) {
-  LOG(INFO) << "Scheduling callback at " << at;
+void Engine::Schedule(const absl::Time& at, const CbId& id) {
+  LOG(INFO) << "Scheduling callback " << id << " at " << at;
 
   // This is stupid simple because we currently don't support
   // scheduling callbacks from multiple threads. So it is assumed here
@@ -172,9 +183,7 @@ absl::Status Engine::Schedule(const absl::Time& at, CallbackFunc func) {
   // external scheduling, we'll need to wake up the Run loop here in
   // case the next scheduled callback changes.
 
-  schedule_.insert({at, func});
-
-  return absl::OkStatus();
+  schedule_.insert({at, id});
 }
 
 absl::Status Engine::UpdateCode(const std::string& user,

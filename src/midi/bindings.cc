@@ -36,22 +36,22 @@ PYBIND11_EMBEDDED_MODULE(live, m) {
   m.def(
       "set_bpm",
       [](int bpm) {
-        gEngine_->Live_SetBPM(bpm);
-        return gEngine_->Live_GetBPM();
+        gEngine_->SetBPM(bpm);
+        return gEngine_->GetBPM();
       },
       "Sets the BPM");
 
   m.def(
-      "get_bpm", []() { return gEngine_->Live_GetBPM(); }, "Retrieves the BPM");
+      "get_bpm", []() { return gEngine_->GetBPM(); }, "Retrieves the BPM");
 
   m.def(
-      "get_user", []() { return gEngine_->Live_GetUser(); },
+      "get_user", []() { return gEngine_->GetUser(); },
       "Retrieves the current user");
 
   m.def(
       "log",
       [](const std::string& message) {
-        gEngine_->Live_Log(gEngine_->Live_GetUser(), message);
+        gEngine_->Log(gEngine_->GetUser(), message);
       },
       "Logs a message");
 }
