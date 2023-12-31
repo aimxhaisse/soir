@@ -5,6 +5,7 @@
 #include "midi.hh"
 
 namespace maethstro {
+namespace midi {
 namespace {
 
 class MidiTest : public testing::Test {};
@@ -75,4 +76,5 @@ TEST_F(MidiTest, Init) {
 }
 
 }  // namespace
+}  // namespace midi
 }  // namespace maethstro

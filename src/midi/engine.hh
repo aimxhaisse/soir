@@ -7,6 +7,7 @@
 #include "notifier.hh"
 
 namespace maethstro {
+namespace midi {
 
 using CallbackFunc = std::function<absl::Status(const absl::Time& now)>;
 
@@ -75,4 +76,5 @@ class Engine {
   uint16_t bpm_ = 120;
 };
 
+}  // namespace midi
 }  // namespace maethstro

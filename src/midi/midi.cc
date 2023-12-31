@@ -3,6 +3,7 @@
 #include "midi.hh"
 
 namespace maethstro {
+namespace midi {
 
 Midi::Midi() {}
 
@@ -144,4 +145,5 @@ grpc::Status Midi::Notifications(
   return grpc::Status::OK;
 }
 
+}  // namespace midi
 }  // namespace maethstro

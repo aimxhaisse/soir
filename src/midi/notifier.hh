@@ -8,6 +8,7 @@
 #include "live.grpc.pb.h"
 
 namespace maethstro {
+namespace midi {
 
 // Wrapper around a gRPC writer to allow for safe notification.
 class Subscriber {
@@ -58,4 +59,5 @@ class Notifier {
   std::list<Subscriber*> subscribers_;
 };
 
+}  // namespace midi
 }  // namespace maethstro

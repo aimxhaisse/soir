@@ -29,7 +29,7 @@ absl::Status Live::Preamble() {
 absl::Status Live::StandaloneMode(const Config& config) {
   LOG(INFO) << "Running in standalone mode";
 
-  auto midi = Midi();
+  auto midi = midi::Midi();
 
   auto status = midi.Init(config);
   if (!status.ok()) {

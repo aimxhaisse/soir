@@ -10,6 +10,7 @@
 #include "notifier.hh"
 
 namespace maethstro {
+namespace midi {
 
 struct MidiSettings {
   std::string grpc_host;
@@ -43,4 +44,5 @@ class Midi : proto::Midi::Service {
   std::unique_ptr<Engine> engine_;
 };
 
+}  // namespace midi
 }  // namespace maethstro

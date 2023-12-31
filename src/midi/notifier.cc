@@ -3,6 +3,7 @@
 #include "notifier.hh"
 
 namespace maethstro {
+namespace midi {
 
 Subscriber::Subscriber(
     grpc::ServerWriter<proto::MidiNotifications_Response>& writer)
@@ -90,4 +91,5 @@ absl::Status Notifier::Notify(
   return absl::OkStatus();
 }
 
+}  // namespace midi
 }  // namespace maethstro

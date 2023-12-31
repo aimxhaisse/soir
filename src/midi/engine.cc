@@ -8,6 +8,7 @@
 namespace py = pybind11;
 
 namespace maethstro {
+namespace midi {
 
 Engine::Engine() : notifier_(nullptr) {}
 
@@ -168,4 +169,5 @@ absl::Status Engine::UpdateCode(const std::string& code) {
   return absl::OkStatus();
 }
 
+}  // namespace midi
 }  // namespace maethstro

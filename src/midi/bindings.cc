@@ -8,11 +8,12 @@ namespace py = pybind11;
 
 namespace {
 
-maethstro::Engine* gEngine_ = nullptr;
+maethstro::midi::Engine* gEngine_ = nullptr;
 
 }  // namespace
 
 namespace maethstro {
+namespace midi {
 
 absl::Status bindings::SetEngine(Engine* engine) {
   if (gEngine_ != nullptr) {
@@ -48,4 +49,5 @@ PYBIND11_EMBEDDED_MODULE(live, m) {
       "Logs a message");
 }
 
+}  // namespace midi
 }  // namespace maethstro
