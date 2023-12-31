@@ -51,7 +51,13 @@ absl::Status Midi::Init(const common::Config& config) {
 absl::Status Midi::Start() {
   LOG(INFO) << "Midi running";
 
-  auto status = engine_->Start();
+  auto status = notifier_->Start();
+  if (!status.ok()) {
+    LOG(ERROR) << "Unable to start notifier: " << status;
+    return status;
+  }
+
+  status = engine_->Start();
   if (!status.ok()) {
     LOG(ERROR) << "Unable to start engine: " << status;
     return status;

@@ -16,10 +16,9 @@ class Subscriber {
   explicit Subscriber(
       grpc::ServerWriter<proto::MidiNotifications_Response>& writer);
 
-  void Stop();
-
   absl::Status Wait();
   absl::Status Notify(const proto::MidiNotifications_Response& notification);
+  absl::Status AsyncStop();
 
  private:
   std::mutex mutex_;
@@ -35,6 +34,8 @@ class Notifier {
   ~Notifier();
 
   absl::Status Init(const common::Config& config);
+  absl::Status Start();
+  absl::Status Stop();
 
   // Ownership of the subscriber is handled by the caller, it must be
   // sure the subscriber pointer is always valid while subscribed.
@@ -42,10 +43,13 @@ class Notifier {
   absl::Status Unregister(Subscriber* subscriber);
 
   absl::Status Notify(const proto::MidiNotifications_Response& notification);
-  absl::Status Stop();
 
  private:
+  absl::Status Run();
+
+  std::thread thread_;
   std::mutex mutex_;
+  std::condition_variable cond_;
   bool stopped_ = false;
 
   // Lifecycle is a bit tricky here:
@@ -57,6 +61,7 @@ class Notifier {
   // Ownership is not managed here, it is handled by the called that
   // registers entries here. Once Stop() is called
   std::list<Subscriber*> subscribers_;
+  std::list<proto::MidiNotifications_Response> notifications_;
 };
 
 }  // namespace midi
