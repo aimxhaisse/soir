@@ -9,6 +9,7 @@
 #include "subscriber.hh"
 
 namespace maethstro {
+namespace matin {
 
 struct MatinSettings {
   std::string username;
@@ -50,4 +51,5 @@ class Matin : efsw::FileWatchListener {
   std::regex file_pattern_;
 };
 
+}  // namespace matin
 }  // namespace maethstro

@@ -9,6 +9,7 @@
 #include "matin.hh"
 
 namespace maethstro {
+namespace matin {
 
 Matin::Matin() : file_pattern_("^[a-z0-9_\\-]+\\.py") {
   file_watcher_ = std::make_unique<efsw::FileWatcher>();
@@ -162,4 +163,5 @@ void Matin::handleFileAction(efsw::WatchID watchid, const std::string& dir,
   SendCodeUpdate(absl::StrCat(dir, filename)).IgnoreError();
 }
 
+}  // namespace matin
 }  // namespace maethstro

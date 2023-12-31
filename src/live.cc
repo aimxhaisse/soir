@@ -45,7 +45,7 @@ absl::Status Live::StandaloneMode(const Config& config) {
     }
   });
 
-  auto matin = Matin();
+  auto matin = matin::Matin();
 
   status = matin.Init(config);
   if (!status.ok()) {

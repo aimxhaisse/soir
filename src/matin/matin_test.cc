@@ -3,6 +3,7 @@
 #include "matin.hh"
 
 namespace maethstro {
+namespace matin {
 namespace {
 
 class MatinTest : public testing::Test {};
@@ -20,4 +21,5 @@ TEST_F(MatinTest, IsLiveCodingFile) {
 }
 
 }  // namespace
+}  // namespace matin
 }  // namespace maethstro
