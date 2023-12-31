@@ -154,6 +154,10 @@ float Engine::GetBPM() const {
   return bpm_;
 }
 
+MicroBeat Engine::GetCurrentBeat() const {
+  return current_beat_;
+}
+
 void Engine::Log(const std::string& user, const std::string& message) {
   proto::MidiNotifications_Response notification;
 

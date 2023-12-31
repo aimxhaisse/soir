@@ -68,6 +68,7 @@ class Engine {
   // Those are part of the Live module and can be called from Python.
   float SetBPM(float bpm);
   float GetBPM() const;
+  MicroBeat GetCurrentBeat() const;
   void Log(const std::string& user, const std::string& message);
   std::string GetUser() const;
   void Beat();

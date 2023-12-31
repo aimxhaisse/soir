@@ -33,11 +33,14 @@ void bindings::ResetEngine() {
 PYBIND11_EMBEDDED_MODULE(__live, m) {
   m.doc() = "Maethstro Internal Live Module";
 
-  m.def("__set_bpm", [](int bpm) { return gEngine_->SetBPM(bpm); });
+  m.def("__set_bpm", [](float bpm) { return gEngine_->SetBPM(bpm); });
   m.def("__get_bpm", []() { return gEngine_->GetBPM(); });
   m.def("__get_user", []() { return gEngine_->GetUser(); });
   m.def("__log", [](const std::string& message) {
     gEngine_->Log(gEngine_->GetUser(), message);
+  });
+  m.def("__at", [](float beats, py::function func) {
+    gEngine_->Schedule(gEngine_->GetCurrentBeat() + beats * 1000000, func);
   });
 }
 
