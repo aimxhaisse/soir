@@ -74,13 +74,13 @@ absl::Status Midi::Stop() {
     LOG(ERROR) << "Unable to stop notifier: " << status;
   }
 
+  grpc_->Shutdown();
+  grpc_->Wait();
+
   status = engine_->Stop();
   if (!status.ok()) {
     LOG(ERROR) << "Unable to stop engine: " << status;
   }
-
-  grpc_->Shutdown();
-  grpc_->Wait();
 
   LOG(INFO) << "Midi properly shut down";
 

@@ -80,7 +80,7 @@ uint64_t Engine::MicroBeatToBeat(MicroBeat beat) const {
 }
 
 absl::Status Engine::Run() {
-  py::scoped_interpreter guard;
+  py::scoped_interpreter guard{};
 
   try {
     current_user_ = kEngineUser;
@@ -145,6 +145,11 @@ absl::Status Engine::Run() {
       }
     }
   }
+
+  // Clear code here to explicitly delete python functions references,
+  // otherwise they will be deleted when the interpreter has completed
+  // causing random crashes.
+  schedule_.clear();
 
   return absl::OkStatus();
 }
