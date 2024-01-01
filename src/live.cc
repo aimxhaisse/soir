@@ -5,6 +5,7 @@
 #include "common/signal.hh"
 #include "matin/matin.hh"
 #include "midi/midi.hh"
+#include "soir/soir.hh"
 
 #include "live.hh"
 
@@ -28,8 +29,15 @@ absl::Status Live::Preamble() {
 absl::Status Live::StandaloneMode(const common::Config& config) {
   LOG(INFO) << "Running in standalone mode";
 
+  auto soir = soir::Soir();
+  auto status = soir.Init(config);
+  if (!status.ok()) {
+    LOG(ERROR) << "Unable to initialize soir: " << status;
+    return status;
+  }
+
   auto midi = midi::Midi();
-  auto status = midi.Init(config);
+  status = midi.Init(config);
   if (!status.ok()) {
     LOG(ERROR) << "Unable to start midi: " << status;
     return status;
@@ -42,15 +50,21 @@ absl::Status Live::StandaloneMode(const common::Config& config) {
     return status;
   }
 
-  status = matin.Start();
+  status = soir.Start();
   if (!status.ok()) {
-    LOG(ERROR) << "Unable to start matin: " << status;
+    LOG(ERROR) << "Unable to start soir: " << status;
     return status;
   }
 
   status = midi.Start();
   if (!status.ok()) {
     LOG(ERROR) << "Unable to start midi: " << status;
+    return status;
+  }
+
+  status = matin.Start();
+  if (!status.ok()) {
+    LOG(ERROR) << "Unable to start matin: " << status;
     return status;
   }
 
@@ -69,6 +83,12 @@ absl::Status Live::StandaloneMode(const common::Config& config) {
   status = midi.Stop();
   if (!status.ok()) {
     LOG(ERROR) << "Unable to stop midi: " << status;
+    return status;
+  }
+
+  status = soir.Stop();
+  if (!status.ok()) {
+    LOG(ERROR) << "Unable to stop soir: " << status;
     return status;
   }
 
