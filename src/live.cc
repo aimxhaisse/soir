@@ -76,9 +76,34 @@ absl::Status Live::StandaloneMode(const common::Config& config) {
 }
 
 absl::Status Live::MatinMode(const common::Config& config) {
-  LOG(ERROR) << "Matin mode not yet implemented";
+  LOG(INFO) << "Running in Matin mode";
 
-  return absl::UnimplementedError("Matin mode not yet implemented");
+  auto matin = matin::Matin();
+  auto status = matin.Init(config);
+  if (!status.ok()) {
+    LOG(ERROR) << "Unable to initialize matin: " << status;
+    return status;
+  }
+
+  status = matin.Start();
+  if (!status.ok()) {
+    LOG(ERROR) << "Unable to start matin: " << status;
+    return status;
+  }
+
+  status = common::WaitForExitSignal();
+  if (!status.ok()) {
+    LOG(ERROR) << "Unable to wait for exit signal: " << status;
+    return status;
+  }
+
+  status = matin.Stop();
+  if (!status.ok()) {
+    LOG(ERROR) << "Unable to stop matin: " << status;
+    return status;
+  }
+
+  return absl::OkStatus();
 }
 
 absl::Status Live::MidiMode(const common::Config& config) {
