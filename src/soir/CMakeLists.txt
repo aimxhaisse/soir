@@ -1,5 +1,6 @@
 add_library(maethstro_soir
   soir.cc
+  http.cc
 )
 
 target_link_libraries(maethstro_soir
