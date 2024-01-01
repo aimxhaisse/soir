@@ -13,6 +13,7 @@ from live_ import (
     set_bpm_,
     get_bpm_,
     get_beat_,
+    get_user_,
     log_
 )
 
@@ -49,6 +50,7 @@ class LiveLoop_:
         self.func = func
 
         self.current_offset = 0
+        self.user = get_user_()
 
     def reset(self):
         """Reset the live loop.
@@ -83,9 +85,10 @@ def log(message: str) -> None:
     global current_loop_
 
     if current_loop_:
-        schedule_(current_loop_.current_offset, lambda: log_(message))
+        user = current_loop_.user
+        schedule_(current_loop_.current_offset, lambda: log_(user, message))
     else:
-        log_(message)
+        log_(get_user_(), message)
 
 
 def set_bpm(bpm: float) -> float:

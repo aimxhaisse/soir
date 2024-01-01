@@ -39,8 +39,8 @@ PYBIND11_EMBEDDED_MODULE(live_, m) {
   m.def("get_beat_", []() {
     return static_cast<double>(gEngine_->GetCurrentBeat() / 1000000);
   });
-  m.def("log_", [](const std::string& message) {
-    gEngine_->Log(gEngine_->GetUser(), message);
+  m.def("log_", [](const std::string& user, const std::string& message) {
+    gEngine_->Log(user, message);
   });
   m.def("schedule_", [](float beats, py::function func) {
     gEngine_->Schedule(gEngine_->GetCurrentBeat() + beats * 1000000, func);
