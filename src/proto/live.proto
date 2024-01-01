@@ -25,7 +25,7 @@ message MidiUpdate {
   message Response {}
 }
 
-
+// Used to receive notifications from Midi.
 message MidiNotifications {
   message Request {}
 
@@ -50,4 +50,19 @@ service Midi {
 
   // Used by Matin to receive notifications.
   rpc Notifications(MidiNotifications.Request) returns (stream MidiNotifications.Response) {}
+}
+
+// Used to represent Midi events.
+message MidiEvents {
+  message Request {
+    bytes midi_payload = 1;
+  }
+
+  message Response {}
+}
+
+// Soir service.
+service Soir {
+  // Send a stream of MIDI events to soir.
+  rpc MidiEvents(stream MidiEvents.Request) returns (MidiEvents.Response) {}
 }
