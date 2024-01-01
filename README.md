@@ -40,4 +40,6 @@ it look natural. On the plus side this could open the way to external
 interactions.
 
 This [project](https://github.com/DmitryKuk/asynchronizer/tree/master)
-needs to be explored to see how it could work.
+needs to be explored to see how it could work. This
+[topic](https://stackoverflow.com/questions/71082517/integrate-embedded-python-asyncio-into-boostasio-event-loop)
+can help too.
