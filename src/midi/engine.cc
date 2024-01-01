@@ -122,7 +122,11 @@ absl::Status Engine::Run() {
       current_time_ = at_time;
       current_beat_ = next->at;
 
-      next->func();
+      try {
+        next->func();
+      } catch (py::error_already_set& e) {
+        LOG(ERROR) << "Python error: " << e.what();
+      }
 
       schedule_.erase(next);
     }
