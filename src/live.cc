@@ -107,9 +107,34 @@ absl::Status Live::MatinMode(const common::Config& config) {
 }
 
 absl::Status Live::MidiMode(const common::Config& config) {
-  LOG(ERROR) << "Midi mode not yet implemented";
+  LOG(INFO) << "Running in Midi mode";
 
-  return absl::UnimplementedError("Midi mode not yet implemented");
+  auto midi = midi::Midi();
+  auto status = midi.Init(config);
+  if (!status.ok()) {
+    LOG(ERROR) << "Unable to initialize midi: " << status;
+    return status;
+  }
+
+  status = midi.Start();
+  if (!status.ok()) {
+    LOG(ERROR) << "Unable to start midi: " << status;
+    return status;
+  }
+
+  status = common::WaitForExitSignal();
+  if (!status.ok()) {
+    LOG(ERROR) << "Unable to wait for exit signal: " << status;
+    return status;
+  }
+
+  status = midi.Stop();
+  if (!status.ok()) {
+    LOG(ERROR) << "Unable to stop midi: " << status;
+    return status;
+  }
+
+  return absl::OkStatus();
 }
 
 absl::Status Live::SoirMode(const common::Config& config) {
