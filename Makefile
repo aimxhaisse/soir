@@ -35,6 +35,7 @@ test: all
 	./$(BUILD_DIR)/src/common/maethstro_common_test
 	./$(BUILD_DIR)/src/matin/maethstro_matin_test
 	./$(BUILD_DIR)/src/midi/maethstro_midi_test
+	./$(BUILD_DIR)/src/midi/maethstro_soir_test
 
 # Build
 
@@ -53,7 +54,7 @@ $(BINARY): deps $(BUILD_DIR)
 		.. && \
 	cmake --build . 				\
 		-j 16 	 				\
-		--target maethstro maethstro_matin_test maethstro_midi_test maethstro_common_test && \
+		--target maethstro maethstro_matin_test maethstro_midi_test maethstro_soir_test maethstro_common_test && \
 	cp maethstro ../$(BINARY)
 
 # Deps
