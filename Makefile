@@ -14,6 +14,7 @@ DEPS_ABSEIL	:= $(DEPS_DIR)/abseil
 DEPS_PROTOBUF	:= $(DEPS_DIR)/protobuf
 DEPS_EFSW	:= $(DEPS_DIR)/efsw
 DEPS_PYBIND	:= $(DEPS_DIR)/pybind11
+DEPS_HTTPLIB	:= $(DEPS_DIR)/httplib
 
 .PHONY: all deps clean full-clean $(BINARY)
 
@@ -21,7 +22,7 @@ DEPS_PYBIND	:= $(DEPS_DIR)/pybind11
 
 all: $(BINARY)
 
-deps: $(DEPS_ABSEIL) $(DEPS_PROTOBUF) $(DEPS_EFSW) $(DEPS_PYBIND)
+deps: $(DEPS_ABSEIL) $(DEPS_PROTOBUF) $(DEPS_EFSW) $(DEPS_PYBIND) $(DEPS_HTTPLIB)
 
 clean:
 	rm -rf $(BINARY)
@@ -75,3 +76,8 @@ $(DEPS_PYBIND):
 	git clone https://github.com/pybind/pybind11.git $@ && \
 	cd $@ && \
 	git checkout v2.11.1
+
+$(DEPS_HTTPLIB):
+	git clone https://github.com/yhirose/cpp-httplib.git $@ && \
+	cd $@ && \
+	git checkout v0.14.3

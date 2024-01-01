@@ -13,6 +13,7 @@ add_subdirectory(deps/abseil)
 add_subdirectory(deps/protobuf)
 add_subdirectory(deps/efsw)
 add_subdirectory(deps/pybind11)
+add_subdirectory(deps/httplib)
 
 find_package(yaml-cpp REQUIRED)
 find_package(GTest REQUIRED)
@@ -24,6 +25,7 @@ add_subdirectory(src/proto)
 add_subdirectory(src/common)
 add_subdirectory(src/matin)
 add_subdirectory(src/midi)
+add_subdirectory(src/soir)
 
 add_compile_definitions(MAETHSTRO_VERSION=${VERSION})
 
@@ -42,4 +44,5 @@ target_link_libraries(
   maethstro_common
   maethstro_matin
   maethstro_midi
+  maethstro_soir
 )
