@@ -27,11 +27,25 @@ absl::Status Soir::Init(const common::Config& config) {
 
 absl::Status Soir::Start() {
   LOG(INFO) << "Starting Soir";
+
+  auto status = http_server_->Start();
+  if (!status.ok()) {
+    LOG(ERROR) << "Failed to start HTTP server: " << status;
+    return status;
+  }
+
   return absl::OkStatus();
 }
 
 absl::Status Soir::Stop() {
   LOG(INFO) << "Stopping Soir";
+
+  auto status = http_server_->Stop();
+  if (!status.ok()) {
+    LOG(ERROR) << "Failed to stop HTTP server: " << status;
+    return status;
+  }
+
   return absl::OkStatus();
 }
 

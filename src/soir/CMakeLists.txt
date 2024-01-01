@@ -6,6 +6,7 @@ add_library(maethstro_soir
 target_link_libraries(maethstro_soir
   maethstro_proto
   maethstro_common
+  httplib::httplib
 )
 
 add_executable(maethstro_soir_test
