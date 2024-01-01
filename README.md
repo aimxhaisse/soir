@@ -23,3 +23,21 @@ changes:
 - Find a way to document what we export via Pybind
 - Loose authentication using gRPC facilities
 
+## Ramblings
+
+### About Python async I/O
+
+Current problems: we can't block in live loops, and this implies at
+the beginning of the loop everything is evaluated at once. This
+implies you can't for instance call `get_bpm` in the middle of the
+live-loop and expect it to return the right value: it will be the
+value at the beginning of the loop. Unsure here but maybe using a
+Python async I/O approach would solve this. Unclear how pybind/async
+I/O would work together.
+
+Syntax of async I/O is annoying, but we could provide helpers to make
+it look natural. On the plus side this could open the way to external
+interactions.
+
+This [project](https://github.com/DmitryKuk/asynchronizer/tree/master)
+needs to be explored to see how it could work.
