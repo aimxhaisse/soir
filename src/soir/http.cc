@@ -9,9 +9,9 @@ HttpStream::HttpStream() {}
 
 HttpStream::~HttpStream() {}
 
-absl::Status HttpStream::PushSamples(const std::string& data) {
+absl::Status HttpStream::PushSamples(const Samples& data) {
   std::unique_lock<std::mutex> lock(mutex_);
-  stream_ = data;
+  stream_.push_back(data);
   cond_.notify_one();
   return absl::OkStatus();
 }
@@ -20,7 +20,7 @@ absl::Status HttpStream::Run(httplib::Response& response) {
   LOG(INFO) << "Starting HTTP stream";
 
   while (true) {
-    std::string stream;
+    std::list<Samples> stream;
     {
       std::unique_lock<std::mutex> lock(mutex_);
       cond_.wait(lock);
@@ -30,7 +30,9 @@ absl::Status HttpStream::Run(httplib::Response& response) {
       std::swap(stream, stream_);
     }
 
-    response.set_content(stream, "application/ogg");
+    // Here we need to encode stream and send it to response.
+
+    stream.clear();
   }
 
   return absl::OkStatus();
