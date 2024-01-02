@@ -1,6 +1,7 @@
 add_library(maethstro_soir
   soir.cc
   http.cc
+  http_stream.cc
   engine.cc
 )
 
