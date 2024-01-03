@@ -12,6 +12,8 @@ target_link_libraries(maethstro_soir
   maethstro_common
   httplib::httplib
   vorbis
+  vorbisenc
+  ogg
 )
 
 add_executable(maethstro_soir_test

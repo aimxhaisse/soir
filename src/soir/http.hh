@@ -6,6 +6,7 @@
 
 #include "common.hh"
 #include "common/config.hh"
+#include "engine.hh"
 #include "http_stream.hh"
 
 namespace maethstro {
@@ -19,13 +20,14 @@ class HttpServer {
   HttpServer();
   ~HttpServer();
 
-  absl::Status Init(const common::Config& config);
+  absl::Status Init(const common::Config& config, Engine* engine);
   absl::Status Start();
   absl::Status Stop();
 
  private:
   absl::Status Run();
 
+  Engine* engine_;
   int http_port_;
   std::string http_host_;
 

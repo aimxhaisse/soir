@@ -5,23 +5,12 @@
 namespace maethstro {
 namespace soir {
 
-VorbisEncoder::VorbisEncoder(Writer& writer) : writer_(writer) {}
+VorbisEncoder::VorbisEncoder() {}
 
-VorbisEncoder::~VorbisEncoder() {
-  Reset();
-}
+VorbisEncoder::~VorbisEncoder() {}
 
-void VorbisEncoder::Reset() {
-  ogg_stream_clear(&os_);
-  vorbis_block_clear(&vb_);
-  vorbis_dsp_clear(&vd_);
-  vorbis_comment_clear(&vc_);
-
-  vorbis_info_clear(&vi_);
-}
-
-absl::Status VorbisEncoder::Init(const common::Config& config) {
-  quality_ = config.Get<int>("soir.stream.quality");
+absl::Status VorbisEncoder::Init(Writer& writer) {
+  LOG(INFO) << "Initializing Vorbis encoder";
 
   vorbis_info_init(&vi_);
 
@@ -50,10 +39,12 @@ absl::Status VorbisEncoder::Init(const common::Config& config) {
     if (ogg_stream_flush(&os_, &og_) == 0) {
       break;
     }
-    if (!writer_(og_.header, static_cast<std::size_t>(og_.header_len))) {
+    if (!writer(og_.header, static_cast<std::size_t>(og_.header_len))) {
+      LOG(WARNING) << "Unable to write Vorbis header";
       return absl::CancelledError("Connection reset by peer");
     }
-    if (!writer_(og_.body, static_cast<std::size_t>(og_.body_len))) {
+    if (!writer(og_.body, static_cast<std::size_t>(og_.body_len))) {
+      LOG(WARNING) << "Unable to write Vorbis body";
       return absl::CancelledError("Connection reset by peer");
     }
   }
@@ -61,11 +52,38 @@ absl::Status VorbisEncoder::Init(const common::Config& config) {
   return absl::OkStatus();
 }
 
-absl::Status VorbisEncoder::Encode(const AudioBuffer& buffer) {
-  return absl::OkStatus();
-}
+absl::Status VorbisEncoder::Encode(AudioBuffer& ab, Writer& writer) {
+  float* left = ab.GetChannel(kLeftChannel);
+  float* right = ab.GetChannel(kRightChannel);
 
-absl::Status VorbisEncoder::EndOfStream() {
+  std::size_t samples = ab.Size();
+
+  float** buffer = vorbis_analysis_buffer(&vd_, samples);
+  memcpy(buffer[0], left, sizeof(float) * samples);
+  memcpy(buffer[1], right, sizeof(float) * samples);
+
+  vorbis_analysis_wrote(&vd_, samples);
+
+  while (vorbis_analysis_blockout(&vd_, &vb_) == 1) {
+    vorbis_analysis(&vb_, nullptr);
+    vorbis_bitrate_addblock(&vb_);
+
+    while (vorbis_bitrate_flushpacket(&vd_, &op_)) {
+      ogg_stream_packetin(&os_, &op_);
+
+      while (ogg_stream_pageout(&os_, &og_) == 1) {
+        if (!writer(og_.header, static_cast<std::size_t>(og_.header_len))) {
+          LOG(WARNING) << "Unable to write packet header";
+          return absl::CancelledError("Connection reset by peer");
+        }
+        if (!writer(og_.body, static_cast<std::size_t>(og_.body_len))) {
+          LOG(WARNING) << "Unable to write packet body";
+          return absl::CancelledError("Connection reset by peer");
+        }
+      }
+    }
+  }
+
   return absl::OkStatus();
 }
 

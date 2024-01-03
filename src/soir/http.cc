@@ -9,8 +9,10 @@ HttpServer::HttpServer() {}
 
 HttpServer::~HttpServer() {}
 
-absl::Status HttpServer::Init(const common::Config& config) {
+absl::Status HttpServer::Init(const common::Config& config, Engine* engine) {
   LOG(INFO) << "Initializing HTTP server";
+
+  engine_ = engine;
 
   http_host_ = config.Get<std::string>("soir.http.host");
   http_port_ = config.Get<int>("soir.http.port");
@@ -34,11 +36,37 @@ absl::Status HttpServer::Start() {
 }
 
 absl::Status HttpServer::Run() {
+  server_->Get("/", [this](const httplib::Request& request,
+                           httplib::Response& response) {
+    // All of this is a bit confusing, but it seems like httplib is
+    // not meant to be used simply in a streaming mode so there is a
+    // lot of weird back and forth going on here.
+    auto stream = new HttpStream();
 
-  server_->Get(
-      "/", [&](const httplib::Request& request, httplib::Response& response) {
-        //@
-      });
+    // Register the stream to receive audio buffers
+    engine_->RegisterConsumer(stream);
+
+    response.set_content_provider(
+        "application/octet-stream",
+        [this, stream](size_t, httplib::DataSink& sink) {
+          auto status = stream->Encode(sink);
+          if (!status.ok()) {
+            LOG(INFO) << "HTTP stream cancelled because " << status;
+
+            sink.done();
+            engine_->RemoveConsumer(stream);
+            delete stream;
+
+            LOG(INFO) << "HTTP stream properly cleaned up";
+
+            return false;
+          }
+
+          return true;
+        });
+
+    return true;
+  });
 
   server_->listen(http_host_.c_str(), http_port_);
 

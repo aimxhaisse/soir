@@ -5,6 +5,7 @@
 
 #include "audio_buffer.hh"
 #include "common.hh"
+#include "vorbis_encoder.hh"
 
 namespace maethstro {
 namespace soir {
@@ -17,14 +18,14 @@ class HttpStream : public SampleConsumer {
   virtual ~HttpStream();
 
   absl::Status PushAudioBuffer(const AudioBuffer& samples) override;
-  absl::Status Run(httplib::Response& response);
-  absl::Status Stop();
+  absl::Status Encode(httplib::DataSink& sink);
 
  private:
   std::mutex mutex_;
   std::condition_variable cond_;
   std::list<AudioBuffer> stream_;
-  bool running_;
+  bool initialized_;
+  VorbisEncoder encoder_;
 };
 
 }  // namespace soir

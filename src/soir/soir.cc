@@ -12,23 +12,23 @@ Soir::~Soir() {}
 absl::Status Soir::Init(const common::Config& config) {
   LOG(INFO) << "Initializing Soir";
 
+  engine_ = std::make_unique<Engine>();
+
+  auto status = engine_->Init(config);
+  if (!status.ok()) {
+    LOG(ERROR) << "Failed to initialize engine: " << status;
+    return status;
+  }
+
   http_server_ = std::make_unique<HttpServer>();
 
-  auto status = http_server_->Init(config);
+  status = http_server_->Init(config, engine_.get());
   if (!status.ok()) {
     LOG(ERROR) << "Failed to initialize HTTP server: " << status;
     return status;
   }
 
   LOG(INFO) << "Soir initialized";
-
-  engine_ = std::make_unique<Engine>();
-
-  status = engine_->Init(config);
-  if (!status.ok()) {
-    LOG(ERROR) << "Failed to initialize engine: " << status;
-    return status;
-  }
 
   return absl::OkStatus();
 }

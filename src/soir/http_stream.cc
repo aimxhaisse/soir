@@ -1,51 +1,50 @@
 #include <absl/log/log.h>
 
-#include "http.hh"
+#include "http_stream.hh"
+#include "vorbis_encoder.hh"
 
 namespace maethstro {
 namespace soir {
 
-HttpStream::HttpStream() {}
+HttpStream::HttpStream() : initialized_(false) {}
 
 HttpStream::~HttpStream() {}
 
 absl::Status HttpStream::PushAudioBuffer(const AudioBuffer& samples) {
   std::unique_lock<std::mutex> lock(mutex_);
+
   stream_.push_back(samples);
   cond_.notify_one();
+
   return absl::OkStatus();
 }
 
-absl::Status HttpStream::Run(httplib::Response& response) {
-  LOG(INFO) << "Starting HTTP stream";
+absl::Status HttpStream::Encode(httplib::DataSink& sink) {
+  Writer writer = [&sink](const void* data, std::size_t size) {
+    return sink.write(reinterpret_cast<const char*>(data), size);
+  };
 
-  while (true) {
-    std::list<AudioBuffer> stream;
-    {
-      std::unique_lock<std::mutex> lock(mutex_);
-      cond_.wait(lock);
-      if (!running_) {
-        break;
-      }
-      std::swap(stream, stream_);
+  if (!initialized_) {
+    initialized_ = true;
+    auto status = encoder_.Init(writer);
+    if (!status.ok()) {
+      return status;
     }
-
-    // Here we need to encode stream and send it to response.
-
-    stream.clear();
   }
 
-  return absl::OkStatus();
-}
+  std::list<AudioBuffer> stream;
+  {
+    std::unique_lock<std::mutex> lock(mutex_);
+    cond_.wait(lock);
+    std::swap(stream, stream_);
+  }
 
-absl::Status HttpStream::Stop() {
-  LOG(INFO) << "Stopping HTTP stream";
-
-  std::unique_lock<std::mutex> lock(mutex_);
-  running_ = false;
-  cond_.notify_all();
-
-  LOG(INFO) << "HTTP stream stopped";
+  for (auto& buffer : stream) {
+    auto status = encoder_.Encode(buffer, writer);
+    if (!status.ok()) {
+      return status;
+    }
+  }
 
   return absl::OkStatus();
 }
