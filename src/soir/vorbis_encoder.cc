@@ -40,11 +40,9 @@ absl::Status VorbisEncoder::Init(Writer& writer) {
       break;
     }
     if (!writer(og_.header, static_cast<std::size_t>(og_.header_len))) {
-      LOG(WARNING) << "Unable to write Vorbis header";
       return absl::CancelledError("Connection reset by peer");
     }
     if (!writer(og_.body, static_cast<std::size_t>(og_.body_len))) {
-      LOG(WARNING) << "Unable to write Vorbis body";
       return absl::CancelledError("Connection reset by peer");
     }
   }
@@ -73,11 +71,9 @@ absl::Status VorbisEncoder::Encode(AudioBuffer& ab, Writer& writer) {
 
       while (ogg_stream_pageout(&os_, &og_) == 1) {
         if (!writer(og_.header, static_cast<std::size_t>(og_.header_len))) {
-          LOG(WARNING) << "Unable to write packet header";
           return absl::CancelledError("Connection reset by peer");
         }
         if (!writer(og_.body, static_cast<std::size_t>(og_.body_len))) {
-          LOG(WARNING) << "Unable to write packet body";
           return absl::CancelledError("Connection reset by peer");
         }
       }
