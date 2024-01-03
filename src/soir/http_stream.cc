@@ -9,9 +9,9 @@ HttpStream::HttpStream() {}
 
 HttpStream::~HttpStream() {}
 
-absl::Status HttpStream::PushSamples(const Samples& data) {
+absl::Status HttpStream::PushAudioBuffer(const AudioBuffer& samples) {
   std::unique_lock<std::mutex> lock(mutex_);
-  stream_.push_back(data);
+  stream_.push_back(samples);
   cond_.notify_one();
   return absl::OkStatus();
 }
@@ -20,7 +20,7 @@ absl::Status HttpStream::Run(httplib::Response& response) {
   LOG(INFO) << "Starting HTTP stream";
 
   while (true) {
-    std::list<Samples> stream;
+    std::list<AudioBuffer> stream;
     {
       std::unique_lock<std::mutex> lock(mutex_);
       cond_.wait(lock);

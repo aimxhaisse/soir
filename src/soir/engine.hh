@@ -35,7 +35,6 @@ class Engine {
   void Stats(const absl::Time& next_block_at,
              const absl::Duration& block_duration) const;
 
-  uint32_t sample_rate_;
   uint32_t block_size_;
 
   std::thread thread_;

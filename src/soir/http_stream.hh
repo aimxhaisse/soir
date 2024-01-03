@@ -3,6 +3,7 @@
 #include <absl/status/status.h>
 #include <httplib.h>
 
+#include "audio_buffer.hh"
 #include "common.hh"
 
 namespace maethstro {
@@ -15,14 +16,14 @@ class HttpStream : public SampleConsumer {
   HttpStream();
   virtual ~HttpStream();
 
-  absl::Status PushSamples(const Samples& data) override;
+  absl::Status PushAudioBuffer(const AudioBuffer& samples) override;
   absl::Status Run(httplib::Response& response);
   absl::Status Stop();
 
  private:
   std::mutex mutex_;
   std::condition_variable cond_;
-  std::list<Samples> stream_;
+  std::list<AudioBuffer> stream_;
   bool running_;
 };
 

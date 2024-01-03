@@ -1,14 +1,17 @@
 add_library(maethstro_soir
+  audio_buffer.cc
   soir.cc
+  engine.cc
   http.cc
   http_stream.cc
-  engine.cc
+  vorbis_encoder.cc
 )
 
 target_link_libraries(maethstro_soir
   maethstro_proto
   maethstro_common
   httplib::httplib
+  vorbis
 )
 
 add_executable(maethstro_soir_test

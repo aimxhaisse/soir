@@ -12,7 +12,6 @@ Engine::~Engine() {}
 absl::Status Engine::Init(const common::Config& config) {
   LOG(INFO) << "Initializing engine";
 
-  sample_rate_ = config.Get<uint32_t>("soir.engine.sample_rate");
   block_size_ = config.Get<uint32_t>("soir.engine.block_size");
 
   return absl::OkStatus();
@@ -77,13 +76,12 @@ void Engine::Stats(const absl::Time& next_block_at,
 absl::Status Engine::Run() {
   LOG(INFO) << "Engine running";
 
-  std::vector<float> samples(block_size_);
+  AudioBuffer buffer(block_size_);
   absl::Time next_block_at = absl::Now();
   absl::Duration block_duration =
-      absl::Microseconds(1000000 * block_size_ / sample_rate_);
+      absl::Microseconds(1000000 * block_size_ / kSampleRate);
 
   while (true) {
-
     {
       std::unique_lock<std::mutex> lock(mutex_);
       cv_.wait_until(lock, absl::ToChronoTime(next_block_at),
@@ -94,13 +92,12 @@ absl::Status Engine::Run() {
     }
 
     for (auto consumer : consumers_) {
-      auto status = consumer->PushSamples(samples);
+      auto status = consumer->PushAudioBuffer(buffer);
       if (!status.ok()) {
         LOG(WARNING) << "Failed to push samples to consumer: " << status;
       }
     }
 
-    std::fill(samples.begin(), samples.end(), 0);
     next_block_at += block_duration;
     Stats(next_block_at, block_duration);
   }
