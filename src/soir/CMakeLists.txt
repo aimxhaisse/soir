@@ -2,6 +2,7 @@ add_library(maethstro_soir
   audio_buffer.cc
   soir.cc
   engine.cc
+  track.cc
   http.cc
   http_stream.cc
   vorbis_encoder.cc

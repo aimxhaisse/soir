@@ -42,3 +42,7 @@ soir:
     port: 7001
   http:
     port: 7080
+  tracks:
+    - channel: 1
+      instrument: sampler
+      sample_dir: assets/samples/pack/foundation

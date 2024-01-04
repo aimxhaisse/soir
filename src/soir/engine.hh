@@ -8,6 +8,7 @@
 
 #include "common.hh"
 #include "common/config.hh"
+#include "track.hh"
 
 namespace maethstro {
 namespace soir {
@@ -43,6 +44,7 @@ class Engine {
   bool stop_ = false;
 
   std::list<SampleConsumer*> consumers_;
+  std::list<std::unique_ptr<Track>> tracks_;
 };
 
 }  // namespace soir

@@ -14,6 +14,18 @@ absl::Status Engine::Init(const common::Config& config) {
 
   block_size_ = config.Get<uint32_t>("soir.engine.block_size");
 
+  for (auto& track_config : config.GetConfigs("soir.tracks")) {
+    std::unique_ptr<Track> track = std::make_unique<Track>();
+
+    auto status = track->Init(*track_config);
+    if (!status.ok()) {
+      LOG(ERROR) << "Failed to initialize track: " << status;
+      return status;
+    }
+
+    tracks_.push_back(std::move(track));
+  }
+
   return absl::OkStatus();
 }
 
