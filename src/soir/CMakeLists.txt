@@ -9,6 +9,7 @@ add_library(maethstro_soir
 )
 
 target_link_libraries(maethstro_soir
+  AudioFile
   maethstro_proto
   maethstro_common
   httplib::httplib

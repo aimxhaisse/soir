@@ -15,6 +15,7 @@ add_subdirectory(deps/efsw)
 add_subdirectory(deps/pybind11)
 add_subdirectory(deps/httplib)
 add_subdirectory(deps/libremidi)
+add_subdirectory(deps/audiofile)
 
 find_package(yaml-cpp REQUIRED)
 find_package(GTest REQUIRED)

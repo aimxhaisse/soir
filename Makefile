@@ -16,6 +16,7 @@ DEPS_EFSW	:= $(DEPS_DIR)/efsw
 DEPS_PYBIND	:= $(DEPS_DIR)/pybind11
 DEPS_HTTPLIB	:= $(DEPS_DIR)/httplib
 DEPS_LIBREMIDI	:= $(DEPS_DIR)/libremidi
+DEPS_AUDIOFILE	:= $(DEPS_DIR)/audiofile
 
 .PHONY: all deps clean full-clean $(BINARY)
 
@@ -23,14 +24,14 @@ DEPS_LIBREMIDI	:= $(DEPS_DIR)/libremidi
 
 all: $(BINARY)
 
-deps: $(DEPS_ABSEIL) $(DEPS_PROTOBUF) $(DEPS_EFSW) $(DEPS_PYBIND) $(DEPS_HTTPLIB) $(DEPS_LIBREMIDI)
+deps: $(DEPS_ABSEIL) $(DEPS_PROTOBUF) $(DEPS_EFSW) $(DEPS_PYBIND) $(DEPS_HTTPLIB) $(DEPS_LIBREMIDI) $(DEPS_AUDIOFILE)
 
 clean:
 	rm -rf $(BINARY)
 	cd $(BUILD_DIR) && make clean
 
 full-clean: clean
-	rm -rf $(DEPS_ABSEIL) $(DEPS_PROTOBUF) $(DEPS_EFSW) $(DEPS_PYBIND) $(DEPS_HTTPLIB) $(DEPS_LIBREMIDI)
+	rm -rf $(DEPS_ABSEIL) $(DEPS_PROTOBUF) $(DEPS_EFSW) $(DEPS_PYBIND) $(DEPS_HTTPLIB) $(DEPS_LIBREMIDI) $(DEPS_AUDIOFILE)
 
 test: all
 	./$(BUILD_DIR)/src/common/maethstro_common_test
@@ -88,3 +89,8 @@ $(DEPS_LIBREMIDI):
 	git clone https://github.com/jcelerier/libremidi.git $@ && \
 	cd $@ && \
 	git checkout v4.2.4
+
+$(DEPS_AUDIOFILE):
+	git clone https://github.com/adamstark/AudioFile.git $@ && \
+	cd $@ && \
+	git checkout 1.1.1
