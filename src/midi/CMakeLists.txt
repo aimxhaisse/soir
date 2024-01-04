@@ -15,6 +15,7 @@ target_link_libraries(maethstro_midi
   maethstro_common
   pybind11_headers
   pybind11::embed
+  libremidi
 )
 
 add_executable(maethstro_midi_test
