@@ -15,6 +15,7 @@ DEPS_PROTOBUF	:= $(DEPS_DIR)/protobuf
 DEPS_EFSW	:= $(DEPS_DIR)/efsw
 DEPS_PYBIND	:= $(DEPS_DIR)/pybind11
 DEPS_HTTPLIB	:= $(DEPS_DIR)/httplib
+DEPS_LIBREMIDI	:= $(DEPS_DIR)/libremidi
 
 .PHONY: all deps clean full-clean $(BINARY)
 
@@ -22,14 +23,14 @@ DEPS_HTTPLIB	:= $(DEPS_DIR)/httplib
 
 all: $(BINARY)
 
-deps: $(DEPS_ABSEIL) $(DEPS_PROTOBUF) $(DEPS_EFSW) $(DEPS_PYBIND) $(DEPS_HTTPLIB)
+deps: $(DEPS_ABSEIL) $(DEPS_PROTOBUF) $(DEPS_EFSW) $(DEPS_PYBIND) $(DEPS_HTTPLIB) $(DEPS_LIBREMIDI)
 
 clean:
 	rm -rf $(BINARY)
 	cd $(BUILD_DIR) && make clean
 
 full-clean: clean
-	rm -rf $(DEPS_ABSEIL) $(DEPS_PROTOBUF) $(DEPS_EFSW) $(DEPS_PYBIND)
+	rm -rf $(DEPS_ABSEIL) $(DEPS_PROTOBUF) $(DEPS_EFSW) $(DEPS_PYBIND) $(DEPS_HTTPLIB) $(DEPS_LIBREMIDI)
 
 test: all
 	./$(BUILD_DIR)/src/common/maethstro_common_test
@@ -82,3 +83,8 @@ $(DEPS_HTTPLIB):
 	git clone https://github.com/yhirose/cpp-httplib.git $@ && \
 	cd $@ && \
 	git checkout v0.14.3
+
+$(DEPS_LIBREMIDI):
+	git clone https://github.com/jcelerier/libremidi.git $@ && \
+	cd $@ && \
+	git checkout v4.2.4
