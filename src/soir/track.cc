@@ -67,7 +67,8 @@ absl::Status Track::Init(const common::Config& config) {
   return absl::OkStatus();
 }
 
-void Track::Render(AudioBuffer& buffer) {}
+void Track::Render(const std::list<proto::MidiEvents_Request>&,
+                   AudioBuffer& buffer) {}
 
 }  // namespace soir
 }  // namespace maethstro

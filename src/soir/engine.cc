@@ -85,6 +85,11 @@ void Engine::Stats(const absl::Time& next_block_at,
       << "\e[1;104mS O I R\e[0m CPU usage: " << cpu_usage << "%";
 }
 
+void Engine::PushMidiEvent(const proto::MidiEvents_Request& event) {
+  std::unique_lock<std::mutex> lock(midi_events_mutex_);
+  midi_events_.push_back(event);
+}
+
 absl::Status Engine::Run() {
   LOG(INFO) << "Engine running";
 
@@ -103,9 +108,15 @@ absl::Status Engine::Run() {
       }
     }
 
+    std::list<proto::MidiEvents_Request> events;
+    {
+      std::unique_lock<std::mutex> lock(midi_events_mutex_);
+      events.swap(midi_events_);
+    }
+
     buffer.Reset();
     for (auto& track : tracks_) {
-      track->Render(buffer);
+      track->Render(events, buffer);
     }
 
     for (auto consumer : consumers_) {

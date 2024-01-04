@@ -4,6 +4,7 @@
 
 #include "audio_buffer.hh"
 #include "common/config.hh"
+#include "live.grpc.pb.h"
 
 namespace maethstro {
 namespace soir {
@@ -15,8 +16,7 @@ struct Track {
 
   absl::Status Init(const common::Config& config);
 
-  // TODO: Add midi event as a parameter here.
-  void Render(AudioBuffer&);
+  void Render(const std::list<proto::MidiEvents_Request>&, AudioBuffer&);
 
  private:
   // We only support MONO audio for now.

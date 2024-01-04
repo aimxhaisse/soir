@@ -92,6 +92,11 @@ grpc::Status Soir::MidiEvents(
     ::grpc::ServerContext* context,
     ::grpc::ServerReader<::proto::MidiEvents_Request>* reader,
     ::proto::MidiEvents_Response* response) {
+
+  for (proto::MidiEvents_Request request; reader->Read(&request);) {
+    engine_->PushMidiEvent(request);
+  }
+
   return grpc::Status::OK;
 }
 

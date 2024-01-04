@@ -8,6 +8,7 @@
 
 #include "common.hh"
 #include "common/config.hh"
+#include "live.grpc.pb.h"
 #include "track.hh"
 
 namespace maethstro {
@@ -28,6 +29,7 @@ class Engine {
 
   void RegisterConsumer(SampleConsumer* consumer);
   void RemoveConsumer(SampleConsumer* consumer);
+  void PushMidiEvent(const proto::MidiEvents_Request& event);
 
  private:
   absl::Status Run();
@@ -45,6 +47,9 @@ class Engine {
 
   std::list<SampleConsumer*> consumers_;
   std::list<std::unique_ptr<Track>> tracks_;
+
+  std::list<proto::MidiEvents_Request> midi_events_;
+  std::mutex midi_events_mutex_;
 };
 
 }  // namespace soir
