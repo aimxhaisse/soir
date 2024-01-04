@@ -1,16 +1,18 @@
 #pragma once
 
 #include <absl/status/status.h>
+#include <grpc++/grpc++.h>
 #include <memory>
 
 #include "common/config.hh"
 #include "engine.hh"
 #include "http.hh"
+#include "live.grpc.pb.h"
 
 namespace maethstro {
 namespace soir {
 
-class Soir {
+class Soir : public proto::Soir::Service {
  public:
   Soir();
   ~Soir();
@@ -19,8 +21,14 @@ class Soir {
   absl::Status Start();
   absl::Status Stop();
 
+  grpc::Status MidiEvents(
+      ::grpc::ServerContext* context,
+      ::grpc::ServerReader<::proto::MidiEvents_Request>* reader,
+      ::proto::MidiEvents_Response* response) override;
+
  private:
   std::unique_ptr<HttpServer> http_server_;
+  std::unique_ptr<grpc::Server> grpc_;
   std::unique_ptr<Engine> engine_;
 };
 

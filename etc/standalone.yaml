@@ -30,6 +30,9 @@ midi:
   grpc:
     host: 127.0.0.1
     port: 7000
+  soir:
+    host: 127.0.0.1
+    port: 7001
 
 # SOIR configuration.
 soir:

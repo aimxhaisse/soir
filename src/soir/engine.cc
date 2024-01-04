@@ -103,6 +103,11 @@ absl::Status Engine::Run() {
       }
     }
 
+    buffer.Reset();
+    for (auto& track : tracks_) {
+      track->Render(buffer);
+    }
+
     for (auto consumer : consumers_) {
       auto status = consumer->PushAudioBuffer(buffer);
       if (!status.ok()) {

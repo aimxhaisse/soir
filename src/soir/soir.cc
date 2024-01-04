@@ -28,7 +28,23 @@ absl::Status Soir::Init(const common::Config& config) {
     return status;
   }
 
-  LOG(INFO) << "Soir initialized";
+  auto grpc_host = config.Get<std::string>("soir.grpc.host");
+  auto grpc_port = config.Get<int>("soir.grpc.port");
+
+  LOG(INFO) << "Initializing Soir with GPRC host " << grpc_host << " and port "
+            << grpc_port;
+
+  grpc::ServerBuilder builder;
+  builder.AddListeningPort(grpc_host + ":" + std::to_string(grpc_port),
+                           grpc::InsecureServerCredentials());
+  builder.RegisterService(this);
+
+  grpc_ = builder.BuildAndStart();
+  if (!grpc_) {
+    return absl::InternalError("Unable to start grpc server");
+  }
+
+  LOG(INFO) << "Soir listening on " << grpc_host << ":" << grpc_port;
 
   return absl::OkStatus();
 }
@@ -54,6 +70,9 @@ absl::Status Soir::Start() {
 absl::Status Soir::Stop() {
   LOG(INFO) << "Stopping Soir";
 
+  grpc_->Shutdown();
+  grpc_->Wait();
+
   auto status = http_server_->Stop();
   if (!status.ok()) {
     LOG(ERROR) << "Failed to stop HTTP server: " << status;
@@ -67,6 +86,13 @@ absl::Status Soir::Stop() {
   }
 
   return absl::OkStatus();
+}
+
+grpc::Status Soir::MidiEvents(
+    ::grpc::ServerContext* context,
+    ::grpc::ServerReader<::proto::MidiEvents_Request>* reader,
+    ::proto::MidiEvents_Response* response) {
+  return grpc::Status::OK;
 }
 
 }  // namespace soir
