@@ -11,9 +11,10 @@ target_link_libraries(maethstro_soir
   maethstro_proto
   maethstro_common
   httplib::httplib
+  libremidi
+  ogg
   vorbis
   vorbisenc
-  ogg
 )
 
 add_executable(maethstro_soir_test

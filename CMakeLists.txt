@@ -14,6 +14,7 @@ add_subdirectory(deps/protobuf)
 add_subdirectory(deps/efsw)
 add_subdirectory(deps/pybind11)
 add_subdirectory(deps/httplib)
+add_subdirectory(deps/libremidi)
 
 find_package(yaml-cpp REQUIRED)
 find_package(GTest REQUIRED)
