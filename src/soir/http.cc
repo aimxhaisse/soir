@@ -38,6 +38,8 @@ absl::Status HttpServer::Start() {
 absl::Status HttpServer::Run() {
   server_->Get("/", [this](const httplib::Request& request,
                            httplib::Response& response) {
+    LOG(INFO) << "New HTTP stream request";
+
     // All of this is a bit confusing, but it seems like httplib is
     // not meant to be used simply in a streaming mode so there is a
     // lot of weird back and forth going on here.
@@ -52,17 +54,16 @@ absl::Status HttpServer::Run() {
           auto status = stream->Encode(sink);
           if (!status.ok()) {
             LOG(INFO) << "HTTP stream cancelled because " << status;
-
             sink.done();
-            engine_->RemoveConsumer(stream);
-            delete stream;
-
-            LOG(INFO) << "HTTP stream properly cleaned up";
-
             return false;
           }
 
           return true;
+        },
+        [this, stream](bool) {
+          LOG(INFO) << "HTTP stream clean up";
+          engine_->RemoveConsumer(stream);
+          delete stream;
         });
 
     return true;

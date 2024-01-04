@@ -7,5 +7,5 @@ done
 
 sleep 10
 
-kill -9 $(jobs -p)
+pkill curl
 wait $(jobs -p)
