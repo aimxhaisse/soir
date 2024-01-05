@@ -5,6 +5,7 @@
 
 #include "common/config.hh"
 #include "notifier.hh"
+#include "soir_client.hh"
 
 namespace maethstro {
 namespace midi {
@@ -51,7 +52,8 @@ class Engine {
   Engine();
   ~Engine();
 
-  absl::Status Init(const common::Config& config, Notifier* notifier);
+  absl::Status Init(const common::Config& config, Notifier* notifier,
+                    SoirClient* soir_client);
   absl::Status Start();
   absl::Status Stop();
 
@@ -77,6 +79,7 @@ class Engine {
   std::thread thread_;
 
   Notifier* notifier_;
+  SoirClient* soir_client_;
 
   // Updated by the Python thread only.
   std::set<Cb, Cb> schedule_;

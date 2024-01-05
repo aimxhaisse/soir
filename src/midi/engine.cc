@@ -19,10 +19,12 @@ Engine::~Engine() {
   bindings::ResetEngine();
 }
 
-absl::Status Engine::Init(const common::Config& config, Notifier* notifier) {
+absl::Status Engine::Init(const common::Config& config, Notifier* notifier,
+                          SoirClient* soir_client) {
   LOG(INFO) << "Initializing engine";
 
   notifier_ = notifier;
+  soir_client_ = soir_client;
   current_time_ = absl::Now();
   SetBPM(config.Get<uint16_t>("midi.initial_bpm"));
 

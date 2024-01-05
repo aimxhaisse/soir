@@ -20,8 +20,15 @@ absl::Status Midi::Init(const common::Config& config) {
     return status;
   }
 
+  soir_client_ = std::make_unique<SoirClient>();
+  status = soir_client_->Init(config);
+  if (!status.ok()) {
+    LOG(ERROR) << "Unable to initialize soir client: " << status;
+    return status;
+  }
+
   engine_ = std::make_unique<Engine>();
-  status = engine_->Init(config, notifier_.get());
+  status = engine_->Init(config, notifier_.get(), soir_client_.get());
   if (!status.ok()) {
     LOG(ERROR) << "Unable to initialize engine: " << status;
     return status;
@@ -57,6 +64,12 @@ absl::Status Midi::Start() {
     return status;
   }
 
+  status = soir_client_->Start();
+  if (!status.ok()) {
+    LOG(ERROR) << "Unable to start soir client: " << status;
+    return status;
+  }
+
   status = engine_->Start();
   if (!status.ok()) {
     LOG(ERROR) << "Unable to start engine: " << status;
@@ -69,13 +82,18 @@ absl::Status Midi::Start() {
 absl::Status Midi::Stop() {
   LOG(INFO) << "Midi shutting down";
 
+  grpc_->Shutdown();
+  grpc_->Wait();
+
   auto status = notifier_->Stop();
   if (!status.ok()) {
     LOG(ERROR) << "Unable to stop notifier: " << status;
   }
 
-  grpc_->Shutdown();
-  grpc_->Wait();
+  status = soir_client_->Stop();
+  if (!status.ok()) {
+    LOG(ERROR) << "Unable to stop soir client: " << status;
+  }
 
   status = engine_->Stop();
   if (!status.ok()) {

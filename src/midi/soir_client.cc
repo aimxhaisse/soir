@@ -11,8 +11,8 @@ SoirClient::SoirClient() {}
 SoirClient::~SoirClient() {}
 
 absl::Status SoirClient::Init(const common::Config& config) {
-  grpc_host_ = config.Get<std::string>("midi.grpc.host");
-  grpc_port_ = config.Get<int>("midi.grpc.port");
+  grpc_host_ = config.Get<std::string>("midi.soir.host");
+  grpc_port_ = config.Get<int>("midi.soir.port");
 
   return absl::OkStatus();
 }

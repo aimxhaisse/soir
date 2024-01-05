@@ -9,6 +9,7 @@
 #include "engine.hh"
 #include "live.grpc.pb.h"
 #include "notifier.hh"
+#include "soir_client.hh"
 
 namespace maethstro {
 namespace midi {
@@ -41,6 +42,7 @@ class Midi : proto::Midi::Service {
 
   std::unique_ptr<Notifier> notifier_;
   std::unique_ptr<grpc::Server> grpc_;
+  std::unique_ptr<SoirClient> soir_client_;
   std::unique_ptr<Engine> engine_;
 };
 
