@@ -4,6 +4,7 @@
 #include <absl/log/log.h>
 #include <absl/status/status.h>
 #include <filesystem>
+#include <libremidi/libremidi.hpp>
 
 #include "common.hh"
 #include "track.hh"
@@ -67,8 +68,76 @@ absl::Status Track::Init(const common::Config& config) {
   return absl::OkStatus();
 }
 
-void Track::Render(const std::list<proto::MidiEvents_Request>&,
-                   AudioBuffer& buffer) {}
+void Track::Render(const std::list<proto::MidiEvents_Request>& midi_events,
+                   AudioBuffer& buffer) {
+  // Process MIDI events.
+  //
+  // For now we don't have timing information in MIDI events so we
+  // don't split this code in a dedicated function as the two logics
+  // (midi/DSP) will be interleaved at some point.
+  for (auto midi_event : midi_events) {
+    const std::string& raw = midi_event.midi_payload();
+    libremidi::message msg;
+    msg.bytes = libremidi::midi_bytes(raw.begin(), raw.end());
+
+    if (msg.get_channel() != channel_) {
+      continue;
+    }
+
+    auto type = msg.get_message_type();
+
+    switch (type) {
+      case libremidi::message_type::NOTE_ON: {
+        auto it = samples_.find(msg.bytes[1]);
+        if (it != samples_.end()) {
+          auto& sampler = it->second;
+          sampler->is_playing_ = true;
+          sampler->pos_ = 0;
+        }
+        break;
+      }
+
+      case libremidi::message_type::NOTE_OFF: {
+        auto it = samples_.find(msg.bytes[1]);
+        if (it != samples_.end()) {
+          auto& sampler = it->second;
+          sampler->is_playing_ = false;
+          sampler->pos_ = 0;
+        }
+        break;
+      }
+
+      default:
+        continue;
+    };
+  }
+
+  // DSP.
+  float* left_chan = buffer.GetChannel(kLeftChannel);
+  float* right_chan = buffer.GetChannel(kRightChannel);
+
+  for (int sample = 0; sample < buffer.Size(); ++sample) {
+    for (auto& it : samples_) {
+      auto& sampler = it.second;
+
+      if (!sampler->is_playing_) {
+        continue;
+      }
+
+      float left = left_chan[sample];
+      float right = right_chan[sample];
+
+      left += sampler->buffer_[sampler->pos_];
+      right += sampler->buffer_[sampler->pos_];
+
+      left_chan[sample] = left;
+      right_chan[sample] = right;
+
+      sampler->pos_ += 1;
+      sampler->pos_ %= sampler->buffer_.size();
+    }
+  }
+}
 
 }  // namespace soir
 }  // namespace maethstro
