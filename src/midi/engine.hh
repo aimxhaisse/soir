@@ -74,6 +74,9 @@ class Engine {
   void Log(const std::string& user, const std::string& message);
   std::string GetUser() const;
   void Beat();
+  void MidiNoteOn(uint8_t channel, uint8_t note, uint8_t velocity);
+  void MidiNoteOff(uint8_t channel, uint8_t note, uint8_t velocity);
+  void MidiCC(uint8_t channel, uint8_t cc, uint8_t value);
 
  private:
   std::thread thread_;

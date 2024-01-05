@@ -14,7 +14,10 @@ from live_ import (
     get_bpm_,
     get_beat_,
     get_user_,
-    log_
+    log_,
+    midi_note_on_,
+    midi_note_off_,
+    midi_cc_
 )
 
 
@@ -132,6 +135,39 @@ def sleep(beats: float):
         raise NotInLiveLoopException()
 
     current_loop_.current_offset += beats
+
+
+def midi_note_on(note: int, velocity: int, channel: int):
+    """Send a MIDI note on message.
+    """
+    global current_loop_
+
+    if current_loop_:
+        schedule_(current_loop_.current_offset, lambda: midi_note_on_(note, velocity, channel))
+    else:
+        midi_note_on_(note, velocity, channel)
+
+
+def midi_note_off(note: int, velocity: int, channel: int):
+    """Send a MIDI note off message.
+    """
+    global current_loop_
+
+    if current_loop_:
+        schedule_(current_loop_.current_offset, lambda: midi_note_off_(note, velocity, channel))
+    else:
+        midi_note_off_(note, velocity, channel)
+
+
+def midi_cc(cc: int, value: int, channel: int):
+    """Send a MIDI CC message.
+    """
+    global current_loop_
+
+    if current_loop_:
+        schedule_(current_loop_.current_offset, lambda: midi_cc_(cc, value, channel))
+    else:
+        midi_cc_(cc, value, channel)
 
 
 def live_loop(*args, **kwargs):
