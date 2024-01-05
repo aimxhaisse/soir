@@ -134,7 +134,10 @@ void Track::Render(const std::list<proto::MidiEvents_Request>& midi_events,
       right_chan[sample] = right;
 
       sampler->pos_ += 1;
-      sampler->pos_ %= sampler->buffer_.size();
+      if (sampler->pos_ >= sampler->buffer_.size()) {
+        sampler->is_playing_ = false;
+        sampler->pos_ = 0;
+      }
     }
   }
 }
