@@ -8,6 +8,7 @@ add_library(maethstro_midi
   init.cc
   midi.cc
   notifier.cc
+  soir_client.cc
 )
 
 target_link_libraries(maethstro_midi
