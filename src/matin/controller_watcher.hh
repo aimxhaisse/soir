@@ -20,6 +20,7 @@ class ControllerWatcher {
   absl::Status Stop();
 
  private:
+  std::string user_;
   proto::Midi::Stub* midi_stub_;
   std::unique_ptr<libremidi::midi_in> midi_in_;
   std::unique_ptr<libremidi::observer> midi_obs_;

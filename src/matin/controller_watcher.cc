@@ -1,6 +1,7 @@
 #include <absl/log/log.h>
 
 #include "controller_watcher.hh"
+#include "utils.hh"
 
 namespace maethstro {
 namespace matin {
@@ -12,6 +13,7 @@ ControllerWatcher::~ControllerWatcher() {}
 absl::Status ControllerWatcher::Init(const common::Config& config,
                                      proto::Midi::Stub* stub) {
   midi_stub_ = stub;
+  user_ = config.Get<std::string>("matin.user");
 
   LOG(INFO) << "Controller watcher initialized";
 
@@ -24,8 +26,20 @@ absl::Status ControllerWatcher::Start() {
   midi_in_ =
       std::make_unique<libremidi::midi_in>(libremidi::input_configuration{
           .on_message =
-              [](const libremidi::message& msg) {
-                LOG(INFO) << "Message received";
+              [this](const libremidi::message& msg) {
+                proto::MidiUpdate_Response response;
+                proto::MidiUpdate_Midi payload;
+                payload.set_midi_payload(msg.bytes.data(), msg.bytes.size());
+
+                grpc::ClientContext context;
+                utils::InitContext(&context, user_);
+
+                grpc::Status status =
+                    midi_stub_->Midi(&context, payload, &response);
+                if (!status.ok()) {
+                  LOG(WARNING) << "Failed to send MIDI controller message: "
+                               << status.error_message();
+                }
               },
           .ignore_sensing = false,
       });
