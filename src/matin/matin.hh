@@ -3,6 +3,7 @@
 #include <absl/status/status.h>
 
 #include "common/config.hh"
+#include "controller_watcher.hh"
 #include "file_watcher.hh"
 #include "subscriber.hh"
 
@@ -19,8 +20,10 @@ class Matin {
   absl::Status Stop();
 
  private:
-  std::unique_ptr<matin::Subscriber> subscriber_;
+  std::unique_ptr<proto::Midi::Stub> midi_stub_;
+  std::unique_ptr<ControllerWatcher> controller_watcher_;
   std::unique_ptr<FileWatcher> file_watcher_;
+  std::unique_ptr<matin::Subscriber> subscriber_;
 };
 
 }  // namespace matin

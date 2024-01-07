@@ -1,14 +1,16 @@
 add_library(maethstro_matin
   matin.cc
+  controller_watcher.cc
   subscriber.cc
   file_watcher.cc
   utils.cc
 )
 
 target_link_libraries(maethstro_matin
+  efsw
+  libremidi
   maethstro_proto
   maethstro_common
-  efsw
 )
 
 add_executable(maethstro_matin_test

@@ -12,10 +12,28 @@ Matin::Matin() {}
 Matin::~Matin() {}
 
 absl::Status Matin::Init(const common::Config& config) {
+  auto midi_grpc_host = config.Get<std::string>("matin.midi.grpc.host");
+  auto midi_grpc_port = config.Get<int>("matin.midi.grpc.port");
+
+  midi_stub_ = proto::Midi::NewStub(
+      grpc::CreateChannel(midi_grpc_host + ":" + std::to_string(midi_grpc_port),
+                          grpc::InsecureChannelCredentials()));
+  if (!midi_stub_) {
+    return absl::InternalError("Failed to create MIDI gRPC stub");
+  }
+
   file_watcher_ = std::make_unique<FileWatcher>();
-  auto status = file_watcher_->Init(config);
+  auto status = file_watcher_->Init(config, midi_stub_.get());
   if (!status.ok()) {
     LOG(ERROR) << "Failed to initialize file watcher: " << status.message();
+    return status;
+  }
+
+  controller_watcher_ = std::make_unique<ControllerWatcher>();
+  status = controller_watcher_->Init(config, midi_stub_.get());
+  if (!status.ok()) {
+    LOG(ERROR) << "Failed to initialize controller watcher: "
+               << status.message();
     return status;
   }
 

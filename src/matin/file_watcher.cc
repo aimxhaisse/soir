@@ -15,18 +15,12 @@ FileWatcher::FileWatcher() : file_pattern_("^[a-z0-9_\\-]+\\.py") {
 
 FileWatcher::~FileWatcher() {}
 
-absl::Status FileWatcher::Init(const common::Config& config) {
+absl::Status FileWatcher::Init(const common::Config& config,
+                               proto::Midi::Stub* stub) {
+  midi_stub_ = stub;
+
   user_ = config.Get<std::string>("matin.user");
   directory_ = config.Get<std::string>("matin.directory");
-  midi_grpc_host_ = config.Get<std::string>("matin.midi.grpc.host");
-  midi_grpc_port_ = config.Get<int>("matin.midi.grpc.port");
-
-  midi_stub_ = proto::Midi::NewStub(grpc::CreateChannel(
-      midi_grpc_host_ + ":" + std::to_string(midi_grpc_port_),
-      grpc::InsecureChannelCredentials()));
-  if (!midi_stub_) {
-    return absl::InternalError("Failed to create MIDI gRPC stub");
-  }
 
   file_watcher_ = std::make_unique<efsw::FileWatcher>();
 
@@ -40,8 +34,7 @@ absl::Status FileWatcher::Init(const common::Config& config) {
     return status;
   }
 
-  LOG(INFO) << "File watcher initialized with settings: " << directory_ << ", "
-            << midi_grpc_host_ << ", " << midi_grpc_port_;
+  LOG(INFO) << "File watcher initialized";
 
   return absl::OkStatus();
 }
@@ -62,6 +55,8 @@ absl::Status FileWatcher::Stop() {
   if (thread_.joinable()) {
     thread_.join();
   }
+
+  midi_stub_ = nullptr;
 
   LOG(INFO) << "File watcher stopped";
 
