@@ -84,8 +84,7 @@ void MonoSampler::Render(
         auto it = samplers_.find(msg.bytes[1]);
         if (it != samplers_.end()) {
           auto& sampler = it->second;
-          sampler->is_playing_ = true;
-          sampler->pos_ = 0;
+          sampler->NoteOn();
         }
         break;
       }
@@ -94,8 +93,7 @@ void MonoSampler::Render(
         auto it = samplers_.find(msg.bytes[1]);
         if (it != samplers_.end()) {
           auto& sampler = it->second;
-          sampler->is_playing_ = false;
-          sampler->pos_ = 0;
+          sampler->NoteOff();
         }
         break;
       }
@@ -133,6 +131,16 @@ void MonoSampler::Render(
       }
     }
   }
+}
+
+void MonoSampler::Sampler::NoteOn() {
+  is_playing_ = true;
+  pos_ = 0;
+}
+
+void MonoSampler::Sampler::NoteOff() {
+  is_playing_ = false;
+  pos_ = 0;
 }
 
 }  // namespace soir

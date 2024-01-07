@@ -23,6 +23,9 @@ class MonoSampler {
  private:
   // We only support MONO audio for now.
   struct Sampler {
+    void NoteOn();
+    void NoteOff();
+
     bool is_playing_;
     int pos_;
     std::vector<float> buffer_;
