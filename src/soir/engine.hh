@@ -48,8 +48,8 @@ class Engine {
   std::list<SampleConsumer*> consumers_;
   std::list<std::unique_ptr<Track>> tracks_;
 
-  std::list<proto::MidiEvents_Request> midi_events_;
-  std::mutex midi_events_mutex_;
+  std::map<int, std::list<libremidi::message>> msgs_by_chan_;
+  std::mutex msgs_mutex_;
 };
 
 }  // namespace soir

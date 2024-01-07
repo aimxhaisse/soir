@@ -3,7 +3,6 @@
 #include <AudioFile.h>
 #include <absl/log/log.h>
 #include <filesystem>
-#include <libremidi/libremidi.hpp>
 
 #include "common.hh"
 #include "mono_sampler.hh"
@@ -60,23 +59,14 @@ absl::Status MonoSampler::Init(const common::Config& config, int channel) {
   return absl::OkStatus();
 }
 
-void MonoSampler::Render(
-    const std::list<proto::MidiEvents_Request>& midi_events,
-    AudioBuffer& buffer) {
+void MonoSampler::Render(const std::list<libremidi::message>& messages,
+                         AudioBuffer& buffer) {
   // Process MIDI events.
   //
   // For now we don't have timing information in MIDI events so we
   // don't split this code in a dedicated function as the two logics
   // (midi/DSP) will be interleaved at some point.
-  for (auto midi_event : midi_events) {
-    const std::string& raw = midi_event.midi_payload();
-    libremidi::message msg;
-    msg.bytes = libremidi::midi_bytes(raw.begin(), raw.end());
-
-    if (msg.get_channel() != channel_) {
-      continue;
-    }
-
+  for (auto msg : messages) {
     auto type = msg.get_message_type();
 
     switch (type) {

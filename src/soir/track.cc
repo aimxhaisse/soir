@@ -28,9 +28,9 @@ absl::Status Track::Init(const common::Config& config) {
   return absl::OkStatus();
 }
 
-void Track::Render(const std::list<proto::MidiEvents_Request>& midi_events,
+void Track::Render(const std::list<libremidi::message>& events,
                    AudioBuffer& buffer) {
-  sampler_->Render(midi_events, buffer);
+  sampler_->Render(events, buffer);
 }
 
 }  // namespace soir

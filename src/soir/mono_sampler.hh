@@ -1,6 +1,7 @@
 #pragma once
 
 #include <absl/status/status.h>
+#include <libremidi/libremidi.hpp>
 #include <list>
 #include <map>
 #include <memory>
@@ -18,7 +19,7 @@ class MonoSampler {
   ~MonoSampler() = default;
 
   absl::Status Init(const common::Config& config, int channel);
-  void Render(const std::list<proto::MidiEvents_Request>&, AudioBuffer&);
+  void Render(const std::list<libremidi::message>&, AudioBuffer&);
 
  private:
   // We only support MONO audio for now.

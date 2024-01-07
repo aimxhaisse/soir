@@ -1,6 +1,7 @@
 #pragma once
 
 #include <absl/status/status.h>
+#include <libremidi/libremidi.hpp>
 
 #include "audio_buffer.hh"
 #include "common/config.hh"
@@ -16,8 +17,9 @@ struct Track {
   Track();
 
   absl::Status Init(const common::Config& config);
+  int GetChannel() const { return channel_; }
 
-  void Render(const std::list<proto::MidiEvents_Request>&, AudioBuffer&);
+  void Render(const std::list<libremidi::message>&, AudioBuffer&);
 
  private:
   std::unique_ptr<MonoSampler> sampler_;

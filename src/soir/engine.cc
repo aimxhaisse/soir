@@ -86,8 +86,13 @@ void Engine::Stats(const absl::Time& next_block_at,
 }
 
 void Engine::PushMidiEvent(const proto::MidiEvents_Request& event) {
-  std::unique_lock<std::mutex> lock(midi_events_mutex_);
-  midi_events_.push_back(event);
+  libremidi::message msg;
+  msg.bytes = libremidi::midi_bytes(event.midi_payload().begin(),
+                                    event.midi_payload().end());
+
+  std::unique_lock<std::mutex> lock(msgs_mutex_);
+
+  msgs_by_chan_[msg.get_channel()].push_back(msg);
 }
 
 absl::Status Engine::Run() {
@@ -108,15 +113,15 @@ absl::Status Engine::Run() {
       }
     }
 
-    std::list<proto::MidiEvents_Request> events;
+    std::map<int, std::list<libremidi::message>> events;
     {
-      std::unique_lock<std::mutex> lock(midi_events_mutex_);
-      events.swap(midi_events_);
+      std::unique_lock<std::mutex> lock(msgs_mutex_);
+      events.swap(msgs_by_chan_);
     }
 
     buffer.Reset();
     for (auto& track : tracks_) {
-      track->Render(events, buffer);
+      track->Render(msgs_by_chan_[track->GetChannel()], buffer);
     }
 
     for (auto consumer : consumers_) {
