@@ -16,13 +16,15 @@ message MidiUpdate {
     optional string code = 1;
   }
 
+  // Midi controller.
   message Midi {
-    bytes midi_payload = 1;
+    optional bytes payload = 1;
   }
 
   message Request {
     oneof request {
      Code code = 1;
+     Midi midi = 2;
     }
   }
 
@@ -51,9 +53,6 @@ message MidiNotifications {
 service Midi {
   // Used by Matin to send code updates.
   rpc Update(MidiUpdate.Request) returns (MidiUpdate.Response) {}
-
-  // Used by Matin to stream MIDI controller messages.
-  rpc Midi(MidiUpdate.Midi) returns (MidiUpdate.Response) {}
 
   // Used by Matin to receive notifications.
   rpc Notifications(MidiNotifications.Request) returns (stream MidiNotifications.Response) {}

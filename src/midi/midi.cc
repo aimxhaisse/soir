@@ -134,6 +134,24 @@ grpc::Status Midi::Update(grpc::ServerContext* context,
       return grpc::Status::OK;
     }
 
+    case proto::MidiUpdate_Request::kMidi: {
+      auto update_midi = request->midi();
+      if (!update_midi.has_payload()) {
+        return grpc::Status(grpc::StatusCode::INVALID_ARGUMENT,
+                            "Missing payload");
+      }
+
+      proto::MidiEvents_Request event;
+      event.set_midi_payload(update_midi.payload());
+      auto status = engine_->SendMidiEvent(event);
+      if (!status.ok()) {
+        LOG(ERROR) << "Unable to update live midi: " << status;
+        return grpc::Status(grpc::StatusCode::INTERNAL,
+                            "Unable to evaluate midi");
+      }
+      return grpc::Status::OK;
+    }
+
     default:
       return grpc::Status(grpc::StatusCode::INVALID_ARGUMENT,
                           "Invalid update type");

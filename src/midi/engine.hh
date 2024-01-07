@@ -63,6 +63,8 @@ class Engine {
   // code coming from Matin. Code is executed from the Run() loop.
   absl::Status UpdateCode(const std::string& user, const std::string& code);
 
+  absl::Status SendMidiEvent(proto::MidiEvents_Request& event);
+
   absl::Time MicroBeatToTime(MicroBeat beat) const;
   uint64_t MicroBeatToBeat(MicroBeat beat) const;
   void Schedule(MicroBeat at, const CbFunc& func);

@@ -198,16 +198,21 @@ void Engine::Beat() {
   Schedule(current_beat_ + OneBeat, [this]() { Beat(); });
 }
 
+absl::Status Engine::SendMidiEvent(proto::MidiEvents_Request& event) {
+  auto status = soir_client_->SendMidiEvent(event);
+  if (!status.ok()) {
+    LOG(WARNING) << "Unable to send MIDI event: " << status;
+  }
+
+  return status;
+}
+
 void Engine::MidiNoteOn(uint8_t channel, uint8_t note, uint8_t velocity) {
   auto message = libremidi::channel_events::note_on(channel, note, velocity);
 
   proto::MidiEvents_Request event;
   event.set_midi_payload(message.bytes.data(), message.bytes.size());
-
-  auto status = soir_client_->SendMidiEvent(event);
-  if (!status.ok()) {
-    LOG(WARNING) << "Unable to send MIDI event: " << status;
-  }
+  SendMidiEvent(event).IgnoreError();
 }
 
 void Engine::MidiNoteOff(uint8_t channel, uint8_t note, uint8_t velocity) {
@@ -215,11 +220,7 @@ void Engine::MidiNoteOff(uint8_t channel, uint8_t note, uint8_t velocity) {
 
   proto::MidiEvents_Request event;
   event.set_midi_payload(message.bytes.data(), message.bytes.size());
-
-  auto status = soir_client_->SendMidiEvent(event);
-  if (!status.ok()) {
-    LOG(WARNING) << "Unable to send MIDI event: " << status;
-  }
+  SendMidiEvent(event).IgnoreError();
 }
 
 void Engine::MidiCC(uint8_t channel, uint8_t cc, uint8_t value) {
@@ -227,11 +228,7 @@ void Engine::MidiCC(uint8_t channel, uint8_t cc, uint8_t value) {
 
   proto::MidiEvents_Request event;
   event.set_midi_payload(message.bytes.data(), message.bytes.size());
-
-  auto status = soir_client_->SendMidiEvent(event);
-  if (!status.ok()) {
-    LOG(WARNING) << "Unable to send MIDI event: " << status;
-  }
+  SendMidiEvent(event).IgnoreError();
 }
 
 void Engine::Schedule(MicroBeat at, const CbFunc& cb) {

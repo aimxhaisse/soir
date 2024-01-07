@@ -27,15 +27,17 @@ absl::Status ControllerWatcher::Start() {
       std::make_unique<libremidi::midi_in>(libremidi::input_configuration{
           .on_message =
               [this](const libremidi::message& msg) {
+                proto::MidiUpdate_Request update;
                 proto::MidiUpdate_Response response;
-                proto::MidiUpdate_Midi payload;
-                payload.set_midi_payload(msg.bytes.data(), msg.bytes.size());
+                proto::MidiUpdate_Midi* midi_update = update.mutable_midi();
+
+                midi_update->set_payload(msg.bytes.data(), msg.bytes.size());
 
                 grpc::ClientContext context;
                 utils::InitContext(&context, user_);
 
                 grpc::Status status =
-                    midi_stub_->Midi(&context, payload, &response);
+                    midi_stub_->Update(&context, update, &response);
                 if (!status.ok()) {
                   LOG(WARNING) << "Failed to send MIDI controller message: "
                                << status.error_message();
