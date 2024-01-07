@@ -1,5 +1,6 @@
 add_library(maethstro_soir
   audio_buffer.cc
+  mono_sampler.cc
   soir.cc
   engine.cc
   track.cc

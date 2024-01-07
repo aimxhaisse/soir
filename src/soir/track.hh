@@ -5,6 +5,7 @@
 #include "audio_buffer.hh"
 #include "common/config.hh"
 #include "live.grpc.pb.h"
+#include "mono_sampler.hh"
 
 namespace maethstro {
 namespace soir {
@@ -19,15 +20,8 @@ struct Track {
   void Render(const std::list<proto::MidiEvents_Request>&, AudioBuffer&);
 
  private:
-  // We only support MONO audio for now.
-  struct MonoSampler {
-    bool is_playing_;
-    int pos_;
-    std::vector<float> buffer_;
-  };
-
+  std::unique_ptr<MonoSampler> sampler_;
   int channel_ = 0;
-  std::map<int, std::unique_ptr<MonoSampler>> samples_;
 };
 
 }  // namespace soir
