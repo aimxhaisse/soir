@@ -60,6 +60,12 @@ absl::Status Matin::Start() {
     return status;
   }
 
+  status = controller_watcher_->Start();
+  if (!status.ok()) {
+    LOG(ERROR) << "Failed to start controller watcher: " << status.message();
+    return status;
+  }
+
   LOG(INFO) << "Matin running";
 
   return absl::OkStatus();
@@ -68,7 +74,12 @@ absl::Status Matin::Start() {
 absl::Status Matin::Stop() {
   LOG(INFO) << "Matin stopping";
 
-  auto status = subscriber_->Stop();
+  auto status = controller_watcher_->Stop();
+  if (!status.ok()) {
+    LOG(WARNING) << "Controller watcher failed to stop: " << status.message();
+  }
+
+  status = subscriber_->Stop();
   if (!status.ok()) {
     LOG(WARNING) << "Subscriber failed to stop: " << status.message();
   }
