@@ -121,7 +121,7 @@ absl::Status Engine::Run() {
 
     buffer.Reset();
     for (auto& track : tracks_) {
-      track->Render(msgs_by_chan_[track->GetChannel()], buffer);
+      track->Render(events[track->GetChannel()], buffer);
     }
 
     for (auto consumer : consumers_) {

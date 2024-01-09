@@ -10,9 +10,7 @@
 namespace maethstro {
 namespace soir {
 
-absl::Status MonoSampler::Init(const common::Config& config, int channel) {
-  channel_ = channel;
-
+absl::Status MonoSampler::Init(const common::Config& config) {
   auto directory = config.Get<std::string>("sample_dir");
 
   std::vector<std::string> samples;
@@ -53,8 +51,7 @@ absl::Status MonoSampler::Init(const common::Config& config, int channel) {
     midi_note += 1;
   }
 
-  LOG(INFO) << "Loaded track " << channel_ << " with " << samplers_.size()
-            << " samples";
+  LOG(INFO) << "Loaded track with " << samplers_.size() << " samples";
 
   return absl::OkStatus();
 }

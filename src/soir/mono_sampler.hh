@@ -18,7 +18,7 @@ class MonoSampler {
   MonoSampler() = default;
   ~MonoSampler() = default;
 
-  absl::Status Init(const common::Config& config, int channel);
+  absl::Status Init(const common::Config& config);
   void Render(const std::list<libremidi::message>&, AudioBuffer&);
 
  private:
@@ -32,7 +32,6 @@ class MonoSampler {
     std::vector<float> buffer_;
   };
 
-  int channel_ = 0;
   std::string directory_;
   std::map<int, std::unique_ptr<Sampler>> samplers_;
 };

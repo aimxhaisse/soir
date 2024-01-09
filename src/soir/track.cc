@@ -19,7 +19,7 @@ absl::Status Track::Init(const common::Config& config) {
   }
   sampler_ = std::make_unique<MonoSampler>();
 
-  auto status = sampler_->Init(config, channel_);
+  auto status = sampler_->Init(config);
   if (!status.ok()) {
     LOG(ERROR) << "Failed to init sampler: " << status.message();
     return status;
@@ -28,8 +28,41 @@ absl::Status Track::Init(const common::Config& config) {
   return absl::OkStatus();
 }
 
+int Track::GetChannel() const {
+  return channel_;
+}
+
+void Track::HandleMidiEvent(const libremidi::message& event) {
+  auto type = event.get_message_type();
+
+  if (type == libremidi::message_type::CONTROL_CHANGE) {
+    const int control = static_cast<int>(event.bytes[1]);
+
+    switch (control) {
+      case kMidiControlMuteTrack:
+        muted_ = event.bytes[2] > 0;
+        break;
+
+      case kMidiControlVolume:
+        volume_ = event.bytes[2];
+        break;
+
+      case kMidiControlPan:
+        pan_ = event.bytes[2];
+        break;
+
+      default:
+        break;
+    }
+  }
+}
+
 void Track::Render(const std::list<libremidi::message>& events,
                    AudioBuffer& buffer) {
+  for (auto& event : events) {
+    HandleMidiEvent(event);
+  }
+
   sampler_->Render(events, buffer);
 }
 

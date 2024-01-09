@@ -19,5 +19,15 @@ class SampleConsumer {
   virtual absl::Status PushAudioBuffer(const AudioBuffer&) = 0;
 };
 
+// This is not standard MIDI, will likely evolve if we want to
+// natively support some controllers without doing any work.  For node
+// MidiMIX provides a way to map any CC to knobs so we can provide a
+// working mapping for it.
+static constexpr int kMidiControlMuteTrack = 0x01;
+static constexpr int kMidiControlVolume = 0x02;
+static constexpr int kMidiControlPan = 0x03;
+static constexpr int kMidiControlFilter = 0x04;
+static constexpr int kMidiControlReverb = 0x05;
+
 }  // namespace soir
 }  // namespace maethstro
