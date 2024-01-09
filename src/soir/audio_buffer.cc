@@ -12,6 +12,14 @@ AudioBuffer::AudioBuffer(int num_samples) : size_(num_samples) {
 
 AudioBuffer::~AudioBuffer() {}
 
+void AudioBuffer::ApplyGain(float gain) {
+  for (int i = 0; i < kNumChannels; ++i) {
+    for (int j = 0; j < size_; ++j) {
+      buffer_[i][j] *= gain;
+    }
+  }
+}
+
 std::size_t AudioBuffer::Size() const {
   return size_;
 }

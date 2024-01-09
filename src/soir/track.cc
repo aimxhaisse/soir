@@ -40,7 +40,9 @@ void Track::HandleMidiEvent(const libremidi::message& event) {
 
     switch (control) {
       case kMidiControlMuteTrack:
-        muted_ = event.bytes[2] > 0;
+        if (event.bytes[2] != 0) {
+          muted_ = !muted_;
+        }
         break;
 
       case kMidiControlVolume:
@@ -63,7 +65,10 @@ void Track::Render(const std::list<libremidi::message>& events,
     HandleMidiEvent(event);
   }
 
-  sampler_->Render(events, buffer);
+  if (!muted_) {
+    sampler_->Render(events, buffer);
+    buffer.ApplyGain(volume_ / 127.0f);
+  }
 }
 
 }  // namespace soir

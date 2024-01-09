@@ -31,8 +31,6 @@ absl::Status ControllerWatcher::Start() {
                 proto::MidiUpdate_Response response;
                 proto::MidiUpdate_Midi* midi_update = update.mutable_midi();
 
-                LOG(INFO) << "!!!!!! " << msg.get_channel();
-
                 midi_update->set_payload(msg.bytes.data(), msg.bytes.size());
 
                 grpc::ClientContext context;
