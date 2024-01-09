@@ -20,6 +20,26 @@ void AudioBuffer::ApplyGain(float gain) {
   }
 }
 
+void AudioBuffer::ApplyPan(float pan) {
+  // Right Pan
+  if (pan > 0.5f) {
+    const float gain = std::abs(pan - 1.0f) * 2.0f;
+    for (int i = 0; i < size_; ++i) {
+      buffer_[kLeftChannel][i] *= gain;
+    }
+    return;
+  }
+
+  // Left pan
+  if (pan < 0.5f) {
+    const float gain = pan * 2.0f;
+    for (int i = 0; i < size_; ++i) {
+      buffer_[kRightChannel][i] *= gain;
+    }
+    return;
+  }
+}
+
 std::size_t AudioBuffer::Size() const {
   return size_;
 }

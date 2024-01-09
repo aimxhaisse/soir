@@ -67,7 +67,10 @@ void Track::Render(const std::list<libremidi::message>& events,
 
   if (!muted_) {
     sampler_->Render(events, buffer);
-    buffer.ApplyGain(volume_ / 127.0f);
+
+    // DSP per-track.
+    buffer.ApplyGain(static_cast<float>(volume_) / 127.0f);
+    buffer.ApplyPan(static_cast<float>(pan_) / 127.0f);
   }
 }
 
