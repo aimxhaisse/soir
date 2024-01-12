@@ -123,6 +123,7 @@ def get_beat() -> float:
 
     if current_loop_:
         return get_beat_() + current_loop_.current_offset
+
     return get_beat_()
 
 
