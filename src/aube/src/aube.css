@@ -1,0 +1,13 @@
+:root {
+    --font-size: 1.0rem;
+    --font-family-sans: sans-serif;
+    --font-family-mono: monaco, "Consolas", "Lucida Console", monospace;
+}
+
+body.dark {
+    --bg-color: #000000;
+    --bg-secondary-color: #131316;
+    --font-color: #f5f5f5;
+    --color-grey: #cccccc;
+    --color-darkGrey: #777777;
+}
