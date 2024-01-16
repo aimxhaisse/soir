@@ -11,3 +11,15 @@ body.dark {
     --color-grey: #cccccc;
     --color-darkGrey: #777777;
 }
+
+#code {
+    height: 60vh;
+}
+
+.cm-editor {
+    height: 100%;
+}
+
+.cm-scroller {
+    overflow: hidden;
+}
