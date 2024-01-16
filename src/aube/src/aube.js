@@ -1,5 +1,7 @@
 import {EditorState} from "@codemirror/state"
-import {minimalSetup, EditorView} from "codemirror"
+import {indentWithTab} from "@codemirror/commands"
+import {minimalSetup} from "codemirror"
+import {EditorView, keymap} from "@codemirror/view"
 import {python} from "@codemirror/lang-python"
 import {oneDark} from "@codemirror/theme-one-dark"
 import {emacs} from "@replit/codemirror-emacs"
@@ -13,17 +15,13 @@ export default function aube() {
       minimalSetup,
       python(),
       oneDark,
+      keymap.of([indentWithTab]),
     ],
   })
 
   let view = new EditorView({
     state: state,
     parent: document.getElementById("code"),
-  })
-
-  const fixedHeightEditor = EditorView.theme({
-    "&": {height: "300px"},
-    ".cm-scroller": {overflow: "auto"}
   })
   
 }
