@@ -26,6 +26,10 @@ class Soir : public proto::Soir::Service {
       ::grpc::ServerReader<::proto::MidiEvents_Request>* reader,
       ::proto::MidiEvents_Response* response) override;
 
+  grpc::Status GetTracks(::grpc::ServerContext* context,
+                         const ::proto::GetTracks_Request* request,
+                         ::proto::GetTracks_Response* response) override;
+
  private:
   std::unique_ptr<HttpServer> http_server_;
   std::unique_ptr<grpc::Server> grpc_;

@@ -31,6 +31,8 @@ class Engine {
   void RemoveConsumer(SampleConsumer* consumer);
   void PushMidiEvent(const proto::MidiEvents_Request& event);
 
+  absl::Status GetTracks(proto::GetTracks_Response* response);
+
  private:
   absl::Status Run();
 
@@ -45,7 +47,10 @@ class Engine {
   std::condition_variable cv_;
   bool stop_ = false;
 
+  std::mutex consumers_mutex_;
   std::list<SampleConsumer*> consumers_;
+
+  std::mutex tracks_mutex_;
   std::list<std::unique_ptr<Track>> tracks_;
 
   std::map<int, std::list<libremidi::message>> msgs_by_chan_;

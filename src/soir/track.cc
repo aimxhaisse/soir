@@ -28,11 +28,33 @@ absl::Status Track::Init(const common::Config& config) {
   return absl::OkStatus();
 }
 
-int Track::GetChannel() const {
+int Track::GetChannel() {
+  std::scoped_lock<std::mutex> lock(mutex_);
+
   return channel_;
 }
 
+int Track::GetVolume() {
+  std::scoped_lock<std::mutex> lock(mutex_);
+
+  return volume_;
+}
+
+int Track::GetPan() {
+  std::scoped_lock<std::mutex> lock(mutex_);
+
+  return pan_;
+}
+
+bool Track::IsMuted() {
+  std::scoped_lock<std::mutex> lock(mutex_);
+
+  return muted_;
+}
+
 void Track::HandleMidiEvent(const libremidi::message& event) {
+  std::scoped_lock<std::mutex> lock(mutex_);
+
   auto type = event.get_message_type();
 
   if (type == libremidi::message_type::CONTROL_CHANGE) {

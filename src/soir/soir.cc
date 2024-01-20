@@ -100,5 +100,16 @@ grpc::Status Soir::MidiEvents(
   return grpc::Status::OK;
 }
 
+grpc::Status Soir::GetTracks(::grpc::ServerContext* context,
+                             const ::proto::GetTracks_Request* request,
+                             ::proto::GetTracks_Response* response) {
+  auto status = engine_->GetTracks(response);
+  if (!status.ok()) {
+    return grpc::Status(grpc::StatusCode::INTERNAL, "Unable to get tracks");
+  }
+
+  return grpc::Status::OK;
+}
+
 }  // namespace soir
 }  // namespace maethstro

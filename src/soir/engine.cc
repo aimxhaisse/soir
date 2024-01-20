@@ -61,14 +61,14 @@ absl::Status Engine::Stop() {
 void Engine::RegisterConsumer(SampleConsumer* consumer) {
   LOG(INFO) << "Registering engine consumer";
 
-  std::unique_lock<std::mutex> lock(mutex_);
+  std::scoped_lock<std::mutex> lock(consumers_mutex_);
   consumers_.push_back(consumer);
 }
 
 void Engine::RemoveConsumer(SampleConsumer* consumer) {
   LOG(INFO) << "Removing engine consumer";
 
-  std::unique_lock<std::mutex> lock(mutex_);
+  std::scoped_lock<std::mutex> lock(consumers_mutex_);
   consumers_.remove(consumer);
 }
 
@@ -90,8 +90,7 @@ void Engine::PushMidiEvent(const proto::MidiEvents_Request& event) {
   msg.bytes = libremidi::midi_bytes(event.midi_payload().begin(),
                                     event.midi_payload().end());
 
-  std::unique_lock<std::mutex> lock(msgs_mutex_);
-
+  std::scoped_lock<std::mutex> lock(msgs_mutex_);
   msgs_by_chan_[msg.get_channel()].push_back(msg);
 }
 
@@ -115,7 +114,7 @@ absl::Status Engine::Run() {
 
     std::map<int, std::list<libremidi::message>> events;
     {
-      std::unique_lock<std::mutex> lock(msgs_mutex_);
+      std::lock_guard<std::mutex> lock(msgs_mutex_);
       events.swap(msgs_by_chan_);
     }
 
@@ -124,15 +123,34 @@ absl::Status Engine::Run() {
       track->Render(events[track->GetChannel()], buffer);
     }
 
-    for (auto consumer : consumers_) {
-      auto status = consumer->PushAudioBuffer(buffer);
-      if (!status.ok()) {
-        LOG(WARNING) << "Failed to push samples to consumer: " << status;
+    {
+      std::lock_guard<std::mutex> lock(consumers_mutex_);
+      for (auto consumer : consumers_) {
+        auto status = consumer->PushAudioBuffer(buffer);
+        if (!status.ok()) {
+          LOG(WARNING) << "Failed to push samples to consumer: " << status;
+        }
       }
     }
 
     next_block_at += block_duration;
     Stats(next_block_at, block_duration);
+  }
+
+  return absl::OkStatus();
+}
+
+absl::Status Engine::GetTracks(proto::GetTracks_Response* response) {
+  std::scoped_lock<std::mutex> lock(tracks_mutex_);
+
+  for (auto& track : tracks_) {
+    auto* track_response = response->add_tracks();
+
+    track_response->set_channel(track->GetChannel());
+    track_response->set_instrument(proto::Track::TRACK_MONO_SAMPLER);
+    track_response->set_volume(track->GetVolume());
+    track_response->set_pan(track->GetPan());
+    track_response->set_muted(track->IsMuted());
   }
 
   return absl::OkStatus();

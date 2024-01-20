@@ -2,6 +2,7 @@
 
 #include <absl/status/status.h>
 #include <libremidi/libremidi.hpp>
+#include <mutex>
 
 #include "audio_buffer.hh"
 #include "common/config.hh"
@@ -17,15 +18,18 @@ struct Track {
   Track();
 
   absl::Status Init(const common::Config& config);
-  int GetChannel() const;
+  int GetChannel();
+  int GetVolume();
+  int GetPan();
+  bool IsMuted();
 
   void Render(const std::list<libremidi::message>&, AudioBuffer&);
 
  private:
   void HandleMidiEvent(const libremidi::message& event);
 
+  std::mutex mutex_;
   int channel_ = 0;
-
   bool muted_ = false;
   int volume_ = 127;
   int pan_ = 64;
