@@ -13,6 +13,7 @@ from live_ import (
     set_bpm_,
     get_bpm_,
     get_beat_,
+    get_tracks_,
     get_user_,
     log_,
     midi_note_on_,
@@ -114,6 +115,17 @@ def get_bpm() -> float:
         raise InLiveLoopException()
 
     return get_bpm_()
+
+
+def get_tracks() -> float:
+    """Get the tracks.
+    """
+    global current_loop_
+
+    if current_loop_:
+        raise InLiveLoopException()
+
+    return get_tracks_()
 
 
 def get_beat() -> float:

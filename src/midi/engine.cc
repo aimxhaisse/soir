@@ -207,6 +207,12 @@ absl::Status Engine::SendMidiEvent(proto::MidiEvents_Request& event) {
   return status;
 }
 
+absl::Status Engine::GetTracks(proto::GetTracks_Response* response) {
+  auto status = soir_client_->GetTracks(response);
+
+  return status;
+}
+
 void Engine::MidiNoteOn(uint8_t channel, uint8_t note, uint8_t velocity) {
   auto message = libremidi::channel_events::note_on(channel, note, velocity);
 

@@ -99,5 +99,17 @@ absl::Status SoirClient::Run() {
   return absl::OkStatus();
 }
 
+absl::Status SoirClient::GetTracks(proto::GetTracks_Response* response) {
+  grpc::ClientContext context;
+  proto::GetTracks_Request request;
+  auto status = soir_stub_->GetTracks(&context, request, response);
+  if (!status.ok()) {
+    LOG(ERROR) << "Failed to get tracks from Soir: " << status.error_message();
+    return absl::InternalError("Failed to get tracks from Soir");
+  }
+
+  return absl::OkStatus();
+}
+
 }  // namespace midi
 }  // namespace maethstro

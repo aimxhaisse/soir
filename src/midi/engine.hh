@@ -64,6 +64,7 @@ class Engine {
   absl::Status UpdateCode(const std::string& user, const std::string& code);
 
   absl::Status SendMidiEvent(proto::MidiEvents_Request& event);
+  absl::Status GetTracks(proto::GetTracks_Response* response);
 
   absl::Time MicroBeatToTime(MicroBeat beat) const;
   uint64_t MicroBeatToBeat(MicroBeat beat) const;
@@ -95,6 +96,7 @@ class Engine {
   std::list<CodeUpdate> code_updates_;
   bool running_ = false;
 
+  // Lockless as only accessed from the Python thread.
   MicroBeat current_beat_ = 0;
   absl::Time current_time_;
   float bpm_ = 120.0;

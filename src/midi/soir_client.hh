@@ -23,6 +23,7 @@ class SoirClient {
   absl::Status Stop();
 
   absl::Status SendMidiEvent(const proto::MidiEvents_Request& event);
+  absl::Status GetTracks(proto::GetTracks_Response* response);
 
  private:
   absl::Status Run();
