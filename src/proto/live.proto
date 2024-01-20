@@ -89,6 +89,15 @@ message GetTracks {
   }
 }
 
+// Setups tracks message.
+message SetupTracks {
+  message Request {}
+
+  message Response {
+    repeated Track tracks = 1;
+  }
+}
+
 // Soir service.
 service Soir {
   // Send a stream of MIDI events to Soir.
@@ -96,4 +105,7 @@ service Soir {
 
   // Get all tracks currently running on Soir.
   rpc GetTracks(GetTracks.Request) returns (GetTracks.Response) {}
+
+  // Sets up tracks currently running on Soir.
+  rpc SetupTracks(SetupTracks.Request) returns (SetupTracks.Response) {}
 }
