@@ -13,12 +13,12 @@ package proto;
 message MidiUpdate {
   // Code update.
   message Code {
-    optional string code = 1;
+    string code = 1;
   }
 
   // Midi controller.
   message Midi {
-    optional bytes payload = 1;
+    bytes payload = 1;
   }
 
   message Request {
@@ -37,8 +37,8 @@ message MidiNotifications {
 
   // Log message from Midi.
   message Log {
-    optional string source = 1;
-    optional string notification = 2;
+    string source = 1;
+    string notification = 2;
   }
 
   // Nofification from Midi.
@@ -58,7 +58,7 @@ service Midi {
   rpc Notifications(MidiNotifications.Request) returns (stream MidiNotifications.Response) {}
 }
 
-// Used to represent Midi events.
+// RPC to stream MIDI events to Soir.
 message MidiEvents {
   message Request {
     bytes midi_payload = 1;
@@ -67,8 +67,33 @@ message MidiEvents {
   message Response {}
 }
 
+// Representation of a track.
+message Track {
+  enum Instrument {
+    TRACK_MONO_SAMPLER = 0;
+  }
+
+  uint32 channel = 1;
+  Instrument instrument = 2;
+  bool muted = 3;
+  uint32 volume = 4;
+  uint32 pan = 5;
+}
+
+// Get track message.
+message GetTracks {
+  message Request {}
+
+  message Response {
+    repeated Track tracks = 1;
+  }
+}
+
 // Soir service.
 service Soir {
-  // Send a stream of MIDI events to soir.
+  // Send a stream of MIDI events to Soir.
   rpc MidiEvents(stream MidiEvents.Request) returns (MidiEvents.Response) {}
+
+  // Get all tracks currently running on Soir.
+  rpc GetTracks(GetTracks.Request) returns (GetTracks.Response) {}
 }

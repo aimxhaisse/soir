@@ -121,10 +121,6 @@ grpc::Status Midi::Update(grpc::ServerContext* context,
 
     case proto::MidiUpdate_Request::kCode: {
       auto update_code = request->code();
-      if (!update_code.has_code()) {
-        return grpc::Status(grpc::StatusCode::INVALID_ARGUMENT, "Missing code");
-      }
-
       auto status = engine_->UpdateCode(user, update_code.code());
       if (!status.ok()) {
         LOG(ERROR) << "Unable to update live code: " << status;
@@ -136,11 +132,6 @@ grpc::Status Midi::Update(grpc::ServerContext* context,
 
     case proto::MidiUpdate_Request::kMidi: {
       auto update_midi = request->midi();
-      if (!update_midi.has_payload()) {
-        return grpc::Status(grpc::StatusCode::INVALID_ARGUMENT,
-                            "Missing payload");
-      }
-
       proto::MidiEvents_Request event;
       event.set_midi_payload(update_midi.payload());
       auto status = engine_->SendMidiEvent(event);
