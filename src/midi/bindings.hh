@@ -1,6 +1,7 @@
 #pragma once
 
 #include <absl/status/status.h>
+#include <optional>
 
 namespace maethstro {
 namespace midi {
@@ -15,9 +16,10 @@ void ResetEngine();
 struct PyTrack {
   std::string instrument;
   int channel = 0;
-  bool muted = false;
-  int volume = 127;
-  int pan = 64;
+
+  std::optional<bool> muted;
+  std::optional<int> volume;
+  std::optional<int> pan;
 };
 
 }  // namespace bindings

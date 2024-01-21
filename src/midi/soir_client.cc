@@ -111,5 +111,17 @@ absl::Status SoirClient::GetTracks(proto::GetTracks_Response* response) {
   return absl::OkStatus();
 }
 
+absl::Status SoirClient::SetupTracks(const proto::SetupTracks_Request& request,
+                                     proto::SetupTracks_Response* response) {
+  grpc::ClientContext context;
+  auto status = soir_stub_->SetupTracks(&context, request, response);
+  if (!status.ok()) {
+    LOG(ERROR) << "Failed to setup tracks in Soir: " << status.error_message();
+    return absl::InternalError("Failed to setup tracks in Soir");
+  }
+
+  return absl::OkStatus();
+}
+
 }  // namespace midi
 }  // namespace maethstro

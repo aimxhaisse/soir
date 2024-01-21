@@ -50,6 +50,7 @@ PYBIND11_EMBEDDED_MODULE(live_, m) {
   });
 
   py::class_<bindings::PyTrack>(m, "Track")
+      .def(py::init<>())
       .def_readwrite("instrument", &bindings::PyTrack::instrument)
       .def_readwrite("channel", &bindings::PyTrack::channel)
       .def_readwrite("muted", &bindings::PyTrack::muted)
@@ -57,10 +58,7 @@ PYBIND11_EMBEDDED_MODULE(live_, m) {
       .def_readwrite("pan", &bindings::PyTrack::pan)
       .def("__repr__", [](const bindings::PyTrack& track) {
         return "<Track instrument='" + track.instrument +
-               "' channel=" + std::to_string(track.channel) +
-               " muted=" + std::to_string(track.muted) +
-               " volume=" + std::to_string(track.volume) +
-               " pan=" + std::to_string(track.pan) + ">";
+               "' channel=" + std::to_string(track.channel) + ">";
       });
 
   m.def("get_tracks_", []() {
@@ -95,6 +93,44 @@ PYBIND11_EMBEDDED_MODULE(live_, m) {
     }
 
     return result;
+  });
+
+  m.def("setup_tracks_", [](const std::vector<bindings::PyTrack>& tracks) {
+    proto::SetupTracks_Request request;
+    proto::SetupTracks_Response response;
+
+    for (auto& track : tracks) {
+      proto::Track proto_track;
+
+      if (track.instrument == "mono_sampler") {
+        proto_track.set_instrument(proto::Track::TRACK_MONO_SAMPLER);
+      } else {
+        LOG(ERROR) << "Unknown instrument: " << track.instrument;
+        return false;
+      }
+
+      proto_track.set_channel(track.channel);
+
+      if (track.muted.has_value()) {
+        proto_track.set_muted(track.muted.value());
+      }
+      if (track.volume.has_value()) {
+        proto_track.set_volume(track.volume.value());
+      }
+      if (track.pan.has_value()) {
+        proto_track.set_pan(track.pan.value());
+      }
+
+      request.add_tracks()->CopyFrom(proto_track);
+    }
+
+    auto status = gEngine_->SetupTracks(request, &response);
+    if (!status.ok()) {
+      LOG(ERROR) << "Unable to setup tracks: " << status;
+      return false;
+    }
+
+    return true;
   });
 
   m.def("midi_note_on_", [](uint8_t channel, uint8_t note, uint8_t velocity) {

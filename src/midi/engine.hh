@@ -65,6 +65,8 @@ class Engine {
 
   absl::Status SendMidiEvent(proto::MidiEvents_Request& event);
   absl::Status GetTracks(proto::GetTracks_Response* response);
+  absl::Status SetupTracks(const proto::SetupTracks_Request& request,
+                           proto::SetupTracks_Response* response);
 
   absl::Time MicroBeatToTime(MicroBeat beat) const;
   uint64_t MicroBeatToBeat(MicroBeat beat) const;

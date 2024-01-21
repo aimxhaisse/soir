@@ -9,6 +9,7 @@
 from enum import Enum
 
 from live_ import (
+    Track,
     schedule_,
     set_bpm_,
     get_bpm_,
@@ -18,7 +19,8 @@ from live_ import (
     log_,
     midi_note_on_,
     midi_note_off_,
-    midi_cc_
+    midi_cc_,
+    setup_tracks_,
 )
 
 
@@ -117,7 +119,7 @@ def get_bpm() -> float:
     return get_bpm_()
 
 
-def get_tracks() -> float:
+def get_tracks() -> list[Track]:
     """Get the tracks.
     """
     global current_loop_
@@ -126,6 +128,17 @@ def get_tracks() -> float:
         raise InLiveLoopException()
 
     return get_tracks_()
+
+
+def setup_tracks(tracks: list[Track]) -> bool:
+    """Setup tracks.
+    """
+    global current_loop_
+
+    if current_loop_:
+        raise InLiveLoopException()
+
+    return setup_tracks_(tracks)
 
 
 def get_beat() -> float:
