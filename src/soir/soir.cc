@@ -111,5 +111,17 @@ grpc::Status Soir::GetTracks(::grpc::ServerContext* context,
   return grpc::Status::OK;
 }
 
+grpc::Status Soir::SetupTracks(::grpc::ServerContext* context,
+                               const ::proto::SetupTracks_Request* request,
+                               ::proto::SetupTracks_Response* response) {
+  auto status = engine_->SetupTracks(request);
+
+  if (!status.ok()) {
+    return grpc::Status(grpc::StatusCode::INTERNAL, "Unable to setup tracks");
+  }
+
+  return grpc::Status::OK;
+}
+
 }  // namespace soir
 }  // namespace maethstro

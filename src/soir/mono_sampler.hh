@@ -18,7 +18,7 @@ class MonoSampler {
   MonoSampler() = default;
   ~MonoSampler() = default;
 
-  absl::Status Init(const common::Config& config);
+  absl::Status Init(const proto::Track& config);
   void Render(const std::list<libremidi::message>&, AudioBuffer&);
 
  private:

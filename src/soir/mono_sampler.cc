@@ -10,8 +10,9 @@
 namespace maethstro {
 namespace soir {
 
-absl::Status MonoSampler::Init(const common::Config& config) {
-  auto directory = config.Get<std::string>("sample_dir");
+absl::Status MonoSampler::Init(const proto::Track& config) {
+  // TODO: add this to the parameters of the track.
+  auto directory = "assets/samples/pack/foundation";
 
   std::vector<std::string> samples;
   for (const auto& entry :

@@ -74,10 +74,14 @@ message Track {
   }
 
   uint32 channel = 1;
-  Instrument instrument = 2;
-  bool muted = 3;
-  uint32 volume = 4;
-  uint32 pan = 5;
+
+  // Those are marked as optional in case we are calling SetupTracks:
+  // if no parameters were specified and the track exists we don't
+  // override what's already defined.
+  optional Instrument instrument = 2;
+  optional bool muted = 3;
+  optional uint32 volume = 4;
+  optional uint32 pan = 5;
 }
 
 // Get track message.
@@ -91,11 +95,11 @@ message GetTracks {
 
 // Setups tracks message.
 message SetupTracks {
-  message Request {}
-
-  message Response {
+  message Request {
     repeated Track tracks = 1;
   }
+
+  message Response {}
 }
 
 // Soir service.

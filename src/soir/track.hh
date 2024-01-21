@@ -17,7 +17,14 @@ namespace soir {
 struct Track {
   Track();
 
-  absl::Status Init(const common::Config& config);
+  absl::Status Init(const proto::Track& config);
+
+  // If MaybeFastUpdate returns false, it means the track can't update
+  // itself quickly so it likely needs to be re-created.
+  bool CanFastUpdate(const proto::Track& config);
+  void FastUpdate(const proto::Track& config);
+
+  proto::Track::Instrument GetInstrument();
   int GetChannel();
   int GetVolume();
   int GetPan();
@@ -29,6 +36,7 @@ struct Track {
   void HandleMidiEvent(const libremidi::message& event);
 
   std::mutex mutex_;
+  proto::Track::Instrument instrument_;
   int channel_ = 0;
   bool muted_ = false;
   int volume_ = 127;

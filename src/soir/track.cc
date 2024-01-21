@@ -10,22 +10,54 @@ namespace soir {
 
 Track::Track() {}
 
-absl::Status Track::Init(const common::Config& config) {
-  channel_ = config.Get<int>("channel");
+absl::Status Track::Init(const proto::Track& config) {
+  channel_ = config.channel();
 
-  auto instrument = config.Get<std::string>("instrument");
-  if (instrument != "sampler") {
-    return absl::InvalidArgumentError("Only sampler instrument is supported");
-  }
-  sampler_ = std::make_unique<MonoSampler>();
+  volume_ = config.has_volume() ? config.volume() : kTrackDefaultVolume;
+  pan_ = config.has_pan() ? config.pan() : kTrackDefaultPan;
+  muted_ = config.has_muted() ? config.muted() : kTrackDefaultMuted;
 
-  auto status = sampler_->Init(config);
-  if (!status.ok()) {
-    LOG(ERROR) << "Failed to init sampler: " << status.message();
-    return status;
+  switch (config.instrument()) {
+
+    case proto::Track::TRACK_MONO_SAMPLER: {
+      instrument_ = proto::Track::TRACK_MONO_SAMPLER;
+      sampler_ = std::make_unique<MonoSampler>();
+      auto status = sampler_->Init(config);
+      if (!status.ok()) {
+        LOG(ERROR) << "Failed to init sampler: " << status.message();
+        return status;
+      }
+    } break;
+
+    default:
+      return absl::InvalidArgumentError("Unknown instrument");
   }
 
   return absl::OkStatus();
+}
+
+bool Track::CanFastUpdate(const proto::Track& config) {
+  std::scoped_lock<std::mutex> lock(mutex_);
+
+  if (config.instrument() != instrument_) {
+    return false;
+  }
+
+  return true;
+}
+
+void Track::FastUpdate(const proto::Track& config) {
+  std::scoped_lock<std::mutex> lock(mutex_);
+
+  volume_ = config.has_volume() ? config.volume() : kTrackDefaultVolume;
+  pan_ = config.has_pan() ? config.pan() : kTrackDefaultPan;
+  muted_ = config.has_muted() ? config.muted() : kTrackDefaultMuted;
+}
+
+proto::Track::Instrument Track::GetInstrument() {
+  std::scoped_lock<std::mutex> lock(mutex_);
+
+  return instrument_;
 }
 
 int Track::GetChannel() {

@@ -29,5 +29,9 @@ static constexpr int kMidiControlPan = 0x03;
 static constexpr int kMidiControlFilter = 0x04;
 static constexpr int kMidiControlReverb = 0x05;
 
+static constexpr bool kTrackDefaultMuted = false;
+static constexpr int kTrackDefaultVolume = 127;
+static constexpr int kTrackDefaultPan = 64;
+
 }  // namespace soir
 }  // namespace maethstro

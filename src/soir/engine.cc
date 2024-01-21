@@ -14,18 +14,6 @@ absl::Status Engine::Init(const common::Config& config) {
 
   block_size_ = config.Get<uint32_t>("soir.engine.block_size");
 
-  for (auto& track_config : config.GetConfigs("soir.tracks")) {
-    std::unique_ptr<Track> track = std::make_unique<Track>();
-
-    auto status = track->Init(*track_config);
-    if (!status.ok()) {
-      LOG(ERROR) << "Failed to initialize track: " << status;
-      return status;
-    }
-
-    tracks_.push_back(std::move(track));
-  }
-
   return absl::OkStatus();
 }
 
@@ -119,7 +107,8 @@ absl::Status Engine::Run() {
     }
 
     buffer.Reset();
-    for (auto& track : tracks_) {
+    for (auto& it : tracks_) {
+      auto track = it.second.get();
       track->Render(events[track->GetChannel()], buffer);
     }
 
@@ -143,14 +132,81 @@ absl::Status Engine::Run() {
 absl::Status Engine::GetTracks(proto::GetTracks_Response* response) {
   std::scoped_lock<std::mutex> lock(tracks_mutex_);
 
-  for (auto& track : tracks_) {
+  for (auto& it : tracks_) {
+    auto track = it.second.get();
     auto* track_response = response->add_tracks();
 
     track_response->set_channel(track->GetChannel());
-    track_response->set_instrument(proto::Track::TRACK_MONO_SAMPLER);
+    track_response->set_instrument(track->GetInstrument());
     track_response->set_volume(track->GetVolume());
     track_response->set_pan(track->GetPan());
     track_response->set_muted(track->IsMuted());
+  }
+
+  return absl::OkStatus();
+}
+
+absl::Status Engine::SetupTracks(const proto::SetupTracks_Request* request) {
+  // Make sure we don't have concurrent calls here because the
+  // following design described below is not atomic.
+  std::scoped_lock<std::mutex> setup_lock(setup_tracks_mutex_);
+
+  // We have here a somewhat complex design: initializing a track can
+  // take time as we may need to load samples from disk. We don't want
+  // to block the engine thread for that. So we take twice the tracks
+  // lock: 1st time to know what we have to do (add new tracks,
+  // initialize instruments, initialize effects, ...), then we prepare
+  // everything, and take the lock to update the tracks with
+  // everything pre-loaded.
+
+  std::list<proto::Track> tracks_to_add;
+  std::list<proto::Track> tracks_to_update;
+
+  // Check what we need to do.
+  {
+    std::scoped_lock<std::mutex> lock(tracks_mutex_);
+    for (int i = 0; i < request->tracks_size(); ++i) {
+      auto& track_request = request->tracks(i);
+      int channel = track_request.channel();
+      auto it = tracks_.find(channel);
+
+      if (it == tracks_.end() || !it->second->CanFastUpdate(track_request)) {
+        tracks_to_add.push_back(track_request);
+      } else {
+        tracks_to_update.push_back(track_request);
+      }
+    }
+  }
+
+  std::map<int, std::unique_ptr<Track>> updated_tracks;
+
+  // Perform slow operations here.
+  for (auto& track : tracks_to_add) {
+    auto new_track = std::make_unique<Track>();
+    auto status = new_track->Init(track);
+    if (!status.ok()) {
+      LOG(ERROR) << "Failed to initialize track: " << status;
+      return status;
+    }
+
+    updated_tracks[track.channel()] = std::move(new_track);
+  }
+
+  // Update the layout without holding the lock for too long.
+  {
+    std::scoped_lock<std::mutex> lock(tracks_mutex_);
+    for (auto& track_request : tracks_to_update) {
+      auto channel = track_request.channel();
+      auto& track = tracks_[channel];
+
+      // This can't fail otherwise the design is not atomic, we don't
+      // want partial upgrades to be possible.
+      track->FastUpdate(track_request);
+
+      updated_tracks[channel] = std::move(track);
+    }
+
+    tracks_.swap(updated_tracks);
   }
 
   return absl::OkStatus();

@@ -1,3 +1,4 @@
+
 #pragma once
 
 #include <absl/status/status.h>
@@ -29,6 +30,10 @@ class Soir : public proto::Soir::Service {
   grpc::Status GetTracks(::grpc::ServerContext* context,
                          const ::proto::GetTracks_Request* request,
                          ::proto::GetTracks_Response* response) override;
+
+  grpc::Status SetupTracks(::grpc::ServerContext* context,
+                           const ::proto::SetupTracks_Request* request,
+                           ::proto::SetupTracks_Response* response) override;
 
  private:
   std::unique_ptr<HttpServer> http_server_;
