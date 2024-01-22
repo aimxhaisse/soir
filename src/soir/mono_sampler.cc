@@ -73,6 +73,7 @@ void MonoSampler::Render(const std::list<libremidi::message>& messages,
         if (it != samplers_.end()) {
           auto& sampler = it->second;
           sampler->NoteOn();
+          playing_.insert(sampler.get());
         }
         break;
       }
@@ -82,6 +83,7 @@ void MonoSampler::Render(const std::list<libremidi::message>& messages,
         if (it != samplers_.end()) {
           auto& sampler = it->second;
           sampler->NoteOff();
+          playing_.erase(sampler.get());
         }
         break;
       }
@@ -95,14 +97,10 @@ void MonoSampler::Render(const std::list<libremidi::message>& messages,
   float* left_chan = buffer.GetChannel(kLeftChannel);
   float* right_chan = buffer.GetChannel(kRightChannel);
 
+  std::set<Sampler*> to_remove;
+
   for (int sample = 0; sample < buffer.Size(); ++sample) {
-    for (auto& it : samplers_) {
-      auto& sampler = it.second;
-
-      if (!sampler->is_playing_) {
-        continue;
-      }
-
+    for (auto& sampler : playing_) {
       float left = left_chan[sample];
       float right = right_chan[sample];
 
@@ -114,10 +112,14 @@ void MonoSampler::Render(const std::list<libremidi::message>& messages,
 
       sampler->pos_ += 1;
       if (sampler->pos_ >= sampler->buffer_.size()) {
-        sampler->is_playing_ = false;
-        sampler->pos_ = 0;
+        sampler->NoteOff();
+        to_remove.insert(sampler);
       }
     }
+  }
+
+  for (auto remove : to_remove) {
+    playing_.erase(remove);
   }
 }
 

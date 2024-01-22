@@ -34,6 +34,7 @@ class MonoSampler {
 
   std::string directory_;
   std::map<int, std::unique_ptr<Sampler>> samplers_;
+  std::set<Sampler*> playing_;
 };
 
 }  // namespace soir
