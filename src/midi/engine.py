@@ -49,9 +49,10 @@ current_loop_ = None
 class LiveLoop_:
     """Helper class to manage a live loop.
     """
-    def __init__(self, name: str, beats: int, align: int, func: callable):
+    def __init__(self, name: str, beats: int, track: int, align: int, func: callable):
         self.name = name
         self.beats = beats
+        self.track = track
         self.align = align
         self.func = func
 
@@ -141,18 +142,18 @@ def setup_tracks(tracks: list[Track]) -> bool:
     return setup_tracks_(tracks)
 
 
-def track(instrument: str, channel: int, muted=None, volume=None, pan=None) -> Track:
+def mk_track(instrument: str, channel: int, muted=None, volume=None, pan=None) -> Track:
     """Creates a new track.
     """
-    trk = Track()
+    track = Track()
 
-    trk.instrument = instrument
-    trk.channel = channel
-    trk.muted = muted
-    trk.volume = volume
-    trk.pan = pan
+    track.instrument = instrument
+    track.channel = channel
+    track.muted = muted
+    track.volume = volume
+    track.pan = pan
 
-    return trk
+    return track
 
 
 def get_beat() -> float:
@@ -210,7 +211,20 @@ def midi_cc(cc: int, value: int, channel: int):
         midi_cc_(cc, value, channel)
 
 
-def live_loop(*args, **kwargs):
+def sample(number: int):
+    """Play a sample on the current track.
+    """
+    global current_loop_
+
+    if not current_loop_:
+        raise NotInLiveLoopException()
+
+    track = current_loop_.track
+
+    schedule_(current_loop_.current_offset, lambda: midi_note_on_(number, 127, track))
+
+
+def loop(*args, **kwargs):
     """A live loop.
 
     The concept of live loop is similar to Sonic Pi's live loops. Code
@@ -222,6 +236,7 @@ def live_loop(*args, **kwargs):
     """
     # Parameters of the decorator.
     beats = kwargs.get('beats', 4)
+    track = kwargs.get('track', 1)
     align = kwargs.get('align', beats)
 
     def wrapper(func):
@@ -230,7 +245,7 @@ def live_loop(*args, **kwargs):
         name = func.__name__
 
         if name not in live_loops_:
-            ll = LiveLoop_(name, beats, align, func)
+            ll = LiveLoop_(name, beats, track, align, func)
 
             ll.run()
 
@@ -243,6 +258,7 @@ def live_loop(*args, **kwargs):
             # iteration of the loop.
             ll.beats = beats
             ll.align = align
+            ll.track = track
 
             # Here is where we perform code update seamlessly.
             ll.func = func
