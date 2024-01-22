@@ -107,9 +107,12 @@ absl::Status Engine::Run() {
     }
 
     buffer.Reset();
-    for (auto& it : tracks_) {
-      auto track = it.second.get();
-      track->Render(events[track->GetChannel()], buffer);
+    {
+      std::scoped_lock<std::mutex> lock(tracks_mutex_);
+      for (auto& it : tracks_) {
+        auto track = it.second.get();
+        track->Render(events[track->GetChannel()], buffer);
+      }
     }
 
     {
@@ -159,8 +162,10 @@ absl::Status Engine::SetupTracks(const proto::SetupTracks_Request* request) {
   // everything, and take the lock to update the tracks with
   // everything pre-loaded.
 
-  std::list<proto::Track> tracks_to_add;
-  std::list<proto::Track> tracks_to_update;
+  // Use maps here to ensure we don't override the same track multiple
+  // times.
+  std::map<int, proto::Track> tracks_to_add;
+  std::map<int, proto::Track> tracks_to_update;
 
   // Check what we need to do.
   {
@@ -171,9 +176,9 @@ absl::Status Engine::SetupTracks(const proto::SetupTracks_Request* request) {
       auto it = tracks_.find(channel);
 
       if (it == tracks_.end() || !it->second->CanFastUpdate(track_request)) {
-        tracks_to_add.push_back(track_request);
+        tracks_to_add[channel] = track_request;
       } else {
-        tracks_to_update.push_back(track_request);
+        tracks_to_update[channel] = track_request;
       }
     }
   }
@@ -183,25 +188,25 @@ absl::Status Engine::SetupTracks(const proto::SetupTracks_Request* request) {
   // Perform slow operations here.
   for (auto& track : tracks_to_add) {
     auto new_track = std::make_unique<Track>();
-    auto status = new_track->Init(track);
+    auto status = new_track->Init(track.second);
     if (!status.ok()) {
       LOG(ERROR) << "Failed to initialize track: " << status;
       return status;
     }
 
-    updated_tracks[track.channel()] = std::move(new_track);
+    updated_tracks[track.first] = std::move(new_track);
   }
 
   // Update the layout without holding the lock for too long.
   {
     std::scoped_lock<std::mutex> lock(tracks_mutex_);
     for (auto& track_request : tracks_to_update) {
-      auto channel = track_request.channel();
+      auto channel = track_request.first;
       auto& track = tracks_[channel];
 
       // This can't fail otherwise the design is not atomic, we don't
       // want partial upgrades to be possible.
-      track->FastUpdate(track_request);
+      track->FastUpdate(track_request.second);
 
       updated_tracks[channel] = std::move(track);
     }
