@@ -141,6 +141,20 @@ def setup_tracks(tracks: list[Track]) -> bool:
     return setup_tracks_(tracks)
 
 
+def track(instrument: str, channel: int, muted=None, volume=None, pan=None) -> Track:
+    """Creates a new track.
+    """
+    trk = Track()
+
+    trk.instrument = instrument
+    trk.channel = channel
+    trk.muted = muted
+    trk.volume = volume
+    trk.pan = pan
+
+    return trk
+
+
 def get_beat() -> float:
     """Get the current beat.
     """
