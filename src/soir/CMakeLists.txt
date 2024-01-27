@@ -1,4 +1,5 @@
 add_library(maethstro_soir
+  adsr.cc
   audio_buffer.cc
   mono_sampler.cc
   soir.cc

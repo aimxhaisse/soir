@@ -6,6 +6,7 @@
 #include <map>
 #include <memory>
 
+#include "adsr.hh"
 #include "audio_buffer.hh"
 #include "common/config.hh"
 #include "live.grpc.pb.h"
@@ -30,6 +31,12 @@ class MonoSampler {
     bool is_playing_;
     int pos_;
     std::vector<float> buffer_;
+
+    // This ADSR envelope is used to avoid glitches at the beginning
+    // and at the end of samples, which is common with raw data where
+    // there is directly something starting with a non-zero value in
+    // the first or the last sample.
+    ADSR wrapper_;
   };
 
   std::string directory_;
