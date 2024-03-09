@@ -88,7 +88,7 @@ $(DEPS_HTTPLIB):
 $(DEPS_LIBREMIDI):
 	git clone https://github.com/jcelerier/libremidi.git $@ && \
 	cd $@ && \
-	git checkout v4.2.4
+	git checkout v4.5.0
 
 $(DEPS_AUDIOFILE):
 	git clone https://github.com/adamstark/AudioFile.git $@ && \
