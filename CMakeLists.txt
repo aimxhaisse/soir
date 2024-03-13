@@ -9,13 +9,14 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(ABSL_ENABLE_INSTALL ON)
 
-add_subdirectory(deps/abseil)
-add_subdirectory(deps/protobuf)
+add_subdirectory(deps/grpc)
 add_subdirectory(deps/efsw)
 add_subdirectory(deps/pybind11)
 add_subdirectory(deps/httplib)
 add_subdirectory(deps/libremidi)
 add_subdirectory(deps/audiofile)
+
+include(deps/grpc/third_party/protobuf/cmake/protobuf-generate.cmake)
 
 find_package(yaml-cpp REQUIRED)
 find_package(GTest REQUIRED)
