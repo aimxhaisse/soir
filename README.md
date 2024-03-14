@@ -1,8 +1,11 @@
-# Maethstro L I V E
+# N E O N
 
-_matin/midi/soir_
+## Architecture
 
-![architecture](assets/live.png)
+Neon is composed of two parts:
+
+- client
+- server
 
 ## Patterns
 

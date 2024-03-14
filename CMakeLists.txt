@@ -34,7 +34,6 @@ add_compile_definitions(MAETHSTRO_VERSION=${VERSION})
 
 add_executable(maethstro
   src/main.cc
-  src/live.cc
 )
 
 target_link_libraries(
