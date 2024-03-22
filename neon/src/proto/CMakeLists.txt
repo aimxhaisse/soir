@@ -15,4 +15,4 @@ target_link_libraries(neon_proto
 target_include_directories(neon_proto PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 
 protobuf_generate(TARGET neon_proto LANGUAGE cpp)
-protobuf_generate(TARGET maethstro_proto LANGUAGE grpc GENERATE_EXTENSIONS .grpc.pb.h .grpc.pb.cc PLUGIN "protoc-gen-grpc=${_GRPC_CPP_PLUGIN_EXECUTABLE}")
+protobuf_generate(TARGET neon_proto LANGUAGE grpc GENERATE_EXTENSIONS .grpc.pb.h .grpc.pb.cc PLUGIN "protoc-gen-grpc=${_GRPC_CPP_PLUGIN_EXECUTABLE}")
