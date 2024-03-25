@@ -1,0 +1,22 @@
+graph LR
+  subgraph Backend
+
+    Neon
+    Rt
+    Dsp
+    Gfx
+
+  end
+
+  subgraph Client
+
+    Agent
+
+  end
+
+  Agent <-- gRPC --> Neon
+  Neon <--> Rt
+  Rt <--> Gfx
+  Neon <--> Dsp
+  Neon <--> Gfx
+  Rt <--> Dsp
