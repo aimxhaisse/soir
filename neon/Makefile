@@ -2,7 +2,7 @@
 
 BUILD_DIR	:= build
 BIN_DIR		:= bin
-BINARY		:= $(BIN_DIR)/maethstro
+BINARY		:= $(BIN_DIR)/neon
 
 DEPS_DIR 	:= deps
 DEPS_GRPC 	:= $(DEPS_DIR)/grpc
@@ -21,21 +21,24 @@ all: $(BINARY)
 deps: $(DEPS_EFSW) $(DEPS_PYBIND) $(DEPS_HTTPLIB) $(DEPS_LIBREMIDI) $(DEPS_AUDIOFILE) $(DEPS_GRPC)
 
 clean:
-	rm -rf $(BINARY)
+	rm -f $(BINARY)
 	cd $(BUILD_DIR) && make clean
 
 full-clean: clean
 	rm -rf $(DEPS_EFSW) $(DEPS_PYBIND) $(DEPS_HTTPLIB) $(DEPS_LIBREMIDI) $(DEPS_AUDIOFILE) $(DEPS_GRPC)
 
 test: all
-	./$(BUILD_DIR)/src/midi/neon_test
+	./$(BUILD_DIR)/src/utils/neon_utils_test
 
 # Build
 
 $(BUILD_DIR):
 	mkdir -p $@
 
-$(BINARY): deps $(BUILD_DIR)
+$(BIN_DIR):
+	mkdir -p $@
+
+$(BINARY): deps $(BUILD_DIR) $(BIN_DIR)
 	cd $(BUILD_DIR) && \
 	cmake -DCMAKE_BUILD_TYPE=Debug \
 		-Dprotobuf_ABSL_PROVIDER=package	\
@@ -48,7 +51,7 @@ $(BINARY): deps $(BUILD_DIR)
 		-DBUILD_SHARED_LIBS=OFF			\
 		.. && 					\
 	cmake  --build . -j 16 				\
-	      --target neon  && 			\
+	      --target neon neon_core neon_utils neon_utils_test && \
 	cp neon ../$(BINARY)
 
 # Deps

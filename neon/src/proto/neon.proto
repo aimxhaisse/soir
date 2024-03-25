@@ -4,22 +4,6 @@ syntax = "proto3";
 
 package proto;
 
-// --- Common Types.
-
-// Representation of a track.
-message Track {
-  enum Instrument {
-    TRACK_MONO_SAMPLER = 0;
-  }
-
-  uint32 channel = 1;
-
-  optional Instrument instrument = 2;
-  optional bool muted = 3;
-  optional uint32 volume = 4;
-  optional uint32 pan = 5;
-}
-
 // --- Neon Interface
 
 // Send a code update.
@@ -44,17 +28,9 @@ message GetLogsResponse {
   string notification = 2;
 }
 
-// Get tracks.
-message GetTracksRequest {}
-
-message GetTracksResponse {
-  repeated Track tracks = 1;
-}
-
 // Main Neon service.
 service Neon {
   rpc PushMidiEvents(stream PushMidiEventsRequest) returns (PushMidiEventsResponse) {}
   rpc PushCodeUpdate(PushCodeUpdateRequest) returns (PushCodeUpdateResponse) {}
   rpc GetLogs(GetLogsRequest) returns (stream GetLogsResponse) {}
-  rpc GetTracks(GetTracksRequest) returns (GetTracksResponse) {}
 }
