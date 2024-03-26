@@ -14,6 +14,8 @@
 namespace neon {
 namespace dsp {
 
+class HttpServer;
+
 // First implementation is stupid and does not take
 // into account lag. The timing precision of MIDI
 // events is capped to a block size, we'll late see
@@ -49,6 +51,7 @@ class Engine {
   std::mutex mutex_;
   std::condition_variable cv_;
   bool stop_ = false;
+  std::unique_ptr<HttpServer> http_server_;
 
   // Consumers are registered by the HTTP server upon new connections
   // and fed with audio samples by the DSP engine.

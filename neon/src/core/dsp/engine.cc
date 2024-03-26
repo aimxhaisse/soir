@@ -14,6 +14,13 @@ absl::Status Engine::Init(const utils::Config& config) {
 
   block_size_ = config.Get<uint32_t>("dsp.engine.block_size");
 
+  http_server_ = std::make_unique<HttpServer>();
+  auto status = http_server_->Init(config, this);
+  if (!status.ok()) {
+    LOG(ERROR) << "Failed to initialize HTTP server: " << status;
+    return status;
+  }
+
   return absl::OkStatus();
 }
 
@@ -27,11 +34,23 @@ absl::Status Engine::Start() {
     }
   });
 
+  auto status = http_server_->Start();
+  if (!status.ok()) {
+    LOG(ERROR) << "Failed to start HTTP server: " << status;
+    return status;
+  }
+
   return absl::OkStatus();
 }
 
 absl::Status Engine::Stop() {
   LOG(INFO) << "Stopping engine";
+
+  auto status = http_server_->Stop();
+  if (!status.ok()) {
+    LOG(ERROR) << "Failed to stop HTTP server: " << status;
+    return status;
+  }
 
   {
     std::unique_lock<std::mutex> lock(mutex_);
