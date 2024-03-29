@@ -6,10 +6,10 @@
 #include <map>
 #include <memory>
 
-#include "adsr.hh"
-#include "audio_buffer.hh"
-#include "dsp.hh"
-#include "track.hh"
+#include "core/dsp/adsr.hh"
+#include "core/dsp/audio_buffer.hh"
+#include "core/dsp/dsp.hh"
+#include "core/dsp/track.hh"
 #include "utils/config.hh"
 
 namespace neon {

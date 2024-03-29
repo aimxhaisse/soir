@@ -24,7 +24,6 @@ message PushMidiEventsResponse {}
 message GetLogsRequest {}
 
 message GetLogsResponse {
-  string source = 1;
   string notification = 2;
 }
 

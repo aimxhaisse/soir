@@ -3,7 +3,7 @@
 #include <absl/status/status.h>
 #include <vector>
 
-#include "audio_buffer.hh"
+#include "core/dsp/audio_buffer.hh"
 
 namespace neon {
 namespace dsp {

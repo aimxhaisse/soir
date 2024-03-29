@@ -5,8 +5,8 @@
 #include <mutex>
 #include <optional>
 
-#include "audio_buffer.hh"
-#include "mono_sampler.hh"
+#include "core/dsp/audio_buffer.hh"
+#include "core/dsp/mono_sampler.hh"
 #include "utils/config.hh"
 
 namespace neon {

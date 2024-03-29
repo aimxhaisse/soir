@@ -1,0 +1,11 @@
+#include "core/rt/init.hh"
+
+namespace neon {
+namespace rt {
+
+const char* kInitEnginePy = R"(
+@INIT_ENGINE_PY@
+)";
+
+}  // namespace rt
+}  // namespace neon

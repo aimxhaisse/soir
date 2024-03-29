@@ -1,6 +1,6 @@
 #include <absl/log/log.h>
 
-#include "vorbis_encoder.hh"
+#include "core/dsp/vorbis_encoder.hh"
 
 namespace neon {
 namespace dsp {

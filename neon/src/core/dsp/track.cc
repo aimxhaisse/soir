@@ -2,7 +2,7 @@
 #include <absl/status/status.h>
 #include <filesystem>
 
-#include "track.hh"
+#include "core/dsp/track.hh"
 #include "utils/misc.hh"
 
 namespace neon {

@@ -1,3 +1,7 @@
+file(READ rt/engine.py INIT_ENGINE_PY)
+
+configure_file(rt/init.cc.in rt/init.cc @ONLY)
+
 add_library(neon_core
   neon.cc
 
@@ -9,6 +13,11 @@ add_library(neon_core
   dsp/http.cc
   dsp/http_stream.cc
   dsp/vorbis_encoder.cc
+
+  rt/bindings.cc
+  rt/engine.cc
+  rt/init.cc
+  rt/notifier.cc
 )
 
 target_link_libraries(neon_core

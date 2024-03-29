@@ -4,7 +4,7 @@
 #include <absl/log/log.h>
 #include <filesystem>
 
-#include "mono_sampler.hh"
+#include "core/dsp/mono_sampler.hh"
 #include "utils/misc.hh"
 
 namespace neon {

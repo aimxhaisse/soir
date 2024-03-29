@@ -1,6 +1,6 @@
 #include <absl/log/log.h>
 
-#include "http.hh"
+#include "core/dsp/http.hh"
 
 namespace neon {
 namespace dsp {

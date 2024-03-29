@@ -1,6 +1,6 @@
 #include <absl/log/log.h>
 
-#include "engine.hh"
+#include "core/dsp/engine.hh"
 
 namespace neon {
 namespace dsp {

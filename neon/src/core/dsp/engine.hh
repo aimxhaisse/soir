@@ -6,8 +6,8 @@
 #include <mutex>
 #include <thread>
 
-#include "http.hh"
-#include "track.hh"
+#include "core/dsp/http.hh"
+#include "core/dsp/track.hh"
 #include "utils/config.hh"
 #include "utils/misc.hh"
 

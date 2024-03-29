@@ -4,9 +4,9 @@
 #include <httplib.h>
 #include <thread>
 
-#include "dsp.hh"
-#include "engine.hh"
-#include "http_stream.hh"
+#include "core/dsp/dsp.hh"
+#include "core/dsp/engine.hh"
+#include "core/dsp/http_stream.hh"
 #include "utils/config.hh"
 #include "utils/misc.hh"
 

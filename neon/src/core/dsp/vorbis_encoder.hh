@@ -3,11 +3,11 @@
 #include <absl/status/status.h>
 #include <vorbis/vorbisenc.h>
 
-#include "dsp.hh"
 #include "utils/config.hh"
 #include "utils/misc.hh"
 
-#include "audio_buffer.hh"
+#include "core/dsp/audio_buffer.hh"
+#include "core/dsp/dsp.hh"
 
 namespace neon {
 namespace dsp {

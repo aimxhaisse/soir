@@ -1,7 +1,7 @@
 #include <absl/log/log.h>
 
-#include "http_stream.hh"
-#include "vorbis_encoder.hh"
+#include "core/dsp/http_stream.hh"
+#include "core/dsp/vorbis_encoder.hh"
 
 namespace neon {
 namespace dsp {

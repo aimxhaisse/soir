@@ -3,9 +3,9 @@
 #include <absl/status/status.h>
 #include <httplib.h>
 
-#include "audio_buffer.hh"
+#include "core/dsp/audio_buffer.hh"
+#include "core/dsp/vorbis_encoder.hh"
 #include "utils/misc.hh"
-#include "vorbis_encoder.hh"
 
 namespace neon {
 namespace dsp {

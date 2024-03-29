@@ -1,7 +1,7 @@
-#include "dsp.hh"
 #include "utils/misc.hh"
 
-#include "adsr.hh"
+#include "core/dsp/adsr.hh"
+#include "core/dsp/dsp.hh"
 
 namespace neon {
 namespace dsp {
