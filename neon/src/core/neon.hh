@@ -1,11 +1,16 @@
 #pragma once
 
+#include <grpc++/grpc++.h>
+
 #include "core/dsp/engine.hh"
+#include "core/rt/engine.hh"
+#include "core/rt/notifier.hh"
+#include "neon.grpc.pb.h"
 #include "utils/config.hh"
 
 namespace neon {
 
-class Neon {
+class Neon : proto::Neon::Service {
  public:
   Neon();
   ~Neon();
@@ -14,8 +19,24 @@ class Neon {
   absl::Status Start();
   absl::Status Stop();
 
+  grpc::Status PushMidiEvents(
+      grpc::ServerContext* context,
+      grpc::ServerReader<proto::PushMidiEventsRequest>* reader,
+      proto::PushMidiEventsResponse* response) override;
+
+  grpc::Status PushCodeUpdate(grpc::ServerContext* context,
+                              const proto::PushCodeUpdateRequest* request,
+                              proto::PushCodeUpdateResponse* response) override;
+
+  grpc::Status GetLogs(
+      grpc::ServerContext* context, const proto::GetLogsRequest* request,
+      grpc::ServerWriter<proto::GetLogsResponse>* writer) override;
+
  private:
   std::unique_ptr<dsp::Engine> dsp_;
+  std::unique_ptr<rt::Engine> rt_;
+  std::unique_ptr<rt::Notifier> notifier_;
+  std::unique_ptr<grpc::Server> grpc_;
 };
 
 }  // namespace neon

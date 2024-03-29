@@ -25,7 +25,7 @@ absl::Status Engine::Init(const utils::Config& config, dsp::Engine* dsp,
   notifier_ = notifier;
   dsp_ = dsp;
   current_time_ = absl::Now();
-  SetBPM(config.Get<uint16_t>("midi.initial_bpm"));
+  SetBPM(config.Get<uint16_t>("rt.initial_bpm"));
 
   Beat();
 
