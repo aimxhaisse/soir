@@ -17,3 +17,14 @@ patterns we are using:
 
 - Threads are handled by the object and not the caller
 - Threads implement `Init/Start/Stop` pattern
+
+## Roadmap
+
+- Consider renaming log to notification system
+- Unit tests e2e via notification system
+- ADSR around samples
+- Select sample via name through Midi
+- IPFS
+- Websocket queue
+
+
