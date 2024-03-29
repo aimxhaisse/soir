@@ -9,6 +9,7 @@
 #include "utils/config.hh"
 #include "utils/signal.hh"
 
+#include "agent/agent.hh"
 #include "core/neon.hh"
 
 ABSL_FLAG(std::string, config, "etc/standalone.yaml", "Path to config file");
@@ -54,6 +55,14 @@ absl::Status StandaloneMode(const utils::Config& config) {
   status = neon->Start();
   if (!status.ok()) {
     LOG(ERROR) << "Failed to start Neon: " << status;
+    return status;
+  }
+
+  auto agent = std::make_unique<agent::Agent>();
+
+  status = agent->Init(config);
+  if (!status.ok()) {
+    LOG(ERROR) << "Failed to initialize Agent: " << status;
     return status;
   }
 

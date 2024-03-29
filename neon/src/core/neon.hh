@@ -19,10 +19,9 @@ class Neon : proto::Neon::Service {
   absl::Status Start();
   absl::Status Stop();
 
-  grpc::Status PushMidiEvents(
-      grpc::ServerContext* context,
-      grpc::ServerReader<proto::PushMidiEventsRequest>* reader,
-      proto::PushMidiEventsResponse* response) override;
+  grpc::Status PushMidiEvents(grpc::ServerContext* context,
+                              const proto::PushMidiEventsRequest* request,
+                              proto::PushMidiEventsResponse* response) override;
 
   grpc::Status PushCodeUpdate(grpc::ServerContext* context,
                               const proto::PushCodeUpdateRequest* request,

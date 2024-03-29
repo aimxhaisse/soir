@@ -98,17 +98,15 @@ absl::Status Neon::Stop() {
   return absl::OkStatus();
 }
 
-grpc::Status Neon::PushMidiEvents(
-    grpc::ServerContext* context,
-    grpc::ServerReader<proto::PushMidiEventsRequest>* reader,
-    proto::PushMidiEventsResponse* response) {
-  for (proto::PushMidiEventsRequest request; reader->Read(&request);) {
-    libremidi::message msg;
-    msg.bytes = libremidi::midi_bytes(request.midi_payload().begin(),
-                                      request.midi_payload().end());
+grpc::Status Neon::PushMidiEvents(grpc::ServerContext* context,
+                                  const proto::PushMidiEventsRequest* request,
+                                  proto::PushMidiEventsResponse* response) {
+  libremidi::message msg;
 
-    dsp_->PushMidiEvent(msg);
-  }
+  msg.bytes = libremidi::midi_bytes(request->midi_payload().begin(),
+                                    request->midi_payload().end());
+
+  dsp_->PushMidiEvent(msg);
 
   return grpc::Status::OK;
 }

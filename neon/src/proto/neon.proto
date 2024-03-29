@@ -29,7 +29,7 @@ message GetLogsResponse {
 
 // Main Neon service.
 service Neon {
-  rpc PushMidiEvents(stream PushMidiEventsRequest) returns (PushMidiEventsResponse) {}
+  rpc PushMidiEvents(PushMidiEventsRequest) returns (PushMidiEventsResponse) {}
   rpc PushCodeUpdate(PushCodeUpdateRequest) returns (PushCodeUpdateResponse) {}
   rpc GetLogs(GetLogsRequest) returns (stream GetLogsResponse) {}
 }

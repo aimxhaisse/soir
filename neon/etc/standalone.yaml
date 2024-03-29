@@ -1,3 +1,10 @@
+agent:
+  directory: ./live
+  neon:
+    grpc:
+      host: localhost
+      port: 9000
+
 rt:
   initial_bpm: 130
 

@@ -24,6 +24,7 @@ find_package(GTest REQUIRED)
 include_directories(${YAML_INCLUDE_DIRS})
 include_directories(src)
 
+add_subdirectory(src/agent)
 add_subdirectory(src/utils)
 add_subdirectory(src/proto)
 add_subdirectory(src/core)
@@ -36,6 +37,7 @@ add_executable(neon
 
 target_link_libraries(
   neon
+  neon_agent
   neon_core
   neon_utils
   neon_proto

@@ -51,7 +51,7 @@ $(BINARY): deps $(BUILD_DIR) $(BIN_DIR)
 		-DBUILD_SHARED_LIBS=OFF			\
 		.. && 					\
 	cmake  --build . -j 16 				\
-	      --target neon neon_core neon_utils neon_utils_test && \
+	      --target neon neon_agent neon_core neon_utils neon_utils_test && \
 	cp neon ../$(BINARY)
 
 # Deps
