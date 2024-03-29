@@ -9,6 +9,8 @@
 #include "utils/config.hh"
 #include "utils/signal.hh"
 
+#include "core/neon.hh"
+
 ABSL_FLAG(std::string, config, "etc/standalone.yaml", "Path to config file");
 ABSL_FLAG(std::string, mode, "standalone", "Mode to run in (standalone)");
 
@@ -38,6 +40,38 @@ absl::Status Preamble() {
 
 absl::Status StandaloneMode(const utils::Config& config) {
   LOG(INFO) << "Running in standalone mode";
+
+  std::unique_ptr<Neon> neon = std::make_unique<Neon>();
+
+  absl::Status status = neon->Init(config);
+  if (!status.ok()) {
+    LOG(ERROR) << "Failed to initialize Neon: " << status;
+    return status;
+  }
+
+  LOG(INFO) << "Starting Neon";
+
+  status = neon->Start();
+  if (!status.ok()) {
+    LOG(ERROR) << "Failed to start Neon: " << status;
+    return status;
+  }
+
+  LOG(INFO) << "Neon is running";
+
+  status = utils::WaitForExitSignal();
+  if (!status.ok()) {
+    LOG(ERROR) << "Unable to wait for exit signal: " << status;
+    return status;
+  }
+
+  LOG(INFO) << "Stopping Neon";
+
+  status = neon->Stop();
+  if (!status.ok()) {
+    LOG(ERROR) << "Failed to stop Neon: " << status;
+    return status;
+  }
 
   return absl::OkStatus();
 }
