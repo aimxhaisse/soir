@@ -5,16 +5,15 @@ agent:
       host: localhost
       port: 9000
 
-rt:
-  initial_bpm: 130
-
-grpc:
-  host: localhost
-  port: 9000
-
-dsp:
-  http:
+neon:
+  rt:
+    initial_bpm: 130
+  grpc:
     host: localhost
-    port: 8081
-  engine:
-    block_size: 4096
+    port: 9000
+  dsp:
+    http:
+      host: localhost
+      port: 8081
+    engine:
+      block_size: 4096

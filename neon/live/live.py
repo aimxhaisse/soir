@@ -1,3 +1,4 @@
+
 set_bpm(120)
 
 setup_tracks([
@@ -7,6 +8,7 @@ setup_tracks([
 @loop(track=1, beats=4)
 def kick():
     for i in range(4):
+        log('kick')
         sample(30)
         sleep(1)
 

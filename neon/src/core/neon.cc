@@ -32,8 +32,8 @@ absl::Status Neon::Init(const utils::Config& config) {
     return status;
   }
 
-  auto grpc_host = config.Get<std::string>("grpc.host");
-  auto grpc_port = config.Get<int>("grpc.port");
+  auto grpc_host = config.Get<std::string>("neon.grpc.host");
+  auto grpc_port = config.Get<int>("neon.grpc.port");
 
   grpc::ServerBuilder builder;
 

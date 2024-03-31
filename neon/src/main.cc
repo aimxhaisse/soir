@@ -66,6 +66,12 @@ absl::Status StandaloneMode(const utils::Config& config) {
     return status;
   }
 
+  status = agent->Start();
+  if (!status.ok()) {
+    LOG(ERROR) << "Failed to start Agent: " << status;
+    return status;
+  }
+
   LOG(INFO) << "Neon is running";
 
   status = utils::WaitForExitSignal();

@@ -12,7 +12,7 @@ Engine::~Engine() {}
 absl::Status Engine::Init(const utils::Config& config) {
   LOG(INFO) << "Initializing engine";
 
-  block_size_ = config.Get<uint32_t>("dsp.engine.block_size");
+  block_size_ = config.Get<uint32_t>("neon.dsp.engine.block_size");
 
   http_server_ = std::make_unique<HttpServer>();
   auto status = http_server_->Init(config, this);

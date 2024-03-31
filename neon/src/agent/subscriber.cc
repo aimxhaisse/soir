@@ -28,6 +28,8 @@ absl::Status Subscriber::Init(const utils::Config& config) {
 }
 
 absl::Status Subscriber::Start() {
+  LOG(INFO) << "Subscriber starting";
+
   thread_ = std::thread([this]() {
     auto status = Run();
     if (!status.ok()) {
