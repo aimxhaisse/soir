@@ -32,3 +32,13 @@ target_link_libraries(neon_core
   pybind11_headers
   pybind11::embed
 )
+
+add_executable(neon_core_test
+  tests/base.cc
+)
+
+target_link_libraries(
+  neon_core_test
+  neon_core
+  GTest::gtest_main
+)

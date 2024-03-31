@@ -29,6 +29,7 @@ full-clean: clean
 
 test: all
 	./$(BUILD_DIR)/src/utils/neon_utils_test
+	./$(BUILD_DIR)/src/core/neon_core_test
 
 # Build
 
@@ -51,7 +52,7 @@ $(BINARY): deps $(BUILD_DIR) $(BIN_DIR)
 		-DBUILD_SHARED_LIBS=OFF			\
 		.. && 					\
 	cmake  --build . -j 16 				\
-	      --target neon neon_agent neon_core neon_utils neon_utils_test && \
+	      --target neon neon_agent neon_core neon_utils neon_utils_test neon_core_test && \
 	cp neon ../$(BINARY)
 
 # Deps
