@@ -82,6 +82,12 @@ absl::Status StandaloneMode(const utils::Config& config) {
 
   LOG(INFO) << "Stopping Neon";
 
+  status = agent->Stop();
+  if (!status.ok()) {
+    LOG(ERROR) << "Failed to stop Agent: " << status;
+    return status;
+  }
+
   status = neon->Stop();
   if (!status.ok()) {
     LOG(ERROR) << "Failed to stop Neon: " << status;
