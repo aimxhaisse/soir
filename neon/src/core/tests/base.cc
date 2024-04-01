@@ -88,10 +88,6 @@ bool CoreTestBase::WaitForNotification(const std::string& notification) {
 
     auto new_notifications = recorder_->PopNotifications();
 
-    LOG(INFO) << "\e[1;42mN E O N \e[0m\e[1;32m "
-              << ">\e[0m " << new_notifications.size()
-              << " new notifications\n";
-
     notifications_.insert(notifications_.end(), new_notifications.begin(),
                           new_notifications.end());
 

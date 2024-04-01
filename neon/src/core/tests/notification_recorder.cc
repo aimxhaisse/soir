@@ -53,6 +53,8 @@ absl::Status NotificationRecorder::Stop() {
 
   LOG(INFO) << "Subscriber properly shut down";
 
+  notifications_.clear();
+
   return absl::OkStatus();
 }
 

@@ -36,8 +36,10 @@ target_link_libraries(neon_core
 add_executable(neon_core_test
   tests/base.cc
   tests/notification_recorder.cc
+
   tests/test_basic_log.cc
   tests/test_basic_loop.cc
+  tests/test_get_bpm.cc
 )
 
 target_link_libraries(
