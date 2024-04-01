@@ -13,7 +13,7 @@ target_link_libraries(neon_utils
 )
 
 add_executable(neon_utils_test
-  config_test.cc
+  tests/config_test.cc
 )
 
 target_link_libraries(

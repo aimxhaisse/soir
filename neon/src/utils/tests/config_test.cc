@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "config.hh"
+#include "utils/config.hh"
 
 namespace neon {
 namespace utils {
