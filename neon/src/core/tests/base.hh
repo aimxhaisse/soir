@@ -22,6 +22,7 @@ class CoreTestBase : public testing::Test {
   std::unique_ptr<utils::Config> config_;
   std::unique_ptr<Neon> neon_;
   std::unique_ptr<NotificationRecorder> recorder_;
+  std::vector<std::string> notifications_;
 };
 
 }  // namespace test

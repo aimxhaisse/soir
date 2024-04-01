@@ -1,3 +1,5 @@
+#include <absl/log/log.h>
+
 #include "base.hh"
 
 namespace neon {
@@ -70,16 +72,28 @@ void CoreTestBase::PushCode(const std::string& code) {
 }
 
 bool CoreTestBase::WaitForNotification(const std::string& notification) {
-  std::vector<std::string> notifications;
-
   for (int i = 0; i < 10; ++i) {
-    notifications = recorder_->PopNotifications();
+    while (!notifications_.empty()) {
+      auto entry = notifications_.front();
 
-    for (const std::string& n : notifications) {
-      if (n == notification) {
+      LOG(INFO) << "\e[1;42mN E O N \e[0m\e[1;32m "
+                << ">\e[0m " << entry << "\n";
+
+      notifications_.erase(notifications_.begin());
+
+      if (entry == notification) {
         return true;
       }
     }
+
+    auto new_notifications = recorder_->PopNotifications();
+
+    LOG(INFO) << "\e[1;42mN E O N \e[0m\e[1;32m "
+              << ">\e[0m " << new_notifications.size()
+              << " new notifications\n";
+
+    notifications_.insert(notifications_.end(), new_notifications.begin(),
+                          new_notifications.end());
 
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
   }
