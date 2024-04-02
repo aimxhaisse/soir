@@ -7,11 +7,12 @@ add_library(neon_core
 
   dsp/adsr.cc
   dsp/audio_buffer.cc
-  dsp/mono_sampler.cc
   dsp/engine.cc
-  dsp/track.cc
   dsp/http.cc
   dsp/http_stream.cc
+  dsp/mono_sampler.cc
+  dsp/sample_manager.cc
+  dsp/track.cc
   dsp/vorbis_encoder.cc
 
   rt/bindings.cc

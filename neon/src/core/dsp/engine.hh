@@ -7,6 +7,7 @@
 #include <thread>
 
 #include "core/dsp/http.hh"
+#include "core/dsp/sample_manager.hh"
 #include "core/dsp/track.hh"
 #include "utils/config.hh"
 #include "utils/misc.hh"
@@ -35,6 +36,8 @@ class Engine {
 
   absl::Status SetupTracks(const std::list<TrackSettings>& settings);
   absl::Status GetTracks(std::list<TrackSettings>* settings);
+
+  SampleManager& GetSampleManager();
 
  private:
   absl::Status Run();
@@ -68,6 +71,8 @@ class Engine {
   // engine upon each block processing at the beginning.
   std::mutex msgs_mutex_;
   std::map<int, std::list<libremidi::message>> msgs_by_chan_;
+
+  std::unique_ptr<SampleManager> sample_manager_;
 };
 
 }  // namespace dsp

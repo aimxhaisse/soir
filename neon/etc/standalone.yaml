@@ -12,6 +12,9 @@ neon:
     host: localhost
     port: 9000
   dsp:
+    sample_manager:
+      directories: []
+      cache: tmp/sample_cache
     http:
       host: localhost
       port: 8081

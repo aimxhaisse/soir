@@ -21,6 +21,13 @@ absl::Status Engine::Init(const utils::Config& config) {
     return status;
   }
 
+  sample_manager_ = std::make_unique<SampleManager>();
+  status = sample_manager_->Init(config);
+  if (!status.ok()) {
+    LOG(ERROR) << "Failed to initialize sample manager: " << status;
+    return status;
+  }
+
   return absl::OkStatus();
 }
 
@@ -224,6 +231,10 @@ absl::Status Engine::SetupTracks(const std::list<TrackSettings>& settings) {
   }
 
   return absl::OkStatus();
+}
+
+SampleManager& Engine::GetSampleManager() {
+  return *sample_manager_;
 }
 
 }  // namespace dsp
