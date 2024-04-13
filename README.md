@@ -1,13 +1,16 @@
 # N E O N
 
-## Architecture
+Neon is a standalone binary for live-coding. Think of it as a DAW
+where orchestration is handled from code.
 
-Neon is composed of two parts:
+## Guiding Principles
 
-- client
-- server
+- Single binary for everything
+- Simple Python syntax
+- Keep your own editor
+- Start simple
 
-## Patterns
+## Design Patterns
 
 Consistency is key as it will become complex with time, some arbitrary
 patterns we are using:
@@ -15,34 +18,38 @@ patterns we are using:
 - Threads are handled by the object and not the caller
 - Threads implement `Init/Start/Stop` pattern
 
-## Nice to have
+### Runtime routines
 
-This is to be picked if some free-time and no energy to drive big
-changes:
+#### Sync outside of loops
 
-- Better failure on config changes
-- More unit tests around the Midi code
-- Check if it makes sense to use absl Mutexes instead of C++20
-- Find a way to document what we export via Pybind
-- Loose authentication using gRPC facilities
+Synchronuous routines that take time should not happen within loop, as
+they will screw the timing of events. Prefer allowing them in the
+global context: they might only delay evaluation of the next loop
+update, which will have the loops repeat once more for their duration
+but without being a total disaster.
 
-## Ramblings
+Examples:
 
-### About Python async I/O
+- loading a sample directory
+- getting the list of samples
+- creating a websocket or a Unix thread
 
-Current problems: we can't block in live loops, and this implies at
-the beginning of the loop everything is evaluated at once. This
-implies you can't for instance call `get_bpm` in the middle of the
-live-loop and expect it to return the right value: it will be the
-value at the beginning of the loop. Unsure here but maybe using a
-Python async I/O approach would solve this. Unclear how pybind/async
-I/O would work together.
+#### Async from loops
 
-Syntax of async I/O is annoying, but we could provide helpers to make
-it look natural. On the plus side this could open the way to external
-interactions.
+Conversely, events going from loops should use MIDI as they are async
+and return immediately, later on we can add timing information into
+them and properly handle eventual interpretation lag.
 
-This [project](https://github.com/DmitryKuk/asynchronizer/tree/master)
-needs to be explored to see how it could work. This
-[topic](https://stackoverflow.com/questions/71082517/integrate-embedded-python-asyncio-into-boostasio-event-loop)
-can help too.
+Examples:
+
+- playing a specific sample via MIDI
+
+## Roadmap
+
+- Consider renaming log to notification system
+- ADSR around samples
+- Select sample via name through Midi
+- IPFS
+- Websocket queue
+
+

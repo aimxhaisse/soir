@@ -1,13 +1,8 @@
-# MAETHSTRO L I V E
-#
-# A sad Makefile that can't actually compile: Abseil does not support
-# simple unix linking without being a nightmare. It instead mimmics
-# what we'd expect from a stupid simple Makefile, calling cmake when
-# needed.
+# NEON
 
 BUILD_DIR	:= build
 BIN_DIR		:= bin
-BINARY		:= $(BIN_DIR)/maethstro
+BINARY		:= $(BIN_DIR)/neon
 
 DEPS_DIR 	:= deps
 DEPS_GRPC 	:= $(DEPS_DIR)/grpc
@@ -26,24 +21,25 @@ all: $(BINARY)
 deps: $(DEPS_EFSW) $(DEPS_PYBIND) $(DEPS_HTTPLIB) $(DEPS_LIBREMIDI) $(DEPS_AUDIOFILE) $(DEPS_GRPC)
 
 clean:
-	rm -rf $(BINARY)
+	rm -f $(BINARY)
 	cd $(BUILD_DIR) && make clean
 
 full-clean: clean
 	rm -rf $(DEPS_EFSW) $(DEPS_PYBIND) $(DEPS_HTTPLIB) $(DEPS_LIBREMIDI) $(DEPS_AUDIOFILE) $(DEPS_GRPC)
 
 test: all
-	./$(BUILD_DIR)/src/common/maethstro_common_test
-	./$(BUILD_DIR)/src/matin/maethstro_matin_test
-	./$(BUILD_DIR)/src/midi/maethstro_midi_test
-	./$(BUILD_DIR)/src/soir/maethstro_soir_test
+	./$(BUILD_DIR)/src/utils/neon_utils_test
+	./$(BUILD_DIR)/src/core/neon_core_test
 
 # Build
 
 $(BUILD_DIR):
 	mkdir -p $@
 
-$(BINARY): deps $(BUILD_DIR)
+$(BIN_DIR):
+	mkdir -p $@
+
+$(BINARY): deps $(BUILD_DIR) $(BIN_DIR)
 	cd $(BUILD_DIR) && \
 	cmake -DCMAKE_BUILD_TYPE=Debug \
 		-Dprotobuf_ABSL_PROVIDER=package	\
@@ -56,8 +52,8 @@ $(BINARY): deps $(BUILD_DIR)
 		-DBUILD_SHARED_LIBS=OFF			\
 		.. && 					\
 	cmake  --build . -j 16 				\
-	      --target maethstro maethstro_matin_test maethstro_midi_test maethstro_soir_test && \
-	cp maethstro ../$(BINARY)
+	      --target neon neon_agent neon_core neon_utils neon_utils_test neon_core_test && \
+	cp neon ../$(BINARY)
 
 # Deps
 
