@@ -3,6 +3,8 @@
 Neon is a standalone binary for live-coding. Think of it as a DAW
 where orchestration is handled from code.
 
+![logo](assets/images/logo.png)
+
 ## Guiding Principles
 
 - Single binary for everything
