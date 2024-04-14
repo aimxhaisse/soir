@@ -1,32 +1,25 @@
 #pragma once
 
-#include <absl/status/status.h>
-#include <list>
-#include <map>
 #include <mutex>
 
+#include "core/dsp/sample_pack.hh"
 #include "utils/config.hh"
 
 namespace neon {
 namespace dsp {
 
-struct Sample {
-  std::string directory_;
-  std::string path_;
-  std::string name_;
-  std::vector<float> buffer_;
-};
-
 class SampleManager {
  public:
   absl::Status Init(const utils::Config& config);
-  absl::Status LoadFromDirectory(const std::string& directory);
-  Sample GetSample(const std::string& name);
+  absl::Status LoadPack(const std::string& path);
+
+  SamplePack* GetPack(const std::string& name);
 
  private:
+  std::string directory_;
+
   std::mutex mutex_;
-  std::string cache_directory_;
-  std::map<std::string, Sample> samples_;
+  std::map<std::string, SamplePack> packs_;
 };
 
 }  // namespace dsp

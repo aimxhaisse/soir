@@ -19,9 +19,6 @@ struct TrackSettings;
 
 class MonoSampler {
  public:
-  MonoSampler() = default;
-  ~MonoSampler() = default;
-
   absl::Status Init(const TrackSettings& settings);
   void Render(const std::list<libremidi::message>&, AudioBuffer&);
 

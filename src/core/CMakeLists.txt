@@ -12,6 +12,7 @@ add_library(neon_core
   dsp/http_stream.cc
   dsp/mono_sampler.cc
   dsp/sample_manager.cc
+  dsp/sample_pack.cc
   dsp/track.cc
   dsp/vorbis_encoder.cc
 
