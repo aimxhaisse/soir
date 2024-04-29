@@ -7,6 +7,7 @@
 
 #include "core/dsp/audio_buffer.hh"
 #include "core/dsp/mono_sampler.hh"
+#include "core/dsp/sample_manager.hh"
 #include "utils/config.hh"
 
 namespace neon {
@@ -33,7 +34,8 @@ struct TrackSettings {
 struct Track {
   Track();
 
-  absl::Status Init(const TrackSettings& settings);
+  absl::Status Init(const TrackSettings& settings,
+                    SampleManager* sample_manager);
 
   // If MaybeFastUpdate returns false, it means the track can't update
   // itself quickly so it likely needs to be re-created.

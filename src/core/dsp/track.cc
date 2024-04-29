@@ -10,7 +10,8 @@ namespace dsp {
 
 Track::Track() {}
 
-absl::Status Track::Init(const TrackSettings& settings) {
+absl::Status Track::Init(const TrackSettings& settings,
+                         SampleManager* sample_manager) {
   settings_ = settings;
 
   switch (settings_.instrument_) {
@@ -18,7 +19,7 @@ absl::Status Track::Init(const TrackSettings& settings) {
     case TRACK_MONO_SAMPLER: {
       settings_.instrument_ = TRACK_MONO_SAMPLER;
       sampler_ = std::make_unique<MonoSampler>();
-      auto status = sampler_->Init(settings);
+      auto status = sampler_->Init(sample_manager);
       if (!status.ok()) {
         LOG(ERROR) << "Failed to init sampler: " << status.message();
         return status;
