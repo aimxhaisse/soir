@@ -6,6 +6,8 @@
 #
 # Whatever is suffixed with _ is not meant to be used by Matin.
 
+import json
+
 from enum import Enum
 
 from live_ import (
@@ -19,6 +21,7 @@ from live_ import (
     midi_note_on_,
     midi_note_off_,
     midi_cc_,
+    midi_sysex_sample_play_,
     setup_tracks_,
 )
 
@@ -206,6 +209,19 @@ def midi_cc(channel: int, cc: int, value: int):
         schedule_(current_loop_.current_offset, lambda: midi_cc_(channel, cc, value))
     else:
         midi_cc_(channel, cc, value)
+
+
+def midi_sysex_sample_play(channel: int, settings: dict):
+    """Send a MIDI sysex sample play
+    """
+    global current_loop_
+
+    payload = json.dumps(settings)
+
+    if current_loop_:
+        schedule_(current_loop_.current_offset, lambda: midi_sysex_sample_play_(channel, payload))
+    else:
+        midi_sysex_sample_play_(channel, payload)
 
 
 def sample(number: int):

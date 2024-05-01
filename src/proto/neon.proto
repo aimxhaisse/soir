@@ -39,7 +39,7 @@ message MidiSysexInstruction {
   // JSON encoded data for now, the intent is to be flexible while we
   // iterate on Sysex parameters but at some point we might freeze the
   // spec and move to a typed approach.
-  bytes payload = 3;
+  bytes midi_payload = 3;
 }
 
 // Send Midi events.

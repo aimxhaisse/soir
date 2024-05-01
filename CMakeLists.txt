@@ -14,6 +14,7 @@ add_subdirectory(deps/efsw)
 add_subdirectory(deps/pybind11)
 add_subdirectory(deps/httplib)
 add_subdirectory(deps/libremidi)
+add_subdirectory(deps/audiofile)
 add_subdirectory(deps/rapidjson)
 
 include(deps/grpc/third_party/protobuf/cmake/protobuf-generate.cmake)

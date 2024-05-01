@@ -6,6 +6,7 @@
 #include "core/dsp/track.hh"
 #include "core/rt/bindings.hh"
 #include "core/rt/engine.hh"
+#include "neon.grpc.pb.h"
 
 namespace py = pybind11;
 
@@ -134,6 +135,9 @@ PYBIND11_EMBEDDED_MODULE(live_, m) {
   });
   m.def("midi_cc_", [](uint8_t channel, uint8_t cc, uint8_t value) {
     gRt_->MidiCC(channel, cc, value);
+  });
+  m.def("midi_sysex_sample_play_", [](uint8_t channel, const std::string& p) {
+    gRt_->MidiSysex(channel, proto::MidiSysexInstruction::SAMPLER_PLAY, p);
   });
 }
 

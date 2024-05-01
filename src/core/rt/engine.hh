@@ -71,6 +71,9 @@ class Engine {
   void MidiNoteOn(uint8_t channel, uint8_t note, uint8_t velocity);
   void MidiNoteOff(uint8_t channel, uint8_t note, uint8_t velocity);
   void MidiCC(uint8_t channel, uint8_t cc, uint8_t value);
+  void MidiSysex(uint8_t channel,
+                 proto::MidiSysexInstruction::InstructionType instruction,
+                 const std::string& payload);
 
  private:
   std::thread thread_;

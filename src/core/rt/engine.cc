@@ -204,6 +204,25 @@ void Engine::MidiCC(uint8_t channel, uint8_t cc, uint8_t value) {
   dsp_->PushMidiEvent(message);
 }
 
+void Engine::MidiSysex(uint8_t channel,
+                       proto::MidiSysexInstruction::InstructionType instruction,
+                       const std::string& midi_payload) {
+  proto::MidiSysexInstruction inst;
+
+  inst.set_channel(channel);
+  inst.set_type(instruction);
+  inst.set_midi_payload(midi_payload);
+
+  std::string inst_serialized = inst.SerializeAsString();
+
+  libremidi::midi_bytes bytes;
+
+  bytes.push_back(static_cast<char>(libremidi::message_type::SYSTEM_EXCLUSIVE));
+  bytes.insert(bytes.begin(), inst_serialized.begin(), inst_serialized.end());
+
+  dsp_->PushMidiEvent(libremidi::message(bytes, 0));
+}
+
 void Engine::Schedule(MicroBeat at, const CbFunc& cb) {
   // This is stupid simple because we currently don't support
   // scheduling callbacks from multiple threads. So it is assumed here
