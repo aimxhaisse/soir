@@ -31,6 +31,7 @@ message MidiSysexInstruction {
   enum InstructionType {
     SAMPLER_PLAY = 0;
     SAMPLER_STOP = 1;
+    SAMPLER_LOAD_PACK = 2;
   };
 
   InstructionType type = 2;
@@ -39,7 +40,7 @@ message MidiSysexInstruction {
   // JSON encoded data for now, the intent is to be flexible while we
   // iterate on Sysex parameters but at some point we might freeze the
   // spec and move to a typed approach.
-  bytes midi_payload = 3;
+  bytes json_payload = 3;
 }
 
 // Send Midi events.

@@ -12,6 +12,7 @@
 #include "core/dsp/sample_manager.hh"
 #include "core/dsp/sample_pack.hh"
 #include "core/dsp/track.hh"
+#include "neon.grpc.pb.h"
 #include "utils/config.hh"
 
 namespace neon {
@@ -28,6 +29,8 @@ class MonoSampler {
   void SetSamplePack(const std::string& name);
   void PlaySample(Sample* s);
   void StopSample(Sample* s);
+  void HandleSysex(const proto::MidiSysexInstruction& sysex);
+  Sample* GetSample(const std::string& name);
 
   // We only support MONO audio for now.
   struct PlayingSample {

@@ -139,6 +139,12 @@ PYBIND11_EMBEDDED_MODULE(live_, m) {
   m.def("midi_sysex_sample_play_", [](uint8_t channel, const std::string& p) {
     gRt_->MidiSysex(channel, proto::MidiSysexInstruction::SAMPLER_PLAY, p);
   });
+  m.def("midi_sysex_sample_stop_", [](uint8_t channel, const std::string& p) {
+    gRt_->MidiSysex(channel, proto::MidiSysexInstruction::SAMPLER_STOP, p);
+  });
+  m.def("midi_sysex_sample_load_", [](uint8_t channel, const std::string& p) {
+    gRt_->MidiSysex(channel, proto::MidiSysexInstruction::SAMPLER_LOAD_PACK, p);
+  });
 }
 
 }  // namespace rt

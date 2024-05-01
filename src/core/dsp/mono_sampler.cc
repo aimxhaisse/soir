@@ -2,6 +2,7 @@
 
 #include <AudioFile.h>
 #include <absl/log/log.h>
+#include <rapidjson/document.h>
 #include <filesystem>
 
 #include "core/dsp/mono_sampler.hh"
@@ -21,6 +22,10 @@ void MonoSampler::SetSamplePack(const std::string& name) {
 }
 
 void MonoSampler::PlaySample(Sample* sample) {
+  if (sample == nullptr) {
+    return;
+  }
+
   auto ps = std::make_unique<PlayingSample>();
 
   ps->pos_ = 0;
@@ -30,6 +35,10 @@ void MonoSampler::PlaySample(Sample* sample) {
 }
 
 void MonoSampler::StopSample(Sample* sample) {
+  if (sample == nullptr) {
+    return;
+  }
+
   auto it = playing_.find(sample);
 
   if (it == playing_.end()) {
@@ -38,6 +47,44 @@ void MonoSampler::StopSample(Sample* sample) {
 
   if (!it->second.empty()) {
     it->second.pop_back();
+  }
+}
+
+Sample* MonoSampler::GetSample(const std::string& name) {
+  if (sample_pack_ == nullptr) {
+    return nullptr;
+  }
+
+  return sample_pack_->GetSample(name);
+}
+
+void MonoSampler::HandleSysex(const proto::MidiSysexInstruction& sysex) {
+  rapidjson::Document params;
+
+  params.Parse(sysex.json_payload().c_str());
+
+  switch (sysex.type()) {
+    case proto::MidiSysexInstruction::SAMPLER_LOAD_PACK: {
+      auto name = params["name"].GetString();
+      SetSamplePack(name);
+      break;
+    }
+
+    case proto::MidiSysexInstruction::SAMPLER_PLAY: {
+      auto name = params["name"].GetString();
+      PlaySample(GetSample(name));
+      break;
+    }
+
+    case proto::MidiSysexInstruction::SAMPLER_STOP: {
+      auto name = params["name"].GetString();
+      StopSample(GetSample(name));
+      break;
+    }
+
+    default:
+      LOG(WARNING) << "Unknown sysex instruction";
+      break;
   }
 }
 
@@ -52,6 +99,18 @@ void MonoSampler::Render(const std::list<libremidi::message>& messages,
     auto type = msg.get_message_type();
 
     switch (type) {
+      case libremidi::message_type::SYSTEM_EXCLUSIVE: {
+        proto::MidiSysexInstruction sysex;
+        if (!sysex.ParseFromArray(msg.bytes.data() + 1, msg.bytes.size() - 1)) {
+          LOG(WARNING) << "Failed to parse sysex message";
+          break;
+        }
+
+        HandleSysex(sysex);
+
+        break;
+      }
+
       case libremidi::message_type::NOTE_ON: {
         if (sample_pack_ == nullptr) {
           continue;

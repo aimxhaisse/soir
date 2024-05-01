@@ -1,6 +1,7 @@
 #include <absl/log/log.h>
 
 #include "core/dsp/engine.hh"
+#include "neon.grpc.pb.h"
 
 namespace neon {
 namespace dsp {
@@ -100,8 +101,24 @@ void Engine::Stats(const absl::Time& next_block_at,
 }
 
 void Engine::PushMidiEvent(const libremidi::message& msg) {
-  std::scoped_lock<std::mutex> lock(msgs_mutex_);
-  msgs_by_chan_[msg.get_channel()].push_back(msg);
+  if (msg.get_channel() != 0) {
+    std::scoped_lock<std::mutex> lock(msgs_mutex_);
+    msgs_by_chan_[msg.get_channel()].push_back(msg);
+    return;
+  }
+
+  if (msg.get_message_type() == libremidi::message_type::SYSTEM_EXCLUSIVE) {
+    proto::MidiSysexInstruction sysex;
+    if (!sysex.ParseFromArray(msg.bytes.data() + 1, msg.bytes.size() - 1)) {
+      LOG(WARNING) << "Failed to parse sysex message";
+      return;
+    }
+    {
+      std::scoped_lock<std::mutex> lock(msgs_mutex_);
+      msgs_by_chan_[sysex.channel()].push_back(msg);
+    }
+    return;
+  }
 }
 
 absl::Status Engine::Run() {

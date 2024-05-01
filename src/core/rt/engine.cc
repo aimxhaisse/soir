@@ -206,12 +206,12 @@ void Engine::MidiCC(uint8_t channel, uint8_t cc, uint8_t value) {
 
 void Engine::MidiSysex(uint8_t channel,
                        proto::MidiSysexInstruction::InstructionType instruction,
-                       const std::string& midi_payload) {
+                       const std::string& json_payload) {
   proto::MidiSysexInstruction inst;
 
   inst.set_channel(channel);
   inst.set_type(instruction);
-  inst.set_midi_payload(midi_payload);
+  inst.set_json_payload(json_payload);
 
   std::string inst_serialized = inst.SerializeAsString();
 
