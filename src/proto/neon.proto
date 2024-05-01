@@ -13,6 +13,35 @@ message PushCodeUpdateRequest {
 
 message PushCodeUpdateResponse {}
 
+// Midi Sysex Message.
+//
+// This is a special type of MIDI message linked to Neon's
+// specificities, some instruments such as the sampler need fine-grain
+// settings, sometimes strings to select the sample.  It is cumbersome
+// to do it the bank way because we can not select samples by names.
+//
+// Instead we allow a specific channel to trigger samples using Sysex.
+//
+// It can be seen as a bypass of MIDI specification to go faster/more
+// powerful, downside is we don't have something fully generic that
+// can be controlled with MIDI devices everywhere.
+message MidiSysexInstruction {
+  int32 channel = 1;
+
+  enum InstructionType {
+    SAMPLER_PLAY = 0;
+    SAMPLER_STOP = 1;
+  };
+
+  InstructionType type = 2;
+
+  // This is a bit lame: we use here a free-style payload which is
+  // JSON encoded data for now, the intent is to be flexible while we
+  // iterate on Sysex parameters but at some point we might freeze the
+  // spec and move to a typed approach.
+  bytes payload = 3;
+}
+
 // Send Midi events.
 message PushMidiEventsRequest {
   bytes midi_payload = 1;
