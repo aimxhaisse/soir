@@ -11,6 +11,7 @@ DEPS_PYBIND	:= $(DEPS_DIR)/pybind11
 DEPS_HTTPLIB	:= $(DEPS_DIR)/httplib
 DEPS_LIBREMIDI	:= $(DEPS_DIR)/libremidi
 DEPS_AUDIOFILE	:= $(DEPS_DIR)/audiofile
+DEPS_RAPIDJSON	:= $(DEPS_DIR)/rapidjson
 
 .PHONY: all deps clean full-clean $(BINARY)
 
@@ -18,14 +19,14 @@ DEPS_AUDIOFILE	:= $(DEPS_DIR)/audiofile
 
 all: $(BINARY)
 
-deps: $(DEPS_EFSW) $(DEPS_PYBIND) $(DEPS_HTTPLIB) $(DEPS_LIBREMIDI) $(DEPS_AUDIOFILE) $(DEPS_GRPC)
+deps: $(DEPS_EFSW) $(DEPS_PYBIND) $(DEPS_HTTPLIB) $(DEPS_LIBREMIDI) $(DEPS_AUDIOFILE) $(DEPS_GRPC) $(DEPS_RAPIDJSON)
 
 clean:
 	rm -f $(BINARY)
 	cd $(BUILD_DIR) && make clean
 
 full-clean: clean
-	rm -rf $(DEPS_EFSW) $(DEPS_PYBIND) $(DEPS_HTTPLIB) $(DEPS_LIBREMIDI) $(DEPS_AUDIOFILE) $(DEPS_GRPC)
+	rm -rf $(DEPS_EFSW) $(DEPS_PYBIND) $(DEPS_HTTPLIB) $(DEPS_LIBREMIDI) $(DEPS_AUDIOFILE) $(DEPS_GRPC) $(DEPS_RAPIDJSON)
 
 test: all
 	./$(BUILD_DIR)/src/utils/neon_utils_test
@@ -87,3 +88,8 @@ $(DEPS_AUDIOFILE):
 	git clone https://github.com/adamstark/AudioFile.git $@ && \
 	cd $@ && \
 	git checkout 1.1.1
+
+$(DEPS_RAPIDJSON):
+	git clone https://github.com/Tencent/rapidjson.git $@ && \
+	cd $@ && \
+	git checkout v1.1.0
