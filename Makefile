@@ -13,7 +13,7 @@ DEPS_LIBREMIDI	:= $(DEPS_DIR)/libremidi
 DEPS_AUDIOFILE	:= $(DEPS_DIR)/audiofile
 DEPS_RAPIDJSON	:= $(DEPS_DIR)/rapidjson
 
-.PHONY: all deps clean full-clean $(BINARY)
+.PHONY: all deps clean full-clean $(BINARY) www
 
 # Commands
 
@@ -24,6 +24,9 @@ deps: $(DEPS_EFSW) $(DEPS_PYBIND) $(DEPS_HTTPLIB) $(DEPS_LIBREMIDI) $(DEPS_AUDIO
 clean:
 	rm -f $(BINARY)
 	cd $(BUILD_DIR) && make clean
+
+www:
+	cd www && mkdocs serve
 
 full-clean: clean
 	rm -rf $(DEPS_EFSW) $(DEPS_PYBIND) $(DEPS_HTTPLIB) $(DEPS_LIBREMIDI) $(DEPS_AUDIOFILE) $(DEPS_GRPC) $(DEPS_RAPIDJSON)
