@@ -22,6 +22,9 @@ from live_ import (
     midi_note_off_,
     midi_cc_,
     midi_sysex_sample_play_,
+    midi_sysex_sample_load_,
+    midi_sysex_sample_stop_,
+    get_samples_from_pack_,
     setup_tracks_,
 )
 
@@ -85,157 +88,6 @@ class LiveLoop_:
 
         schedule_(at, loop)
 
-# Public API
-
-def log(message: str) -> None:
-    """Log a message to the console.
-    """
-    global current_loop_
-
-    if current_loop_:
-        schedule_(current_loop_.current_offset, lambda: log_(message))
-    else:
-        log_(message)
-
-
-def set_bpm(bpm: float) -> float:
-    """Set the BPM.
-    """
-    global current_loop_
-
-    if current_loop_:
-        raise InLiveLoopException()
-
-    return set_bpm_(bpm)
-
-
-def get_bpm() -> float:
-    """Get the BPM.
-    """
-    global current_loop_
-
-    if current_loop_:
-        raise InLiveLoopException()
-
-    return get_bpm_()
-
-
-def get_tracks() -> list[Track]:
-    """Get the tracks.
-    """
-    global current_loop_
-
-    if current_loop_:
-        raise InLiveLoopException()
-
-    return get_tracks_()
-
-
-def setup_tracks(tracks: list[Track]) -> bool:
-    """Setup tracks.
-    """
-    global current_loop_
-
-    if current_loop_:
-        raise InLiveLoopException()
-
-    return setup_tracks_(tracks)
-
-
-def mk_track(instrument: str, channel: int, muted=None, volume=None, pan=None) -> Track:
-    """Creates a new track.
-    """
-    track = Track()
-
-    track.instrument = instrument
-    track.channel = channel
-    track.muted = muted
-    track.volume = volume
-    track.pan = pan
-
-    return track
-
-
-def get_beat() -> float:
-    """Get the current beat.
-    """
-    global current_loop_
-
-    if current_loop_:
-        return get_beat_() + current_loop_.current_offset
-
-    return get_beat_()
-
-
-def sleep(beats: float):
-    """Sleep for the duration of the current loop.
-    """
-    global current_loop_
-
-    if not current_loop_:
-        raise NotInLiveLoopException()
-
-    current_loop_.current_offset += beats
-
-
-def midi_note_on(channel: int, note: int, velocity: int):
-    """Send a MIDI note on message.
-    """
-    global current_loop_
-
-    if current_loop_:
-        schedule_(current_loop_.current_offset, lambda: midi_note_on_(channel, note, velocity))
-    else:
-        midi_note_on_(channel, note, velocity)
-
-
-def midi_note_off(channel: int, note: int, velocity: int):
-    """Send a MIDI note off message.
-    """
-    global current_loop_
-
-    if current_loop_:
-        schedule_(current_loop_.current_offset, lambda: midi_note_off_(channel, note, velocity))
-    else:
-        midi_note_off_(channel, note, velocity)
-
-
-def midi_cc(channel: int, cc: int, value: int):
-    """Send a MIDI CC message.
-    """
-    global current_loop_
-
-    if current_loop_:
-        schedule_(current_loop_.current_offset, lambda: midi_cc_(channel, cc, value))
-    else:
-        midi_cc_(channel, cc, value)
-
-
-def midi_sysex_sample_play(channel: int, settings: dict):
-    """Send a MIDI sysex sample play
-    """
-    global current_loop_
-
-    payload = json.dumps(settings)
-
-    if current_loop_:
-        schedule_(current_loop_.current_offset, lambda: midi_sysex_sample_play_(channel, payload))
-    else:
-        midi_sysex_sample_play_(channel, payload)
-
-
-def sample(number: int):
-    """Play a sample on the current track.
-    """
-    global current_loop_
-
-    if not current_loop_:
-        raise NotInLiveLoopException()
-
-    track = current_loop_.track
-
-    schedule_(current_loop_.current_offset, lambda: midi_note_on_(track, number, 127))
-
 
 def loop(*args, **kwargs):
     """A live loop.
@@ -286,3 +138,197 @@ def loop(*args, **kwargs):
         return lambda: None
 
     return wrapper
+
+
+# Utilities API
+
+def log(message: str) -> None:
+    """Log a message to the console.
+    """
+    global current_loop_
+
+    if current_loop_:
+        schedule_(current_loop_.current_offset, lambda: log_(message))
+    else:
+        log_(message)
+
+
+def get_beat() -> float:
+    """Get the current beat.
+    """
+    global current_loop_
+
+    if current_loop_:
+        return get_beat_() + current_loop_.current_offset
+
+    return get_beat_()
+
+
+def sleep(beats: float):
+    """Sleep for the duration of the current loop.
+    """
+    global current_loop_
+
+    if not current_loop_:
+        raise NotInLiveLoopException()
+
+    current_loop_.current_offset += beats
+
+
+# BPM API
+
+def set_bpm(bpm: float) -> float:
+    """Set the BPM.
+    """
+    global current_loop_
+
+    if current_loop_:
+        raise InLiveLoopException()
+
+    return set_bpm_(bpm)
+
+
+def get_bpm() -> float:
+    """Get the BPM.
+    """
+    global current_loop_
+
+    if current_loop_:
+        raise InLiveLoopException()
+
+    return get_bpm_()
+
+
+# Tracks API
+
+
+def get_tracks() -> list[Track]:
+    """Get the tracks.
+    """
+    global current_loop_
+ 
+    if current_loop_:
+        raise InLiveLoopException()
+
+    return get_tracks_()
+
+
+def setup_tracks(tracks: list[Track]) -> bool:
+    """Setup tracks.
+    """
+    global current_loop_
+
+    if current_loop_:
+        raise InLiveLoopException()
+
+    return setup_tracks_(tracks)
+
+
+def mk_track(instrument: str, channel: int, muted=None, volume=None, pan=None) -> Track:
+    """Creates a new track.
+    """
+    track = Track()
+
+    track.instrument = instrument
+    track.channel = channel
+    track.muted = muted
+    track.volume = volume
+    track.pan = pan
+
+    return track
+
+
+# Midi API
+
+
+def midi_note_on(channel: int, note: int, velocity: int):
+    """Send a MIDI note on message.
+    """
+    global current_loop_
+
+    if current_loop_:
+        schedule_(current_loop_.current_offset, lambda: midi_note_on_(channel, note, velocity))
+    else:
+        midi_note_on_(channel, note, velocity)
+
+
+def midi_note_off(channel: int, note: int, velocity: int):
+    """Send a MIDI note off message.
+    """
+    global current_loop_
+
+    if current_loop_:
+        schedule_(current_loop_.current_offset, lambda: midi_note_off_(channel, note, velocity))
+    else:
+        midi_note_off_(channel, note, velocity)
+
+
+def midi_cc(channel: int, cc: int, value: int):
+    """Send a MIDI CC message.
+    """
+    global current_loop_
+
+    if current_loop_:
+        schedule_(current_loop_.current_offset, lambda: midi_cc_(channel, cc, value))
+    else:
+        midi_cc_(channel, cc, value)
+
+
+# Sample API
+
+
+def sample_load(name: str):
+    """Load a sample pack on the current track.
+    """
+    global current_loop_
+
+    if not current_loop_:
+        raise NotInLiveLoopException()
+
+    track = current_loop_.track
+
+    params = {
+        'name': name,
+    }
+
+    schedule_(current_loop_.current_offset, lambda: midi_sysex_sample_load_(track, json.dumps(params)))
+
+
+def sample_stop(name: str):
+    """Stop playing a sample on the current track.
+    """
+    global current_loop_
+
+    if not current_loop_:
+        raise NotInLiveLoopException()
+
+    track = current_loop_.track
+
+    params = {
+        'name': name,
+    }
+
+    schedule_(current_loop_.current_offset, lambda: midi_sysex_sample_stop_(track, json.dumps(params)))
+
+
+def sample_play(name: str):
+    """Play a sample on the current track.
+    """
+    global current_loop_
+
+    if not current_loop_:
+        raise NotInLiveLoopException()
+
+    track = current_loop_.track
+
+    params = {
+        'name': name,
+    }
+
+    schedule_(current_loop_.current_offset, lambda: midi_sysex_sample_play_(track, json.dumps(params)))
+
+
+def get_samples(pack: str) -> list[str]:
+    """Get the list of samples.
+    """
+    return get_samples_from_pack_(pack)

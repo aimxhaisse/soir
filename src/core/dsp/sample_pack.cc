@@ -76,5 +76,13 @@ Sample* SamplePack::GetSample(int midi_note) {
   return it->second;
 }
 
+std::vector<std::string> SamplePack::GetSampleNames() const {
+  std::vector<std::string> names;
+  for (const auto& [name, _] : samples_) {
+    names.push_back(name);
+  }
+  return names;
+}
+
 }  // namespace dsp
 }  // namespace neon

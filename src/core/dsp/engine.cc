@@ -101,11 +101,6 @@ void Engine::Stats(const absl::Time& next_block_at,
 }
 
 void Engine::PushMidiEvent(const libremidi::message& msg) {
-  if (msg.get_channel() != 0) {
-    std::scoped_lock<std::mutex> lock(msgs_mutex_);
-    msgs_by_chan_[msg.get_channel()].push_back(msg);
-    return;
-  }
 
   if (msg.get_message_type() == libremidi::message_type::SYSTEM_EXCLUSIVE) {
     proto::MidiSysexInstruction sysex;
@@ -113,10 +108,21 @@ void Engine::PushMidiEvent(const libremidi::message& msg) {
       LOG(WARNING) << "Failed to parse sysex message";
       return;
     }
+
     {
       std::scoped_lock<std::mutex> lock(msgs_mutex_);
       msgs_by_chan_[sysex.channel()].push_back(msg);
     }
+
+    return;
+  }
+
+  // Here we assume it has a channel, but it may not be the case, we
+  // should filter by message types that support channels.
+
+  if (msg.get_channel() != 0) {
+    std::scoped_lock<std::mutex> lock(msgs_mutex_);
+    msgs_by_chan_[msg.get_channel()].push_back(msg);
     return;
   }
 }

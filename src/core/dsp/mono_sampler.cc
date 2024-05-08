@@ -18,6 +18,12 @@ absl::Status MonoSampler::Init(SampleManager* sample_manager) {
 }
 
 void MonoSampler::SetSamplePack(const std::string& name) {
+  auto status = sample_manager_->LoadPack(name);
+  if (!status.ok()) {
+    LOG(WARNING) << "Failed to load sample pack: " << status.message();
+    return;
+  }
+
   sample_pack_ = sample_manager_->GetPack(name);
 }
 

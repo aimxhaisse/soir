@@ -218,7 +218,8 @@ void Engine::MidiSysex(uint8_t channel,
   libremidi::midi_bytes bytes;
 
   bytes.push_back(static_cast<char>(libremidi::message_type::SYSTEM_EXCLUSIVE));
-  bytes.insert(bytes.begin(), inst_serialized.begin(), inst_serialized.end());
+  bytes.insert(bytes.begin() + 1, inst_serialized.begin(),
+               inst_serialized.end());
 
   dsp_->PushMidiEvent(libremidi::message(bytes, 0));
 }

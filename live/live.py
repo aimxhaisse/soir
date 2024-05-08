@@ -1,33 +1,22 @@
-
 set_bpm(120)
 
 setup_tracks([
     mk_track("mono_sampler", 1, muted=False, volume=100),
 ])
 
+log(str(get_samples('passage')))
+
+# Ideal API for samples:
+#
+# sp = Sampler('passage')
+# sp.play('kick')
+# sp.stop('kick')
+# sp.get()
+
 @loop(track=1, beats=4)
 def kick():
+    sample_load('passage')
     for i in range(4):
         log('kick')
-        sample(30)
+        sample_play('kick_acid')
         sleep(1)
-
-@loop(track=1, beats=4)
-def snare():
-    for i in range(2):
-        sample(45)
-        sample(40)
-        sample(50)
-        sleep(2)
-
-@loop(track=1, beats=4)
-def bass():
-    for i in range(5):
-        sample(60)
-        sleep(0.75)
-
-@loop(track=1, beats=4)
-def bass2():
-    for i in range(3):
-        sleep(0.77)
-        sample(64)

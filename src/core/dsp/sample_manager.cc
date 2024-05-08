@@ -11,6 +11,13 @@ absl::Status SampleManager::Init(const utils::Config& config) {
 absl::Status SampleManager::LoadPack(const std::string& name) {
   auto config_path = directory_ + "/" + name + "pack.yaml";
 
+  {
+    std::lock_guard<std::mutex> lock(mutex_);
+    if (packs_.find(name) != packs_.end()) {
+      return absl::OkStatus();
+    }
+  }
+
   SamplePack pack;
 
   auto status = pack.Init(config_path);

@@ -28,6 +28,7 @@ class SamplePack {
 
   Sample* GetSample(const std::string& name);
   Sample* GetSample(int midi_note);
+  std::vector<std::string> GetSampleNames() const;
 
  private:
   std::map<std::string, Sample> samples_;

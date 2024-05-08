@@ -52,7 +52,7 @@ $(BINARY): deps $(BUILD_DIR) $(BIN_DIR)
 	        -DABSL_USE_EXTERNAL_GOOGLETEST=ON  	\
 		-DBUILD_SHARED_LIBS=OFF			\
 		.. && 					\
-	cmake  --build . -j 16 				\
+	cmake --build . -j 16 				\
 	      --target neon neon_agent neon_core neon_utils neon_utils_test neon_core_test && \
 	cp neon ../$(BINARY)
 
@@ -72,7 +72,7 @@ $(DEPS_EFSW):
 $(DEPS_PYBIND):
 	git clone https://github.com/pybind/pybind11.git $@ && \
 	cd $@ && \
-	git checkout v2.11.1
+	git checkout v2.12.0
 
 $(DEPS_HTTPLIB):
 	git clone https://github.com/yhirose/cpp-httplib.git $@ && \
