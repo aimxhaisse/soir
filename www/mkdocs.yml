@@ -9,7 +9,9 @@ nav:
 
 theme:
   name: material
-  locale: en
+  language: en
+  palette:
+    scheme: slate
 
 plugins:
   - search
