@@ -1,3 +1,6 @@
+# Architecture
+
+``` mermaid
 graph LR
   subgraph Backend
 
@@ -20,3 +23,4 @@ graph LR
   Neon <--> Dsp
   Neon <--> Gfx
   Rt <--> Dsp
+```

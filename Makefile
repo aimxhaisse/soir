@@ -15,7 +15,7 @@ DEPS_LIBREMIDI	:= $(DEPS_DIR)/libremidi
 DEPS_AUDIOFILE	:= $(DEPS_DIR)/audiofile
 DEPS_RAPIDJSON	:= $(DEPS_DIR)/rapidjson
 
-.PHONY: all deps clean full-clean $(BINARY) www
+.PHONY: all deps clean full-clean $(BINARY) www docs
 
 # Commands
 
@@ -27,8 +27,11 @@ clean:
 	rm -f $(BINARY)
 	cd $(BUILD_DIR) && make clean
 
-docs: $(BINARY)
+docs:
 	$(BINARY) --mode script --script scripts/mk-docs.py
+
+serve: docs
+	cd www/site && python -m http.server 4096
 
 full-clean: clean
 	rm -rf $(DEPS_EFSW) $(DEPS_PYBIND) $(DEPS_HTTPLIB) $(DEPS_LIBREMIDI) $(DEPS_AUDIOFILE) $(DEPS_GRPC) $(DEPS_RAPIDJSON)

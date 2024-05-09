@@ -5,6 +5,7 @@ repo_url: https://github.com/aimxhaisse/neon
 nav:
   - Home: index.md
   - Sampler: reference/sampler.md
+  - Architecture: architecture.md
   - About: about.md
 
 theme:
@@ -16,3 +17,10 @@ theme:
 plugins:
   - search
   - mkdocstrings
+
+markdown_extensions:
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
