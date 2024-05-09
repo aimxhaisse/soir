@@ -27,6 +27,9 @@ clean:
 	rm -f $(BINARY)
 	cd $(BUILD_DIR) && make clean
 
+docs: $(BINARY)
+	$(BINARY) --mode script --script scripts/mk-docs.py
+
 full-clean: clean
 	rm -rf $(DEPS_EFSW) $(DEPS_PYBIND) $(DEPS_HTTPLIB) $(DEPS_LIBREMIDI) $(DEPS_AUDIOFILE) $(DEPS_GRPC) $(DEPS_RAPIDJSON)
 

@@ -13,11 +13,14 @@
 #include "core/neon.hh"
 
 ABSL_FLAG(std::string, config, "etc/standalone.yaml", "Path to config file");
-ABSL_FLAG(std::string, mode, "standalone", "Mode to run in (standalone)");
+ABSL_FLAG(std::string, mode, "standalone",
+          "Mode to run in (standalone, script)");
+ABSL_FLAG(std::string, script, "", "Script to run in script mode");
 
 namespace {
 
 const std::string kModeStandalone = "standalone";
+const std::string kModeScript = "script";
 const std::string kVersion = "0.0.2-alpha.1";
 
 }  // namespace
@@ -97,6 +100,64 @@ absl::Status StandaloneMode(const utils::Config& config) {
   return absl::OkStatus();
 }
 
+absl::Status ScriptMode(const utils::Config& config,
+                        const std::string& script_path) {
+  LOG(INFO) << "Running in standalone mode";
+
+  std::unique_ptr<Neon> neon = std::make_unique<Neon>();
+
+  absl::Status status = neon->Init(config);
+  if (!status.ok()) {
+    LOG(ERROR) << "Failed to initialize Neon: " << status;
+    return status;
+  }
+
+  LOG(INFO) << "Starting Neon";
+
+  status = neon->Start();
+  if (!status.ok()) {
+    LOG(ERROR) << "Failed to start Neon: " << status;
+    return status;
+  }
+
+  auto script_or = utils::GetFileContents(script_path);
+  if (!script_or.ok()) {
+    LOG(ERROR) << "Failed to load script: " << script_or.status();
+    neon->Stop().IgnoreError();
+    return script_or.status();
+  }
+
+  // Have the script exit after running, this will trigger a graceful
+  // shutdown via WaitForExitSignal.
+  auto script = script_or.value() + "\nraise SystemExit()\n";
+
+  proto::PushCodeUpdateRequest request;
+  request.set_code(script);
+  auto grpc_status = neon->PushCodeUpdate(nullptr, &request, nullptr);
+  if (!grpc_status.ok()) {
+    LOG(ERROR) << "Failed to push script: " << grpc_status.error_message();
+    neon->Stop().IgnoreError();
+    return absl::InternalError("Failed to push script");
+  }
+
+  status = utils::WaitForExitSignal();
+  if (!status.ok()) {
+    LOG(ERROR) << "Unable to wait for exit signal: " << status;
+    neon->Stop().IgnoreError();
+    return status;
+  }
+
+  LOG(INFO) << "Stopping Neon";
+
+  status = neon->Stop();
+  if (!status.ok()) {
+    LOG(ERROR) << "Failed to stop Neon: " << status;
+    return status;
+  }
+
+  return absl::OkStatus();
+}
+
 }  // namespace neon
 
 int main(int argc, char* argv[]) {
@@ -104,7 +165,6 @@ int main(int argc, char* argv[]) {
   absl::SetStderrThreshold(absl::LogSeverityAtLeast::kInfo);
   absl::EnableLogPrefix(true);
   absl::InitializeLog();
-
   absl::SetProgramUsageMessage("Maethstro L I V E");
   absl::ParseCommandLine(argc, argv);
 
@@ -124,6 +184,9 @@ int main(int argc, char* argv[]) {
   std::string mode = absl::GetFlag(FLAGS_mode);
   if (mode == kModeStandalone) {
     status = neon::StandaloneMode(**config);
+  } else if (mode == kModeScript) {
+    status = neon::ScriptMode(**config, absl::GetFlag(FLAGS_script));
+
   } else {
     LOG(ERROR) << "Unknown mode: " << mode;
     return static_cast<int>(absl::StatusCode::kInvalidArgument);

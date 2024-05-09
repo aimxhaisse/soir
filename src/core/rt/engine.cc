@@ -6,6 +6,7 @@
 #include "core/rt/bindings.hh"
 #include "core/rt/engine.hh"
 #include "core/rt/init.hh"
+#include "utils/signal.hh"
 
 namespace py = pybind11;
 
@@ -125,6 +126,11 @@ absl::Status Engine::Run() {
       try {
         next->func();
       } catch (py::error_already_set& e) {
+        if (e.matches(PyExc_SystemExit)) {
+          LOG(INFO) << "Received SystemExit, stopping engine";
+          neon::utils::SignalExit();
+          return absl::OkStatus();
+        }
         LOG(ERROR) << "Python error: " << e.what();
       }
 
@@ -139,6 +145,11 @@ absl::Status Engine::Run() {
       try {
         py::exec(update.c_str());
       } catch (py::error_already_set& e) {
+        if (e.matches(PyExc_SystemExit)) {
+          LOG(INFO) << "Received SystemExit, stopping engine";
+          neon::utils::SignalExit();
+          return absl::OkStatus();
+        }
         LOG(ERROR) << "Python error: " << e.what();
       }
     }

@@ -35,6 +35,13 @@ void HandleSignal(int sig) {
 
 }  // anonymous namespace
 
+void SignalExit() {
+  std::unique_lock lock(gExitMutex);
+  gSignaledAt = std::time(nullptr);
+  gKilled = true;
+  gDoExit.notify_one();
+}
+
 absl::Status WaitForExitSignal() {
   std::signal(SIGINT, HandleSignal);
 

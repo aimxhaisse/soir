@@ -10,5 +10,7 @@ namespace utils {
 // isolate it to get rid of the tricky implementation details.
 absl::Status WaitForExitSignal();
 
+void SignalExit();
+
 }  // namespace utils
 }  // namespace neon
