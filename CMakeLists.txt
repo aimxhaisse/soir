@@ -8,6 +8,9 @@ project(
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(ABSL_ENABLE_INSTALL ON)
+set(Python_FIND_VIRTUALENV ONLY)
+
+find_package(Python 3.12 COMPONENTS Interpreter Development REQUIRED)
 
 add_subdirectory(deps/grpc)
 add_subdirectory(deps/efsw)

@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "neon"
+version = "0.1.0"
+description = "Live Coding Environment"
+authors = ["s. rannou <mxs@sbrk.org>"]
+license = "MIT"
+readme = "README.md"
+packages = [
+         { from  = "src/core/rt/py", include = "neon" },
+]
+
+[tool.poetry.dependencies]
+python = "^3.12"
+mkdocs = "^1.6.0"
+mkdocstrings = {extras = ["python"], version = "^0.25.1"}
+mkdocs-material = "^9.5.21"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

@@ -4,3 +4,4 @@ deps
 *.o
 bin/
 assets/
+dist/

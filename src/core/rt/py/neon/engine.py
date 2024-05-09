@@ -2,9 +2,7 @@
 #
 # It is executed once at startup, before accepting code from Matin
 # sessions. Facilities here are for live coding, heavy code can be
-# later re-written in c++ if we need to.
-#
-# Whatever is suffixed with _ is not meant to be used by Matin.
+# later re-written in C++ if we need to.
 
 import json
 
@@ -272,63 +270,3 @@ def midi_cc(channel: int, cc: int, value: int):
         schedule_(current_loop_.current_offset, lambda: midi_cc_(channel, cc, value))
     else:
         midi_cc_(channel, cc, value)
-
-
-# Sample API
-
-
-def sample_load(name: str):
-    """Load a sample pack on the current track.
-    """
-    global current_loop_
-
-    if not current_loop_:
-        raise NotInLiveLoopException()
-
-    track = current_loop_.track
-
-    params = {
-        'name': name,
-    }
-
-    schedule_(current_loop_.current_offset, lambda: midi_sysex_sample_load_(track, json.dumps(params)))
-
-
-def sample_stop(name: str):
-    """Stop playing a sample on the current track.
-    """
-    global current_loop_
-
-    if not current_loop_:
-        raise NotInLiveLoopException()
-
-    track = current_loop_.track
-
-    params = {
-        'name': name,
-    }
-
-    schedule_(current_loop_.current_offset, lambda: midi_sysex_sample_stop_(track, json.dumps(params)))
-
-
-def sample_play(name: str):
-    """Play a sample on the current track.
-    """
-    global current_loop_
-
-    if not current_loop_:
-        raise NotInLiveLoopException()
-
-    track = current_loop_.track
-
-    params = {
-        'name': name,
-    }
-
-    schedule_(current_loop_.current_offset, lambda: midi_sysex_sample_play_(track, json.dumps(params)))
-
-
-def get_samples(pack: str) -> list[str]:
-    """Get the list of samples.
-    """
-    return get_samples_from_pack_(pack)

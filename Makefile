@@ -4,6 +4,8 @@ BUILD_DIR	:= build
 BIN_DIR		:= bin
 BINARY		:= $(BIN_DIR)/neon
 
+VENV_DIR	:= .venv
+
 DEPS_DIR 	:= deps
 DEPS_GRPC 	:= $(DEPS_DIR)/grpc
 DEPS_EFSW	:= $(DEPS_DIR)/efsw
@@ -25,9 +27,6 @@ clean:
 	rm -f $(BINARY)
 	cd $(BUILD_DIR) && make clean
 
-www:
-	cd www && mkdocs serve
-
 full-clean: clean
 	rm -rf $(DEPS_EFSW) $(DEPS_PYBIND) $(DEPS_HTTPLIB) $(DEPS_LIBREMIDI) $(DEPS_AUDIOFILE) $(DEPS_GRPC) $(DEPS_RAPIDJSON)
 
@@ -43,21 +42,29 @@ $(BUILD_DIR):
 $(BIN_DIR):
 	mkdir -p $@
 
-$(BINARY): deps $(BUILD_DIR) $(BIN_DIR)
+$(BINARY): deps $(BUILD_DIR) $(BIN_DIR) $(VENV_DIR)
 	cd $(BUILD_DIR) && \
 	cmake -DCMAKE_BUILD_TYPE=Debug \
-		-Dprotobuf_ABSL_PROVIDER=package	\
-		-DgRPC_INSTALL=ON			\
-		-DABSL_ENABLE_INSTALL=ON		\
-		-DABSL_PROPAGATE_CXX_STD=ON  		\
-		-DABSL_BUILD_TESTING=ON 		\
-	        -DABSL_BUILD_TEST_HELPERS=ON		\
-	        -DABSL_USE_EXTERNAL_GOOGLETEST=ON  	\
-		-DBUILD_SHARED_LIBS=OFF			\
-		.. && 					\
-	cmake --build . -j 16 				\
+		-Dprotobuf_ABSL_PROVIDER=package		\
+		-DgRPC_INSTALL=ON				\
+		-DABSL_ENABLE_INSTALL=ON			\
+		-DABSL_PROPAGATE_CXX_STD=ON  			\
+		-DABSL_BUILD_TESTING=ON 			\
+	        -DABSL_BUILD_TEST_HELPERS=ON			\
+	        -DABSL_USE_EXTERNAL_GOOGLETEST=ON  		\
+		-DBUILD_SHARED_LIBS=OFF				\
+		-DPYTHON_EXECUTABLE=$(VENV_DIR)/bin/python	\
+		-DPYBIND11_FINDPYTHON=ON			\
+		.. && 						\
+	cmake --build . -j 16 					\
 	      --target neon neon_agent neon_core neon_utils neon_utils_test neon_core_test && \
 	cp neon ../$(BINARY)
+
+
+# Virtualenv
+
+$(VENV_DIR):
+	poetry install
 
 # Deps
 
