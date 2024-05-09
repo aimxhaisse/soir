@@ -44,6 +44,7 @@ add_executable(neon_core_test
   tests/test_basic_loop.cc
   tests/test_get_bpm.cc
   tests/test_setup_tracks.cc
+  tests/test_exit.cc
 )
 
 target_link_libraries(

@@ -9,7 +9,6 @@ namespace utils {
 // dedicated file as this code tends to not be portable, better
 // isolate it to get rid of the tricky implementation details.
 absl::Status WaitForExitSignal();
-
 void SignalExit();
 
 }  // namespace utils
