@@ -19,6 +19,14 @@ def kick(beats=4):
 
 """
 
+import json
+
+from live_ import (
+    midi_sysex_sample_play_,
+    midi_sysex_sample_load_,
+    midi_sysex_sample_stop_,
+)
+
 
 class Sampler:
 
@@ -65,6 +73,8 @@ class Sampler:
         params = {
             'pack': self.pack_name_,
             'name': name,
+
+            # These are not yet implemented in the engine.
             'loop': loop,
             'length': length,
             'start': start,
@@ -73,7 +83,7 @@ class Sampler:
 
         schedule_(
             current_loop_.current_offset,
-            lambda: midi_sysex_sample_play_(track, json.dumps(params))
+            lambda: midi_sysex_sample_play_(current_loop_.track, json.dumps(params))
         )
 
 
@@ -84,8 +94,8 @@ class Sampler:
         """Stops playing the sample. If there is no exact match,
         attempts to find one that contains the name (for example,
         'kick' will match 'hard-kick'). If the same sample is
-        currently played multiple times, the oldest one is selected to
-        stop (FIFO).
+        currently played multiple times, the latest one is selected to
+        stop (LIFO).
 
         Args:
             name: The name of the sample.
@@ -102,4 +112,4 @@ class Sampler:
 
         schedule_(
             current_loop_.current_offset,
-            lambda: midi_sysex_sample_stop_(track, json.dumps(params)))
+            lambda: midi_sysex_sample_stop_(current_loop_.track, json.dumps(params)))

@@ -2,6 +2,7 @@
 
 #include <AudioFile.h>
 #include <absl/log/log.h>
+#include <absl/strings/match.h>
 #include <filesystem>
 #include <mutex>
 
@@ -28,7 +29,6 @@ absl::Status SamplePack::Init(const std::string& pack_config) {
     Sample s;
 
     s.name_ = sample_config->Get<std::string>("name");
-    s.midi_note_ = sample_config->Get<int>("midi_note");
     s.path_ = sample_config->Get<std::string>("path");
 
     AudioFile<float> audio_file;
@@ -48,7 +48,6 @@ absl::Status SamplePack::Init(const std::string& pack_config) {
     s.buffer_ = audio_file.samples[0];
 
     samples_[s.name_] = std::move(s);
-    midi_notes_[s.midi_note_] = &samples_[s.name_];
 
     LOG(INFO) << "Loaded sample " << s.name_;
   }
@@ -58,22 +57,19 @@ absl::Status SamplePack::Init(const std::string& pack_config) {
   return absl::OkStatus();
 }
 
-Sample* SamplePack::GetSample(const std::string& name) {
-  auto it = samples_.find(name);
+Sample* SamplePack::GetSample(const std::string& pattern) {
+  auto it = samples_.find(pattern);
   if (it == samples_.end()) {
+    for (auto& [name, s] : samples_) {
+      if (absl::StrContains(pattern, name)) {
+        return &s;
+      }
+    }
+
     return nullptr;
   }
 
   return &it->second;
-}
-
-Sample* SamplePack::GetSample(int midi_note) {
-  auto it = midi_notes_.find(midi_note);
-  if (it == midi_notes_.end()) {
-    return nullptr;
-  }
-
-  return it->second;
 }
 
 std::vector<std::string> SamplePack::GetSampleNames() const {

@@ -26,11 +26,11 @@ class MonoSampler {
   void Render(const std::list<libremidi::message>&, AudioBuffer&);
 
  private:
-  void SetSamplePack(const std::string& name);
+  void HandleSysex(const proto::MidiSysexInstruction& sysex);
+
   void PlaySample(Sample* s);
   void StopSample(Sample* s);
-  void HandleSysex(const proto::MidiSysexInstruction& sysex);
-  Sample* GetSample(const std::string& name);
+  Sample* GetSample(const std::string& pack, const std::string& name);
 
   // We only support MONO audio for now.
   struct PlayingSample {
@@ -49,7 +49,6 @@ class MonoSampler {
   // user triggers a midi note off.
   std::map<Sample*, std::list<std::unique_ptr<PlayingSample>>> playing_;
   SampleManager* sample_manager_;
-  SamplePack* sample_pack_;
 };
 
 }  // namespace dsp

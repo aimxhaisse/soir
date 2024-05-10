@@ -31,7 +31,6 @@ message MidiSysexInstruction {
   enum InstructionType {
     SAMPLER_PLAY = 0;
     SAMPLER_STOP = 1;
-    SAMPLER_LOAD_PACK = 2;
   };
 
   InstructionType type = 2;

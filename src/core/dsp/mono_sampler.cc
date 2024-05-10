@@ -17,16 +17,6 @@ absl::Status MonoSampler::Init(SampleManager* sample_manager) {
   return absl::OkStatus();
 }
 
-void MonoSampler::SetSamplePack(const std::string& name) {
-  auto status = sample_manager_->LoadPack(name);
-  if (!status.ok()) {
-    LOG(WARNING) << "Failed to load sample pack: " << status.message();
-    return;
-  }
-
-  sample_pack_ = sample_manager_->GetPack(name);
-}
-
 void MonoSampler::PlaySample(Sample* sample) {
   if (sample == nullptr) {
     return;
@@ -56,12 +46,14 @@ void MonoSampler::StopSample(Sample* sample) {
   }
 }
 
-Sample* MonoSampler::GetSample(const std::string& name) {
-  if (sample_pack_ == nullptr) {
+Sample* MonoSampler::GetSample(const std::string& pack,
+                               const std::string& name) {
+  auto sample_pack = sample_manager_->GetPack(pack);
+  if (sample_pack == nullptr) {
     return nullptr;
   }
 
-  return sample_pack_->GetSample(name);
+  return sample_pack->GetSample(name);
 }
 
 void MonoSampler::HandleSysex(const proto::MidiSysexInstruction& sysex) {
@@ -69,22 +61,17 @@ void MonoSampler::HandleSysex(const proto::MidiSysexInstruction& sysex) {
 
   params.Parse(sysex.json_payload().c_str());
 
-  switch (sysex.type()) {
-    case proto::MidiSysexInstruction::SAMPLER_LOAD_PACK: {
-      auto name = params["name"].GetString();
-      SetSamplePack(name);
-      break;
-    }
+  auto pack = params["pack"].GetString();
+  auto name = params["name"].GetString();
 
+  switch (sysex.type()) {
     case proto::MidiSysexInstruction::SAMPLER_PLAY: {
-      auto name = params["name"].GetString();
-      PlaySample(GetSample(name));
+      PlaySample(GetSample(pack, name));
       break;
     }
 
     case proto::MidiSysexInstruction::SAMPLER_STOP: {
-      auto name = params["name"].GetString();
-      StopSample(GetSample(name));
+      StopSample(GetSample(pack, name));
       break;
     }
 
@@ -114,30 +101,6 @@ void MonoSampler::Render(const std::list<libremidi::message>& messages,
 
         HandleSysex(sysex);
 
-        break;
-      }
-
-      case libremidi::message_type::NOTE_ON: {
-        if (sample_pack_ == nullptr) {
-          continue;
-        }
-        auto sample = sample_pack_->GetSample(msg.bytes[1]);
-        if (sample == nullptr) {
-          continue;
-        }
-        PlaySample(sample);
-        break;
-      }
-
-      case libremidi::message_type::NOTE_OFF: {
-        if (sample_pack_ == nullptr) {
-          continue;
-        }
-        auto sample = sample_pack_->GetSample(msg.bytes[1]);
-        if (sample == nullptr) {
-          continue;
-        }
-        StopSample(sample);
         break;
       }
 

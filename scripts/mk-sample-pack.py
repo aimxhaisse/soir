@@ -10,16 +10,11 @@ import sys
 import typer
 
 
-MIDI_NOTE_MIN_VALUE = 1
-MIDI_NOTE_MAX_VALUE = 127
-
-
 TEMPLATE = """\
 name: {{ name }}
 samples:
   {%- for sample in samples %}
   - name: {{ sample.name }}
-    note: {{ sample.midi_note }}
     path: {{ sample.full_path }}
   {%- endfor %}
 """
@@ -31,7 +26,6 @@ app = typer.Typer()
 @dataclasses.dataclass
 class Sample:
     name: str
-    midi_note: int
     full_path: str
 
 
@@ -43,7 +37,6 @@ def normalize_name(name: str):
 
 def get_samples_from_directory(directory: str):
     samples = []
-    midi_note = MIDI_NOTE_MIN_VALUE
     names = set()
     for root, dirs, files in os.walk(directory):
         for file in files:
@@ -53,10 +46,7 @@ def get_samples_from_directory(directory: str):
                 if name in names:
                     raise ValueError(f"Collision in sample names: {name} already exist")
                 names.add(name)
-                samples.append(Sample(name=name, full_path=full_path, midi_note=midi_note))
-                midi_note += 1
-                if midi_note > MIDI_NOTE_MAX_VALUE:
-                    raise ValueError(f"Too many samples in directory {directory}")
+                samples.append(Sample(name=name, full_path=full_path))
     return samples
  
 
