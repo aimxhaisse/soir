@@ -38,7 +38,7 @@ absl::Status SamplePack::Init(const std::string& pack_config) {
     }
     if (audio_file.getNumChannels() != 1) {
       return absl::InvalidArgumentError(
-          "Only mono samples are supported for now");
+          "Only mono samples are supported for now for sample " + s.path_);
     }
     if (audio_file.getSampleRate() != kSampleRate) {
       return absl::InvalidArgumentError(

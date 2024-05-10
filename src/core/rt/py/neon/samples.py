@@ -23,7 +23,6 @@ import json
 
 from live_ import (
     midi_sysex_sample_play_,
-    midi_sysex_sample_load_,
     midi_sysex_sample_stop_,
 )
 

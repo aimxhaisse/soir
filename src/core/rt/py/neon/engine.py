@@ -19,7 +19,6 @@ from live_ import (
     midi_note_on_,
     midi_note_off_,
     midi_cc_,
-    get_samples_from_pack_,
     setup_tracks_,
 )
 
