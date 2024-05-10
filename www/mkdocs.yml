@@ -1,18 +1,32 @@
 site_name: NEON
 docs_dir: docs
 repo_url: https://github.com/aimxhaisse/neon
+repo_name: aimxhaisse/neon
+site_author: s. rannou <mxs@sbrk.org>
 
 nav:
   - Home: index.md
-  - Sampler: reference/sampler.md
+  - Reference:
+      - Sampler: reference/sampler.md
   - Architecture: architecture.md
   - About: about.md
 
 theme:
   name: material
+  features:
+    - navigation.top
+    - navigation.instant
+    - navigation.instant.prefetch
+    - navigation.instant.progress
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.sections
+    - navigation.path
   language: en
   palette:
     scheme: slate
+  icon:
+    repo: fontawesome/brands/github-alt
 
 plugins:
   - autorefs
@@ -36,3 +50,9 @@ markdown_extensions:
         - name: mermaid
           class: mermaid
           format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.highlight:
+      use_pygments: true
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences

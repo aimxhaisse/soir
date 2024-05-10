@@ -1,3 +1,3 @@
-# Sampler
+# Samples
 
-::: neon.samples.Sampler
+::: neon.samples
