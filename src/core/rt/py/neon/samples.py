@@ -10,8 +10,8 @@ fine to have a lot of instances at once.
 ``` python
 s = Sampler('808')
 
-@live_loop
-def kick():
+@loop
+def kick(beats=4):
   for i in range(4):
     s.play('kick')
     sleep(1)
