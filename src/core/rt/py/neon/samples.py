@@ -5,7 +5,7 @@ inside loops in an intuitive way. Once instantiated, a sampler can be
 used to play samples from the selected pack given their name. If no
 exact match of the sample name is found, the first matching sample is
 selected. The cost of creating and using a sampler is cheap so it is
-fine to have a lot of instances at once.
+fine to have a lot of instances at once:
 
 ``` python
 s = Sampler('808')
@@ -16,14 +16,17 @@ def kick(beats=4):
     s.play('kick')
     sleep(1)
 ```
-
 """
+
+from dataclasses import dataclass
 
 import json
 
 from live_ import (
     midi_sysex_sample_play_,
     midi_sysex_sample_stop_,
+    get_packs_,
+    get_samples_,
 )
 
 
@@ -80,9 +83,11 @@ class Sampler:
             'rev': rev,
         }
 
+        track = current_loop_.track
+
         schedule_(
             current_loop_.current_offset,
-            lambda: midi_sysex_sample_play_(current_loop_.track, json.dumps(params))
+            lambda: midi_sysex_sample_play_(track, json.dumps(params))
         )
 
 
@@ -109,6 +114,53 @@ class Sampler:
             'name': name,
         }
 
+        track = current_loop_.track
+
         schedule_(
             current_loop_.current_offset,
-            lambda: midi_sysex_sample_stop_(current_loop_.track, json.dumps(params)))
+            lambda: midi_sysex_sample_stop_(track, json.dumps(params)))
+
+
+@dataclass
+class Sample:
+    """
+    A sample is a sound file that can be played by a sampler. It has a
+    name, a pack, a path, and a duration. The name is the identifier
+    used to play the sample, the pack is the name of the pack the
+    sample belongs to, the path is the location of the sample file, and
+    the duration is the length of the sample in seconds.
+
+    Attributes:
+        name: The name of the sample.
+        pack: The name of the pack.
+        path: The location of the sample file.
+        duration: The length of the sample in seconds.
+    """
+    name: str
+    pack: str
+    path: str
+    duration: float
+        
+   
+def get_packs() -> list[str]:
+    """Returns the list of available sample packs.
+
+    Returns:
+        The list of loaded sample packs.
+    """
+    return get_packs_()
+
+
+def get_samples(pack_name: str) -> list[Sample]:
+    """Returns the list of samples available in the given pack.
+
+    Args:
+        pack_name: The name of the sample pack.
+
+    Returns:
+        The list of samples from the sample pack.
+    """
+    result = []
+    for s in get_samples_(pack_name):
+        result.append(Sample(name=s, pack=pack_name))
+    return result

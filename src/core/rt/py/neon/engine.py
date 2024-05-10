@@ -44,7 +44,6 @@ class InLiveLoopException(LiveException):
 live_loops_ = dict()
 current_loop_ = None
 
-
 class LiveLoop_:
     """Helper class to manage a live loop.
     """

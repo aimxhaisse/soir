@@ -64,5 +64,16 @@ SamplePack* SampleManager::GetPack(const std::string& name) {
   return &packs_[name];
 }
 
+std::vector<std::string> SampleManager::GetPackNames() {
+  std::lock_guard<std::mutex> lock(mutex_);
+
+  std::vector<std::string> names;
+  for (const auto& [name, _] : packs_) {
+    names.push_back(name);
+  }
+
+  return names;
+}
+
 }  // namespace dsp
 }  // namespace neon

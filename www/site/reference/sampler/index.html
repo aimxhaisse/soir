@@ -428,6 +428,15 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#neon.samples.Sample" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;Sample
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#neon.samples.Sampler" class="md-nav__link">
     <span class="md-ellipsis">
       <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;Sampler
@@ -457,6 +466,24 @@
         
       </ul>
     </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#neon.samples.get_packs" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;get_packs
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#neon.samples.get_samples" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;get_samples
+    </span>
+  </a>
   
 </li>
         
@@ -558,6 +585,15 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#neon.samples.Sample" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;Sample
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#neon.samples.Sampler" class="md-nav__link">
     <span class="md-ellipsis">
       <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;Sampler
@@ -587,6 +623,24 @@
         
       </ul>
     </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#neon.samples.get_packs" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;get_packs
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#neon.samples.get_samples" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;get_samples
+    </span>
+  </a>
   
 </li>
         
@@ -634,7 +688,7 @@ inside loops in an intuitive way. Once instantiated, a sampler can be
 used to play samples from the selected pack given their name. If no
 exact match of the sample name is found, the first matching sample is
 selected. The cost of creating and using a sampler is cheap so it is
-fine to have a lot of instances at once.</p>
+fine to have a lot of instances at once:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">s</span> <span class="o">=</span> <span class="n">Sampler</span><span class="p">(</span><span class="s1">&#39;808&#39;</span><span class="p">)</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="nd">@loop</span>
@@ -654,6 +708,110 @@ fine to have a lot of instances at once.</p>
 
 
 
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="neon.samples.Sample" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <code class="highlight language-python"><span class="n">Sample</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">pack</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">duration</span><span class="p">)</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+
+  
+      <p>A sample is a sound file that can be played by a sampler. It has a
+name, a pack, a path, and a duration. The name is the identifier
+used to play the sample, the pack is the name of the pack the
+sample belongs to, the path is the location of the sample file, and
+the duration is the length of the sample in seconds.</p>
+
+
+
+  <p><span class="doc-section-title">Attributes:</span></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr class="doc-section-item">
+          <td><code><span title="neon.samples.Sample.name">name</span></code></td>
+          <td>
+                <code>str</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>The name of the sample.</p>
+            </div>
+          </td>
+        </tr>
+        <tr class="doc-section-item">
+          <td><code><span title="neon.samples.Sample.pack">pack</span></code></td>
+          <td>
+                <code>str</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>The name of the pack.</p>
+            </div>
+          </td>
+        </tr>
+        <tr class="doc-section-item">
+          <td><code><span title="neon.samples.Sample.path">path</span></code></td>
+          <td>
+                <code>str</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>The location of the sample file.</p>
+            </div>
+          </td>
+        </tr>
+        <tr class="doc-section-item">
+          <td><code><span title="neon.samples.Sample.duration">duration</span></code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>The length of the sample in seconds.</p>
+            </div>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+  </div>
+
+
+</div>
 
 <div class="doc doc-object doc-class">
 
@@ -887,6 +1045,122 @@ stop (LIFO).</p>
 
 </div>
 
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="neon.samples.get_packs" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>          <code class="highlight language-python"><span class="n">get_packs</span><span class="p">()</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Returns the list of available sample packs.</p>
+
+
+
+  <p><span class="doc-section-title">Returns:</span></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr class="doc-section-item">
+          <td>
+                <code>list[str]</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>The list of loaded sample packs.</p>
+            </div>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="neon.samples.get_samples" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>          <code class="highlight language-python"><span class="n">get_samples</span><span class="p">(</span><span class="n">pack_name</span><span class="p">)</span></code>
+
+</h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Returns the list of samples available in the given pack.</p>
+
+
+
+  <p><span class="doc-section-title">Parameters:</span></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr class="doc-section-item">
+          <td><code>pack_name</code></td>
+          <td>
+                <code>str</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>The name of the sample pack.</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+
+  <p><span class="doc-section-title">Returns:</span></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr class="doc-section-item">
+          <td>
+                <code>list[<a class="autorefs autorefs-internal" title="neon.samples.Sample" href="#neon.samples.Sample">Sample</a>]</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>The list of samples from the sample pack.</p>
+            </div>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
 
 
 

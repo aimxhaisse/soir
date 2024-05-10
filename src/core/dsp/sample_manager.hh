@@ -14,6 +14,7 @@ class SampleManager {
   absl::Status LoadPack(const std::string& path);
 
   SamplePack* GetPack(const std::string& name);
+  std::vector<std::string> GetPackNames();
 
  private:
   std::string directory_;

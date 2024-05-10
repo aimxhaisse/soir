@@ -4,20 +4,11 @@ setup_tracks([
     mk_track("mono_sampler", 1, muted=False, volume=100),
 ])
 
-  
-# log(str(get_samples('passage')))
+s = Sampler('passage')
 
-# Ideal API for samples:
-#
-# sp = Sampler('passage')
-# sp.play('kick')
-# sp.stop('kick')
-# sp.get()
+# log(str(get_samples('passage')))
 
 @loop(track=1, beats=4)
 def kick():
-    # sample_load('passage')
-    for i in range(4):
-        log('kick')
-        # sample_play('kick_acid')
-        sleep(1)
+    s.play('fx_ambience_3')
+    sleep(4)
