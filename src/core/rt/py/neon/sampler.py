@@ -1,5 +1,10 @@
 """*Samples, lots of samples.*
 
+???+ info
+
+    The sampler module can be used on loops running on tracks with
+    instrument type set to `mono_sampler`.
+
 The **sampler** module provides a way to load samples and play them
 inside loops in an intuitive way. Once instantiated, a `Sampler` can
 be used to play samples from the selected pack given their name. If no
@@ -18,8 +23,6 @@ s = sampler.new('808')
 def kick(beats=4):
   for i in range(4):
     s.play('kick')
-    if i % 2 == 0:
-        s.play('snare')
     sleep(1)
 ```
 
@@ -42,14 +45,13 @@ from dataclasses import dataclass
 
 import json
 
-from live_ import (
+from bindings import (
     midi_sysex_sample_play_,
     midi_sysex_sample_stop_,
     get_packs_,
     get_samples_,
     schedule_,
 )
-
 from neon.internals import (
     assert_in_loop,
     current_loop,

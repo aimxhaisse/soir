@@ -89,22 +89,16 @@ absl::Status Engine::Run() {
   // from the lower level to the higher level.
 
   py::module errors_mod = py::module::import("neon.errors");
-
   py::module neon_internals_mod = py::module::import("neon.internals");
-
   py::module sampler_mod = py::module::import("neon.sampler");
   py::module bpm_mod = py::module::import("neon.bpm");
-
   py::module neon_mod = py::module::import("neon");
 
   try {
     py::exec(kMod0ErrorsPy, errors_mod.attr("__dict__"));
-
     py::exec(kMod1InternalsPy, neon_internals_mod.attr("__dict__"));
-
     py::exec(kMod2SamplerPy, sampler_mod.attr("__dict__"));
     py::exec(kMod2BPMPy, bpm_mod.attr("__dict__"));
-
     py::exec(kMod3NeonPy, neon_mod.attr("__dict__"));
   } catch (py::error_already_set& e) {
     LOG(ERROR) << "Python error: " << e.what();
@@ -163,7 +157,7 @@ absl::Status Engine::Run() {
     // event for example.
     for (const auto& update : updates) {
       try {
-        py::exec(update.c_str());
+        py::exec(update.c_str(), neon_mod.attr("__dict__"));
       } catch (py::error_already_set& e) {
         if (e.matches(PyExc_SystemExit)) {
           LOG(INFO) << "Received SystemExit, stopping engine";

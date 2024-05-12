@@ -28,18 +28,16 @@ beat = bpm.beat()
 # Reference
 """
 
-from neon.errors import (
-    InLiveLoopException,
-)
-
-from neon.internals import (
-    current_loop_,
-)
-
-from live_ import (
+from bindings import (
     set_bpm_,
     get_bpm_,
     get_beat_,
+)
+from neon.errors import (
+    InLiveLoopException,
+)
+from neon.internals import (
+    current_loop_,
 )
 
 

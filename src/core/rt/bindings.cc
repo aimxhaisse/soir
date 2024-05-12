@@ -20,6 +20,8 @@ neon::dsp::Engine* gDsp_ = nullptr;
 namespace neon {
 namespace rt {
 
+using namespace pybind11::literals;
+
 absl::Status bindings::SetEngines(rt::Engine* rt, dsp::Engine* dsp) {
   if (gRt_ != nullptr) {
     LOG(ERROR) << "Engines already initialized, unable to run multiple "
@@ -37,7 +39,7 @@ void bindings::ResetEngines() {
   gDsp_ = nullptr;
 }
 
-PYBIND11_EMBEDDED_MODULE(live_, m) {
+PYBIND11_EMBEDDED_MODULE(bindings, m) {
   m.doc() = "Neon Internal Live Module";
 
   m.def("set_bpm_", [](float bpm) { return gRt_->SetBPM(bpm); });
@@ -51,21 +53,9 @@ PYBIND11_EMBEDDED_MODULE(live_, m) {
     gRt_->Schedule(gRt_->GetCurrentBeat() + beats * 1000000, func);
   });
 
-  py::class_<bindings::PyTrack>(m, "Track")
-      .def(py::init<>())
-      .def_readwrite("instrument", &bindings::PyTrack::instrument)
-      .def_readwrite("channel", &bindings::PyTrack::channel)
-      .def_readwrite("muted", &bindings::PyTrack::muted)
-      .def_readwrite("volume", &bindings::PyTrack::volume)
-      .def_readwrite("pan", &bindings::PyTrack::pan)
-      .def("__repr__", [](const bindings::PyTrack& track) {
-        return "<Track instrument='" + track.instrument +
-               "' channel=" + std::to_string(track.channel) + ">";
-      });
-
   m.def("get_tracks_", []() {
     std::list<dsp::TrackSettings> tracks;
-    std::vector<bindings::PyTrack> result;
+    std::vector<py::dict> result;
 
     auto status = gDsp_->GetTracks(&tracks);
     if (!status.ok()) {
@@ -74,46 +64,46 @@ PYBIND11_EMBEDDED_MODULE(live_, m) {
     }
 
     for (const auto& track : tracks) {
-      bindings::PyTrack py_track;
-
-      py_track.channel = track.channel_;
-      py_track.muted = track.muted_;
-      py_track.volume = track.volume_;
-      py_track.pan = track.pan_;
+      std::string instrument;
 
       switch (track.instrument_) {
         case dsp::TRACK_MONO_SAMPLER:
-          py_track.instrument = "mono_sampler";
+          instrument = "mono_sampler";
           break;
 
         default:
-          py_track.instrument = "unknown";
+          instrument = "unknown";
           break;
       }
 
-      result.push_back(py_track);
+      result.push_back(
+          py::dict("channel"_a = track.channel_, "muted"_a = track.muted_,
+                   "volume"_a = track.volume_, "pan"_a = track.pan_,
+                   "instrument"_a = instrument));
     }
 
     return result;
   });
 
-  m.def("setup_tracks_", [](const std::vector<bindings::PyTrack>& tracks) {
+  m.def("setup_tracks_", [](const std::vector<py::dict>& tracks) {
     std::list<dsp::TrackSettings> settings;
 
     for (auto& track : tracks) {
       dsp::TrackSettings s;
 
-      if (track.instrument == "mono_sampler") {
+      auto instr = track["instrument"].cast<std::string>();
+
+      if (instr == "mono_sampler") {
         s.instrument_ = dsp::TRACK_MONO_SAMPLER;
       } else {
-        LOG(ERROR) << "Unknown instrument: " << track.instrument;
+        LOG(ERROR) << "Unknown instrument: " << instr;
         return false;
       }
 
-      s.channel_ = track.channel;
-      s.muted_ = track.muted.value_or(false);
-      s.volume_ = track.volume.value_or(127);
-      s.pan_ = track.pan.value_or(64);
+      s.channel_ = track["channel"].cast<int>();
+      s.muted_ = track["muted"].cast<std::optional<bool>>().value_or(false);
+      s.volume_ = track["volume"].cast<std::optional<int>>().value_or(127);
+      s.pan_ = track["pan"].cast<std::optional<int>>().value_or(64);
 
       settings.push_back(s);
     }

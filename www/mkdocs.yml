@@ -7,7 +7,9 @@ site_author: s. rannou <mxs@sbrk.org>
 nav:
   - Home: index.md
   - Reference:
+      - neon: reference/neon.md
       - bpm: reference/bpm.md
+      - tracks: reference/tracks.md
       - errors: reference/errors.md
       - sampler: reference/sampler.md
   - Architecture: architecture.md
@@ -38,6 +40,8 @@ plugins:
       handlers:
         python:
           options:
+            find_stubs_package: true
+            allow_inspection: true
             merge_init_into_class: true
             show_docstring_attributes: true
             show_root_heading: true
