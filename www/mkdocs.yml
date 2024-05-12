@@ -7,7 +7,8 @@ site_author: s. rannou <mxs@sbrk.org>
 nav:
   - Home: index.md
   - Reference:
-      - Sampler: reference/sampler.md
+      - sampler: reference/sampler.md
+      - bpm: reference/bpm.md
   - Architecture: architecture.md
   - About: about.md
 

@@ -11,8 +11,6 @@ from enum import Enum
 from live_ import (
     Track,
     schedule_,
-    set_bpm_,
-    get_bpm_,
     get_beat_,
     get_tracks_,
     log_,
@@ -146,17 +144,6 @@ def log(message: str) -> None:
         log_(message)
 
 
-def get_beat() -> float:
-    """Get the current beat.
-    """
-    global current_loop_
-
-    if current_loop_:
-        return get_beat_() + current_loop_.current_offset
-
-    return get_beat_()
-
-
 def sleep(beats: float):
     """Sleep for the duration of the current loop.
     """
@@ -166,30 +153,6 @@ def sleep(beats: float):
         raise NotInLiveLoopException()
 
     current_loop_.current_offset += beats
-
-
-# BPM API
-
-def set_bpm(bpm: float) -> float:
-    """Set the BPM.
-    """
-    global current_loop_
-
-    if current_loop_:
-        raise InLiveLoopException()
-
-    return set_bpm_(bpm)
-
-
-def get_bpm() -> float:
-    """Get the BPM.
-    """
-    global current_loop_
-
-    if current_loop_:
-        raise InLiveLoopException()
-
-    return get_bpm_()
 
 
 # Tracks API
