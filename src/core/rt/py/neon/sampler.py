@@ -47,6 +47,12 @@ from live_ import (
     midi_sysex_sample_stop_,
     get_packs_,
     get_samples_,
+    schedule_,
+)
+
+from neon.internals import (
+    assert_in_loop,
+    current_loop,
 )
 
 
@@ -100,10 +106,7 @@ class Sampler:
             start: When to start playing the sample in seconds.
             rev: Whether to reverse the sample or not.
         """
-        global current_loop_
-
-        if not current_loop_:
-            raise NotInLiveLoopException()
+        assert_in_loop()
 
         params = {
             'pack': self.pack_name_,
@@ -116,10 +119,10 @@ class Sampler:
             'rev': rev,
         }
 
-        track = current_loop_.track
+        track = current_loop().track
 
         schedule_(
-            current_loop_.current_offset,
+            current_loop().current_offset,
             lambda: midi_sysex_sample_play_(track, json.dumps(params))
         )
 
@@ -137,20 +140,17 @@ class Sampler:
         Args:
             name: The name of the sample.
         """
-        global current_loop_
-
-        if not current_loop_:
-            raise NotInLiveLoopException()
+        assert_in_loop()
 
         params = {
             'pack': self.pack_name_,
             'name': name,
         }
 
-        track = current_loop_.track
+        track = current_loop().track
 
         schedule_(
-            current_loop_.current_offset,
+            current_loop().current_offset,
             lambda: midi_sysex_sample_stop_(track, json.dumps(params)))
 
 

@@ -2,8 +2,8 @@
 
 The **bpm** module provides a way to set the tempo of the current
 session. The tempo is a global setting that affects all loops and
-samples. The tempo is measured in beats per minute (BPM) and can be
-adjusted in real-time.
+samples, it is measured in beats per minute (BPM) and can be adjusted
+in real-time.
 
 # Cookbook
 
@@ -22,11 +22,19 @@ tempo = bpm.get()
 ## Get the current beat
 
 ``` python
-beat = bpm.get_beat()
+beat = bpm.beat()
 ```
 
 # Reference
 """
+
+from neon.errors import (
+    InLiveLoopException,
+)
+
+from neon.internals import (
+    current_loop_,
+)
 
 from live_ import (
     set_bpm_,
@@ -34,45 +42,48 @@ from live_ import (
     get_beat_,
 )
 
-def get_bpm() -> float:
-    """Get the BPM.
+
+def get() -> float:
+    """Get the BPM. This function can only be called from the global
+       scope.
 
     Returns:
         The current BPM.
-    """
-    global current_loop_
 
+    Raises:
+        InLiveLoopException: If called from inside a live loop.
+    """
     if current_loop_:
         raise InLiveLoopException()
 
     return get_bpm_()
 
 
-def set_bpm(bpm: float) -> float:
-    """Set the BPM.
+def set(bpm: float) -> float:
+    """Set the BPM. This function can only be called from the global
+       scope.
 
     Args:
         bpm: The new BPM.
 
     Returns:
         The new BPM.
-    """
-    global current_loop_
 
+    Raises:
+        InLiveLoopException: If called from inside a live loop.
+    """
     if current_loop_:
         raise InLiveLoopException()
 
     return set_bpm_(bpm)
 
 
-def get_beat() -> float:
+def beat() -> float:
     """Get the current beat.
 
     Returns:
         The current beat.
     """
-    global current_loop_
-
     if current_loop_:
         return get_beat_() + current_loop_.current_offset
 

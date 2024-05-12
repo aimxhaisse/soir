@@ -11,10 +11,10 @@
       
       
       
-        <link rel="prev" href="../sampler/">
+        <link rel="prev" href="../..">
       
       
-        <link rel="next" href="../../architecture/">
+        <link rel="next" href="../sampler/">
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
@@ -210,7 +210,7 @@
     
     
       <li class="md-tabs__item md-tabs__item--active">
-        <a href="../sampler/" class="md-tabs__link">
+        <a href="./" class="md-tabs__link">
           
   
   Reference
@@ -369,27 +369,6 @@
                 
   
   
-  
-  
-    <li class="md-nav__item">
-      <a href="../sampler/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    sampler
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
     
   
   
@@ -500,27 +479,27 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#neon.bpm.get_beat" class="md-nav__link">
+  <a href="#neon.bpm.beat" class="md-nav__link">
     <span class="md-ellipsis">
-      <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;get_beat
+      <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;beat
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#neon.bpm.get_bpm" class="md-nav__link">
+  <a href="#neon.bpm.get" class="md-nav__link">
     <span class="md-ellipsis">
-      <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;get_bpm
+      <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;get
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#neon.bpm.set_bpm" class="md-nav__link">
+  <a href="#neon.bpm.set" class="md-nav__link">
     <span class="md-ellipsis">
-      <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;set_bpm
+      <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;set
     </span>
   </a>
   
@@ -535,6 +514,48 @@
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../errors.md" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    errors
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sampler/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    sampler
+  </span>
+  
+
+      </a>
     </li>
   
 
@@ -675,27 +696,27 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#neon.bpm.get_beat" class="md-nav__link">
+  <a href="#neon.bpm.beat" class="md-nav__link">
     <span class="md-ellipsis">
-      <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;get_beat
+      <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;beat
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#neon.bpm.get_bpm" class="md-nav__link">
+  <a href="#neon.bpm.get" class="md-nav__link">
     <span class="md-ellipsis">
-      <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;get_bpm
+      <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;get
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#neon.bpm.set_bpm" class="md-nav__link">
+  <a href="#neon.bpm.set" class="md-nav__link">
     <span class="md-ellipsis">
-      <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;set_bpm
+      <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;set
     </span>
   </a>
   
@@ -742,8 +763,8 @@
       <p><em>Push the tempo.</em></p>
 <p>The <strong>bpm</strong> module provides a way to set the tempo of the current
 session. The tempo is a global setting that affects all loops and
-samples. The tempo is measured in beats per minute (BPM) and can be
-adjusted in real-time.</p>
+samples, it is measured in beats per minute (BPM) and can be adjusted
+in real-time.</p>
 <h3 id="neon.bpm--cookbook">Cookbook</h3>
 <h4 id="neon.bpm--set-the-tempo">Set the tempo</h4>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">bpm</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="mi">120</span><span class="p">)</span>
@@ -752,7 +773,7 @@ adjusted in real-time.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="n">tempo</span> <span class="o">=</span> <span class="n">bpm</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
 </code></pre></div>
 <h4 id="neon.bpm--get-the-current-beat">Get the current beat</h4>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">beat</span> <span class="o">=</span> <span class="n">bpm</span><span class="o">.</span><span class="n">get_beat</span><span class="p">()</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">beat</span> <span class="o">=</span> <span class="n">bpm</span><span class="o">.</span><span class="n">beat</span><span class="p">()</span>
 </code></pre></div>
 <h3 id="neon.bpm--reference">Reference</h3>
 
@@ -773,8 +794,8 @@ adjusted in real-time.</p>
 
 
 
-<h3 id="neon.bpm.get_beat" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>          <code class="highlight language-python"><span class="n">get_beat</span><span class="p">()</span></code>
+<h3 id="neon.bpm.beat" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>          <code class="highlight language-python"><span class="n">beat</span><span class="p">()</span></code>
 
 </h3>
 
@@ -816,15 +837,16 @@ adjusted in real-time.</p>
 
 
 
-<h3 id="neon.bpm.get_bpm" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>          <code class="highlight language-python"><span class="n">get_bpm</span><span class="p">()</span></code>
+<h3 id="neon.bpm.get" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>          <code class="highlight language-python"><span class="n">get</span><span class="p">()</span></code>
 
 </h3>
 
 
   <div class="doc doc-contents ">
   
-      <p>Get the BPM.</p>
+      <p>Get the BPM. This function can only be called from the global
+   scope.</p>
 
 
 
@@ -850,6 +872,30 @@ adjusted in real-time.</p>
     </tbody>
   </table>
 
+
+
+  <p><span class="doc-section-title">Raises:</span></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr class="doc-section-item">
+          <td>
+                <code><span title="neon.errors.InLiveLoopException">InLiveLoopException</span></code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>If called from inside a live loop.</p>
+            </div>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
   </div>
 
 </div>
@@ -859,15 +905,16 @@ adjusted in real-time.</p>
 
 
 
-<h3 id="neon.bpm.set_bpm" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>          <code class="highlight language-python"><span class="n">set_bpm</span><span class="p">(</span><span class="n">bpm</span><span class="p">)</span></code>
+<h3 id="neon.bpm.set" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>          <code class="highlight language-python"><span class="nb">set</span><span class="p">(</span><span class="n">bpm</span><span class="p">)</span></code>
 
 </h3>
 
 
   <div class="doc doc-contents ">
   
-      <p>Set the BPM.</p>
+      <p>Set the BPM. This function can only be called from the global
+   scope.</p>
 
 
 
@@ -917,6 +964,30 @@ adjusted in real-time.</p>
           <td>
             <div class="doc-md-description">
               <p>The new BPM.</p>
+            </div>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+
+  <p><span class="doc-section-title">Raises:</span></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr class="doc-section-item">
+          <td>
+                <code><span title="neon.errors.InLiveLoopException">InLiveLoopException</span></code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>If called from inside a live loop.</p>
             </div>
           </td>
         </tr>

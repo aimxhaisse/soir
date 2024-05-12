@@ -3,12 +3,22 @@
 namespace neon {
 namespace rt {
 
-const char* kInitEnginePy = R"(
-@INIT_ENGINE_PY@
+const char* kMod0ErrorsPy = R"(
+@MOD1_ERRORS_PY@
+)";
+const char* kMod1InternalsPy = R"(
+@MOD1_INTERNALS_PY@
 )";
 
-const char* kInitSamplerPy = R"(
-@INIT_SAMPLER_PY@
+const char* kMod2SamplerPy = R"(
+@MOD2_SAMPLER_PY@
+)";
+const char* kMod2BPMPy = R"(
+@MOD2_BPM_PY@
+)";
+
+const char* kMod3NeonPy = R"(
+@MOD3_NEON_PY@
 )";
 
 }  // namespace rt

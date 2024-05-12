@@ -84,12 +84,28 @@ uint64_t Engine::MicroBeatToBeat(MicroBeat beat) const {
 absl::Status Engine::Run() {
   py::scoped_interpreter guard{};
 
-  py::module neon_mod = py::module::import("neon");
+  // Import all the modules and execute the python code.  Order of
+  // imports is important, modules can depend on each others, we go
+  // from the lower level to the higher level.
+
+  py::module errors_mod = py::module::import("neon.errors");
+
+  py::module neon_internals_mod = py::module::import("neon.internals");
+
   py::module sampler_mod = py::module::import("neon.sampler");
+  py::module bpm_mod = py::module::import("neon.bpm");
+
+  py::module neon_mod = py::module::import("neon");
 
   try {
-    py::exec(kInitEnginePy, neon_mod.attr("__dict__"));
-    py::exec(kInitSamplerPy, sampler_mod.attr("__dict__"));
+    py::exec(kMod0ErrorsPy, errors_mod.attr("__dict__"));
+
+    py::exec(kMod1InternalsPy, neon_internals_mod.attr("__dict__"));
+
+    py::exec(kMod2SamplerPy, sampler_mod.attr("__dict__"));
+    py::exec(kMod2BPMPy, bpm_mod.attr("__dict__"));
+
+    py::exec(kMod3NeonPy, neon_mod.attr("__dict__"));
   } catch (py::error_already_set& e) {
     LOG(ERROR) << "Python error: " << e.what();
     return absl::InternalError("Python error");

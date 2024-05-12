@@ -1,6 +1,20 @@
-file(READ rt/py/neon/engine.py INIT_ENGINE_PY)
-file(READ rt/py/neon/sampler.py INIT_SAMPLER_PY)
-file(READ rt/py/neon/bpm.py INIT_BPM_PY)
+# Order is important here and is what is used by the C++ engine to
+# load properly modules.
+#
+# Modules can only depend on modules from the upper level.
+
+# Level 0
+file(READ rt/py/neon/errors.py MOD0_ERRORS_PY)
+
+# Level 1
+file(READ rt/py/neon/internals.py MOD1_INTERNALS_PY)
+
+# Level 2
+file(READ rt/py/neon/sampler.py MOD2_SAMPLER_PY)
+file(READ rt/py/neon/bpm.py MOD2_BPM_PY)
+
+# Level 3
+file(READ rt/py/neon/__init__.py MOD3_NEON_PY)
 
 configure_file(rt/init.cc.in rt/init.cc @ONLY)
 
