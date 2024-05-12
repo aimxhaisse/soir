@@ -5,7 +5,7 @@ namespace rt {
 
 const char* kInitEnginePy = R"(
 @INIT_ENGINE_PY@
-@INIT_SAMPLES_PY@
+@INIT_SAMPLER_PY@
 )";
 
 }  // namespace rt

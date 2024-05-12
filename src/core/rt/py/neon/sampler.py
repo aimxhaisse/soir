@@ -1,14 +1,18 @@
 """*Samples, lots of samples.*
 
-The **sample** module provides a way to load samples and play them
-inside loops in an intuitive way. Once instantiated, a sampler can be
+The **sampler** module provides a way to load samples and play them
+inside loops in an intuitive way. Once instantiated, a `Sampler` can be
 used to play samples from the selected pack given their name. If no
 exact match of the sample name is found, the first matching sample is
 selected. The cost of creating and using a sampler is cheap so it is
-fine to have a lot of instances at once:
+fine to have a lot of instances at once.
+
+# Cookbook
+
+## Play samples
 
 ``` python
-s = Sampler('808')
+s = n.sampler.new('808')
 
 @loop
 def kick(beats=4):
@@ -16,6 +20,20 @@ def kick(beats=4):
     s.play('kick')
     sleep(1)
 ```
+
+## List available packs
+
+``` python
+packs = n.sampler.packs()
+```
+
+## List samples in a pack
+
+``` python
+samples = n.sampler.samples('808')
+```
+
+# Reference
 """
 
 from dataclasses import dataclass
@@ -37,6 +55,10 @@ class Sampler:
             pack_name: str
     ):
         """Creates a new sampler with samples from the designated pack.
+
+        ???+ note
+
+            You can create a Sampler via the shortcut `n.sampler.new()`.
 
         Args:
             pack_name: The name of the sample pack to use.

@@ -1,5 +1,5 @@
 file(READ rt/py/neon/engine.py INIT_ENGINE_PY)
-file(READ rt/py/neon/samples.py INIT_SAMPLES_PY)
+file(READ rt/py/neon/sampler.py INIT_SAMPLER_PY)
 
 configure_file(rt/init.cc.in rt/init.cc @ONLY)
 
