@@ -6,10 +6,10 @@ namespace test {
 
 TEST_F(CoreTestBase, GetBpmOK) {
   PushCode(R"(
-set_bpm(120);
-log(str(get_bpm()));
-set_bpm(60);
-log(str(get_bpm()));
+bpm.set(120);
+log(str(bpm.get()));
+bpm.set(60);
+log(str(bpm.get()));
   )");
 
   EXPECT_TRUE(WaitForNotification("120.0"));

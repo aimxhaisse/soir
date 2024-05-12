@@ -8,7 +8,7 @@ namespace test {
 
 TEST_F(CoreTestBase, BasicLoop) {
   PushCode(R"(
-set_bpm(600)
+bpm.set(600)
 
 i = 0
 

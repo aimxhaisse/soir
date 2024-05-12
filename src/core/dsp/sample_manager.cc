@@ -10,8 +10,8 @@ namespace dsp {
 absl::Status SampleManager::Init(const utils::Config& config) {
   directory_ = config.Get<std::string>("neon.dsp.sample_directory");
   if (directory_.empty()) {
-    return absl::InvalidArgumentError(
-        "No sample directory specified in config");
+    LOG(WARNING) << "No sample directory specified in config";
+    return absl::OkStatus();
   }
 
   for (const auto& entry : std::filesystem::directory_iterator(directory_)) {
