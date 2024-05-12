@@ -77,7 +77,7 @@ $(VENV_DIR):
 $(DEPS_GRPC):
 	git clone https://github.com/grpc/grpc $@ && \
 	cd $@ && \
-	git checkout v1.62.1 && \
+	git checkout v1.60.0 && \
 	git submodule update --init --recursive
 
 $(DEPS_EFSW):

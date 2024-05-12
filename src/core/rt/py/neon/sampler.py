@@ -1,8 +1,8 @@
 """*Samples, lots of samples.*
 
 The **sampler** module provides a way to load samples and play them
-inside loops in an intuitive way. Once instantiated, a `Sampler` can be
-used to play samples from the selected pack given their name. If no
+inside loops in an intuitive way. Once instantiated, a `Sampler` can
+be used to play samples from the selected pack given their name. If no
 exact match of the sample name is found, the first matching sample is
 selected. The cost of creating and using a sampler is cheap so it is
 fine to have a lot of instances at once.
@@ -12,25 +12,27 @@ fine to have a lot of instances at once.
 ## Play samples
 
 ``` python
-s = n.sampler.new('808')
+s = sampler.new('808')
 
 @loop
 def kick(beats=4):
   for i in range(4):
     s.play('kick')
+    if i % 2 == 0:
+        s.play('snare')
     sleep(1)
 ```
 
 ## List available packs
 
 ``` python
-packs = n.sampler.packs()
+packs = sampler.packs()
 ```
 
 ## List samples in a pack
 
 ``` python
-samples = n.sampler.samples('808')
+samples = sampler.samples('808')
 ```
 
 # Reference
@@ -46,6 +48,15 @@ from live_ import (
     get_packs_,
     get_samples_,
 )
+
+
+def new(pack_name: str) -> 'Sampler':
+    """Creates a new sampler with samples from the designated pack.
+
+    Args:
+        pack_name: The name of the sample pack to use.
+    """
+    return Sampler(pack_name)
 
 
 class Sampler:
@@ -164,7 +175,7 @@ class Sample:
     duration: float
         
    
-def get_packs() -> list[str]:
+def packs() -> list[str]:
     """Returns the list of available sample packs.
 
     Returns:
@@ -173,7 +184,7 @@ def get_packs() -> list[str]:
     return get_packs_()
 
 
-def get_samples(pack_name: str) -> list[Sample]:
+def samples(pack_name: str) -> list[Sample]:
     """Returns the list of samples available in the given pack.
 
     Args:
@@ -184,5 +195,5 @@ def get_samples(pack_name: str) -> list[Sample]:
     """
     result = []
     for s in get_samples_(pack_name):
-        result.append(Sample(name=s, pack=pack_name))
+        result.append(Sample(name=s, pack=pack_name, path='', duration=0.0))
     return result

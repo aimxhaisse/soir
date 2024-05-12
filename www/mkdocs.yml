@@ -36,13 +36,14 @@ plugins:
       handlers:
         python:
           options:
-            show_source: false
+            merge_init_into_class: true
+            show_docstring_attributes: true
             show_root_heading: true
             show_root_full_path: false
+            show_source: false
             show_symbol_type_heading: true
             show_symbol_type_toc: true
             summary: true
-            merge_init_into_class: true
 
 markdown_extensions:
   - pymdownx.superfences:

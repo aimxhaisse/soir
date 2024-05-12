@@ -84,8 +84,12 @@ uint64_t Engine::MicroBeatToBeat(MicroBeat beat) const {
 absl::Status Engine::Run() {
   py::scoped_interpreter guard{};
 
+  py::module neon_mod = py::module::import("neon");
+  py::module sampler_mod = py::module::import("neon.sampler");
+
   try {
-    py::exec(kInitEnginePy);
+    py::exec(kInitEnginePy, neon_mod.attr("__dict__"));
+    py::exec(kInitSamplerPy, sampler_mod.attr("__dict__"));
   } catch (py::error_already_set& e) {
     LOG(ERROR) << "Python error: " << e.what();
     return absl::InternalError("Python error");

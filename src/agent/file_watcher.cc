@@ -1,6 +1,7 @@
 #include <absl/log/log.h>
 #include <absl/strings/str_cat.h>
 #include <grpc++/grpc++.h>
+#include <filesystem>
 
 #include "agent/file_watcher.hh"
 #include "utils/config.hh"
