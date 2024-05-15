@@ -10,6 +10,7 @@ nav:
       - neon: reference/neon.md
       - bpm: reference/bpm.md
       - tracks: reference/tracks.md
+      - midi: reference/midi.md
       - errors: reference/errors.md
       - sampler: reference/sampler.md
   - Architecture: architecture.md

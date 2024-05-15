@@ -12,6 +12,7 @@ file(READ rt/py/neon/internals.py MOD1_INTERNALS_PY)
 # Level 2
 file(READ rt/py/neon/sampler.py MOD2_SAMPLER_PY)
 file(READ rt/py/neon/bpm.py MOD2_BPM_PY)
+file(READ rt/py/neon/midi.py MOD2_MIDI_PY)
 
 # Level 3
 file(READ rt/py/neon/__init__.py MOD3_NEON_PY)

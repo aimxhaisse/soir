@@ -92,6 +92,7 @@ absl::Status Engine::Run() {
   py::module neon_internals_mod = py::module::import("neon.internals");
   py::module sampler_mod = py::module::import("neon.sampler");
   py::module bpm_mod = py::module::import("neon.bpm");
+  py::module midi_mod = py::module::import("neon.midi");
   py::module neon_mod = py::module::import("neon");
 
   try {
@@ -99,6 +100,7 @@ absl::Status Engine::Run() {
     py::exec(kMod1InternalsPy, neon_internals_mod.attr("__dict__"));
     py::exec(kMod2SamplerPy, sampler_mod.attr("__dict__"));
     py::exec(kMod2BPMPy, bpm_mod.attr("__dict__"));
+    py::exec(kMod2MIDIPy, midi_mod.attr("__dict__"));
     py::exec(kMod3NeonPy, neon_mod.attr("__dict__"));
   } catch (py::error_already_set& e) {
     LOG(ERROR) << "Python error: " << e.what();

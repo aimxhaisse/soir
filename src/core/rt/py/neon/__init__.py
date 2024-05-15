@@ -123,5 +123,6 @@ def sleep(beats: float) -> None:
 import neon.bpm as bpm
 import neon.sampler as sampler
 import neon.tracks as tracks
+import neon.midi as midi
 
 # Here lies the live code.

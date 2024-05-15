@@ -16,6 +16,9 @@ const char* kMod2SamplerPy = R"(
 const char* kMod2BPMPy = R"(
 @MOD2_BPM_PY@
 )";
+const char* kMod2MIDIPy = R"(
+@MOD2_MIDI_PY@
+)";
 
 const char* kMod3NeonPy = R"(
 @MOD3_NEON_PY@
