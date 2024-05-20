@@ -3,8 +3,8 @@
 The `tracks` module provides a way to setup and control tracks in the
 neon engine. A track has an instrument type and a set of parameters
 and effects. Once a track is created, loops can be scheduled on
-it. Tracks can be added, removed or updated in real-time using the
-`setup()` function.
+it. Tracks can be added & removed in real-time using the `setup()`
+function, existing tracks are untouched.
 
 # Cookbook
 
@@ -51,12 +51,14 @@ class Track:
         muted: The muted state. Defaults to None.
         volume: The volume. Defaults to None.
         pan: The pan. Defaults to None.
+        extra: Extra parameters. Defaults to None.
     """
     instrument: str = None
     channel: int = None
     muted: bool | None = None
     volume: float | None  = None
     pan: float | None = None
+    extra: dict | None = None
 
     def __repr__(self):
         return f'Track(instrument={self.instrument}, channel={self.channel}, muted={self.muted}, volume={self.volume}, pan={self.pan})'

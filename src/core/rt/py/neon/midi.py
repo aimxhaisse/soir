@@ -16,18 +16,19 @@ midi.note_off(60)
 from bindings import (
     midi_note_on_,
     midi_note_off_,
+    schedule_,
 )
 from neon.errors import (
     NotInLiveLoopException,
 )
 from neon.internals import (
     assert_in_loop,
-    current_loop_,
+    current_loop,
 )
 
 
 def note_on(note: int, velocity: int = 127) -> float:
-    """Send the MIDI note to the external synthesizer.
+    """Send the MIDI note to the external synthesizer using the track id of the loop as MIDI channel.
 
     Args:
         note: The MIDI note to send.
@@ -42,12 +43,12 @@ def note_on(note: int, velocity: int = 127) -> float:
 
     schedule_(
         current_loop().current_offset,
-        lambda: midi_note_on_(track.channel, note, velocity)
+        lambda: midi_note_on_(track, note, velocity)
     )
 
     
 def note_off(note: int, velocity: int = 127) -> float:
-    """Send the MIDI note off to the external synthesizer.
+    """Send the MIDI note off to the external synthesizer using the track id of the loop as MIDI channel.
 
     Args:
         note: The MIDI note to stop.
@@ -62,5 +63,5 @@ def note_off(note: int, velocity: int = 127) -> float:
 
     schedule_(
         current_loop().current_offset,
-        lambda: midi_note_off_(track.channel, note, velocity)
+        lambda: midi_note_off_(track, note, velocity)
     )

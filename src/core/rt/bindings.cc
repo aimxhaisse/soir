@@ -71,6 +71,10 @@ PYBIND11_EMBEDDED_MODULE(bindings, m) {
           instrument = "mono_sampler";
           break;
 
+        case dsp::TRACK_MIDI_EXT:
+          instrument = "midi_ext";
+          break;
+
         default:
           instrument = "unknown";
           break;
@@ -95,6 +99,8 @@ PYBIND11_EMBEDDED_MODULE(bindings, m) {
 
       if (instr == "mono_sampler") {
         s.instrument_ = dsp::TRACK_MONO_SAMPLER;
+      } else if (instr == "midi_ext") {
+        s.instrument_ = dsp::TRACK_MIDI_EXT;
       } else {
         LOG(ERROR) << "Unknown instrument: " << instr;
         return false;

@@ -26,6 +26,17 @@ absl::Status Track::Init(const TrackSettings& settings,
       }
     } break;
 
+    case TRACK_MIDI_EXT: {
+      settings_.instrument_ = TRACK_MIDI_EXT;
+      midi_ext_ = std::make_unique<MidiExt>();
+      auto status = midi_ext_->Init();
+      if (!status.ok()) {
+        LOG(ERROR) << "Failed to init midi ext: " << status.message();
+        return status;
+      }
+      break;
+    }
+
     default:
       return absl::InvalidArgumentError("Unknown instrument");
   }
@@ -97,7 +108,19 @@ void Track::Render(const std::list<libremidi::message>& events,
   }
 
   if (!settings_.muted_) {
-    sampler_->Render(events, buffer);
+    switch (settings_.instrument_) {
+      case TRACK_MONO_SAMPLER:
+        sampler_->Render(events, buffer);
+        break;
+
+      case TRACK_MIDI_EXT:
+        midi_ext_->Render(events, buffer);
+        break;
+
+      defaults:
+        LOG(WARNING) << "Unknown instrument";
+        break;
+    }
 
     // DSP per-track.
     buffer.ApplyGain(static_cast<float>(settings_.volume_) / 127.0f);
