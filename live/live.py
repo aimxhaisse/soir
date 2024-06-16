@@ -1,9 +1,11 @@
 bpm.set(110)
 
+
 tracks.setup([
-    tracks.mk("midi_out", 1, muted=False, volume=100),
+    tracks.mk("midi_ext", 1, muted=False, volume=100),
     tracks.mk("mono_sampler", 2, muted=False, volume=100),
 ])
+
 
 afx = [
     [64, 69, 75],

@@ -87,7 +87,6 @@ absl::Status Engine::Run() {
   // Import all the modules and execute the python code.  Order of
   // imports is important, modules can depend on each others, we go
   // from the lower level to the higher level.
-
   py::module errors_mod = py::module::import("neon.errors");
   py::module neon_internals_mod = py::module::import("neon.internals");
   py::module sampler_mod = py::module::import("neon.sampler");

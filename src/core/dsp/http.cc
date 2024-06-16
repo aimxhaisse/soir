@@ -14,8 +14,8 @@ absl::Status HttpServer::Init(const utils::Config& config, Engine* engine) {
 
   engine_ = engine;
 
-  http_host_ = config.Get<std::string>("neon.dsp.http.host");
-  http_port_ = config.Get<int>("neon.dsp.http.port");
+  http_host_ = config.Get<std::string>("neon.dsp.output.http.host");
+  http_port_ = config.Get<int>("neon.dsp.output.http.port");
 
   server_ = std::make_unique<httplib::Server>();
 

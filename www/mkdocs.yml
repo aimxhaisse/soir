@@ -6,6 +6,10 @@ site_author: s. rannou <mxs@sbrk.org>
 
 nav:
   - Home: index.md
+  - Guides:
+      - Introduction:
+          - Hello World: guides/intro_hello.md
+          - Your First Tracks: guides/intro_tracks.md
   - Reference:
       - neon: reference/neon.md
       - bpm: reference/bpm.md

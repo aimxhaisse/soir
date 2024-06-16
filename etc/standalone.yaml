@@ -13,8 +13,11 @@ neon:
     port: 9000
   dsp:
     sample_directory: assets/samples
-    http:
-      host: localhost
-      port: 8081
+    output:
+      http:
+        enable: true
+        host: localhost
+        port: 8081
     engine:
       block_size: 4096
+
