@@ -18,6 +18,8 @@ neon:
         enable: true
         host: localhost
         port: 8081
+      audio:
+        enable: true
     engine:
       block_size: 4096
 

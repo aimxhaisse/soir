@@ -19,6 +19,7 @@ add_subdirectory(deps/httplib)
 add_subdirectory(deps/libremidi)
 add_subdirectory(deps/audiofile)
 add_subdirectory(deps/rapidjson)
+add_subdirectory(deps/rtaudio)
 
 include(deps/grpc/third_party/protobuf/cmake/protobuf-generate.cmake)
 
