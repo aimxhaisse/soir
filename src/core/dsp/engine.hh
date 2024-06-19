@@ -6,6 +6,7 @@
 #include <mutex>
 #include <thread>
 
+#include "core/dsp/audio_output.hh"
 #include "core/dsp/http.hh"
 #include "core/dsp/sample_manager.hh"
 #include "core/dsp/track.hh"
@@ -56,9 +57,11 @@ class Engine {
   bool stop_ = false;
   std::unique_ptr<HttpServer> http_server_;
 
-  // Consumers are registered by the HTTP server upon new connections
-  // and fed with audio samples by the DSP engine.
+  // Consumers can be registered at start if the audio output is
+  // enabled or by the HTTP server upon new connections. They are fed
+  // with audio samples from the DSP engine.
   std::mutex consumers_mutex_;
+  std::unique_ptr<AudioOutput> audio_output_;
   std::list<SampleConsumer*> consumers_;
 
   // Tracks are created/updated by the Runtime engine, and locked

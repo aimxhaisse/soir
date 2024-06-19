@@ -24,6 +24,7 @@ add_library(neon_core
 
   dsp/adsr.cc
   dsp/audio_buffer.cc
+  dsp/audio_output.cc
   dsp/engine.cc
   dsp/http.cc
   dsp/http_stream.cc
@@ -33,6 +34,7 @@ add_library(neon_core
   dsp/sample_pack.cc
   dsp/track.cc
   dsp/vorbis_encoder.cc
+  dsp/audio_output.cc
 
   rt/bindings.cc
   rt/engine.cc
@@ -47,6 +49,7 @@ target_link_libraries(neon_core
   neon_proto
   neon_utils
   ogg
+  rtaudio
   vorbis
   vorbisenc
   pybind11_headers

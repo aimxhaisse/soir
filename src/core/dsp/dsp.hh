@@ -13,6 +13,8 @@ static constexpr int kLeftChannel = 0;
 static constexpr int kRightChannel = 1;
 static constexpr int kSampleRate = 48000;
 static constexpr float kVorbisQuality = 1.0f;
+static constexpr int kDeviceId = 0;
+static constexpr int kNumBuffers = 8;
 
 class SampleConsumer {
  public:

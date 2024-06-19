@@ -15,13 +15,24 @@ absl::Status Engine::Init(const utils::Config& config) {
 
   block_size_ = config.Get<uint32_t>("neon.dsp.engine.block_size");
 
-  auto http_enabled = config.Get<bool>("neon.dsp.output.http.enabled");
+  auto http_enabled = config.Get<bool>("neon.dsp.output.http.enable");
 
   if (http_enabled) {
     http_server_ = std::make_unique<HttpServer>();
     auto status = http_server_->Init(config, this);
     if (!status.ok()) {
       LOG(ERROR) << "Failed to initialize HTTP server: " << status;
+      return status;
+    }
+  }
+
+  auto audio_output_enabled = config.Get<bool>("neon.dsp.output.audio.enable");
+
+  if (audio_output_enabled) {
+    audio_output_ = std::make_unique<AudioOutput>();
+    auto status = audio_output_->Init(config);
+    if (!status.ok()) {
+      LOG(ERROR) << "Failed to initialize audio output: " << status;
       return status;
     }
   }
@@ -46,6 +57,16 @@ absl::Status Engine::Start() {
     }
   });
 
+  if (audio_output_.get() != nullptr) {
+    RegisterConsumer(audio_output_.get());
+
+    auto status = audio_output_->Start();
+    if (!status.ok()) {
+      LOG(ERROR) << "Failed to start audio output: " << status;
+      return status;
+    }
+  }
+
   if (http_server_.get() != nullptr) {
     auto status = http_server_->Start();
     if (!status.ok()) {
@@ -66,6 +87,16 @@ absl::Status Engine::Stop() {
       LOG(ERROR) << "Failed to stop HTTP server: " << status;
       return status;
     }
+  }
+
+  if (audio_output_.get() != nullptr) {
+    auto status = audio_output_->Stop();
+    if (!status.ok()) {
+      LOG(ERROR) << "Failed to stop audio output: " << status;
+      return status;
+    }
+
+    RemoveConsumer(audio_output_.get());
   }
 
   {
