@@ -34,10 +34,10 @@ from bindings import (
     get_beat_,
 )
 from neon.errors import (
-    InLiveLoopException,
+    InLiveException,
 )
 from neon.internals import (
-    current_loop_,
+    current_live_,
 )
 
 
@@ -49,10 +49,10 @@ def get() -> float:
         The current BPM.
 
     Raises:
-        InLiveLoopException: If called from inside a live loop.
+        InLiveException: If called from inside a live loop.
     """
-    if current_loop_:
-        raise InLiveLoopException()
+    if current_live_:
+        raise InLiveException()
 
     return get_bpm_()
 
@@ -68,10 +68,10 @@ def set(bpm: float) -> float:
         The new BPM.
 
     Raises:
-        InLiveLoopException: If called from inside a live loop.
+        InLiveException: If called from inside a live loop.
     """
-    if current_loop_:
-        raise InLiveLoopException()
+    if current_live_:
+        raise InLiveException()
 
     return set_bpm_(bpm)
 
@@ -82,7 +82,7 @@ def beat() -> float:
     Returns:
         The current beat.
     """
-    if current_loop_:
-        return get_beat_() + current_loop_.current_offset
+    if current_live_:
+        return get_beat_() + current_live_.current_offset
 
     return get_beat_()

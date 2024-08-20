@@ -19,11 +19,11 @@ from bindings import (
     schedule_,
 )
 from neon.errors import (
-    NotInLiveLoopException,
+    NotInLiveException,
 )
 from neon.internals import (
-    assert_in_loop,
-    current_loop,
+    assert_in_live,
+    current_live,
 )
 
 
@@ -35,14 +35,14 @@ def note_on(note: int, velocity: int = 127) -> float:
         velocity: The velocity. Defaults to 127.
 
     Raises:
-        NotInLiveLoopException: If called from outside a live loop.
+        NotInLiveException: If called from outside a live loop.
     """
-    assert_in_loop()
+    assert_in_live()
 
-    track = current_loop().track
+    track = current_live().track
 
     schedule_(
-        current_loop().current_offset,
+        current_live().current_offset,
         lambda: midi_note_on_(track, note, velocity)
     )
 
@@ -55,13 +55,13 @@ def note_off(note: int, velocity: int = 127) -> float:
         velocity: The velocity. Defaults to 127.
 
     Raises:
-        NotInLiveLoopException: If called from outside a live loop.
+        NotInLiveException: If called from outside a live loop.
     """
-    assert_in_loop()
+    assert_in_live()
 
-    track = current_loop().track
+    track = current_live().track
 
     schedule_(
-        current_loop().current_offset,
+        current_live().current_offset,
         lambda: midi_note_off_(track, note, velocity)
     )

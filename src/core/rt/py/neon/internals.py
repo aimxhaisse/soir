@@ -13,24 +13,28 @@ from bindings import (
     setup_tracks_,
 )
 from neon.errors import (
-    InLiveLoopException,
-    NotInLiveLoopException,
+    InLiveException,
+    NotInLiveException,
 )
 
 
-live_loops_ = dict()
-current_loop_ = None
+# Registry of all known decorated functions (@live, @loop).
+live_registry_ = dict()
+
+# Currently executing decorated function.
+current_live_ = None
 
 
-class LiveLoop_:
-    """Helper class to manage a live loop.
+class Live_:
+    """Helper class to manage a live function.
     """
-    def __init__(self, name: str, beats: int, track: int, align: int, func: callable):
+    def __init__(self, name: str, beats: int, track: int, align: int, loop: bool, func: callable):
         self.name = name
         self.beats = beats
         self.track = track
         self.align = align
         self.func = func
+        self.loop = loop
 
         self.current_offset = 0
 
@@ -41,40 +45,44 @@ class LiveLoop_:
 
     def run(self):
         """Temporal recursion scheduling of the live loop.
+
+        If the live is not looping, only schedule once.
         """
         at = get_beat_()
+
         if self.align:
             at = self.beats - at % self.align
 
         def loop():
-            global current_loop_
+            global current_live_
 
             self.reset()
 
-            current_loop_ = self
+            current_live_ = self
             self.func()
-            current_loop_ = None
+            current_live_ = None
 
-            schedule_(self.beats, loop)
+            if self.loop:
+                schedule_(self.beats, loop)
 
         schedule_(at, loop)
 
 
-def loop(beats: int, track: int, align: int) -> callable:
+def _live(beats: int, track: int, align: int, loop: bool) -> callable:
 
     def wrapper(func):
         """
         """
         name = func.__name__
 
-        if name not in live_loops_:
-            ll = LiveLoop_(name, beats, track, align, func)
+        if name not in live_registry_:
+            ll = Live_(name, beats, track, align, loop, func)
 
             ll.run()
 
-            live_loops_[name] = ll
+            live_registry_[name] = ll
         else:
-            ll = live_loops_[name]
+            ll = live_registry_[name]
 
             # We allow to update the beats and align of the live loop,
             # however it will only be taken into account at the next
@@ -98,39 +106,67 @@ def loop(beats: int, track: int, align: int) -> callable:
     return wrapper
 
 
-def assert_in_loop():
-    """Assert that we are in a live loop.
+def loop(beats: int, track: int = 0, align: int = 0) -> callable:
+    """Decorator to define a live loop.
 
-    Raises:
-        NotInLiveLoopException: If we are not in a live loop.
-    """
-    global current_loop_
-
-    if not current_loop_:
-        raise NotInLiveLoopException()
-
-
-def assert_not_in_loop():
-    """Assert that we are not in a live loop.
-
-    Raises:
-        InLiveLoopException: If we are in a live loop.
-    """
-    global current_loop_
-
-    if current_loop_:
-        raise InLiveLoopException()
-
-
-def current_loop() -> LiveLoop_:
-    """Get the current live loop.
+    Args:
+        beats: The duration of the loop in beats.
+        track: The track to use for the loop.
+        align: The alignment of the loop.
 
     Returns:
-        The current live loop.
+        A callable that can be used to decorate a function.
     """
-    global current_loop_
+    return _live(beats, track, align, loop=True)
 
-    return current_loop_    
+
+def live(beats: int, track: int = 0, align: int = 0) -> callable:
+    """Decorator to define a live function.
+
+    Args:
+        beats: The duration of the loop in beats.
+        track: The track to use for the loop.
+        align: The alignment of the loop.
+
+    Returns:
+        A callable that can be used to decorate a function.
+    """
+    return _live(beats, track, align, loop=False)
+
+
+def assert_in_live():
+    """Assert that we are in a live context.
+
+    Raises:
+        NotInLiveException: If we are not in a live loop.
+    """
+    global current_live_
+
+    if not current_live_:
+        raise NotInLiveException()
+
+
+def assert_not_in_live():
+    """Assert that we are not in a live context.
+
+    Raises:
+        InLiveException: If we are in a live loop.
+    """
+    global current_live_
+
+    if current_live_:
+        raise InLiveException()
+
+
+def current_live() -> Live_:
+    """Get the current live context.
+
+    Returns:
+        The current live context.
+    """
+    global current_live_
+
+    return current_live_    
 
 
 # Utilities API
@@ -139,10 +175,10 @@ def current_loop() -> LiveLoop_:
 def log(message: str) -> None:
     """Log a message to the console.
     """
-    global current_loop_
+    global current_live_
 
-    if current_loop_:
-        schedule_(current_loop_.current_offset, lambda: log_(message))
+    if current_live_:
+        schedule_(current_live_.current_offset, lambda: log_(message))
     else:
         log_(message)
 
@@ -150,12 +186,12 @@ def log(message: str) -> None:
 def sleep(beats: float):
     """Sleep for the duration of the current loop.
     """
-    global current_loop_
+    global current_live_
 
-    if not current_loop_:
-        raise NotInLiveLoopException()
+    if not current_live_:
+        raise NotInLiveException()
 
-    current_loop_.current_offset += beats
+    current_live_.current_offset += beats
 
 
 # Midi API
@@ -164,10 +200,10 @@ def sleep(beats: float):
 def midi_note_on(channel: int, note: int, velocity: int):
     """Send a MIDI note on message.
     """
-    global current_loop_
+    global current_live_
 
-    if current_loop_:
-        schedule_(current_loop_.current_offset, lambda: midi_note_on_(channel, note, velocity))
+    if current_live_:
+        schedule_(current_live_.current_offset, lambda: midi_note_on_(channel, note, velocity))
     else:
         midi_note_on_(channel, note, velocity)
 
@@ -175,10 +211,10 @@ def midi_note_on(channel: int, note: int, velocity: int):
 def midi_note_off(channel: int, note: int, velocity: int):
     """Send a MIDI note off message.
     """
-    global current_loop_
+    global current_live_
 
-    if current_loop_:
-        schedule_(current_loop_.current_offset, lambda: midi_note_off_(channel, note, velocity))
+    if current_live_:
+        schedule_(current_live_.current_offset, lambda: midi_note_off_(channel, note, velocity))
     else:
         midi_note_off_(channel, note, velocity)
 
@@ -186,9 +222,9 @@ def midi_note_off(channel: int, note: int, velocity: int):
 def midi_cc(channel: int, cc: int, value: int):
     """Send a MIDI CC message.
     """
-    global current_loop_
+    global current_live_
 
-    if current_loop_:
-        schedule_(current_loop_.current_offset, lambda: midi_cc_(channel, cc, value))
+    if current_live_:
+        schedule_(current_live_.current_offset, lambda: midi_cc_(channel, cc, value))
     else:
         midi_cc_(channel, cc, value)

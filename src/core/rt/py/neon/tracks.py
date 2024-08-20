@@ -34,10 +34,10 @@ from bindings import (
     setup_tracks_,
 )
 from neon.errors import (
-    InLiveLoopException,
+    InLiveException,
 )
 from neon.internals import (
-    assert_not_in_loop,
+    assert_not_in_live,
 )
 
 
@@ -71,9 +71,9 @@ def layout() -> list[Track]:
         list[Track]: The current tracks.
 
     Raises:
-        InLiveLoopException: If called from inside a live loop.
+        InLiveException: If called from inside a live loop.
     """
-    assert_not_in_loop()
+    assert_not_in_live()
 
     return [Track(**t) for t in get_tracks_()]
 
@@ -85,9 +85,9 @@ def setup(tracks: list[Track]) -> bool:
         tracks (list[Track]): The tracks to setup.
 
     Raises:
-        InLiveLoopException: If called from inside a live loop.
+        InLiveException: If called from inside a live loop.
     """
-    assert_not_in_loop()
+    assert_not_in_live()
 
     return setup_tracks_([asdict(track) for track in tracks])
 

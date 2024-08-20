@@ -11,18 +11,19 @@ class NeonException(Exception):
     pass
 
 
-class NotInLiveLoopException(NeonException):
-    """Raised when trying to execute code outside of a live loop.
+class NotInLiveException(NeonException):
+    """Raised when trying to execute code outside of a live context.
 
     In Neon, some of the code is expected to be used from within a
-    loop, for instance sleeping between two instructions. This
-    exception is raised if such code is called from the global scope.
+    loop or a live function, for instance sleeping between two
+    instructions. This exception is raised if such code is called from
+    the global scope.
     """
     pass
 
 
-class InLiveLoopException(NeonException):
-    """Raised when trying to execute code inside a live loop.
+class InLiveException(NeonException):
+    """Raised when trying to execute code inside a live context.
 
     In Neon, some of the code is expected to be used from the global
     scope as it affects everything, for example, setting the BPM. This

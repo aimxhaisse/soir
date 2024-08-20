@@ -53,5 +53,3 @@ Examples:
 - Select sample via name through Midi
 - IPFS
 - Websocket queue
-
-

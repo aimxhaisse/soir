@@ -1,12 +1,13 @@
 bpm.set(110)
 
-tracks.setup([
-    tracks.mk("mono_sampler", 1, muted=False, volume=100),
-])
+@live
+def setup():
+    log('setup')
+    tracks.setup([
+        tracks.mk("mono_sampler", 1, muted=False, volume=100),
+    ])
 
 s = sampler.new('passage')
-
-# log(str(sampler.samples('passage')))
 
 @loop(track=1, beats=4)
 def beats():
