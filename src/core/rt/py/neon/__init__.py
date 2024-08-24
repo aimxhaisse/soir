@@ -52,7 +52,7 @@ import neon.internals
 
 
 def loop(beats: int=4, track: int=1, align: int=4) -> callable:
-    """Decorator to create a live-loop that is rescheduled every given number of beats.
+    """Decorator to create a loop that is rescheduled every given number of beats.
 
     The concept of a loop is similar to [Sonic
     Pi](https://sonic-pi.net/)'s live loops. Code within a loop is

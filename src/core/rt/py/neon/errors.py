@@ -11,7 +11,7 @@ class NeonException(Exception):
     pass
 
 
-class NotInLiveException(NeonException):
+class NotInLoopException(NeonException):
     """Raised when trying to execute code outside of a live context.
 
     In Neon, some of the code is expected to be used from within a
@@ -22,7 +22,7 @@ class NotInLiveException(NeonException):
     pass
 
 
-class InLiveException(NeonException):
+class InLoopException(NeonException):
     """Raised when trying to execute code inside a live context.
 
     In Neon, some of the code is expected to be used from the global
