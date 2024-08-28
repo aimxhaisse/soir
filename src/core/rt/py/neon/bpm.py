@@ -47,7 +47,7 @@ def get() -> float:
         The current BPM.
 
     Raises:
-        InLoopException: If called from inside a live loop.
+        InLoopException: If called from inside a loop.
     """
     assert_not_in_loop()
 
@@ -65,7 +65,7 @@ def set(bpm: float) -> float:
         The new BPM.
 
     Raises:
-        InLoopException: If called from inside a live loop.
+        InLoopException: If called from inside a loop.
     """
     assert_not_in_loop()
 

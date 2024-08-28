@@ -27,14 +27,14 @@ tracks.setup([
 # Create a sampler instance using the sample pack 'passage'.
 s = sampler.new('passage')
 
-# Define a 4 beats live loop that plays a kick sample every beat on track 1.
+# Define a 4 beats loop that plays a kick sample every beat on track 1.
 @loop(beats=4, track=1)
 def kick():
     for i in range(4):
         s.play('kick')
         sleep(1)
 
-# Define a 2 beats live loop that plays a snare sample every 2 beats on track 1.
+# Define a 2 beats loop that plays a snare sample every 2 beats on track 1.
 @loop(beats=2, track=1)
 def snare():
     for i in range(2):
@@ -81,6 +81,23 @@ def loop(beats: int=4, track: int=1, align: int=4) -> callable:
     return neon.internals.loop(beats, track, align)
 
 
+def live() -> callable:
+    """Decorator to create a live function that is executed each time the code is changed.
+
+    ``` python
+    @live
+    def setup:
+      tracks.setup([
+        tracks.mk("mono_sampler", 1, muted=False, volume=100),
+      ])
+    ```
+
+    Returns:
+        A decorator registering and executing the live function.
+    """
+    return neon.internals.live()
+
+
 def log(message: str) -> None:
     """Log a message to the console.
 
@@ -115,7 +132,7 @@ def sleep(beats: float) -> None:
         beats: The duration to sleep in beats.
 
     Raises:
-        errors.NotInLiveLoopException: If we are not in a live loop.
+        errors.NotInLiveLoopException: If we are not in a loop.
     """
     return neon.internals.sleep(beats)
 

@@ -71,7 +71,7 @@ def layout() -> list[Track]:
         list[Track]: The current tracks.
 
     Raises:
-        InLoopException: If called from inside a live loop.
+        InLoopException: If called from inside a loop.
     """
     assert_not_in_loop()
 
@@ -85,7 +85,7 @@ def setup(tracks: list[Track]) -> bool:
         tracks (list[Track]): The tracks to setup.
 
     Raises:
-        InLoopException: If called from inside a live loop.
+        InLoopException: If called from inside a loop.
     """
     assert_not_in_loop()
 

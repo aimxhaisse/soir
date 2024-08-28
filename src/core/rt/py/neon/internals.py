@@ -1,4 +1,5 @@
 import json
+import inspect
 
 from enum import Enum
 
@@ -18,7 +19,7 @@ from neon.errors import (
 )
 
 
-# @loop decorator API
+# Decorator API for @loop
 
 
 loop_registry_ = dict()
@@ -40,7 +41,7 @@ class Loop_:
         self.current_offset = 0
 
     def run(self):
-        """Temporal recursion scheduling of the live loop.
+        """Temporal recursion scheduling of the loop.
         """
         at = get_beat_()
 
@@ -76,7 +77,7 @@ def loop(beats: int, track: int, align: int) -> callable:
         else:
             ll = loop_registry_[name]
 
-            # We allow to update the beats and align of the live loop,
+            # We allow to update the beats and align of the loop,
             # however it will only be taken into account at the next
             # iteration of the loop.
             ll.beats = beats
@@ -128,6 +129,79 @@ def current_loop() -> Loop_:
         The current loop.
     """
     return current_loop_    
+
+
+# Decorator API for @live
+
+
+live_registry_ = dict()
+current_live_ = None
+
+
+class Live_:
+    """Helper class to manage a live function.
+    """
+    def __init__(self, name: str, func: callable):
+        self.name = name
+        self.func = func
+
+    def has_changed(self, func: callable) -> bool:
+        """Check if the function has changed.
+
+        Args:
+            func: The function to check.
+
+        Returns:
+            True if the function has changed, False otherwise.
+        """
+        return inspect.getsource(func) != inspect.getsource(self.func)
+
+    def run(self):
+        """Executes right away the live function.
+        """
+        global current_live_
+
+        current_live_ = self
+        func = self.func
+        func()
+        current_live_ = None
+
+
+def live() -> callable:
+
+    def wrapper(func):
+        """
+        """
+        name = func.__name__
+
+        if name not in live_registry_:
+            ll = Live_(name, func)
+            ll.run()
+            live_registry_[name] = ll
+        else:            
+            ll = live_registry_[name]
+            if ll.has_changed(func):
+                ll.func = func
+                ll.run()
+
+        # This is a bit counter-intuitive: we don't allow to execute
+        # the decorated function directly, it is scheduled the moment
+        # the @live decorator is called at definition time. We could
+        # maybe raise an exception here to help the user, but at the
+        # moment we don't have an error notification flow per-user.
+
+        return lambda: None
+
+    return wrapper
+
+
+def current_live() -> Live_:
+    """Get the current live.
+
+    Returns:
+        The current live.
+    """
+    return current_live_    
 
 
 # Utilities API
