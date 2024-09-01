@@ -1,5 +1,7 @@
 # NEON
 
+TEST_FILTER 	?= "*"
+
 BUILD_DIR	:= build
 BIN_DIR		:= bin
 BINARY		:= $(BIN_DIR)/neon
@@ -38,8 +40,8 @@ full-clean: clean
 	rm -rf $(DEPS_EFSW) $(DEPS_PYBIND) $(DEPS_HTTPLIB) $(DEPS_LIBREMIDI) $(DEPS_AUDIOFILE) $(DEPS_GRPC) $(DEPS_RAPIDJSON) $(DEPS_RTAUDIO)
 
 test: all
-	./$(BUILD_DIR)/src/utils/neon_utils_test
-	./$(BUILD_DIR)/src/core/neon_core_test
+	./$(BUILD_DIR)/src/utils/neon_utils_test --gtest_filter=$(TEST_FILTER)
+	./$(BUILD_DIR)/src/core/neon_core_test --gtest_filter=$(TEST_FILTER)
 
 # Build
 
