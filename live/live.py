@@ -1,8 +1,8 @@
 bpm.set(110)
 
-@live
+@live()
 def setup():
-    log('setup')
+    log('setup 2')
     tracks.setup([
         tracks.mk("mono_sampler", 1, muted=False, volume=100),
     ])
@@ -14,4 +14,4 @@ def beats():
     log('beats')
     for i in range(4):
         s.play('morphbot_17')
-        sleep(4)
+        sleep(1)

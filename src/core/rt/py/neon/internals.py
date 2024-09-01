@@ -20,6 +20,11 @@ from neon.errors import (
 )
 
 
+# Incremented at each buffer evaluation, used to remove loops and live
+# functions that are not part of the buffer anymore.
+eval_id_ = 0
+
+
 # Decorator API for @loop
 
 
@@ -36,6 +41,7 @@ class Loop_:
         self.track = track
         self.align = align
         self.func = func
+        self.updated_at = None
 
         # Current offset in beats in the loop, used to schedule events
         # in the future.
@@ -50,6 +56,9 @@ class Loop_:
             at = self.beats - at % self.align
 
         def loop():
+            if self.name not in loop_registry_:
+                return
+
             global current_loop_
 
             current_loop_ = self
@@ -87,6 +96,8 @@ def loop(beats: int, track: int, align: int) -> callable:
 
             # Here is where we perform code update seamlessly.
             ll.func = func
+
+        ll.updated_at = eval_id_
 
         # This is a bit counter-intuitive: we don't allow to execute
         # the decorated function directly, it is scheduled the moment
@@ -130,6 +141,18 @@ def current_loop() -> Loop_:
         The current loop.
     """
     return current_loop_    
+
+
+def get_loop(name: str) -> Loop_:
+    """Get the loop by name.
+
+    Args:
+        name: The name of the loop function.
+
+    Returns:
+        The loop function.
+    """
+    return loop_registry_[name]
 
 
 # Decorator API for @live
@@ -177,6 +200,7 @@ class Live_:
         self.name = name
         self.func = func
         self.code = code
+        self.updated_at = None
 
     def run(self):
         """Executes right away the live function.
@@ -208,6 +232,8 @@ def live() -> callable:
                 ll.code = code
                 ll.run()
 
+        ll.updated_at = eval_id_
+
         # This is a bit counter-intuitive: we don't allow to execute
         # the decorated function directly, it is scheduled the moment
         # the @live decorator is called at definition time. We could
@@ -238,6 +264,36 @@ def get_live(name: str) -> Live_:
         The live function.
     """
     return live_registry_[name]
+
+
+## Internal facilities
+
+
+def post_eval_():
+    """Called after each buffer evaluation.
+
+    Currently used to clean-up loops and live functions that are not
+    part of the buffer anymore.
+    """
+    global eval_id_
+
+    loops_to_remove = []
+    for name, ll in loop_registry_.items():
+        if ll.updated_at != eval_id_:
+            loops_to_remove.append(name)
+    for name in loops_to_remove:
+        del loop_registry_[name]
+        log(f"removing loop {name}")
+
+    live_to_remove = []
+    for name, ll in live_registry_.items():
+        if ll.updated_at != eval_id_:
+            live_to_remove.append(name)
+    for name in live_to_remove:
+        del live_registry_[name]
+        log(f"removing live {name}")
+
+    eval_id_ += 1
 
 
 # Utilities API

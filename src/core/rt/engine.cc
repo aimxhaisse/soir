@@ -162,6 +162,10 @@ absl::Status Engine::Run() {
         // executed.
         last_evaluated_code_ = code;
         py::exec(code.c_str(), neon_mod.attr("__dict__"));
+
+        // Maybe here we can have some sort of post-execution hook
+        // that can be used to do some cleanup or other operations.
+        py::exec("neon.internals.post_eval_()", neon_mod.attr("__dict__"));
       } catch (py::error_already_set& e) {
         if (e.matches(PyExc_SystemExit)) {
           LOG(INFO) << "Received SystemExit, stopping engine";
