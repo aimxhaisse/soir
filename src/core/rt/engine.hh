@@ -65,15 +65,20 @@ class Engine {
   // Those are part of the Live module and can be called from Python.
   float SetBPM(float bpm);
   float GetBPM() const;
+
   MicroBeat GetCurrentBeat() const;
+
   void Log(const std::string& message);
   void Beat();
+
   void MidiNoteOn(uint8_t channel, uint8_t note, uint8_t velocity);
   void MidiNoteOff(uint8_t channel, uint8_t note, uint8_t velocity);
   void MidiCC(uint8_t channel, uint8_t cc, uint8_t value);
   void MidiSysex(uint8_t channel,
                  proto::MidiSysexInstruction::InstructionType instruction,
                  const std::string& payload);
+
+  std::string GetCode() const;
 
  private:
   std::thread thread_;
@@ -87,7 +92,8 @@ class Engine {
   // Updated by the main thread/gRPC threads.
   std::mutex loop_mutex_;
   std::condition_variable loop_cv_;
-  std::list<std::string> code_updates_;
+  std::string code_;
+  std::string last_evaluated_code_;
   bool running_ = false;
 
   // Lockless as only accessed from the Python thread.

@@ -138,6 +138,7 @@ PYBIND11_EMBEDDED_MODULE(bindings, m) {
   m.def("midi_sysex_sample_stop_", [](uint8_t channel, const std::string& p) {
     gRt_->MidiSysex(channel, proto::MidiSysexInstruction::SAMPLER_STOP, p);
   });
+
   m.def("get_packs_",
         []() { return gDsp_->GetSampleManager().GetPackNames(); });
   m.def("get_samples_", [](const std::string& p) {
@@ -149,6 +150,8 @@ PYBIND11_EMBEDDED_MODULE(bindings, m) {
 
     return pack->GetSampleNames();
   });
+
+  m.def("get_code_", []() { return gRt_->GetCode(); });
 }
 
 }  // namespace rt

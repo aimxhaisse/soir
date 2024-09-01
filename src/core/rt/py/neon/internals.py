@@ -12,6 +12,7 @@ from bindings import (
     midi_note_off_,
     midi_cc_,
     setup_tracks_,
+    get_code_,
 )
 from neon.errors import (
     InLoopException,
@@ -138,23 +139,44 @@ live_registry_ = dict()
 current_live_ = None
 
 
+def get_code_function_(func: callable) -> str:
+    """Get the code of a function.
+
+    This is a helper function to get the code of a function. In Neon
+    the code is not executed from a file, but from a buffer, so
+    inspect.getsource() won't work as it expects a global __file__
+    properly set. We could maybe later support this by having a
+    temporary file if needed. Instead wwe use co_lines which is
+    properly set from the buffer and infer the actual code from there.
+
+    This is meant to know when to re-execute a @live loop: if its code
+    changed between two buffer evaluations.
+
+    Args:
+        func: The function to get the code from.
+
+    Returns:
+        The code of the function.
+    """
+    start_line = None
+    end_line = None
+    for _, _, line in func.__code__.co_lines():
+        if not line:
+            continue
+        if not start_line:
+            start_line = line
+        if not end_line or end_line < line:
+            end_line = line
+    return get_code_().splitlines()[start_line:end_line]
+    
+
 class Live_:
     """Helper class to manage a live function.
     """
-    def __init__(self, name: str, func: callable):
+    def __init__(self, name: str, func: callable, code: str):
         self.name = name
         self.func = func
-
-    def has_changed(self, func: callable) -> bool:
-        """Check if the function has changed.
-
-        Args:
-            func: The function to check.
-
-        Returns:
-            True if the function has changed, False otherwise.
-        """
-        return inspect.getsource(func) != inspect.getsource(self.func)
+        self.code = code
 
     def run(self):
         """Executes right away the live function.
@@ -173,15 +195,17 @@ def live() -> callable:
         """
         """
         name = func.__name__
+        existing = live_registry_.get(name)
+        code = get_code_function_(func)
 
-        if name not in live_registry_:
-            ll = Live_(name, func)
-            ll.run()
+        if not existing:
+            ll = Live_(name, func, code)
             live_registry_[name] = ll
-        else:            
-            ll = live_registry_[name]
-            if ll.has_changed(func):
-                ll.func = func
+            ll.run()
+        else:
+            if existing.code != code:
+                existing.func = func
+                existing.code = code
                 ll.run()
 
         # This is a bit counter-intuitive: we don't allow to execute
@@ -202,6 +226,18 @@ def current_live() -> Live_:
         The current live.
     """
     return current_live_    
+
+
+def get_live(name: str) -> Live_:
+    """Get the live function by name.
+
+    Args:
+        name: The name of the live function.
+
+    Returns:
+        The live function.
+    """
+    return live_registry_[name]
 
 
 # Utilities API

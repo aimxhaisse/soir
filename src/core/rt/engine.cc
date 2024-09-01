@@ -112,22 +112,21 @@ absl::Status Engine::Run() {
     auto next = schedule_.begin();
     auto at_time = Engine::MicroBeatToTime(next->at);
 
-    std::list<std::string> updates;
+    std::string code;
     {
       std::unique_lock<std::mutex> lock(loop_mutex_);
-      loop_cv_.wait_until(lock, absl::ToChronoTime(at_time),
-                          [this, next, at_time] {
-                            return !running_ || !code_updates_.empty() ||
-                                   at_time <= absl::Now();
-                          });
+      loop_cv_.wait_until(
+          lock, absl::ToChronoTime(at_time), [this, next, at_time] {
+            return !running_ || !code_.empty() || at_time <= absl::Now();
+          });
 
       if (!running_) {
         LOG(INFO) << "Received stop signal";
         break;
       }
 
-      if (!code_updates_.empty()) {
-        std::swap(updates, code_updates_);
+      if (!code_.empty()) {
+        std::swap(code, code_);
       }
     }
 
@@ -156,9 +155,13 @@ absl::Status Engine::Run() {
     // recursions, to be as precise on time as possible. It's OK if a
     // code update takes 10ms to be applied, but not OK if it's a kick
     // event for example.
-    for (const auto& update : updates) {
+    if (!code.empty()) {
       try {
-        py::exec(update.c_str(), neon_mod.attr("__dict__"));
+        // We set the last evaluated code at the last moment so that
+        // inspection of code can be done only when it is actually
+        // executed.
+        last_evaluated_code_ = code;
+        py::exec(code.c_str(), neon_mod.attr("__dict__"));
       } catch (py::error_already_set& e) {
         if (e.matches(PyExc_SystemExit)) {
           LOG(INFO) << "Received SystemExit, stopping engine";
@@ -250,6 +253,10 @@ void Engine::MidiSysex(uint8_t channel,
   dsp_->PushMidiEvent(libremidi::message(bytes, 0));
 }
 
+std::string Engine::GetCode() const {
+  return last_evaluated_code_;
+}
+
 void Engine::Schedule(MicroBeat at, const CbFunc& cb) {
   // This is stupid simple because we currently don't support
   // scheduling callbacks from multiple threads. So it is assumed here
@@ -263,7 +270,7 @@ void Engine::Schedule(MicroBeat at, const CbFunc& cb) {
 absl::Status Engine::PushCodeUpdate(const std::string& code) {
   {
     std::lock_guard<std::mutex> lock(loop_mutex_);
-    code_updates_.push_back(code);
+    code_ = code;
     loop_cv_.notify_all();
   }
 
