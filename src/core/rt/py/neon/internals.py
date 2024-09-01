@@ -167,7 +167,7 @@ def get_code_function_(func: callable) -> str:
             start_line = line
         if not end_line or end_line < line:
             end_line = line
-    return get_code_().splitlines()[start_line:end_line]
+    return '\n'.join(get_code_().splitlines()[start_line:end_line])
     
 
 class Live_:
@@ -195,17 +195,17 @@ def live() -> callable:
         """
         """
         name = func.__name__
-        existing = live_registry_.get(name)
+        ll = live_registry_.get(name)
         code = get_code_function_(func)
 
-        if not existing:
+        if not ll:
             ll = Live_(name, func, code)
             live_registry_[name] = ll
             ll.run()
         else:
-            if existing.code != code:
-                existing.func = func
-                existing.code = code
+            if ll.code != code:
+                ll.func = func
+                ll.code = code
                 ll.run()
 
         # This is a bit counter-intuitive: we don't allow to execute
