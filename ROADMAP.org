@@ -1,0 +1,17 @@
+* Community/Misc
+** TODO Setup CI to publish documentation
+** TODO Extensive documentation for the minimal spec
+** TODO Think of a way to package
+** TODO Think of a way to manage sessions
+* Runtime Engine
+** TODO Refactor a bit internals
+** TODO Rework the loading engine
+** TODO Maybe consider unit tests from Python
+** TODO Design the Matrix system
+** TODO Proper async handling
+* DSP
+** TODO Fix glitch
+** TODO Audio input from external device
+** TODO Audio FX
+* Agent
+** TODO Concatenize all watched  files in a single code update
