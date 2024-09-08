@@ -13,6 +13,10 @@
 namespace neon {
 namespace dsp {
 
+float Sample::DurationMs() const {
+  return buffer_.size() / kSampleRate * 1000.0f;
+}
+
 absl::Status SamplePack::Init(const std::string& pack_config) {
   auto config_or = utils::Config::LoadFromPath(pack_config);
   if (!config_or.ok()) {

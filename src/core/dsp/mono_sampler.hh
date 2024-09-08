@@ -20,6 +20,13 @@ namespace dsp {
 
 struct TrackSettings;
 
+// This is to prevent clipping when we play a sample that doesn't
+// start with an amp of 0 or that we need to suddenly cut without
+// going through the envelope. We ensure there is a very small attack
+// and release no matter what.
+static constexpr float kSampleMinimalSmoothingMs = 0.25f;
+static constexpr float kSampleMinimalDurationMs = 2 * kSampleMinimalSmoothingMs;
+
 class MonoSampler {
  public:
   absl::Status Init(SampleManager* sample_manager);

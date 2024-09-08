@@ -14,6 +14,8 @@ struct Sample {
   std::string path_;
   std::string name_;
   std::vector<float> buffer_;
+
+  float DurationMs() const;
 };
 
 class SamplePack {

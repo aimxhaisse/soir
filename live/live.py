@@ -9,9 +9,7 @@ def setup():
 
 s = sampler.new('passage')
 
-@loop(track=1, beats=4)
+@loop(track=1, beats=16)
 def beats():
-    log('beats')
-    for i in range(4):
-        s.play('morphbot_17')
-        sleep(1)
+    log('beats KO')
+    s.play('morphbot_17')

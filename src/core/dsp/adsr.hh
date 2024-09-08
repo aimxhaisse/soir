@@ -24,6 +24,7 @@ class ADSR {
   void NoteOn();
   void NoteOff();
   float GetNextEnvelope();
+  float GetSustainLevel() const { return sustainLevel_; }
 
  private:
   enum State { NONE, ATTACK, DECAY, SUSTAIN, RELEASE };

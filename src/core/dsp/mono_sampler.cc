@@ -27,6 +27,25 @@ void MonoSampler::PlaySample(Sample* sample) {
   ps->pos_ = 0;
   ps->sample_ = sample;
 
+  const float durationMs = sample->DurationMs();
+
+  if (durationMs <= kSampleMinimalDurationMs) {
+    return;
+  }
+
+  const float attackMs = kSampleMinimalSmoothingMs;
+  const float releaseMs = kSampleMinimalSmoothingMs;
+  const float decayMs = 0.0f;
+  const float sustainLevel = 1.0f;
+
+  absl::Status status =
+      ps->wrapper_.Init(attackMs, decayMs, sustainLevel, releaseMs);
+  if (status != absl::OkStatus()) {
+    LOG(WARNING) << "Failed to initialize envelope in play sample: " << status;
+  }
+
+  ps->wrapper_.NoteOn();
+
   playing_[sample].push_back(std::move(ps));
 }
 
@@ -42,7 +61,9 @@ void MonoSampler::StopSample(Sample* sample) {
   }
 
   if (!it->second.empty()) {
-    it->second.pop_back();
+    auto ps = it->second.back().get();
+
+    ps->wrapper_.NoteOff();
   }
 }
 
@@ -121,11 +142,13 @@ void MonoSampler::Render(const std::list<libremidi::message>& messages,
 
     for (auto& [sample, list] : playing_) {
       for (auto& ps : list) {
-        left += ps->sample_->buffer_[ps->pos_];
-        right += ps->sample_->buffer_[ps->pos_];
+        const float env = ps->wrapper_.GetNextEnvelope();
+
+        left += ps->sample_->buffer_[ps->pos_] * env;
+        right += ps->sample_->buffer_[ps->pos_] * env;
 
         ps->pos_ += 1;
-        if (ps->pos_ >= ps->sample_->buffer_.size()) {
+        if (env == 0.0f || ps->pos_ >= ps->sample_->buffer_.size()) {
           remove.insert(ps.get());
         }
       }
