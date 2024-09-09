@@ -22,16 +22,15 @@ void MonoSampler::PlaySample(Sample* sample) {
     return;
   }
 
+  const float durationMs = sample->DurationMs();
+  if (durationMs <= kSampleMinimalDurationMs) {
+    return;
+  }
+
   auto ps = std::make_unique<PlayingSample>();
 
   ps->pos_ = 0;
   ps->sample_ = sample;
-
-  const float durationMs = sample->DurationMs();
-
-  if (durationMs <= kSampleMinimalDurationMs) {
-    return;
-  }
 
   const float attackMs = kSampleMinimalSmoothingMs;
   const float releaseMs = kSampleMinimalSmoothingMs;
@@ -142,7 +141,19 @@ void MonoSampler::Render(const std::list<libremidi::message>& messages,
 
     for (auto& [sample, list] : playing_) {
       for (auto& ps : list) {
+        // Trigger a note-off if we are near the very end of the
+        // sample ; this is to ensure we do not glitch at the end of
+        // the sample.
+        if (ps->pos_ + kSampleMinimalSmoothingMs >=
+            ps->sample_->buffer_.size()) {
+          ps->wrapper_.NoteOff();
+        }
+
         const float env = ps->wrapper_.GetNextEnvelope();
+
+        if (env != 0.0f && env != 1.0f) {
+          LOG(INFO) << "ENV=" << env;
+        }
 
         left += ps->sample_->buffer_[ps->pos_] * env;
         right += ps->sample_->buffer_[ps->pos_] * env;
