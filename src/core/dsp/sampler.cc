@@ -5,19 +5,19 @@
 #include <rapidjson/document.h>
 #include <filesystem>
 
-#include "core/dsp/mono_sampler.hh"
+#include "core/dsp/sampler.hh"
 #include "utils/misc.hh"
 
 namespace neon {
 namespace dsp {
 
-absl::Status MonoSampler::Init(SampleManager* sample_manager) {
+absl::Status Sampler::Init(SampleManager* sample_manager) {
   sample_manager_ = sample_manager;
 
   return absl::OkStatus();
 }
 
-void MonoSampler::PlaySample(Sample* sample) {
+void Sampler::PlaySample(Sample* sample) {
   if (sample == nullptr) {
     return;
   }
@@ -48,7 +48,7 @@ void MonoSampler::PlaySample(Sample* sample) {
   playing_[sample].push_back(std::move(ps));
 }
 
-void MonoSampler::StopSample(Sample* sample) {
+void Sampler::StopSample(Sample* sample) {
   if (sample == nullptr) {
     return;
   }
@@ -66,8 +66,7 @@ void MonoSampler::StopSample(Sample* sample) {
   }
 }
 
-Sample* MonoSampler::GetSample(const std::string& pack,
-                               const std::string& name) {
+Sample* Sampler::GetSample(const std::string& pack, const std::string& name) {
   auto sample_pack = sample_manager_->GetPack(pack);
   if (sample_pack == nullptr) {
     return nullptr;
@@ -76,7 +75,7 @@ Sample* MonoSampler::GetSample(const std::string& pack,
   return sample_pack->GetSample(name);
 }
 
-void MonoSampler::HandleSysex(const proto::MidiSysexInstruction& sysex) {
+void Sampler::HandleSysex(const proto::MidiSysexInstruction& sysex) {
   rapidjson::Document params;
 
   params.Parse(sysex.json_payload().c_str());
@@ -101,8 +100,8 @@ void MonoSampler::HandleSysex(const proto::MidiSysexInstruction& sysex) {
   }
 }
 
-void MonoSampler::Render(const std::list<libremidi::message>& messages,
-                         AudioBuffer& buffer) {
+void Sampler::Render(const std::list<libremidi::message>& messages,
+                     AudioBuffer& buffer) {
   // Process MIDI events.
   //
   // For now we don't have timing information in MIDI events so we

@@ -27,7 +27,7 @@ struct TrackSettings;
 static constexpr float kSampleMinimalSmoothingMs = 1.0f;
 static constexpr float kSampleMinimalDurationMs = 2 * kSampleMinimalSmoothingMs;
 
-class MonoSampler {
+class Sampler {
  public:
   absl::Status Init(SampleManager* sample_manager);
   void Render(const std::list<libremidi::message>&, AudioBuffer&);

@@ -3,7 +3,7 @@
 ???+ info
 
     The sampler module can be used on loops running on tracks with
-    instrument type set to `mono_sampler`.
+    instrument type set to `sampler`.
 
 The **sampler** module provides a way to load samples and play them
 inside loops in an intuitive way. Once instantiated, a `Sampler` can

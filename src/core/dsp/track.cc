@@ -16,9 +16,9 @@ absl::Status Track::Init(const TrackSettings& settings,
 
   switch (settings_.instrument_) {
 
-    case TRACK_MONO_SAMPLER: {
-      settings_.instrument_ = TRACK_MONO_SAMPLER;
-      sampler_ = std::make_unique<MonoSampler>();
+    case TRACK_SAMPLER: {
+      settings_.instrument_ = TRACK_SAMPLER;
+      sampler_ = std::make_unique<Sampler>();
       auto status = sampler_->Init(sample_manager);
       if (!status.ok()) {
         LOG(ERROR) << "Failed to init sampler: " << status.message();
@@ -109,7 +109,7 @@ void Track::Render(const std::list<libremidi::message>& events,
 
   if (!settings_.muted_) {
     switch (settings_.instrument_) {
-      case TRACK_MONO_SAMPLER:
+      case TRACK_SAMPLER:
         sampler_->Render(events, buffer);
         break;
 

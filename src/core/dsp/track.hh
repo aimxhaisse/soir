@@ -7,18 +7,18 @@
 
 #include "core/dsp/audio_buffer.hh"
 #include "core/dsp/midi_ext.hh"
-#include "core/dsp/mono_sampler.hh"
 #include "core/dsp/sample_manager.hh"
+#include "core/dsp/sampler.hh"
 #include "utils/config.hh"
 
 namespace neon {
 namespace dsp {
 
-class MonoSampler;
+class Sampler;
 
 // Types of instruments available.
 typedef enum {
-  TRACK_MONO_SAMPLER = 0,
+  TRACK_SAMPLER = 0,
   TRACK_MIDI_EXT = 1,
 } TrackInstrument;
 
@@ -56,7 +56,7 @@ struct Track {
 
   std::mutex mutex_;
   TrackSettings settings_;
-  std::unique_ptr<MonoSampler> sampler_;
+  std::unique_ptr<Sampler> sampler_;
   std::unique_ptr<MidiExt> midi_ext_;
 };
 

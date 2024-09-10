@@ -29,7 +29,7 @@ add_library(neon_core
   dsp/http.cc
   dsp/http_stream.cc
   dsp/midi_ext.cc
-  dsp/mono_sampler.cc
+  dsp/sampler.cc
   dsp/sample_manager.cc
   dsp/sample_pack.cc
   dsp/track.cc

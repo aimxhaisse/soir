@@ -12,9 +12,9 @@ function, existing tracks are untouched.
 
 ``` python
 tracks.setup([
-    tracks.mk('mono_sampler', 0),
-    tracks.mk('mono_sampler', 1),
-    tracks.mk('mono_sampler', 2),
+    tracks.mk('sampler', 0),
+    tracks.mk('sampler', 1),
+    tracks.mk('sampler', 2),
 ])
 ```
 

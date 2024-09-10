@@ -67,8 +67,8 @@ PYBIND11_EMBEDDED_MODULE(bindings, m) {
       std::string instrument;
 
       switch (track.instrument_) {
-        case dsp::TRACK_MONO_SAMPLER:
-          instrument = "mono_sampler";
+        case dsp::TRACK_SAMPLER:
+          instrument = "sampler";
           break;
 
         case dsp::TRACK_MIDI_EXT:
@@ -97,8 +97,8 @@ PYBIND11_EMBEDDED_MODULE(bindings, m) {
 
       auto instr = track["instrument"].cast<std::string>();
 
-      if (instr == "mono_sampler") {
-        s.instrument_ = dsp::TRACK_MONO_SAMPLER;
+      if (instr == "sampler") {
+        s.instrument_ = dsp::TRACK_SAMPLER;
       } else if (instr == "midi_ext") {
         s.instrument_ = dsp::TRACK_MIDI_EXT;
       } else {

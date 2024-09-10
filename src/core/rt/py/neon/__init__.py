@@ -19,9 +19,9 @@ specialized modules which can be accessed by their names.
 # Set the global BPM.
 bpm.set(120)
 
-# Define 1 track with a mono sampler as an instrument.
+# Define 1 track with a sampler as an instrument.
 tracks.setup([
-    tracks.mk("mono_sampler", 1, muted=False, volume=100),
+    tracks.mk("sampler", 1, muted=False, volume=100),
 ])
 
 # Create a sampler instance using the sample pack 'passage'.
@@ -88,7 +88,7 @@ def live() -> callable:
     @live
     def setup:
       tracks.setup([
-        tracks.mk("mono_sampler", 1, muted=False, volume=100),
+        tracks.mk("sampler", 1, muted=False, volume=100),
       ])
     ```
 

@@ -4,7 +4,7 @@ bpm.set(110)
 def setup():
     log('setup 2')
     tracks.setup([
-        tracks.mk("mono_sampler", 1, muted=False, volume=100),
+        tracks.mk("sampler", 1, muted=False, volume=100),
     ])
 
 s = sampler.new('passage')
