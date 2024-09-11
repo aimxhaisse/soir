@@ -144,21 +144,17 @@ void Sampler::Render(const std::list<libremidi::message>& messages,
         // sample ; this is to ensure we do not glitch at the end of
         // the sample.
         if (ps->pos_ + kSampleMinimalSmoothingMs >=
-            ps->sample_->buffer_.size()) {
+            ps->sample_->DurationSamples()) {
           ps->wrapper_.NoteOff();
         }
 
         const float env = ps->wrapper_.GetNextEnvelope();
 
-        if (env != 0.0f && env != 1.0f) {
-          LOG(INFO) << "ENV=" << env;
-        }
-
-        left += ps->sample_->buffer_[ps->pos_] * env;
-        right += ps->sample_->buffer_[ps->pos_] * env;
+        left += ps->sample_->lb_[ps->pos_] * env;
+        right += ps->sample_->rb_[ps->pos_] * env;
 
         ps->pos_ += 1;
-        if (env == 0.0f || ps->pos_ >= ps->sample_->buffer_.size()) {
+        if (env == 0.0f || ps->pos_ >= ps->sample_->DurationSamples()) {
           remove.insert(ps.get());
         }
       }

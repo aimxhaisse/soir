@@ -13,9 +13,11 @@ namespace dsp {
 struct Sample {
   std::string path_;
   std::string name_;
-  std::vector<float> buffer_;
+  std::vector<float> lb_;
+  std::vector<float> rb_;
 
   float DurationMs() const;
+  std::size_t DurationSamples() const;
 };
 
 class SamplePack {

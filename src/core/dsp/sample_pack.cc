@@ -14,7 +14,11 @@ namespace neon {
 namespace dsp {
 
 float Sample::DurationMs() const {
-  return buffer_.size() / kSampleRate * 1000.0f;
+  return lb_.size() / kSampleRate * 1000.0f;
+}
+
+std::size_t Sample::DurationSamples() const {
+  return lb_.size();
 }
 
 absl::Status SamplePack::Init(const std::string& pack_config) {
@@ -40,20 +44,31 @@ absl::Status SamplePack::Init(const std::string& pack_config) {
     if (!audio_file.load(s.path_)) {
       return absl::InvalidArgumentError("Failed to load sample " + s.path_);
     }
-    if (audio_file.getNumChannels() != 1) {
-      return absl::InvalidArgumentError(
-          "Only mono samples are supported for now for sample " + s.path_);
-    }
     if (audio_file.getSampleRate() != kSampleRate) {
       return absl::InvalidArgumentError(
-          "Only 48000Hz sample rate is supported for now");
+          "Only 48kHz sample rate is supported for now");
     }
 
-    s.buffer_ = audio_file.samples[0];
-
-    samples_[s.name_] = std::move(s);
+    if (audio_file.getNumChannels() == 1) {
+      // Mono samples are duplicated to stereo, we need to reduce the volume
+      // to avoid clipping when playing them back.
+      static constexpr float kMonoToStereoVolume = 0.5f;
+      s.lb_ = audio_file.samples[0];
+      for (size_t i = 0; i < s.lb_.size(); i++) {
+        s.lb_[i] *= kMonoToStereoVolume;
+      }
+      s.rb_ = s.lb_;
+    } else if (audio_file.getNumChannels() == 2) {
+      s.lb_ = audio_file.samples[0];
+      s.rb_ = audio_file.samples[1];
+    } else {
+      return absl::InvalidArgumentError(
+          "Only mono or stereo samples are supported");
+    }
 
     LOG(INFO) << "Loaded sample " << s.name_;
+
+    samples_[s.name_] = std::move(s);
   }
 
   LOG(INFO) << "Loaded " << samples_.size() << " samples";

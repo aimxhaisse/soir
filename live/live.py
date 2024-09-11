@@ -1,15 +1,21 @@
-bpm.set(110)
+bpm.set(100)
 
 @live()
 def setup():
-    log('setup 2')
     tracks.setup([
         tracks.mk("sampler", 1, muted=False, volume=100),
     ])
 
-s = sampler.new('passage')
+s = sampler.new('phandora')
 
-@loop(track=1, beats=8)
-def beats():
-    log('beats')
-    s.play('morphbot_17')
+@live()
+def debug():
+    samples = sampler.samples('phandora')
+    for sample in samples:
+        if 'kick' in sample.name:
+            log(sample.name)
+
+@loop(track=1, beats=4)
+def main():
+    s.play('sd_melodic2')
+    s.play('loop_100_fromjapan')
