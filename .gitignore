@@ -6,3 +6,4 @@ bin/
 assets/
 dist/
 __pycache__/
+tmp/
