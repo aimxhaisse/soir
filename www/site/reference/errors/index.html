@@ -676,9 +676,9 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#neon.errors.InLiveLoopException" class="md-nav__link">
+  <a href="#neon.errors.InLoopException" class="md-nav__link">
     <span class="md-ellipsis">
-      <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;InLiveLoopException
+      <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;InLoopException
     </span>
   </a>
   
@@ -694,9 +694,9 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#neon.errors.NotInLiveLoopException" class="md-nav__link">
+  <a href="#neon.errors.NotInLoopException" class="md-nav__link">
     <span class="md-ellipsis">
-      <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;NotInLiveLoopException
+      <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;NotInLoopException
     </span>
   </a>
   
@@ -821,9 +821,9 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#neon.errors.InLiveLoopException" class="md-nav__link">
+  <a href="#neon.errors.InLoopException" class="md-nav__link">
     <span class="md-ellipsis">
-      <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;InLiveLoopException
+      <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;InLoopException
     </span>
   </a>
   
@@ -839,9 +839,9 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#neon.errors.NotInLiveLoopException" class="md-nav__link">
+  <a href="#neon.errors.NotInLoopException" class="md-nav__link">
     <span class="md-ellipsis">
-      <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;NotInLiveLoopException
+      <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;NotInLoopException
     </span>
   </a>
   
@@ -904,8 +904,8 @@ signal errors at runtime.</p>
 
 
 
-<h3 id="neon.errors.InLiveLoopException" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>          <code>InLiveLoopException</code>
+<h3 id="neon.errors.InLoopException" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>          <code>InLoopException</code>
 
 
 </h3>
@@ -916,7 +916,7 @@ signal errors at runtime.</p>
             Bases: <code><a class="autorefs autorefs-internal" title="neon.errors.NeonException" href="#neon.errors.NeonException">NeonException</a></code></p>
 
   
-      <p>Raised when trying to execute code inside a live loop.</p>
+      <p>Raised when trying to execute code inside a live context.</p>
 <p>In Neon, some of the code is expected to be used from the global
 scope as it affects everything, for example, setting the BPM. This
 exception is raised if such code is called from a loop.</p>
@@ -955,8 +955,8 @@ exception is raised if such code is called from a loop.</p>
 
 
 
-<h3 id="neon.errors.NotInLiveLoopException" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>          <code>NotInLiveLoopException</code>
+<h3 id="neon.errors.NotInLoopException" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>          <code>NotInLoopException</code>
 
 
 </h3>
@@ -967,10 +967,11 @@ exception is raised if such code is called from a loop.</p>
             Bases: <code><a class="autorefs autorefs-internal" title="neon.errors.NeonException" href="#neon.errors.NeonException">NeonException</a></code></p>
 
   
-      <p>Raised when trying to execute code outside of a live loop.</p>
+      <p>Raised when trying to execute code outside of a live context.</p>
 <p>In Neon, some of the code is expected to be used from within a
-loop, for instance sleeping between two instructions. This
-exception is raised if such code is called from the global scope.</p>
+loop or a live function, for instance sleeping between two
+instructions. This exception is raised if such code is called from
+the global scope.</p>
 
 
   </div>
