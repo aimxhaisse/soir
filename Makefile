@@ -31,7 +31,7 @@ clean:
 	cd $(BUILD_DIR) && make clean
 
 docs:
-	$(BINARY) --mode script --script scripts/mk-docs.py
+	$(BINARY) --config etc/mkdocs.yaml --mode script --script scripts/mk-docs.py
 
 serve: docs
 	cd www/site && python -m http.server 4096

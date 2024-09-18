@@ -1,0 +1,26 @@
+agent:
+  directory: ./live
+  neon:
+    grpc:
+      host: localhost
+      port: 9000
+
+neon:
+  rt:
+    initial_bpm: 130
+  grpc:
+    host: localhost
+    port: 9000
+  dsp:
+    sample_directory: assets/samples
+    output:
+      http:
+        enable: true
+        host: localhost
+        port: 8081
+      audio:
+        # Disable audio so that we can generate documentation without
+        # cutting our spotify playlist.
+        enable: false
+    engine:
+      block_size: 4096
