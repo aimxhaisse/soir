@@ -33,6 +33,9 @@ clean:
 docs:
 	$(BINARY) --config etc/mkdocs.yaml --mode script --script scripts/mk-docs.py
 
+push: docs
+	scp -r www/site/* sbrk.org:services/neon.sbrk.org/data
+
 serve: docs
 	cd www/site && python -m http.server 4096
 
