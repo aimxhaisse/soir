@@ -10,6 +10,12 @@
 namespace neon {
 namespace agent {
 
+// Agent is a small class that watches incoming events and sends them
+// to the engine via gRPC calls: it can in theory run on another
+// machine than the engine for this reason.
+//
+// - watches for a directory with live code files
+// - watches for incoming MIDI events from controllers
 class Agent {
  public:
   Agent();
