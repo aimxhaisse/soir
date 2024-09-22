@@ -43,6 +43,7 @@ class Sampler {
   struct PlayingSample {
     int pos_;
     Sample* sample_;
+    bool removing_ = false;
 
     // This ADSR envelope is used to avoid glitches at the beginning
     // and at the end of samples, which is utils with raw data where

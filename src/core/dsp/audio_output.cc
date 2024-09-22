@@ -22,7 +22,7 @@ absl::Status AudioOutput::Init(const utils::Config& config) {
   }
 
   RtAudio::StreamOptions options;
-  options.flags = RTAUDIO_NONINTERLEAVED;
+  options.flags = RTAUDIO_NONINTERLEAVED & ~RTAUDIO_HOG_DEVICE;
   options.numberOfBuffers = kNumBuffers;
   options.priority = 99;
 

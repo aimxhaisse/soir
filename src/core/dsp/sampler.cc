@@ -140,6 +140,10 @@ void Sampler::Render(const std::list<libremidi::message>& messages,
 
     for (auto& [sample, list] : playing_) {
       for (auto& ps : list) {
+        if (ps->removing_) {
+          continue;
+        }
+
         // Trigger a note-off if we are near the very end of the
         // sample ; this is to ensure we do not glitch at the end of
         // the sample.
@@ -155,6 +159,7 @@ void Sampler::Render(const std::list<libremidi::message>& messages,
 
         ps->pos_ += 1;
         if (env == 0.0f || ps->pos_ >= ps->sample_->DurationSamples()) {
+          ps->removing_ = true;
           remove.insert(ps.get());
         }
       }

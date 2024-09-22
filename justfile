@@ -8,7 +8,7 @@ _default:
 
 # Build Neon.
 build:
-    poetry run make build
+    poetry run make
 
 # Runs the Neon unit test suites.
 test filter='*':
@@ -25,6 +25,10 @@ doc:
 
 sample_dir := "assets/samples"
 
+# Runs Neon.
+run:
+    poetry run ./bin/neon
+
 # Rebuilds all sample packs from the samples directory.
 mk-sample-packs force="True":
     #!/usr/bin/env python
@@ -35,7 +39,7 @@ mk-sample-packs force="True":
     def normalize_name(name: str) -> str:
         """Normalize a name to be used as a sample name in Neon.
         """
-        for char in ["_", "(", ")", "[", "]", "{", "}", ":", ";", ",", ".", "!", "?"]:
+        for char in ["_", "(", ")", "[", "]", "{", "}", ":", ";", ",", ".", "!", "?", " "]:
             name = name.replace(char, "-")
         return name.lower()
 
