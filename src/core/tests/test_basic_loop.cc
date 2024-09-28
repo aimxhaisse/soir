@@ -34,6 +34,44 @@ def kick():
   EXPECT_TRUE(WaitForNotification("loop 9"));
 }
 
+TEST_F(CoreTestBase, BasicLoopFailedUpdate) {
+  PushCode(R"(
+bpm.set(600)
+
+@loop(track=1, beats=1)
+def kick():
+  log('Hello')
+
+  )");
+
+  std::this_thread::sleep_for(std::chrono::seconds(1));
+  EXPECT_TRUE(WaitForNotification("Hello"));
+
+  PushCode(R"(
+bpm.set(600)
+
+@loop(track=1, beats=1)
+def kick():
+  log('Hello')
+  error
+
+  )");
+
+  std::this_thread::sleep_for(std::chrono::seconds(1));
+
+  PushCode(R"(
+bpm.set(600)
+
+@loop(track=1, beats=1)
+def kick():
+  log('Hello 2')
+
+  )");
+
+  std::this_thread::sleep_for(std::chrono::seconds(1));
+  EXPECT_TRUE(WaitForNotification("Hello 2"));
+}
+
 }  // namespace test
 }  // namespace core
 }  // namespace neon
