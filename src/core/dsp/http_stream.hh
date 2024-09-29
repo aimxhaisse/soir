@@ -17,7 +17,7 @@ class HttpStream : public SampleConsumer {
   HttpStream();
   virtual ~HttpStream();
 
-  absl::Status PushAudioBuffer(const AudioBuffer& samples) override;
+  absl::Status PushAudioBuffer(AudioBuffer& samples) override;
   absl::Status Encode(httplib::DataSink& sink);
 
  private:

@@ -10,7 +10,7 @@ HttpStream::HttpStream() : initialized_(false) {}
 
 HttpStream::~HttpStream() {}
 
-absl::Status HttpStream::PushAudioBuffer(const AudioBuffer& samples) {
+absl::Status HttpStream::PushAudioBuffer(AudioBuffer& samples) {
   std::unique_lock<std::mutex> lock(mutex_);
 
   stream_.push_back(samples);

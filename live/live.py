@@ -17,8 +17,7 @@ kit = {
 @loop(track=1, beats=4)
 def beats():
     patterns = [
-        'k.k.k.......k...',
-        '....s.....s.....',
+        'k.k.k.k.k.k.k.k.',
     ]
 
     for i in range(16):

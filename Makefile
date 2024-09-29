@@ -18,8 +18,6 @@ DEPS_AUDIOFILE	:= $(DEPS_DIR)/audiofile
 DEPS_RAPIDJSON	:= $(DEPS_DIR)/rapidjson
 DEPS_SDL	:= $(DEPS_DIR)/sdl
 
-FASTBUILD	:= /fast
-
 .PHONY: all deps clean full-clean $(BINARY) www docs
 
 # Commands
@@ -71,12 +69,12 @@ $(BINARY): deps $(BUILD_DIR) $(BIN_DIR) $(VENV_DIR)
 		-DPYBIND11_FINDPYTHON=ON			\
 		.. && 						\
 	cmake --build . -j 16 					\
-	      --target 	neon$(FASTBUILD)			\
-			neon_agent$(FASTBUILD)			\
-			neon_core$(FASTBUILD)			\
-			neon_utils$(FASTBUILD) 			\
-			neon_utils_test$(FASTBUILD) 		\
-			neon_core_test$(FASTBUILD) &&		\
+	      --target 	neon					\
+			neon_agent				\
+			neon_core				\
+			neon_utils	 			\
+			neon_utils_test		 		\
+			neon_core_test &&			\
 	cp neon ../$(BINARY)
 
 

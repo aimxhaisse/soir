@@ -55,12 +55,12 @@ class Engine {
   std::mutex mutex_;
   std::condition_variable cv_;
   bool stop_ = false;
-  std::unique_ptr<HttpServer> http_server_;
 
   // Consumers can be registered at start if the audio output is
   // enabled or by the HTTP server upon new connections. They are fed
   // with audio samples from the DSP engine.
   std::mutex consumers_mutex_;
+  std::unique_ptr<HttpServer> http_server_;
   std::unique_ptr<AudioOutput> audio_output_;
   std::list<SampleConsumer*> consumers_;
 
