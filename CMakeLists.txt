@@ -46,6 +46,7 @@ target_link_libraries(
   neon_core
   neon_utils
   neon_proto
+  tcmalloc
   absl::base
   absl::log
   absl::status

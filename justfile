@@ -8,7 +8,12 @@ _default:
 
 # Build Neon.
 build:
+    #!/usr/bin/env bash
     poetry run make
+
+# Build Neon and its external dependencies.
+build-deps:
+    poetry run make FASTBUILD=
 
 # Runs the Neon unit test suites.
 test filter='*':
@@ -28,6 +33,11 @@ sample_dir := "assets/samples"
 # Runs Neon.
 run:
     poetry run ./bin/neon
+
+# Runs Neon measuring perf.
+perf-record:
+    #!/usr/bin/env bash
+    perf record -p $(pidof neon)
 
 # Rebuilds all sample packs from the samples directory.
 mk-sample-packs force="True":
@@ -80,4 +90,3 @@ mk-sample-packs force="True":
                 print(f"Pack file {pack_file} created")
 
     main()
-   

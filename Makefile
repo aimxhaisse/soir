@@ -58,7 +58,7 @@ $(BIN_DIR):
 
 $(BINARY): deps $(BUILD_DIR) $(BIN_DIR) $(VENV_DIR)
 	cd $(BUILD_DIR) && \
-	cmake -DCMAKE_BUILD_TYPE=Debug \
+	cmake -DCMAKE_BUILD_TYPE=Release \
 		-Dprotobuf_ABSL_PROVIDER=package		\
 		-DgRPC_INSTALL=ON				\
 		-DABSL_ENABLE_INSTALL=ON			\
