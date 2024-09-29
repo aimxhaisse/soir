@@ -1,10 +1,7 @@
 #pragma once
 
-#include <RtAudio.h>
+#include <SDL2/SDL.h>
 #include <absl/status/status.h>
-#include <condition_variable>
-#include <list>
-#include <mutex>
 
 #include "core/dsp/dsp.hh"
 #include "utils/config.hh"
@@ -24,20 +21,10 @@ class AudioOutput : public SampleConsumer {
   absl::Status Start();
   absl::Status Stop();
 
-  absl::Status PushAudioBuffer(const AudioBuffer& buffer) override;
+  absl::Status PushAudioBuffer(AudioBuffer& buffer) override;
 
  private:
-  absl::Status Consume(float* out, unsigned int n);
-
-  std::mutex mutex_;
-  std::condition_variable cond_;
-  std::list<AudioBuffer> stream_;
-  bool stop_ = false;
-
-  unsigned int buffer_size_ = 0;
-  std::unique_ptr<RtAudio> audio_;
-  int position_ = 0;
-  AudioBuffer current_;
+  SDL_AudioDeviceID device_id_ = 0;
 };
 
 }  // namespace dsp

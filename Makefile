@@ -16,7 +16,7 @@ DEPS_HTTPLIB	:= $(DEPS_DIR)/httplib
 DEPS_LIBREMIDI	:= $(DEPS_DIR)/libremidi
 DEPS_AUDIOFILE	:= $(DEPS_DIR)/audiofile
 DEPS_RAPIDJSON	:= $(DEPS_DIR)/rapidjson
-DEPS_RTAUDIO	:= $(DEPS_DIR)/rtaudio
+DEPS_SDL	:= $(DEPS_DIR)/sdl
 
 FASTBUILD	:= /fast
 
@@ -26,7 +26,7 @@ FASTBUILD	:= /fast
 
 all: $(BINARY)
 
-deps: $(DEPS_EFSW) $(DEPS_PYBIND) $(DEPS_HTTPLIB) $(DEPS_LIBREMIDI) $(DEPS_AUDIOFILE) $(DEPS_GRPC) $(DEPS_RAPIDJSON) $(DEPS_RTAUDIO)
+deps: $(DEPS_EFSW) $(DEPS_PYBIND) $(DEPS_HTTPLIB) $(DEPS_LIBREMIDI) $(DEPS_AUDIOFILE) $(DEPS_GRPC) $(DEPS_RAPIDJSON) $(DEPS_SDL)
 
 clean:
 	rm -f $(BINARY)
@@ -42,7 +42,7 @@ serve: docs
 	cd www/site && python -m http.server 4096
 
 full-clean: clean
-	rm -rf $(DEPS_EFSW) $(DEPS_PYBIND) $(DEPS_HTTPLIB) $(DEPS_LIBREMIDI) $(DEPS_AUDIOFILE) $(DEPS_GRPC) $(DEPS_RAPIDJSON) $(DEPS_RTAUDIO)
+	rm -rf $(DEPS_EFSW) $(DEPS_PYBIND) $(DEPS_HTTPLIB) $(DEPS_LIBREMIDI) $(DEPS_AUDIOFILE) $(DEPS_GRPC) $(DEPS_RAPIDJSON) $(DEPS_SDL)
 
 test: all
 	./$(BUILD_DIR)/src/utils/neon_utils_test --gtest_filter=$(TEST_FILTER)
@@ -123,7 +123,7 @@ $(DEPS_RAPIDJSON):
 	cd $@ && \
 	git checkout v1.1.0
 
-$(DEPS_RTAUDIO):
-	git clone https://github.com/thestk/rtaudio.git $@ && \
+$(DEPS_SDL):
+	git clone https://github.com/libsdl-org/SDL.git $@ && \
 	cd $@ && \
-	git checkout 6.0.1
+	git checkout release-2.30.7

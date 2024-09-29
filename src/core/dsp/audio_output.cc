@@ -6,48 +6,27 @@
 namespace neon {
 namespace dsp {
 
-AudioOutput::AudioOutput() : current_(0) {}
+AudioOutput::AudioOutput() {
+  SDL_Init(SDL_INIT_AUDIO);
+}
 
 AudioOutput::~AudioOutput() {}
 
 absl::Status AudioOutput::Init(const utils::Config& config) {
   LOG(INFO) << "Initializing audio output";
 
-  buffer_size_ = config.Get<unsigned int>("neon.dsp.engine.block_size");
+  SDL_AudioSpec spec;
+  SDL_zero(spec);
+  spec.freq = kSampleRate;
+  spec.format = AUDIO_F32LSB;
+  spec.channels = kNumChannels;
+  spec.samples = config.Get<unsigned int>("neon.dsp.engine.block_size");
 
-  audio_ = std::make_unique<RtAudio>();
-
-  if (audio_->getDeviceCount() < 1) {
-    return absl::InternalError("No audio devices found");
-  }
-
-  RtAudio::StreamOptions options;
-  options.flags = RTAUDIO_NONINTERLEAVED & ~RTAUDIO_HOG_DEVICE;
-  options.numberOfBuffers = kNumBuffers;
-  options.priority = 99;
-
-  RtAudio::StreamParameters params;
-  params.deviceId = audio_->getDefaultOutputDevice();
-  params.nChannels = kNumChannels;
-
-  auto cb = [](void* out, void*, unsigned int frames, double,
-               RtAudioStreamStatus, void* user_data) {
-    auto status = static_cast<AudioOutput*>(user_data)->Consume(
-        reinterpret_cast<float*>(out), frames);
-
-    if (!status.ok()) {
-      LOG(ERROR) << "Failed to feed audio buffer: " << status;
-      return 1;
-    }
-
-    return 0;
-  };
-
-  int err = audio_->openStream(&params, nullptr, RTAUDIO_FLOAT32, kSampleRate,
-                               &buffer_size_, cb, this, &options);
-  if (err != 0) {
-    return absl::InternalError("Failed to open audio stream, error= " +
-                               std::to_string(err));
+  SDL_AudioSpec obtained;
+  device_id_ = SDL_OpenAudioDevice(NULL, 0, &spec, &obtained, 0);
+  if (device_id_ == 0) {
+    LOG(ERROR) << "Failed to open audio device: " << SDL_GetError();
+    return absl::InternalError("Failed to open audio device");
   }
 
   return absl::OkStatus();
@@ -56,11 +35,7 @@ absl::Status AudioOutput::Init(const utils::Config& config) {
 absl::Status AudioOutput::Start() {
   LOG(INFO) << "Starting audio output";
 
-  int err = audio_->startStream();
-  if (err != 0) {
-    return absl::InternalError("Failed to start audio stream, error= " +
-                               std::to_string(err));
-  }
+  SDL_PauseAudioDevice(device_id_, 0);
 
   return absl::OkStatus();
 }
@@ -68,79 +43,27 @@ absl::Status AudioOutput::Start() {
 absl::Status AudioOutput::Stop() {
   LOG(INFO) << "Stopping audio output";
 
-  if (audio_->isStreamRunning()) {
-    audio_->stopStream();
-  }
-
-  {
-    std::unique_lock<std::mutex> lock(mutex_);
-    stop_ = true;
-    cond_.notify_one();
-  }
+  SDL_PauseAudioDevice(device_id_, 1);
 
   return absl::OkStatus();
 }
 
-absl::Status AudioOutput::Consume(float* out, unsigned int frames) {
-  int n = 0;
+absl::Status AudioOutput::PushAudioBuffer(AudioBuffer& buffer) {
+  auto size = buffer.Size();
 
-  float* out_left = out;
-  float* out_right = out + frames;
+  if (size == 0) {
+    return absl::OkStatus();
+  }
 
-  while (n != frames) {
-
-    // Consume from the existing buffer if there are samples left. We
-    // don't need to take any lock so it's fast. We use
-    // non-interleaved format so we can bulk-copy all samples at once.
-    while (position_ != current_.Size()) {
-      unsigned int take = std::min(static_cast<std::size_t>(frames - n),
-                                   current_.Size() - position_);
-
-      float* left = current_.GetChannel(0);
-      float* right = current_.GetChannel(1);
-
-      memcpy(out_left + n, left + position_, take * sizeof(float));
-      memcpy(out_right + n, right + position_, take * sizeof(float));
-
-      position_ += take;
-      n += take;
-
-      if (position_ == current_.Size()) {
-        position_ = 0;
-        current_ = AudioBuffer(0);
-      }
-
-      if (n == frames) {
-        return absl::OkStatus();
-      }
-    }
-
-    // Pick one buffer from the consumed stream, we could be smarter
-    // here and maybe take multiple ones if we have a lot of frames to
-    // consume, however we have in most cases some synchronicity here
-    // and have the same buffer size on both sides.
-    {
-      std::unique_lock<std::mutex> lock(mutex_);
-      cond_.wait(lock, [this]() { return !stream_.empty() || stop_; });
-      if (stop_) {
-        LOG(INFO) << "Audio output thread stopped";
-        return absl::InternalError("Audio output thread stopped");
-      }
-
-      current_ = stream_.front();
-      position_ = 0;
-      stream_.pop_front();
+  std::vector<float> interleaved_buffer(size * kNumChannels);
+  for (size_t i = 0; i < size; i++) {
+    for (size_t j = 0; j < kNumChannels; j++) {
+      interleaved_buffer[i * kNumChannels + j] = buffer.GetChannel(j)[i];
     }
   }
 
-  return absl::OkStatus();
-}
-
-absl::Status AudioOutput::PushAudioBuffer(const AudioBuffer& buffer) {
-  std::unique_lock<std::mutex> lock(mutex_);
-
-  stream_.push_back(buffer);
-  cond_.notify_one();
+  SDL_QueueAudio(device_id_, interleaved_buffer.data(),
+                 interleaved_buffer.size() * sizeof(float));
 
   return absl::OkStatus();
 }

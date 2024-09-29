@@ -19,14 +19,16 @@ add_subdirectory(deps/httplib)
 add_subdirectory(deps/libremidi)
 add_subdirectory(deps/audiofile)
 add_subdirectory(deps/rapidjson)
-add_subdirectory(deps/rtaudio)
+add_subdirectory(deps/sdl)
 
 include(deps/grpc/third_party/protobuf/cmake/protobuf-generate.cmake)
 
 find_package(yaml-cpp REQUIRED)
 find_package(GTest REQUIRED)
+find_package(SDL2 REQUIRED)
 
 include_directories(${YAML_INCLUDE_DIRS})
+include_directories(${SDL2_INCLUDE_DIRS})
 include_directories(src)
 
 add_subdirectory(src/agent)

@@ -49,7 +49,7 @@ target_link_libraries(neon_core
   neon_proto
   neon_utils
   ogg
-  rtaudio
+  ${SDL2_LIBRARIES}
   vorbis
   vorbisenc
   pybind11_headers

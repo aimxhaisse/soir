@@ -18,7 +18,7 @@ static constexpr int kNumBuffers = 8;
 
 class SampleConsumer {
  public:
-  virtual absl::Status PushAudioBuffer(const AudioBuffer&) = 0;
+  virtual absl::Status PushAudioBuffer(AudioBuffer&) = 0;
 };
 
 // This is not standard MIDI, will likely evolve if we want to
