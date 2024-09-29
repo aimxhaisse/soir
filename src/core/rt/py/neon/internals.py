@@ -61,12 +61,22 @@ class Loop_:
 
             global current_loop_
 
+            err = None
             current_loop_ = self
             self.current_offset = 0
-            self.func()
+            try:
+                self.func()
+            except Exception as e:
+                err = e
             current_loop_ = None
-
             schedule_(self.beats, loop)
+
+            # We raise after rescheduling the loop, this helps making
+            # sure we don't have dead loops if an error is raised
+            # somewhere. The downside is we'll probably make noise
+            # anyway.
+            if err:
+                raise err
 
         schedule_(at, loop)
 
@@ -74,18 +84,19 @@ class Loop_:
 def loop(beats: int, track: int, align: int) -> callable:
 
     def wrapper(func):
-        """
-        """
         name = func.__name__
 
         if name not in loop_registry_:
             ll = Loop_(name, beats, track, align, func)
 
+            ll.updated_at = eval_id_
             ll.run()
 
             loop_registry_[name] = ll
         else:
             ll = loop_registry_[name]
+
+            ll.updated_at = eval_id_
 
             # We allow to update the beats and align of the loop,
             # however it will only be taken into account at the next
@@ -96,8 +107,6 @@ def loop(beats: int, track: int, align: int) -> callable:
 
             # Here is where we perform code update seamlessly.
             ll.func = func
-
-        ll.updated_at = eval_id_
 
         # This is a bit counter-intuitive: we don't allow to execute
         # the decorated function directly, it is scheduled the moment
@@ -207,10 +216,16 @@ class Live_:
         """
         global current_live_
 
+        err = None
         current_live_ = self
         func = self.func
-        func()
+        try:
+            func()
+        except Exception as e:
+            err = e
         current_live_ = None
+        if err:
+            raise err
 
 
 def live() -> callable:

@@ -38,9 +38,15 @@ TEST_F(CoreTestBase, BasicLoopFailedUpdate) {
   PushCode(R"(
 bpm.set(600)
 
+i = 0
+
 @loop(track=1, beats=1)
 def kick():
-  log('Hello')
+  global i
+
+  if i == 0: 
+    log('Hello')
+    i += 1
 
   )");
 
@@ -48,11 +54,8 @@ def kick():
   EXPECT_TRUE(WaitForNotification("Hello"));
 
   PushCode(R"(
-bpm.set(600)
-
 @loop(track=1, beats=1)
 def kick():
-  log('Hello')
   error
 
   )");
@@ -60,8 +63,6 @@ def kick():
   std::this_thread::sleep_for(std::chrono::seconds(1));
 
   PushCode(R"(
-bpm.set(600)
-
 @loop(track=1, beats=1)
 def kick():
   log('Hello 2')
@@ -69,6 +70,7 @@ def kick():
   )");
 
   std::this_thread::sleep_for(std::chrono::seconds(1));
+
   EXPECT_TRUE(WaitForNotification("Hello 2"));
 }
 
