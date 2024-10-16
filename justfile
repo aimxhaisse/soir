@@ -11,10 +11,6 @@ build:
     #!/usr/bin/env bash
     poetry run make
 
-# Build Neon and its external dependencies.
-build-deps:
-    poetry run make FASTBUILD=
-
 # Runs the Neon unit test suites.
 test filter='*':
     poetry run make test TEST_FILTER={{filter}}

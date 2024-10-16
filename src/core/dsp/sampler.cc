@@ -100,14 +100,18 @@ void Sampler::HandleSysex(const proto::MidiSysexInstruction& sysex) {
   }
 }
 
-void Sampler::Render(const std::list<libremidi::message>& messages,
-                     AudioBuffer& buffer) {
+void Sampler::ProcessMidiEvents(SampleTick tick) {
+  std::list<MidiEventAt> events_at;
+
+  midi_stack_.EventsAtTick(tick, events_at);
+
   // Process MIDI events.
   //
   // For now we don't have timing information in MIDI events so we
   // don't split this code in a dedicated function as the two logics
   // (midi/DSP) will be interleaved at some point.
-  for (auto msg : messages) {
+  for (auto event_at : events_at) {
+    auto msg = event_at.Msg();
     auto type = msg.get_message_type();
 
     switch (type) {
@@ -127,14 +131,20 @@ void Sampler::Render(const std::list<libremidi::message>& messages,
         continue;
     };
   }
+}
 
-  // DSP.
+void Sampler::Render(SampleTick tick, const std::list<MidiEventAt>& events,
+                     AudioBuffer& buffer) {
+  midi_stack_.AddEvents(events);
+
   float* left_chan = buffer.GetChannel(kLeftChannel);
   float* right_chan = buffer.GetChannel(kRightChannel);
 
   std::set<PlayingSample*> remove;
 
   for (int i = 0; i < buffer.Size(); ++i) {
+    ProcessMidiEvents(tick + i);
+
     float left = left_chan[i];
     float right = right_chan[i];
 

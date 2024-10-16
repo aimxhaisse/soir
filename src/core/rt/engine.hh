@@ -3,6 +3,7 @@
 #include <condition_variable>
 #include <mutex>
 
+#include "core/common.hh"
 #include "core/dsp/engine.hh"
 #include "core/rt/notifier.hh"
 #include "utils/config.hh"
@@ -11,9 +12,6 @@ namespace neon {
 namespace rt {
 
 using CbFunc = std::function<void()>;
-using MicroBeat = uint64_t;
-
-static constexpr uint64_t OneBeat = 1000000;
 
 // Scheduled callback at a given beat.
 struct Cb {
@@ -101,6 +99,7 @@ class Engine {
   absl::Time current_time_;
   float bpm_ = 120.0;
   uint64_t beat_us_ = 0;
+  absl::Duration delay_ms_;
 };
 
 }  // namespace rt

@@ -7,6 +7,7 @@
 
 #include "core/dsp/audio_buffer.hh"
 #include "core/dsp/midi_ext.hh"
+#include "core/dsp/midi_stack.hh"
 #include "core/dsp/sample_manager.hh"
 #include "core/dsp/sampler.hh"
 #include "utils/config.hh"
@@ -49,15 +50,16 @@ struct Track {
   TrackSettings GetSettings();
   int GetChannel();
 
-  void Render(const std::list<libremidi::message>&, AudioBuffer&);
+  void Render(SampleTick tick, const std::list<MidiEventAt>&, AudioBuffer&);
 
  private:
-  void HandleMidiEvent(const libremidi::message& event);
+  void ProcessMidiEvents(const std::list<MidiEventAt>&);
 
   std::mutex mutex_;
   TrackSettings settings_;
   std::unique_ptr<Sampler> sampler_;
   std::unique_ptr<MidiExt> midi_ext_;
+  MidiStack midi_stack_;
 };
 
 }  // namespace dsp

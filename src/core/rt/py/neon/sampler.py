@@ -122,7 +122,7 @@ class Sampler:
         }
 
         track = current_loop().track
-
+        
         schedule_(
             current_loop().current_offset,
             lambda: midi_sysex_sample_play_(track, json.dumps(params))

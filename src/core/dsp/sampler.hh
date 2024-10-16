@@ -6,9 +6,11 @@
 #include <map>
 #include <memory>
 
+#include "core/common.hh"
 #include "core/dsp/adsr.hh"
 #include "core/dsp/audio_buffer.hh"
 #include "core/dsp/dsp.hh"
+#include "core/dsp/midi_stack.hh"
 #include "core/dsp/sample_manager.hh"
 #include "core/dsp/sample_pack.hh"
 #include "core/dsp/track.hh"
@@ -30,9 +32,10 @@ static constexpr float kSampleMinimalDurationMs = 2 * kSampleMinimalSmoothingMs;
 class Sampler {
  public:
   absl::Status Init(SampleManager* sample_manager);
-  void Render(const std::list<libremidi::message>&, AudioBuffer&);
+  void Render(SampleTick tick, const std::list<MidiEventAt>&, AudioBuffer&);
 
  private:
+  void ProcessMidiEvents(SampleTick tick);
   void HandleSysex(const proto::MidiSysexInstruction& sysex);
 
   void PlaySample(Sample* s);
@@ -57,6 +60,8 @@ class Sampler {
   // user triggers a midi note off.
   std::map<Sample*, std::list<std::unique_ptr<PlayingSample>>> playing_;
   SampleManager* sample_manager_;
+
+  MidiStack midi_stack_;
 };
 
 }  // namespace dsp

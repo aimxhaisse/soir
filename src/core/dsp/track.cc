@@ -72,59 +72,83 @@ int Track::GetChannel() {
   return settings_.channel_;
 }
 
-void Track::HandleMidiEvent(const libremidi::message& event) {
-  std::scoped_lock<std::mutex> lock(mutex_);
+void Track::ProcessMidiEvents(const std::list<MidiEventAt>& events_at) {
+  for (const auto& event_at : events_at) {
+    auto event = event_at.Msg();
+    auto type = event.get_message_type();
 
-  auto type = event.get_message_type();
+    if (type == libremidi::message_type::CONTROL_CHANGE) {
+      const int control = static_cast<int>(event.bytes[1]);
 
-  if (type == libremidi::message_type::CONTROL_CHANGE) {
-    const int control = static_cast<int>(event.bytes[1]);
+      switch (control) {
+        case kMidiControlMuteTrack:
+          if (event.bytes[2] != 0) {
+            settings_.muted_ = !settings_.muted_;
+          }
+          break;
 
-    switch (control) {
-      case kMidiControlMuteTrack:
-        if (event.bytes[2] != 0) {
-          settings_.muted_ = !settings_.muted_;
-        }
-        break;
+        case kMidiControlVolume:
+          settings_.volume_ = event.bytes[2];
+          break;
 
-      case kMidiControlVolume:
-        settings_.volume_ = event.bytes[2];
-        break;
+        case kMidiControlPan:
+          settings_.pan_ = event.bytes[2];
+          break;
 
-      case kMidiControlPan:
-        settings_.pan_ = event.bytes[2];
-        break;
-
-      default:
-        break;
+        default:
+          break;
+      }
     }
   }
 }
 
-void Track::Render(const std::list<libremidi::message>& events,
+void Track::Render(SampleTick tick, const std::list<MidiEventAt>& events,
                    AudioBuffer& buffer) {
-  for (auto& event : events) {
-    HandleMidiEvent(event);
+  midi_stack_.AddEvents(events);
+
+  AudioBuffer track_buffer(buffer.Size());
+
+  switch (settings_.instrument_) {
+    case TRACK_SAMPLER:
+      sampler_->Render(tick, events, track_buffer);
+      break;
+
+    case TRACK_MIDI_EXT:
+      midi_ext_->Render(tick, events, track_buffer);
+      break;
+
+    defaults:
+      LOG(WARNING) << "Unknown instrument";
+      break;
   }
 
-  if (!settings_.muted_) {
-    switch (settings_.instrument_) {
-      case TRACK_SAMPLER:
-        sampler_->Render(events, buffer);
-        break;
+  auto ilch = track_buffer.GetChannel(kLeftChannel);
+  auto irch = track_buffer.GetChannel(kRightChannel);
+  auto olch = buffer.GetChannel(kLeftChannel);
+  auto orch = buffer.GetChannel(kRightChannel);
 
-      case TRACK_MIDI_EXT:
-        midi_ext_->Render(events, buffer);
-        break;
+  {
+    std::scoped_lock<std::mutex> lock(mutex_);
 
-      defaults:
-        LOG(WARNING) << "Unknown instrument";
-        break;
+    for (int i = 0; i < track_buffer.Size(); ++i) {
+      std::list<MidiEventAt> events;
+      midi_stack_.EventsAtTick(tick + i, events);
+      ProcessMidiEvents(events);
+      if (!settings_.muted_) {
+        auto lgain = settings_.volume_ / 127.0f;
+        auto rgain = settings_.volume_ / 127.0f;
+        auto pan = settings_.pan_ / 127.0f;
+
+        if (pan > 0.5f) {
+          lgain *= (1.0f - pan) * 2.0f;
+        } else {
+          rgain *= pan * 2.0f;
+        }
+
+        olch[i] = ilch[i] * lgain;
+        orch[i] = irch[i] * rgain;
+      }
     }
-
-    // DSP per-track.
-    buffer.ApplyGain(static_cast<float>(settings_.volume_) / 127.0f);
-    buffer.ApplyPan(static_cast<float>(settings_.pan_) / 127.0f);
   }
 }
 

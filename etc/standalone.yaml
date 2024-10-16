@@ -8,6 +8,7 @@ agent:
 neon:
   rt:
     initial_bpm: 130
+    delay_ms: 25
   grpc:
     host: localhost
     port: 9000
@@ -21,4 +22,4 @@ neon:
       audio:
         enable: true
     engine:
-      block_size: 128
+      block_size: 8192

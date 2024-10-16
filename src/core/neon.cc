@@ -106,7 +106,14 @@ grpc::Status Neon::PushMidiEvents(grpc::ServerContext* context,
   msg.bytes = libremidi::midi_bytes(request->midi_payload().begin(),
                                     request->midi_payload().end());
 
-  dsp_->PushMidiEvent(msg);
+  // Here we add a block size delay to be sure we don't pad events to
+  // the beginning of block processing: we want this to be scheduled
+  // in the nearest possible future but not in the past, otherwise
+  // those events will be considered late and immediately scheduled on
+  // tick 0 of the block.
+  auto delay =
+      absl::Microseconds((dsp_->GetBlockSize() * 1e6) / dsp::kSampleRate);
+  dsp_->PushMidiEvent(MidiEventAt(msg, absl::Now() + delay));
 
   return grpc::Status::OK;
 }

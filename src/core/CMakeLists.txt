@@ -35,6 +35,7 @@ add_library(neon_core
   dsp/track.cc
   dsp/vorbis_encoder.cc
   dsp/audio_output.cc
+  dsp/midi_stack.cc
 
   rt/bindings.cc
   rt/engine.cc

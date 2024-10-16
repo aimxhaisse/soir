@@ -14,6 +14,7 @@ absl::Status Engine::Init(const utils::Config& config) {
   LOG(INFO) << "Initializing engine";
 
   block_size_ = config.Get<uint32_t>("neon.dsp.engine.block_size");
+  current_tick_ = 0;
 
   auto http_enabled = config.Get<bool>("neon.dsp.output.http.enable");
 
@@ -139,7 +140,21 @@ void Engine::Stats(const absl::Time& next_block_at,
       << "\e[1;104mS O I R\e[0m CPU usage: " << cpu_usage << "%";
 }
 
-void Engine::PushMidiEvent(const libremidi::message& msg) {
+void Engine::SetTicks(std::list<MidiEventAt>& events) {
+  auto now = absl::Now();
+
+  for (auto& e : events) {
+    auto diff_us = absl::ToInt64Microseconds(e.At() - now);
+    auto diff_ticks = static_cast<int32_t>((diff_us * kSampleRate) / 1e6);
+
+    diff_ticks = std::max(diff_ticks, 0);
+
+    e.SetTick(current_tick_ + diff_ticks);
+  }
+}
+
+void Engine::PushMidiEvent(const MidiEventAt& e) {
+  auto msg = e.Msg();
 
   if (msg.get_message_type() == libremidi::message_type::SYSTEM_EXCLUSIVE) {
     proto::MidiSysexInstruction sysex;
@@ -150,7 +165,7 @@ void Engine::PushMidiEvent(const libremidi::message& msg) {
 
     {
       std::scoped_lock<std::mutex> lock(msgs_mutex_);
-      msgs_by_chan_[sysex.channel()].push_back(msg);
+      msgs_by_chan_[sysex.channel()].push_back(e);
     }
 
     return;
@@ -161,7 +176,7 @@ void Engine::PushMidiEvent(const libremidi::message& msg) {
 
   if (msg.get_channel() != 0) {
     std::scoped_lock<std::mutex> lock(msgs_mutex_);
-    msgs_by_chan_[msg.get_channel()].push_back(msg);
+    msgs_by_chan_[msg.get_channel()].push_back(e);
     return;
   }
 }
@@ -184,7 +199,7 @@ absl::Status Engine::Run() {
       }
     }
 
-    std::map<int, std::list<libremidi::message>> events;
+    std::map<int, std::list<MidiEventAt>> events;
     {
       std::lock_guard<std::mutex> lock(msgs_mutex_);
       events.swap(msgs_by_chan_);
@@ -195,9 +210,13 @@ absl::Status Engine::Run() {
       std::scoped_lock<std::mutex> lock(tracks_mutex_);
       for (auto& it : tracks_) {
         auto track = it.second.get();
-        track->Render(events[track->GetChannel()], buffer);
+        auto evlist = events[track->GetChannel()];
+        SetTicks(evlist);
+        track->Render(current_tick_, evlist, buffer);
       }
     }
+
+    current_tick_ += block_size_;
 
     {
       std::lock_guard<std::mutex> lock(consumers_mutex_);

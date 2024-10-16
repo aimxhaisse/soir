@@ -6,6 +6,13 @@ def setup():
         tracks.mk("sampler", 1, muted=False, volume=100),
     ])
 
+    """
+    controls.setup({
+        'ctrl-0x1': controls.mk(sin(1)),
+        'ctrl-0x2': controls.mk(controls.midi_in('x', 1)),
+    })
+    """
+    
 s = sampler.new('mxs-beats')
 
 kit = {

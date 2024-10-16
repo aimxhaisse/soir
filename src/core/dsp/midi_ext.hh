@@ -1,11 +1,11 @@
 #pragma once
 
 #include <absl/status/status.h>
+#include <libremidi/libremidi.hpp>
 #include <list>
 
-#include <libremidi/libremidi.hpp>
-
 #include "core/dsp/audio_buffer.hh"
+#include "core/dsp/midi_stack.hh"
 
 namespace neon {
 namespace dsp {
@@ -16,9 +16,11 @@ class MidiExt {
   ~MidiExt();
 
   absl::Status Init();
-  void Render(const std::list<libremidi::message>& events, AudioBuffer& buffer);
+  void Render(SampleTick tick, const std::list<MidiEventAt>& events,
+              AudioBuffer& buffer);
 
  private:
+  MidiStack midi_stack_;
   libremidi::midi_out midiout_;
 };
 

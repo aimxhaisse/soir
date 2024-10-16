@@ -13,8 +13,6 @@ class AudioBuffer {
   AudioBuffer(const AudioBuffer&) = default;
   AudioBuffer& operator=(const AudioBuffer&) = default;
 
-  void ApplyGain(float gain);
-  void ApplyPan(float pan);
   std::size_t Size() const;
   float* GetChannel(int channel);
   void Reset();

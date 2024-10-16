@@ -55,10 +55,17 @@ absl::Status MidiExt::Init() {
   return absl::OkStatus();
 }
 
-void MidiExt::Render(const std::list<libremidi::message>& events,
+void MidiExt::Render(SampleTick tick, const std::list<MidiEventAt>& events,
                      AudioBuffer& buffer) {
-  for (const auto& event : events) {
-    midiout_.send_message(event);
+  // Here we need to have a dedicated thread model so that scheduled
+  // events closely follow what is asked by the runtime. We can't
+  // pre-render those in advance.
+  midi_stack_.AddEvents(events);
+  std::list<MidiEventAt> events_at;
+  midi_stack_.EventsAtTick(tick, events_at);
+
+  for (const auto& event_at : events_at) {
+    midiout_.send_message(event_at.Msg());
   }
 }
 

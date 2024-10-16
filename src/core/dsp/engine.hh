@@ -6,6 +6,7 @@
 #include <mutex>
 #include <thread>
 
+#include "core/common.hh"
 #include "core/dsp/audio_output.hh"
 #include "core/dsp/http.hh"
 #include "core/dsp/sample_manager.hh"
@@ -33,7 +34,8 @@ class Engine {
 
   void RegisterConsumer(SampleConsumer* consumer);
   void RemoveConsumer(SampleConsumer* consumer);
-  void PushMidiEvent(const libremidi::message& msg);
+  void PushMidiEvent(const MidiEventAt& event);
+  uint32_t GetBlockSize() const { return block_size_; }
 
   absl::Status SetupTracks(const std::list<TrackSettings>& settings);
   absl::Status GetTracks(std::list<TrackSettings>* settings);
@@ -42,11 +44,13 @@ class Engine {
 
  private:
   absl::Status Run();
+  void SetTicks(std::list<MidiEventAt>& events);
 
   // Helper to print some statistics about CPU usage.
   void Stats(const absl::Time& next_block_at,
              const absl::Duration& block_duration) const;
 
+  MicroBeat current_tick_;
   uint32_t block_size_;
 
   // The main thread of the DSP engine, processes blocks of audio
@@ -70,10 +74,10 @@ class Engine {
   std::mutex tracks_mutex_;
   std::map<int, std::unique_ptr<Track>> tracks_;
 
-  // MIDI events are pushed by the Soir engine and consumed by the DSP
+  // MIDI events are pushed by the RT engine and consumed by the DSP
   // engine upon each block processing at the beginning.
   std::mutex msgs_mutex_;
-  std::map<int, std::list<libremidi::message>> msgs_by_chan_;
+  std::map<int, std::list<MidiEventAt>> msgs_by_chan_;
 
   std::unique_ptr<SampleManager> sample_manager_;
 };
