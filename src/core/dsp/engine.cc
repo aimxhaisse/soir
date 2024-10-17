@@ -147,6 +147,11 @@ void Engine::SetTicks(std::list<MidiEventAt>& events) {
     auto diff_us = absl::ToInt64Microseconds(e.At() - now);
     auto diff_ticks = static_cast<int32_t>((diff_us * kSampleRate) / 1e6);
 
+    // We introduce an artificial delay here that is greater than the
+    // block size to ensure we have enough time for processing until
+    // it is actually scheduled.
+    diff_ticks += kBlockDelay * block_size_;
+
     diff_ticks = std::max(diff_ticks, 0);
 
     e.SetTick(current_tick_ + diff_ticks);
@@ -185,9 +190,9 @@ absl::Status Engine::Run() {
   LOG(INFO) << "Engine running";
 
   AudioBuffer buffer(block_size_);
-  absl::Time next_block_at = absl::Now();
   absl::Duration block_duration =
-      absl::Microseconds(1000000 * block_size_ / kSampleRate);
+      absl::Microseconds((1e6 * block_size_) / kSampleRate);
+  absl::Time next_block_at = absl::Now();
 
   while (true) {
     {

@@ -99,7 +99,6 @@ class Engine {
   absl::Time current_time_;
   float bpm_ = 120.0;
   uint64_t beat_us_ = 0;
-  absl::Duration delay_ms_;
 };
 
 }  // namespace rt

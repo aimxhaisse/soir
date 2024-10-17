@@ -8,7 +8,6 @@ agent:
 neon:
   rt:
     initial_bpm: 130
-    delay_ms: 25
   grpc:
     host: localhost
     port: 9000

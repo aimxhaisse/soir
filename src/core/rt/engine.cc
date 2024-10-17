@@ -23,9 +23,6 @@ absl::Status Engine::Init(const utils::Config& config, dsp::Engine* dsp,
                           Notifier* notifier) {
   LOG(INFO) << "Initializing engine";
 
-  delay_ms_ = absl::Milliseconds(config.Get<uint32_t>("neon.rt.delay_ms", 250));
-  LOG(INFO) << "Setting runtime delay to " << delay_ms_;
-
   notifier_ = notifier;
   dsp_ = dsp;
   current_time_ = absl::Now();
@@ -225,19 +222,19 @@ void Engine::Beat() {
 void Engine::MidiNoteOn(uint8_t channel, uint8_t note, uint8_t velocity) {
   auto message = libremidi::channel_events::note_on(channel, note, velocity);
 
-  dsp_->PushMidiEvent(MidiEventAt(message, current_time_ + delay_ms_));
+  dsp_->PushMidiEvent(MidiEventAt(message, current_time_));
 }
 
 void Engine::MidiNoteOff(uint8_t channel, uint8_t note, uint8_t velocity) {
   auto message = libremidi::channel_events::note_off(channel, note, velocity);
 
-  dsp_->PushMidiEvent(MidiEventAt(message, current_time_ + delay_ms_));
+  dsp_->PushMidiEvent(MidiEventAt(message, current_time_));
 }
 
 void Engine::MidiCC(uint8_t channel, uint8_t cc, uint8_t value) {
   auto message = libremidi::channel_events::control_change(channel, cc, value);
 
-  dsp_->PushMidiEvent(MidiEventAt(message, current_time_ + delay_ms_));
+  dsp_->PushMidiEvent(MidiEventAt(message, current_time_));
 }
 
 void Engine::MidiSysex(uint8_t channel,
@@ -257,10 +254,7 @@ void Engine::MidiSysex(uint8_t channel,
   bytes.insert(bytes.begin() + 1, inst_serialized.begin(),
                inst_serialized.end());
 
-  LOG(INFO) << "Pushing midi event at=" << current_time_ + delay_ms_;
-
-  dsp_->PushMidiEvent(
-      MidiEventAt(libremidi::message(bytes, 0), current_time_ + delay_ms_));
+  dsp_->PushMidiEvent(MidiEventAt(libremidi::message(bytes, 0), current_time_));
 }
 
 std::string Engine::GetCode() const {

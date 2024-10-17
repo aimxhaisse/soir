@@ -15,6 +15,7 @@ static constexpr int kSampleRate = 48000;
 static constexpr float kVorbisQuality = 1.0f;
 static constexpr int kDeviceId = 0;
 static constexpr int kNumBuffers = 8;
+static constexpr int kBlockDelay = 4;
 
 class SampleConsumer {
  public:
