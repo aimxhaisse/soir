@@ -21,7 +21,8 @@ bpm.set(120)
 
 # Define 1 track with a sampler as an instrument.
 tracks.setup([
-    tracks.mk("sampler", 1, muted=False, volume=100),
+    tracks.mk_sampler(1, muted=False, volume=100),
+    tracks.mk_midi(2, muted=False, volume=100),
 ])
 
 # Create a sampler instance using the sample pack 'passage'.

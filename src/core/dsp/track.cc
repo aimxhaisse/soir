@@ -29,7 +29,7 @@ absl::Status Track::Init(const TrackSettings& settings,
     case TRACK_MIDI_EXT: {
       settings_.instrument_ = TRACK_MIDI_EXT;
       midi_ext_ = std::make_unique<MidiExt>();
-      auto status = midi_ext_->Init();
+      auto status = midi_ext_->Init(settings_.extra_);
       if (!status.ok()) {
         LOG(ERROR) << "Failed to init midi ext: " << status.message();
         return status;
@@ -58,6 +58,19 @@ void Track::FastUpdate(const TrackSettings& settings) {
   std::scoped_lock<std::mutex> lock(mutex_);
 
   settings_ = settings;
+
+  switch (settings_.instrument_) {
+    case TRACK_MIDI_EXT:
+      auto status = midi_ext_->Init(settings_.extra_);
+      if (!status.ok()) {
+        LOG(ERROR) << "Failed to update midi ext: " << status.message();
+      }
+      break;
+
+    defaults:
+      LOG(WARNING) << "Unable to fast update due to unknown instrument";
+      break;
+  }
 }
 
 TrackSettings Track::GetSettings() {

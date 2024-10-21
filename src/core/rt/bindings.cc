@@ -110,6 +110,7 @@ PYBIND11_EMBEDDED_MODULE(bindings, m) {
       s.muted_ = track["muted"].cast<std::optional<bool>>().value_or(false);
       s.volume_ = track["volume"].cast<std::optional<int>>().value_or(127);
       s.pan_ = track["pan"].cast<std::optional<int>>().value_or(64);
+      s.extra_ = track["extra"].cast<std::optional<std::string>>().value_or("");
 
       settings.push_back(s);
     }

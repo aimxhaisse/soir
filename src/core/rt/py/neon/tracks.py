@@ -27,6 +27,8 @@ trks = tracks.layout()
 # Reference
 """
 
+import json
+
 from dataclasses import dataclass, asdict
 
 from bindings import (
@@ -92,7 +94,7 @@ def setup(tracks: list[Track]) -> bool:
     return setup_tracks_([asdict(track) for track in tracks])
 
 
-def mk(instrument: str, channel: int, muted=None, volume=None, pan=None) -> Track:
+def mk(instrument: str, channel: int, muted=None, volume=None, pan=None, extra=None) -> Track:
     """Creates a new track.
 
     Args:
@@ -101,6 +103,7 @@ def mk(instrument: str, channel: int, muted=None, volume=None, pan=None) -> Trac
         muted (bool, optional): The muted state. Defaults to None.
         volume (float, optional): The volume. Defaults to None.
         pan (float, optional): The pan. Defaults to None.
+        extra (dict, optional): Extra parameters. Defaults to None.
     """
     track = Track()
 
@@ -109,6 +112,32 @@ def mk(instrument: str, channel: int, muted=None, volume=None, pan=None) -> Trac
     track.muted = muted
     track.volume = volume
     track.pan = pan
+    track.extra = json.dumps(extra)
 
     return track
 
+
+def mk_sampler(channel: int, muted=None, volume=None, pan=None, extra=None) -> Track:
+    """Creates a new sampler track.
+
+    Args:
+        channel (int): The channel.
+        muted (bool, optional): The muted state. Defaults to None.
+        volume (float, optional): The volume. Defaults to None.
+        pan (float, optional): The pan. Defaults to None.
+        extra (dict, optional): Extra parameters. Defaults to None.
+    """
+    return mk('sampler', channel, muted, volume, pan, extra)
+
+
+def mk_midi(channel: int, muted=None, volume=None, pan=None, midi_device=0) -> Track:
+    """Creates a new midi track.
+
+    Args:
+        channel (int): The channel.
+        muted (bool, optional): The muted state. Defaults to None.
+        volume (float, optional): The volume. Defaults to None.
+        pan (float, optional): The pan. Defaults to None.
+        extra (dict, optional): Extra parameters. Defaults to None.
+    """
+    return mk('midi_ext', channel, muted, volume, pan, extra={'midi_device': midi_device})

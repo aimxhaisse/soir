@@ -1,39 +1,29 @@
 #include <absl/log/log.h>
+#include <rapidjson/document.h>
 
 #include "core/dsp/midi_ext.hh"
 
 namespace {
 
-bool chooseMidiPort(libremidi::midi_out& libremidi) {
-  std::string portName;
+bool UseMidiPort(int port, libremidi::midi_out& libremidi) {
   auto ports =
       libremidi::observer{
           {}, observer_configuration_for(libremidi.get_current_api())}
           .get_output_ports();
-  unsigned int i = 0;
-  std::size_t nPorts = ports.size();
-  if (nPorts == 0) {
-    LOG(ERROR) << "No output ports found!";
+
+  if (port >= ports.size()) {
+    LOG(ERROR) << "MIDI port number out of range!";
     return false;
   }
 
-  if (nPorts == 1) {
-    LOG(INFO) << "Opening port 0: " << ports[0].display_name;
-  } else {
-    for (i = 0; i < nPorts; i++) {
-      portName = ports[i].display_name;
-      LOG(INFO) << "Port " << i << ": " << portName;
-    }
+  LOG(INFO) << "Opening port " << port << ": " << ports[port].display_name;
 
-    do {
-      std::cout << "\nChoose a port number: ";
-      std::cin.ignore() >> i;
-    } while (i >= nPorts);
+  libremidi.open_port(ports[port]);
+
+  if (!libremidi.is_port_open()) {
+    LOG(ERROR) << "Failed to open MIDI port " << port;
+    return false;
   }
-
-  LOG(INFO) << "Opening port " << i << ": " << ports[i].display_name;
-
-  libremidi.open_port(ports[i]);
 
   return true;
 }
@@ -47,10 +37,22 @@ MidiExt::MidiExt() {}
 
 MidiExt::~MidiExt() {}
 
-absl::Status MidiExt::Init() {
-  if (!chooseMidiPort(midiout_)) {
-    return absl::InternalError("Failed to choose MIDI port");
+absl::Status MidiExt::Init(const std::string& settings) {
+  if (settings == last_settings_) {
+    return absl::OkStatus();
   }
+
+  rapidjson::Document params;
+  params.Parse(settings.c_str());
+  auto midi_port = params["midi_device"].GetInt();
+
+  LOG(INFO) << "Trying to open MIDI port " << midi_port << "...";
+
+  if (!UseMidiPort(midi_port, midiout_)) {
+    return absl::InternalError("Failed to use MIDI port");
+  }
+
+  last_settings_ = settings;
 
   return absl::OkStatus();
 }

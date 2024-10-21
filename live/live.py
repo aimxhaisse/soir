@@ -3,7 +3,8 @@ def setup():
     bpm.set(130)
 
     tracks.setup([
-        tracks.mk("sampler", 1, muted=False, volume=100),
+        tracks.mk_sampler(1),
+        tracks.mk_midi(2, midi_device=0),
     ])
 
     """
@@ -20,6 +21,12 @@ kit = {
     's': 'sd-909-a-10',
     'h': 'ch-606-mod-16',
 }
+
+@loop(track=2, beats=4)
+def digitone():
+    for i in range(4):
+        midi.note_on(60 + i)
+        sleep(1)
 
 @loop(track=1, beats=4)
 def beats():

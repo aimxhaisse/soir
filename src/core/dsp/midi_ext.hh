@@ -15,11 +15,12 @@ class MidiExt {
   MidiExt();
   ~MidiExt();
 
-  absl::Status Init();
+  absl::Status Init(const std::string& settings);
   void Render(SampleTick tick, const std::list<MidiEventAt>& events,
               AudioBuffer& buffer);
 
  private:
+  std::string last_settings_ = "";
   MidiStack midi_stack_;
   libremidi::midi_out midiout_;
 };
