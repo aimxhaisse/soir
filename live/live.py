@@ -4,7 +4,7 @@ def setup():
 
     tracks.setup([
         tracks.mk_sampler(1),
-        tracks.mk_midi(2, midi_device=0),
+        tracks.mk_midi(2, midi_device=0, audio_device=1),
     ])
 
     """
@@ -22,12 +22,6 @@ kit = {
     'h': 'ch-606-mod-16',
 }
 
-@loop(track=2, beats=4)
-def digitone():
-    for i in range(4):
-        midi.note_on(60 + i)
-        sleep(1)
-
 @loop(track=1, beats=4)
 def beats():
     patterns = [
@@ -41,3 +35,9 @@ def beats():
             if kit.get(char):
                 s.play(kit[char])
         sleep(0.25)
+
+@loop(track=2, beats=4)
+def digitone():
+    for i in range(4):
+        midi.note_on(60 + i)
+        sleep(1)

@@ -21,4 +21,4 @@ neon:
       audio:
         enable: true
     engine:
-      block_size: 8192
+      block_size: 4096

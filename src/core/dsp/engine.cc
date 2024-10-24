@@ -289,7 +289,7 @@ absl::Status Engine::SetupTracks(const std::list<TrackSettings>& settings) {
 
   // Perform slow operations here.
   for (auto& track : tracks_to_add) {
-    auto new_track = std::make_unique<Track>();
+    auto new_track = std::make_unique<Track>(block_size_);
     auto status = new_track->Init(track.second, sample_manager_.get());
     if (!status.ok()) {
       LOG(ERROR) << "Failed to initialize track: " << status;

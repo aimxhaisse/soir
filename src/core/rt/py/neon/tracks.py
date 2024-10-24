@@ -130,7 +130,7 @@ def mk_sampler(channel: int, muted=None, volume=None, pan=None, extra=None) -> T
     return mk('sampler', channel, muted, volume, pan, extra)
 
 
-def mk_midi(channel: int, muted=None, volume=None, pan=None, midi_device=0) -> Track:
+def mk_midi(channel: int, muted=None, volume=None, pan=None, midi_device=0, audio_device=0) -> Track:
     """Creates a new midi track.
 
     Args:
@@ -138,6 +138,7 @@ def mk_midi(channel: int, muted=None, volume=None, pan=None, midi_device=0) -> T
         muted (bool, optional): The muted state. Defaults to None.
         volume (float, optional): The volume. Defaults to None.
         pan (float, optional): The pan. Defaults to None.
-        extra (dict, optional): Extra parameters. Defaults to None.
+        midi_device (int, optional): The midi device. Defaults to -1.
+        audio_device (int, optional): The audio device. Defaults to -1.
     """
-    return mk('midi_ext', channel, muted, volume, pan, extra={'midi_device': midi_device})
+    return mk('midi_ext', channel, muted, volume, pan, extra={'midi_device': midi_device, 'audio_device': audio_device})

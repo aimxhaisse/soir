@@ -8,7 +8,7 @@
 namespace neon {
 namespace dsp {
 
-Track::Track() {}
+Track::Track(uint32_t block_size) : block_size_(block_size) {}
 
 absl::Status Track::Init(const TrackSettings& settings,
                          SampleManager* sample_manager) {
@@ -28,12 +28,19 @@ absl::Status Track::Init(const TrackSettings& settings,
 
     case TRACK_MIDI_EXT: {
       settings_.instrument_ = TRACK_MIDI_EXT;
-      midi_ext_ = std::make_unique<MidiExt>();
+      midi_ext_ = std::make_unique<MidiExt>(block_size_);
       auto status = midi_ext_->Init(settings_.extra_);
       if (!status.ok()) {
         LOG(ERROR) << "Failed to init midi ext: " << status.message();
         return status;
       }
+
+      status = midi_ext_->Start();
+      if (!status.ok()) {
+        LOG(ERROR) << "Failed to start midi ext: " << status.message();
+        return status;
+      }
+
       break;
     }
 
@@ -158,8 +165,8 @@ void Track::Render(SampleTick tick, const std::list<MidiEventAt>& events,
           rgain *= pan * 2.0f;
         }
 
-        olch[i] = ilch[i] * lgain;
-        orch[i] = irch[i] * rgain;
+        olch[i] += ilch[i] * lgain;
+        orch[i] += irch[i] * rgain;
       }
     }
   }

@@ -36,7 +36,7 @@ struct TrackSettings {
 // Only sample tracks for now, keep it stupid simple
 // before we introduce more complex stuff.
 struct Track {
-  Track();
+  explicit Track(uint32_t block_size);
 
   absl::Status Init(const TrackSettings& settings,
                     SampleManager* sample_manager);
@@ -54,6 +54,8 @@ struct Track {
 
  private:
   void ProcessMidiEvents(const std::list<MidiEventAt>&);
+
+  uint32_t block_size_;
 
   std::mutex mutex_;
   TrackSettings settings_;
