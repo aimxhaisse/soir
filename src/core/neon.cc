@@ -113,7 +113,7 @@ grpc::Status Neon::PushMidiEvents(grpc::ServerContext* context,
   // tick 0 of the block.
   auto delay =
       absl::Microseconds((dsp_->GetBlockSize() * 1e6) / dsp::kSampleRate);
-  dsp_->PushMidiEvent(MidiEventAt(msg, absl::Now() + delay));
+  dsp_->PushMidiEvent(MidiEventAt(request->track(), msg, absl::Now() + delay));
 
   return grpc::Status::OK;
 }

@@ -81,7 +81,7 @@ PYBIND11_EMBEDDED_MODULE(bindings, m) {
       }
 
       result.push_back(
-          py::dict("channel"_a = track.channel_, "muted"_a = track.muted_,
+          py::dict("track"_a = track.track_, "muted"_a = track.muted_,
                    "volume"_a = track.volume_, "pan"_a = track.pan_,
                    "instrument"_a = instrument));
     }
@@ -106,7 +106,7 @@ PYBIND11_EMBEDDED_MODULE(bindings, m) {
         return false;
       }
 
-      s.channel_ = track["channel"].cast<int>();
+      s.track_ = track["track"].cast<int>();
       s.muted_ = track["muted"].cast<std::optional<bool>>().value_or(false);
       s.volume_ = track["volume"].cast<std::optional<int>>().value_or(127);
       s.pan_ = track["pan"].cast<std::optional<int>>().value_or(64);
@@ -124,20 +124,22 @@ PYBIND11_EMBEDDED_MODULE(bindings, m) {
     return true;
   });
 
-  m.def("midi_note_on_", [](uint8_t channel, uint8_t note, uint8_t velocity) {
-    gRt_->MidiNoteOn(channel, note, velocity);
+  m.def("midi_note_on_",
+        [](int track, uint8_t channel, uint8_t note, uint8_t velocity) {
+          gRt_->MidiNoteOn(track, channel, note, velocity);
+        });
+  m.def("midi_note_off_",
+        [](int track, uint8_t channel, uint8_t note, uint8_t velocity) {
+          gRt_->MidiNoteOff(track, channel, note, velocity);
+        });
+  m.def("midi_cc_", [](int track, uint8_t channel, uint8_t cc, uint8_t value) {
+    gRt_->MidiCC(track, channel, cc, value);
   });
-  m.def("midi_note_off_", [](uint8_t channel, uint8_t note, uint8_t velocity) {
-    gRt_->MidiNoteOff(channel, note, velocity);
+  m.def("midi_sysex_sample_play_", [](int track, const std::string& p) {
+    gRt_->MidiSysex(track, proto::MidiSysexInstruction::SAMPLER_PLAY, p);
   });
-  m.def("midi_cc_", [](uint8_t channel, uint8_t cc, uint8_t value) {
-    gRt_->MidiCC(channel, cc, value);
-  });
-  m.def("midi_sysex_sample_play_", [](uint8_t channel, const std::string& p) {
-    gRt_->MidiSysex(channel, proto::MidiSysexInstruction::SAMPLER_PLAY, p);
-  });
-  m.def("midi_sysex_sample_stop_", [](uint8_t channel, const std::string& p) {
-    gRt_->MidiSysex(channel, proto::MidiSysexInstruction::SAMPLER_STOP, p);
+  m.def("midi_sysex_sample_stop_", [](int track, const std::string& p) {
+    gRt_->MidiSysex(track, proto::MidiSysexInstruction::SAMPLER_STOP, p);
   });
 
   m.def("get_packs_",

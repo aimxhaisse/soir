@@ -77,7 +77,7 @@ class Engine {
   // MIDI events are pushed by the RT engine and consumed by the DSP
   // engine upon each block processing at the beginning.
   std::mutex msgs_mutex_;
-  std::map<int, std::list<MidiEventAt>> msgs_by_chan_;
+  std::map<int, std::list<MidiEventAt>> msgs_by_track_;
 
   std::unique_ptr<SampleManager> sample_manager_;
 };

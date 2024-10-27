@@ -86,10 +86,10 @@ TrackSettings Track::GetSettings() {
   return settings_;
 }
 
-int Track::GetChannel() {
+int Track::GetTrackId() {
   std::scoped_lock<std::mutex> lock(mutex_);
 
-  return settings_.channel_;
+  return settings_.track_;
 }
 
 void Track::ProcessMidiEvents(const std::list<MidiEventAt>& events_at) {

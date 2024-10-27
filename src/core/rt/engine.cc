@@ -219,30 +219,31 @@ void Engine::Beat() {
   Schedule(current_beat_ + kOneBeat, [this]() { Beat(); });
 }
 
-void Engine::MidiNoteOn(uint8_t channel, uint8_t note, uint8_t velocity) {
+void Engine::MidiNoteOn(int track, uint8_t channel, uint8_t note,
+                        uint8_t velocity) {
   auto message = libremidi::channel_events::note_on(channel, note, velocity);
 
-  dsp_->PushMidiEvent(MidiEventAt(message, current_time_));
+  dsp_->PushMidiEvent(MidiEventAt(track, message, current_time_));
 }
 
-void Engine::MidiNoteOff(uint8_t channel, uint8_t note, uint8_t velocity) {
+void Engine::MidiNoteOff(int track, uint8_t channel, uint8_t note,
+                         uint8_t velocity) {
   auto message = libremidi::channel_events::note_off(channel, note, velocity);
 
-  dsp_->PushMidiEvent(MidiEventAt(message, current_time_));
+  dsp_->PushMidiEvent(MidiEventAt(track, message, current_time_));
 }
 
-void Engine::MidiCC(uint8_t channel, uint8_t cc, uint8_t value) {
+void Engine::MidiCC(int track, uint8_t channel, uint8_t cc, uint8_t value) {
   auto message = libremidi::channel_events::control_change(channel, cc, value);
 
-  dsp_->PushMidiEvent(MidiEventAt(message, current_time_));
+  dsp_->PushMidiEvent(MidiEventAt(track, message, current_time_));
 }
 
-void Engine::MidiSysex(uint8_t channel,
+void Engine::MidiSysex(int track,
                        proto::MidiSysexInstruction::InstructionType instruction,
                        const std::string& json_payload) {
   proto::MidiSysexInstruction inst;
 
-  inst.set_channel(channel);
   inst.set_type(instruction);
   inst.set_json_payload(json_payload);
 
@@ -254,7 +255,8 @@ void Engine::MidiSysex(uint8_t channel,
   bytes.insert(bytes.begin() + 1, inst_serialized.begin(),
                inst_serialized.end());
 
-  dsp_->PushMidiEvent(MidiEventAt(libremidi::message(bytes, 0), current_time_));
+  dsp_->PushMidiEvent(
+      MidiEventAt(track, libremidi::message(bytes, 0), current_time_));
 }
 
 std::string Engine::GetCode() const {

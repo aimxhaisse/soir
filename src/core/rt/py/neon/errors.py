@@ -30,3 +30,13 @@ class InLoopException(NeonException):
     exception is raised if such code is called from a loop.
     """
     pass
+
+
+class UnknownMidiTrackException(NeonException):
+    """Raised when trying to use an invalid MIDI track.
+
+    In Neon, MIDI tracks are used to send MIDI events to the external
+    synthesizer. This exception is raised if an invalid MIDI track is
+    used.
+    """
+    pass

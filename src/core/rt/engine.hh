@@ -69,10 +69,10 @@ class Engine {
   void Log(const std::string& message);
   void Beat();
 
-  void MidiNoteOn(uint8_t channel, uint8_t note, uint8_t velocity);
-  void MidiNoteOff(uint8_t channel, uint8_t note, uint8_t velocity);
-  void MidiCC(uint8_t channel, uint8_t cc, uint8_t value);
-  void MidiSysex(uint8_t channel,
+  void MidiNoteOn(int track, uint8_t channel, uint8_t note, uint8_t velocity);
+  void MidiNoteOff(int track, uint8_t channel, uint8_t note, uint8_t velocity);
+  void MidiCC(int track, uint8_t channel, uint8_t cc, uint8_t value);
+  void MidiSysex(int track,
                  proto::MidiSysexInstruction::InstructionType instruction,
                  const std::string& payload);
 

@@ -26,7 +26,7 @@ typedef enum {
 // Settings of a track.
 struct TrackSettings {
   TrackInstrument instrument_;
-  int channel_ = 0;
+  int track_ = 0;
   bool muted_ = false;
   int volume_ = 127;
   int pan_ = 64;
@@ -48,7 +48,7 @@ struct Track {
 
   TrackInstrument GetInstrument();
   TrackSettings GetSettings();
-  int GetChannel();
+  int GetTrackId();
 
   void Render(SampleTick tick, const std::list<MidiEventAt>&, AudioBuffer&);
 

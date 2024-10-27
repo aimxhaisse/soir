@@ -49,21 +49,21 @@ class Track:
 
     Attributes:
         instrument: The instrument type.
-        channel: The channel.
+        track: The track id.
         muted: The muted state. Defaults to None.
         volume: The volume. Defaults to None.
         pan: The pan. Defaults to None.
         extra: Extra parameters. Defaults to None.
     """
     instrument: str = None
-    channel: int = None
+    track: int = None
     muted: bool | None = None
     volume: float | None  = None
     pan: float | None = None
     extra: dict | None = None
 
     def __repr__(self):
-        return f'Track(instrument={self.instrument}, channel={self.channel}, muted={self.muted}, volume={self.volume}, pan={self.pan})'
+        return f'Track(instrument={self.instrument}, track={self.track}, muted={self.muted}, volume={self.volume}, pan={self.pan})'
 
 
 def layout() -> list[Track]:
@@ -94,51 +94,51 @@ def setup(tracks: list[Track]) -> bool:
     return setup_tracks_([asdict(track) for track in tracks])
 
 
-def mk(instrument: str, channel: int, muted=None, volume=None, pan=None, extra=None) -> Track:
+def mk(instrument: str, track: int, muted=None, volume=None, pan=None, extra=None) -> Track:
     """Creates a new track.
 
     Args:
         instrument (str): The instrument type.
-        channel (int): The channel.
+        track (int): The track number.
         muted (bool, optional): The muted state. Defaults to None.
         volume (float, optional): The volume. Defaults to None.
         pan (float, optional): The pan. Defaults to None.
         extra (dict, optional): Extra parameters. Defaults to None.
     """
-    track = Track()
+    t = Track()
 
-    track.instrument = instrument
-    track.channel = channel
-    track.muted = muted
-    track.volume = volume
-    track.pan = pan
-    track.extra = json.dumps(extra)
+    t.instrument = instrument
+    t.track = track
+    t.muted = muted
+    t.volume = volume
+    t.pan = pan
+    t.extra = json.dumps(extra)
 
-    return track
+    return t
 
 
-def mk_sampler(channel: int, muted=None, volume=None, pan=None, extra=None) -> Track:
+def mk_sampler(track: int, muted=None, volume=None, pan=None, extra=None) -> Track:
     """Creates a new sampler track.
 
     Args:
-        channel (int): The channel.
+        track (int): The track id.
         muted (bool, optional): The muted state. Defaults to None.
         volume (float, optional): The volume. Defaults to None.
         pan (float, optional): The pan. Defaults to None.
         extra (dict, optional): Extra parameters. Defaults to None.
     """
-    return mk('sampler', channel, muted, volume, pan, extra)
+    return mk('sampler', track, muted, volume, pan, extra)
 
 
-def mk_midi(channel: int, muted=None, volume=None, pan=None, midi_device=0, audio_device=0) -> Track:
+def mk_midi(track: int, muted=None, volume=None, pan=None, midi_device=0, audio_device=0) -> Track:
     """Creates a new midi track.
 
     Args:
-        channel (int): The channel.
+        track (int): The track id.
         muted (bool, optional): The muted state. Defaults to None.
         volume (float, optional): The volume. Defaults to None.
         pan (float, optional): The pan. Defaults to None.
         midi_device (int, optional): The midi device. Defaults to -1.
         audio_device (int, optional): The audio device. Defaults to -1.
     """
-    return mk('midi_ext', channel, muted, volume, pan, extra={'midi_device': midi_device, 'audio_device': audio_device})
+    return mk('midi_ext', track, muted, volume, pan, extra={'midi_device': midi_device, 'audio_device': audio_device})

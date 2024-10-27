@@ -159,31 +159,9 @@ void Engine::SetTicks(std::list<MidiEventAt>& events) {
 }
 
 void Engine::PushMidiEvent(const MidiEventAt& e) {
-  auto msg = e.Msg();
+  std::scoped_lock<std::mutex> lock(msgs_mutex_);
 
-  if (msg.get_message_type() == libremidi::message_type::SYSTEM_EXCLUSIVE) {
-    proto::MidiSysexInstruction sysex;
-    if (!sysex.ParseFromArray(msg.bytes.data() + 1, msg.bytes.size() - 1)) {
-      LOG(WARNING) << "Failed to parse sysex message";
-      return;
-    }
-
-    {
-      std::scoped_lock<std::mutex> lock(msgs_mutex_);
-      msgs_by_chan_[sysex.channel()].push_back(e);
-    }
-
-    return;
-  }
-
-  // Here we assume it has a channel, but it may not be the case, we
-  // should filter by message types that support channels.
-
-  if (msg.get_channel() != 0) {
-    std::scoped_lock<std::mutex> lock(msgs_mutex_);
-    msgs_by_chan_[msg.get_channel()].push_back(e);
-    return;
-  }
+  msgs_by_track_[e.Track()].push_back(e);
 }
 
 absl::Status Engine::Run() {
@@ -207,7 +185,7 @@ absl::Status Engine::Run() {
     std::map<int, std::list<MidiEventAt>> events;
     {
       std::lock_guard<std::mutex> lock(msgs_mutex_);
-      events.swap(msgs_by_chan_);
+      events.swap(msgs_by_track_);
     }
 
     buffer.Reset();
@@ -215,7 +193,7 @@ absl::Status Engine::Run() {
       std::scoped_lock<std::mutex> lock(tracks_mutex_);
       for (auto& it : tracks_) {
         auto track = it.second.get();
-        auto evlist = events[track->GetChannel()];
+        auto evlist = events[track->GetTrackId()];
         SetTicks(evlist);
         track->Render(current_tick_, evlist, buffer);
       }
@@ -274,13 +252,13 @@ absl::Status Engine::SetupTracks(const std::list<TrackSettings>& settings) {
   {
     std::scoped_lock<std::mutex> lock(tracks_mutex_);
     for (auto& track_settings : settings) {
-      auto channel = track_settings.channel_;
-      auto it = tracks_.find(channel);
+      auto track_id = track_settings.track_;
+      auto it = tracks_.find(track_id);
 
       if (it == tracks_.end() || !it->second->CanFastUpdate(track_settings)) {
-        tracks_to_add[channel] = track_settings;
+        tracks_to_add[track_id] = track_settings;
       } else {
-        tracks_to_update[channel] = track_settings;
+        tracks_to_update[track_id] = track_settings;
       }
     }
   }
@@ -303,14 +281,14 @@ absl::Status Engine::SetupTracks(const std::list<TrackSettings>& settings) {
   {
     std::scoped_lock<std::mutex> lock(tracks_mutex_);
     for (auto& track_request : tracks_to_update) {
-      auto channel = track_request.first;
-      auto& track = tracks_[channel];
+      auto track_id = track_request.first;
+      auto& track = tracks_[track_id];
 
       // This can't fail otherwise the design is not atomic, we don't
       // want partial upgrades to be possible.
       track->FastUpdate(track_request.second);
 
-      updated_tracks[channel] = std::move(track);
+      updated_tracks[track_id] = std::move(track);
     }
 
     tracks_.swap(updated_tracks);

@@ -160,23 +160,27 @@ void MidiExt::ScheduleMidiEvents(const absl::Time& next_block_at) {
   // Here we spread MIDI events with a precision of around 100us,
   // this is to avoid sleeping on each sample and it leaves some
   // extra time on the last chunk to fill the audio buffer.
-  static constexpr uint32_t kPrecisionUs = 1e6 / 1e4;
-  static constexpr uint32_t kPrecisionSamples = (kSampleRate * 1e4) / 1e6;
+  static constexpr uint32_t kPrecisionMs = 1;
+  static constexpr uint32_t kPrecisionSamples =
+      (kSampleRate * kPrecisionMs) / 1000;
 
+  int chunks = 0;
   for (int i = 0; i < block_size_; i += kPrecisionSamples) {
     std::this_thread::sleep_until(absl::ToChronoTime(
-        next_block_at + (i * absl::Microseconds(kPrecisionUs))));
+        next_block_at + absl::Milliseconds(chunks * kPrecisionMs)));
     std::list<MidiEventAt> events_at;
     events.EventsAtTick(current_tick_ + i, events_at);
 
     {
       std::lock_guard<std::mutex> lock(mutex_);
-      if (current_midi_port_ > 0) {
+      if (current_midi_port_ != -1) {
         for (auto& ev : events_at) {
           midiout_.send_message(ev.Msg());
         }
       }
     }
+
+    chunks += 1;
   }
 }
 

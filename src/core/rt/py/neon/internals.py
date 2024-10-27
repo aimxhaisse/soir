@@ -8,9 +8,6 @@ from bindings import (
     get_beat_,
     get_tracks_,
     log_,
-    midi_note_on_,
-    midi_note_off_,
-    midi_cc_,
     setup_tracks_,
     get_code_,
 )
@@ -42,6 +39,8 @@ class Loop_:
         self.align = align
         self.func = func
         self.updated_at = None
+
+        self.extra = {}
 
         # Current offset in beats in the loop, used to schedule events
         # in the future.
