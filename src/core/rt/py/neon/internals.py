@@ -49,10 +49,10 @@ class Loop_:
     def run(self):
         """Temporal recursion scheduling of the loop.
         """
-        at = get_beat_()
-
+        now = get_beat_()
+        at = 0
         if self.align:
-            at = self.beats - at % self.align
+            at = self.beats - now % self.align
 
         def loop():
             if self.name not in loop_registry_:

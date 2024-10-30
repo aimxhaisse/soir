@@ -108,6 +108,13 @@ absl::Status Engine::Stop() {
 
   thread_.join();
 
+  for (auto& it : tracks_) {
+    auto status = it.second->Stop();
+    if (!status.ok()) {
+      LOG(ERROR) << "Failed to stop track: " << status;
+    }
+  }
+
   LOG(INFO) << "Engine stopped";
 
   return absl::OkStatus();

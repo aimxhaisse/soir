@@ -21,8 +21,15 @@ struct Cb {
   // scheduling.
   MicroBeat at;
   CbFunc func;
+  uint64_t id;
 
-  bool operator()(const Cb& a, const Cb& b) const { return a.at <= b.at; }
+  bool operator()(const Cb& a, const Cb& b) const {
+    if (a.at == b.at) {
+      return a.id < b.id;
+    }
+
+    return a.at < b.at;
+  }
 };
 
 // This is the main engine that runs the Python code and schedules
@@ -85,6 +92,7 @@ class Engine {
   dsp::Engine* dsp_;
 
   // Updated by the Python thread only.
+  uint64_t last_cb_id_ = 0;
   std::set<Cb, Cb> schedule_;
 
   // Updated by the main thread/gRPC threads.

@@ -33,11 +33,11 @@ def beats():
         for p in patterns:
             char = p[i]
             if kit.get(char):
-                pass
-                # s.play(kit[char])
+                s.play(kit[char])
         sleep(0.25)
 
 @loop(track=2, beats=1)
 def digitone():
     with midi.use_chan(1):
-        midi.note(60, duration=0.5)
+        midi.note(60, duration=0.75)
+        sleep(1)

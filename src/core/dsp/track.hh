@@ -40,6 +40,7 @@ struct Track {
 
   absl::Status Init(const TrackSettings& settings,
                     SampleManager* sample_manager);
+  absl::Status Stop();
 
   // If MaybeFastUpdate returns false, it means the track can't update
   // itself quickly so it likely needs to be re-created.

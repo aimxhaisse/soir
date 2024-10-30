@@ -51,6 +51,15 @@ absl::Status Track::Init(const TrackSettings& settings,
   return absl::OkStatus();
 }
 
+absl::Status Track::Stop() {
+  switch (settings_.instrument_) {
+    case TRACK_MIDI_EXT:
+      return midi_ext_->Stop();
+    default:
+      return absl::OkStatus();
+  }
+}
+
 bool Track::CanFastUpdate(const TrackSettings& settings) {
   std::scoped_lock<std::mutex> lock(mutex_);
 

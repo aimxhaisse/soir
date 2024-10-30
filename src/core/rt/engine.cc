@@ -71,7 +71,7 @@ absl::Status Engine::Stop() {
 }
 
 absl::Time Engine::MicroBeatToTime(MicroBeat beat) const {
-  MicroBeat diff_mb = beat - current_beat_;
+  MicroBeat diff_mb = (beat > current_beat_) ? beat - current_beat_ : 0;
   uint64_t diff_us = (diff_mb * beat_us_) / 1000000.0;
 
   return current_time_ + absl::Microseconds(diff_us);
@@ -115,6 +115,7 @@ absl::Status Engine::Run() {
     std::string code;
     {
       std::unique_lock<std::mutex> lock(loop_mutex_);
+
       loop_cv_.wait_until(
           lock, absl::ToChronoTime(at_time), [this, next, at_time] {
             return !running_ || !code_.empty() || at_time <= absl::Now();
@@ -270,7 +271,7 @@ void Engine::Schedule(MicroBeat at, const CbFunc& cb) {
   // external scheduling, we'll need to wake up the Run loop here in
   // case the next scheduled callback changes.
 
-  schedule_.insert({at, cb});
+  schedule_.insert({at, cb, last_cb_id_++});
 }
 
 absl::Status Engine::PushCodeUpdate(const std::string& code) {

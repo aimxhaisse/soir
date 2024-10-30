@@ -146,7 +146,7 @@ void MidiExt::ConsumeAudioBuffer() {
   }
 }
 
-void MidiExt::ScheduleMidiEvents(const absl::Time& next_block_at) {
+void MidiExt::ScheduleMidiEvents(const absl::Time& block_at) {
   // We only fetch events for the current block once per block,
   // this avoids taking too much time locks in the critical path.
   MidiStack events;
@@ -157,20 +157,20 @@ void MidiExt::ScheduleMidiEvents(const absl::Time& next_block_at) {
     events.AddEvents(events_at);
   }
 
-  // Here we spread MIDI events with a precision of around 100us,
-  // this is to avoid sleeping on each sample and it leaves some
-  // extra time on the last chunk to fill the audio buffer.
-  static constexpr uint32_t kPrecisionMs = 1;
-  static constexpr uint32_t kPrecisionSamples =
-      (kSampleRate * kPrecisionMs) / 1000;
+  // Here we spread MIDI events with a precision of 128 samples.  This
+  // is to avoid sleeping on each sample and it leaves some extra time
+  // on the last chunk to fill the audio buffer.
+  static constexpr uint32_t kChunkSize = 128;
+  const uint32_t nsamples = std::min(kChunkSize, block_size_);
+  const float nms =
+      (static_cast<float>(nsamples) / static_cast<float>(kSampleRate)) * 1000.0;
 
-  int chunks = 0;
-  for (int i = 0; i < block_size_; i += kPrecisionSamples) {
-    std::this_thread::sleep_until(absl::ToChronoTime(
-        next_block_at + absl::Milliseconds(chunks * kPrecisionMs)));
+  int chunk = 0;
+  do {
+    absl::Time chunk_at = block_at + absl::Milliseconds(chunk * nms);
+    std::this_thread::sleep_until(absl::ToChronoTime(chunk_at));
     std::list<MidiEventAt> events_at;
-    events.EventsAtTick(current_tick_ + i, events_at);
-
+    events.EventsAtTick(current_tick_ + (1 + chunk) * nsamples, events_at);
     {
       std::lock_guard<std::mutex> lock(mutex_);
       if (current_midi_port_ != -1) {
@@ -180,8 +180,8 @@ void MidiExt::ScheduleMidiEvents(const absl::Time& next_block_at) {
       }
     }
 
-    chunks += 1;
-  }
+    chunk += 1;
+  } while ((chunk * nsamples) < block_size_);
 }
 
 absl::Status MidiExt::Start() {
