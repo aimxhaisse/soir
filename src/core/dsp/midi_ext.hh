@@ -30,7 +30,8 @@ class MidiExt {
 
  private:
   void ScheduleMidiEvents(const absl::Time& next_block_at);
-  void ConsumeAudioBuffer();
+  void FillAudioBuffer(Uint8* stream, int len);
+  void WaitForInitialTick();
 
   // Current configuration as set from live coding.
   std::string current_settings_ = "";
@@ -43,6 +44,7 @@ class MidiExt {
   std::condition_variable cv_;
   std::thread thread_;
   bool stop_ = false;
+  std::vector<Uint8> consumed_;
   std::list<AudioBuffer> buffers_;
   SampleTick current_tick_ = 0;
 

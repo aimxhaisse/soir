@@ -4,6 +4,7 @@
 #include <mutex>
 
 #include "core/common.hh"
+#include "core/dsp/dsp.hh"
 #include "core/dsp/engine.hh"
 #include "core/rt/notifier.hh"
 #include "utils/config.hh"

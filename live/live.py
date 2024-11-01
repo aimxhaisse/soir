@@ -1,6 +1,6 @@
 @live()
 def setup():
-    bpm.set(130)
+    bpm.set(120)
 
     tracks.setup([
         tracks.mk_sampler(1),
@@ -36,8 +36,23 @@ def beats():
                 s.play(kit[char])
         sleep(0.25)
 
-@loop(track=2, beats=1)
+@loop(track=2, beats=4)
 def digitone():
-    with midi.use_chan(1):
-        midi.note(60, duration=0.75)
-        sleep(1)
+    for i in range(8):
+        with midi.use_chan(1):
+            midi.note(60, duration=0.4)
+            sleep(0.5)
+
+@loop(track=2, beats=4)
+def digitwo():
+    for i in range(8):
+        with midi.use_chan(1):
+            midi.note(63, duration=0.4)
+            sleep(0.25)
+
+@loop(track=2, beats=4)
+def digithree():
+    for i in range(8):
+        with midi.use_chan(1):
+            midi.note(65, duration=0.4)
+            sleep(0.5)

@@ -83,7 +83,12 @@ absl::Status MidiExt::Init(const std::string& settings) {
     want.format = AUDIO_F32SYS;
     want.channels = 2;
     want.samples = block_size_;
-    want.callback = nullptr;
+    want.userdata = this;
+
+    want.callback = [](void* userdata, Uint8* stream, int len) {
+      MidiExt* midi = static_cast<MidiExt*>(userdata);
+      midi->FillAudioBuffer(stream, len);
+    };
 
     const char* device_name = SDL_GetAudioDeviceName(audio_device, 1);
 
@@ -105,36 +110,20 @@ absl::Status MidiExt::Init(const std::string& settings) {
   return absl::OkStatus();
 }
 
-void MidiExt::ConsumeAudioBuffer() {
+void MidiExt::FillAudioBuffer(Uint8* stream, int len) {
+  consumed_.resize(consumed_.size() + len);
+  memcpy(consumed_.data() + consumed_.size() - len, stream, len);
+
+  // We expect two channels of float samples interleaved.
   const uint32_t want = 2 * block_size_ * sizeof(float);
-  char buffer[want];
-
-  {
-    while (true) {
-      {
-        std::lock_guard<std::mutex> lock(mutex_);
-        if (current_audio_device_ == -1) {
-          return;
-        }
-        if (SDL_GetQueuedAudioSize(audio_device_id_) >= want) {
-          if (SDL_DequeueAudio(audio_device_id_, buffer, want) != want) {
-            LOG(ERROR) << "Dequeued less than expected audio buffer size";
-          }
-          break;
-        }
-      }
-
-      std::this_thread::sleep_for(std::chrono::milliseconds(1));
-    }
+  if (consumed_.size() < want) {
+    return;
   }
 
-  float* audio = reinterpret_cast<float*>(buffer);
-
+  float* audio = reinterpret_cast<float*>(consumed_.data());
   AudioBuffer out(block_size_);
-
   float* left = out.GetChannel(kLeftChannel);
   float* right = out.GetChannel(kRightChannel);
-
   for (int i = 0; i < block_size_; i++) {
     left[i] = audio[2 * i];
     right[i] = audio[2 * i + 1];
@@ -144,17 +133,21 @@ void MidiExt::ConsumeAudioBuffer() {
     std::lock_guard<std::mutex> lock(mutex_);
     buffers_.push_back(out);
   }
+
+  consumed_.erase(consumed_.begin(), consumed_.begin() + want);
 }
 
 void MidiExt::ScheduleMidiEvents(const absl::Time& block_at) {
   // We only fetch events for the current block once per block,
   // this avoids taking too much time locks in the critical path.
+  uint32_t current_tick;
   MidiStack events;
   {
     std::lock_guard<std::mutex> lock(mutex_);
     std::list<MidiEventAt> events_at;
     midi_stack_.EventsAtTick(current_tick_ + block_size_, events_at);
     events.AddEvents(events_at);
+    current_tick = current_tick_;
   }
 
   // Here we spread MIDI events with a precision of 128 samples.  This
@@ -162,15 +155,16 @@ void MidiExt::ScheduleMidiEvents(const absl::Time& block_at) {
   // on the last chunk to fill the audio buffer.
   static constexpr uint32_t kChunkSize = 128;
   const uint32_t nsamples = std::min(kChunkSize, block_size_);
-  const float nms =
-      (static_cast<float>(nsamples) / static_cast<float>(kSampleRate)) * 1000.0;
+  const float nus =
+      (static_cast<float>(nsamples) / static_cast<float>(kSampleRate)) * 1e6;
 
   int chunk = 0;
   do {
-    absl::Time chunk_at = block_at + absl::Milliseconds(chunk * nms);
+    absl::Time chunk_at = block_at + absl::Microseconds(chunk * nus);
     std::this_thread::sleep_until(absl::ToChronoTime(chunk_at));
+
     std::list<MidiEventAt> events_at;
-    events.EventsAtTick(current_tick_ + (1 + chunk) * nsamples, events_at);
+    events.EventsAtTick(current_tick + (1 + chunk) * nsamples, events_at);
     {
       std::lock_guard<std::mutex> lock(mutex_);
       if (current_midi_port_ != -1) {
@@ -197,12 +191,26 @@ absl::Status MidiExt::Start() {
   return absl::OkStatus();
 }
 
+void MidiExt::WaitForInitialTick() {
+  while (true) {
+    {
+      std::lock_guard<std::mutex> lock(mutex_);
+      if (current_tick_) {
+        break;
+      }
+    }
+    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+  }
+}
+
 absl::Status MidiExt::Run() {
-  AudioBuffer buffer(block_size_);
+  WaitForInitialTick();
 
   absl::Duration block_duration =
       absl::Microseconds((1e6 * block_size_) / kSampleRate);
   absl::Time next_block_at = absl::Now();
+  absl::Time initial_time = next_block_at;
+  uint32_t block_count = 0;
 
   while (true) {
     {
@@ -215,17 +223,10 @@ absl::Status MidiExt::Run() {
     }
 
     ScheduleMidiEvents(next_block_at);
-    ConsumeAudioBuffer();
 
-    next_block_at += block_duration;
+    block_count += 1;
+    next_block_at = initial_time + (block_count * block_duration);
     current_tick_ += block_size_;
-  }
-
-  if (audio_device_id_ != -1) {
-    SDL_CloseAudioDevice(audio_device_id_);
-  }
-  if (midiout_.is_port_open()) {
-    midiout_.close_port();
   }
 
   return absl::OkStatus();
@@ -243,6 +244,13 @@ absl::Status MidiExt::Stop() {
   thread_.join();
 
   LOG(INFO) << "MIDI thread stopped";
+
+  if (audio_device_id_ != -1) {
+    SDL_CloseAudioDevice(audio_device_id_);
+  }
+  if (midiout_.is_port_open()) {
+    midiout_.close_port();
+  }
 
   return absl::OkStatus();
 }

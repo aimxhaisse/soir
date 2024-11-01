@@ -24,7 +24,6 @@ void MidiStack::EventsAtTick(SampleTick sample,
   auto it = sorted_events_.begin();
   while (it != sorted_events_.end() && it->Tick() <= sample) {
     events.push_back(*it);
-
     it = sorted_events_.erase(it);
   }
 }

@@ -178,6 +178,8 @@ absl::Status Engine::Run() {
   absl::Duration block_duration =
       absl::Microseconds((1e6 * block_size_) / kSampleRate);
   absl::Time next_block_at = absl::Now();
+  absl::Time initial_time = next_block_at;
+  uint64_t block_count = 0;
 
   while (true) {
     {
@@ -218,7 +220,8 @@ absl::Status Engine::Run() {
       }
     }
 
-    next_block_at += block_duration;
+    block_count++;
+    next_block_at = initial_time + block_count * block_duration;
     Stats(next_block_at, block_duration);
   }
 
