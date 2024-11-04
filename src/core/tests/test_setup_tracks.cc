@@ -24,7 +24,7 @@ for track in tracks.layout():
   )");
 
   EXPECT_TRUE(
-      WaitForNotification("Track(instrument=sampler, channel=1, "
+      WaitForNotification("Track(instrument=sampler, track=1, "
                           "muted=False, volume=127, pan=64)"));
 }
 
@@ -41,13 +41,13 @@ for track in tracks.layout():
   )");
 
   EXPECT_TRUE(
-      WaitForNotification("Track(instrument=sampler, channel=1, "
+      WaitForNotification("Track(instrument=sampler, track=1, "
                           "muted=False, volume=127, pan=64)"));
   EXPECT_TRUE(
-      WaitForNotification("Track(instrument=sampler, channel=2, "
+      WaitForNotification("Track(instrument=sampler, track=2, "
                           "muted=False, volume=127, pan=64)"));
   EXPECT_TRUE(
-      WaitForNotification("Track(instrument=sampler, channel=3, "
+      WaitForNotification("Track(instrument=sampler, track=3, "
                           "muted=False, volume=127, pan=64)"));
 }
 
@@ -74,7 +74,7 @@ log(str(tracks[0]))
 
   EXPECT_TRUE(WaitForNotification("1"));
   EXPECT_TRUE(
-      WaitForNotification("Track(instrument=sampler, channel=1, "
+      WaitForNotification("Track(instrument=sampler, track=1, "
                           "muted=False, volume=127, pan=64)"));
 }
 
@@ -101,10 +101,10 @@ log(str(tracks[1]))
 
   EXPECT_TRUE(WaitForNotification("2"));
   EXPECT_TRUE(
-      WaitForNotification("Track(instrument=sampler, channel=1, "
+      WaitForNotification("Track(instrument=sampler, track=1, "
                           "muted=False, volume=127, pan=64)"));
   EXPECT_TRUE(
-      WaitForNotification("Track(instrument=sampler, channel=2, "
+      WaitForNotification("Track(instrument=sampler, track=2, "
                           "muted=False, volume=127, pan=64)"));
 }
 
@@ -133,7 +133,7 @@ log(str(tracks[0]))
 
   EXPECT_TRUE(WaitForNotification("1"));
   EXPECT_TRUE(
-      WaitForNotification("Track(instrument=sampler, channel=2, "
+      WaitForNotification("Track(instrument=sampler, track=2, "
                           "muted=False, volume=127, pan=64)"));
 }
 
