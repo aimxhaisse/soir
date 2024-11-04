@@ -35,7 +35,6 @@ class Engine {
   void RegisterConsumer(SampleConsumer* consumer);
   void RemoveConsumer(SampleConsumer* consumer);
   void PushMidiEvent(const MidiEventAt& event);
-  uint32_t GetBlockSize() const { return block_size_; }
 
   absl::Status SetupTracks(const std::list<TrackSettings>& settings);
   absl::Status GetTracks(std::list<TrackSettings>* settings);
@@ -51,7 +50,6 @@ class Engine {
              const absl::Duration& block_duration) const;
 
   MicroBeat current_tick_;
-  uint32_t block_size_;
 
   // The main thread of the DSP engine, processes blocks of audio
   // samples in an infinite loop.

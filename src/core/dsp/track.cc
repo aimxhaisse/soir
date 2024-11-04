@@ -8,7 +8,7 @@
 namespace neon {
 namespace dsp {
 
-Track::Track(uint32_t block_size) : block_size_(block_size) {}
+Track::Track() {}
 
 absl::Status Track::Init(const TrackSettings& settings,
                          SampleManager* sample_manager) {
@@ -28,7 +28,7 @@ absl::Status Track::Init(const TrackSettings& settings,
 
     case TRACK_MIDI_EXT: {
       settings_.instrument_ = TRACK_MIDI_EXT;
-      midi_ext_ = std::make_unique<MidiExt>(block_size_);
+      midi_ext_ = std::make_unique<MidiExt>();
       auto status = midi_ext_->Init(settings_.extra_);
       if (!status.ok()) {
         LOG(ERROR) << "Failed to init midi ext: " << status.message();

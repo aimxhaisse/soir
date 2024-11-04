@@ -13,7 +13,6 @@ Engine::~Engine() {}
 absl::Status Engine::Init(const utils::Config& config) {
   LOG(INFO) << "Initializing engine";
 
-  block_size_ = config.Get<uint32_t>("neon.dsp.engine.block_size");
   current_tick_ = 0;
 
   auto http_enabled = config.Get<bool>("neon.dsp.output.http.enable");
@@ -157,7 +156,7 @@ void Engine::SetTicks(std::list<MidiEventAt>& events) {
     // We introduce an artificial delay here that is greater than the
     // block size to ensure we have enough time for processing until
     // it is actually scheduled.
-    diff_ticks += kBlockDelay * block_size_;
+    diff_ticks += kBlockProcessingDelay * kBlockSize;
 
     diff_ticks = std::max(diff_ticks, 0);
 
@@ -174,9 +173,9 @@ void Engine::PushMidiEvent(const MidiEventAt& e) {
 absl::Status Engine::Run() {
   LOG(INFO) << "Engine running";
 
-  AudioBuffer buffer(block_size_);
+  AudioBuffer buffer(kBlockSize);
   absl::Duration block_duration =
-      absl::Microseconds((1e6 * block_size_) / kSampleRate);
+      absl::Microseconds((1e6 * kBlockSize) / kSampleRate);
   absl::Time next_block_at = absl::Now();
   absl::Time initial_time = next_block_at;
   uint64_t block_count = 0;
@@ -208,7 +207,7 @@ absl::Status Engine::Run() {
       }
     }
 
-    current_tick_ += block_size_;
+    current_tick_ += kBlockSize;
 
     {
       std::lock_guard<std::mutex> lock(consumers_mutex_);
@@ -277,7 +276,7 @@ absl::Status Engine::SetupTracks(const std::list<TrackSettings>& settings) {
 
   // Perform slow operations here.
   for (auto& track : tracks_to_add) {
-    auto new_track = std::make_unique<Track>(block_size_);
+    auto new_track = std::make_unique<Track>();
     auto status = new_track->Init(track.second, sample_manager_.get());
     if (!status.ok()) {
       LOG(ERROR) << "Failed to initialize track: " << status;

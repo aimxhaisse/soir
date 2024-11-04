@@ -112,8 +112,8 @@ grpc::Status Neon::PushMidiEvents(grpc::ServerContext* context,
   // those events will be considered late and immediately scheduled on
   // tick 0 of the block.
   auto delay =
-      absl::Microseconds((dsp_->GetBlockSize() * 1e6) / dsp::kSampleRate);
-  dsp_->PushMidiEvent(MidiEventAt(request->track(), msg, absl::Now() + delay));
+      absl::Microseconds((neon::dsp::kBlockSize * 1e6) / dsp::kSampleRate);
+  dsp_->PushMidiEvent(MidiEventAt(request->track(), msg, absl::Now()));
 
   return grpc::Status::OK;
 }

@@ -11,11 +11,31 @@ namespace dsp {
 static constexpr int kNumChannels = 2;
 static constexpr int kLeftChannel = 0;
 static constexpr int kRightChannel = 1;
+
 static constexpr int kSampleRate = 48000;
+
 static constexpr float kVorbisQuality = 1.0f;
-static constexpr int kDeviceId = 0;
-static constexpr int kNumBuffers = 8;
-static constexpr int kBlockDelay = 3;
+
+// This is static for now and mostly based on my local setup, we might
+// want to make this configurable in the future though it implies careful
+// considerations.
+
+// Size of a processing block (~10ms). This is also the resolution at
+// which we perform control parameter updates (100 times per second),
+// we assume it's not hearable below this. This is also the resolution
+// of external device MIDI scheduling.
+static constexpr int kBlockSize = 512;
+
+// Resolution of MIDI event scheduling, independant of block size so
+// that we can increase block size without affecting scheduling.
+static constexpr int kMidiExtChunkSize = 128;
+
+// Number of blocks between scheduling and actual processing (~70ms),
+// this is in case we have heavy processing in the code loops. This number
+// *needs* to be higher than the kMidiDeviceDelay parameter, which schedules
+// a bit in the past MIDI events so that when capturing them back on the
+// audio device we get something accurate.
+static constexpr int kBlockProcessingDelay = 7;
 
 class SampleConsumer {
  public:

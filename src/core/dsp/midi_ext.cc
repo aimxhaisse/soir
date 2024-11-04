@@ -42,7 +42,7 @@ void printAudioDevices() {
 namespace neon {
 namespace dsp {
 
-MidiExt::MidiExt(uint32_t block_size) : block_size_(block_size) {
+MidiExt::MidiExt() {
   printAudioDevices();
 }
 
@@ -82,7 +82,7 @@ absl::Status MidiExt::Init(const std::string& settings) {
     want.freq = kSampleRate;
     want.format = AUDIO_F32SYS;
     want.channels = 2;
-    want.samples = block_size_;
+    want.samples = kBlockSize;
     want.userdata = this;
 
     want.callback = [](void* userdata, Uint8* stream, int len) {
@@ -115,16 +115,16 @@ void MidiExt::FillAudioBuffer(Uint8* stream, int len) {
   memcpy(consumed_.data() + consumed_.size() - len, stream, len);
 
   // We expect two channels of float samples interleaved.
-  const uint32_t want = 2 * block_size_ * sizeof(float);
+  const uint32_t want = 2 * kBlockSize * sizeof(float);
   if (consumed_.size() < want) {
     return;
   }
 
   float* audio = reinterpret_cast<float*>(consumed_.data());
-  AudioBuffer out(block_size_);
+  AudioBuffer out(kBlockSize);
   float* left = out.GetChannel(kLeftChannel);
   float* right = out.GetChannel(kRightChannel);
-  for (int i = 0; i < block_size_; i++) {
+  for (int i = 0; i < kBlockSize; i++) {
     left[i] = audio[2 * i];
     right[i] = audio[2 * i + 1];
   }
@@ -145,7 +145,7 @@ void MidiExt::ScheduleMidiEvents(const absl::Time& block_at) {
   {
     std::lock_guard<std::mutex> lock(mutex_);
     std::list<MidiEventAt> events_at;
-    midi_stack_.EventsAtTick(current_tick_ + block_size_, events_at);
+    midi_stack_.EventsAtTick(current_tick_ + kBlockSize, events_at);
     events.AddEvents(events_at);
     current_tick = current_tick_;
   }
@@ -154,7 +154,7 @@ void MidiExt::ScheduleMidiEvents(const absl::Time& block_at) {
   // is to avoid sleeping on each sample and it leaves some extra time
   // on the last chunk to fill the audio buffer.
   static constexpr uint32_t kChunkSize = 128;
-  const uint32_t nsamples = std::min(kChunkSize, block_size_);
+  const uint32_t nsamples = std::min(kMidiExtChunkSize, kBlockSize);
   const float nus =
       (static_cast<float>(nsamples) / static_cast<float>(kSampleRate)) * 1e6;
 
@@ -175,7 +175,7 @@ void MidiExt::ScheduleMidiEvents(const absl::Time& block_at) {
     }
 
     chunk += 1;
-  } while ((chunk * nsamples) < block_size_);
+  } while ((chunk * nsamples) < kBlockSize);
 }
 
 absl::Status MidiExt::Start() {
@@ -207,7 +207,7 @@ absl::Status MidiExt::Run() {
   WaitForInitialTick();
 
   absl::Duration block_duration =
-      absl::Microseconds((1e6 * block_size_) / kSampleRate);
+      absl::Microseconds((1e6 * kBlockSize) / kSampleRate);
   absl::Time next_block_at = absl::Now();
   absl::Time initial_time = next_block_at;
   uint32_t block_count = 0;
@@ -226,7 +226,7 @@ absl::Status MidiExt::Run() {
 
     block_count += 1;
     next_block_at = initial_time + (block_count * block_duration);
-    current_tick_ += block_size_;
+    current_tick_ += kBlockSize;
   }
 
   return absl::OkStatus();

@@ -24,8 +24,6 @@ neon:
     http:
       host: localhost
       port: 8081
-    engine:
-      block_size: 4096
   )");
 
   EXPECT_TRUE(config_or.ok());

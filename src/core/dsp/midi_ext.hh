@@ -17,7 +17,7 @@ namespace dsp {
 
 class MidiExt {
  public:
-  explicit MidiExt(uint32_t block_size);
+  MidiExt();
   ~MidiExt();
 
   absl::Status Init(const std::string& settings);
@@ -37,8 +37,6 @@ class MidiExt {
   std::string current_settings_ = "";
   int current_midi_port_ = -1;
   int current_audio_device_ = -1;
-
-  uint32_t block_size_;
 
   std::mutex mutex_;
   std::condition_variable cv_;
