@@ -150,10 +150,9 @@ void MidiExt::ScheduleMidiEvents(const absl::Time& block_at) {
     current_tick = current_tick_;
   }
 
-  // Here we spread MIDI events with a precision of 128 samples.  This
-  // is to avoid sleeping on each sample and it leaves some extra time
-  // on the last chunk to fill the audio buffer.
-  static constexpr uint32_t kChunkSize = 128;
+  // Here we spread MIDI events with a precision of kMidiExtChunkSize
+  // samples.  This is to avoid sleeping on each sample and it leaves
+  // some extra time on the last chunk to fill the audio buffer.
   const uint32_t nsamples = std::min(kMidiExtChunkSize, kBlockSize);
   const float nus =
       (static_cast<float>(nsamples) / static_cast<float>(kSampleRate)) * 1e6;
@@ -162,7 +161,6 @@ void MidiExt::ScheduleMidiEvents(const absl::Time& block_at) {
   do {
     absl::Time chunk_at = block_at + absl::Microseconds(chunk * nus);
     std::this_thread::sleep_until(absl::ToChronoTime(chunk_at));
-
     std::list<MidiEventAt> events_at;
     events.EventsAtTick(current_tick + (1 + chunk) * nsamples, events_at);
     {
