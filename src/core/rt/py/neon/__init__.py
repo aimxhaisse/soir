@@ -52,7 +52,7 @@ import neon.errors
 import neon.internals
 
 
-def loop(beats: int=4, track: int=1, align: int=4) -> callable:
+def loop(beats: int=4, track: int=1, align: bool=True) -> callable:
     """Decorator to create a loop that is rescheduled every given number of beats.
 
     The concept of a loop is similar to [Sonic
@@ -74,7 +74,7 @@ def loop(beats: int=4, track: int=1, align: int=4) -> callable:
     Args:
         beats: The duration of the loop in beats.
         track: The track to use.
-        align: The alignment of the loop in beats.
+        align: Whether to align the loop on its next beat sequence.
 
     Returns:
         A decorator registering and scheduling the function in a loop.

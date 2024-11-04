@@ -32,7 +32,7 @@ current_loop_ = None
 class Loop_:
     """Helper class to manage a loop function.
     """
-    def __init__(self, name: str, beats: int, track: int, align: int, func: callable):
+    def __init__(self, name: str, beats: int, track: int, align: bool, func: callable):
         self.name = name
         self.beats = beats
         self.track = track
@@ -52,7 +52,7 @@ class Loop_:
         now = get_beat_()
         at = 0
         if self.align:
-            at = self.beats - now % self.align
+            at = self.beats - (now % self.beats)
 
         def loop():
             if self.name not in loop_registry_:
@@ -80,7 +80,7 @@ class Loop_:
         schedule_(at, loop)
 
 
-def loop(beats: int, track: int, align: int) -> callable:
+def loop(beats: int, track: int, align: bool) -> callable:
 
     def wrapper(func):
         name = func.__name__
@@ -91,6 +91,7 @@ def loop(beats: int, track: int, align: int) -> callable:
             ll.updated_at = eval_id_
             ll.run()
 
+            log(f"adding loop {name}")
             loop_registry_[name] = ll
         else:
             ll = loop_registry_[name]
@@ -296,8 +297,8 @@ def post_eval_():
         if ll.updated_at != eval_id_:
             loops_to_remove.append(name)
     for name in loops_to_remove:
-        del loop_registry_[name]
         log(f"removing loop {name}")
+        del loop_registry_[name]
 
     live_to_remove = []
     for name, ll in live_registry_.items():

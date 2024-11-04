@@ -44,8 +44,9 @@ PYBIND11_EMBEDDED_MODULE(bindings, m) {
 
   m.def("set_bpm_", [](float bpm) { return gRt_->SetBPM(bpm); });
   m.def("get_bpm_", []() { return gRt_->GetBPM(); });
-  m.def("get_beat_",
-        []() { return static_cast<double>(gRt_->GetCurrentBeat() / 1000000); });
+  m.def("get_beat_", []() {
+    return static_cast<double>(gRt_->GetCurrentBeat() / 1000000.0);
+  });
 
   m.def("log_", [](const std::string& message) { gRt_->Log(message); });
 

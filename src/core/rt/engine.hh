@@ -65,6 +65,7 @@ class Engine {
   absl::Status PushCodeUpdate(const std::string& code);
 
   absl::Time MicroBeatToTime(MicroBeat beat) const;
+  MicroBeat DurationToMicroBeat(absl::Duration duration) const;
   uint64_t MicroBeatToBeat(MicroBeat beat) const;
   void Schedule(MicroBeat at, const CbFunc& func);
 

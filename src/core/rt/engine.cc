@@ -77,6 +77,12 @@ absl::Time Engine::MicroBeatToTime(MicroBeat beat) const {
   return current_time_ + absl::Microseconds(diff_us);
 }
 
+MicroBeat Engine::DurationToMicroBeat(absl::Duration duration) const {
+  auto duration_us = duration / absl::Microseconds(1);
+
+  return bpm_ * duration_us / (60.0 * 1000000.0);
+}
+
 uint64_t Engine::MicroBeatToBeat(MicroBeat beat) const {
   return beat / kOneBeat;
 }
@@ -157,6 +163,17 @@ absl::Status Engine::Run() {
     // code update takes 10ms to be applied, but not OK if it's a kick
     // event for example.
     if (!code.empty()) {
+      auto now = absl::Now();
+
+      // We do not update current_time_ here: this would delay all
+      // subsequent callbacks by the time it took to apply the code
+      // update. Current time is not available to the Python engine so
+      // it's fine. Current beat is however, and we do want to keep it
+      // accurate so that the Python engine can use it to schedule
+      // events while padding to beat new loop creations with
+      // alignment.
+      current_beat_ += Engine::DurationToMicroBeat(now - current_time_);
+
       try {
         // We set the last evaluated code at the last moment so that
         // inspection of code can be done only when it is actually
