@@ -1,3 +1,3 @@
-# errors
+# 🔥 errors
 
 ::: neon.errors

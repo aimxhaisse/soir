@@ -6,19 +6,13 @@ site_author: s. rannou <mxs@sbrk.org>
 
 nav:
   - Home: index.md
-  - Guides:
-      - Introduction:
-          - Hello World: guides/intro_hello.md
-          - Your First Tracks: guides/intro_tracks.md
   - Reference:
-      - neon: reference/neon.md
-      - bpm: reference/bpm.md
-      - tracks: reference/tracks.md
-      - midi: reference/midi.md
-      - errors: reference/errors.md
-      - sampler: reference/sampler.md
-  - Architecture: architecture.md
-  - About: about.md
+      - ✨ <b>neon</b>: reference/neon.md
+      - ⏳ <i>neon</i>.<b>bpm</b>: reference/bpm.md
+      - 🎬 <i>neon</i>.<b>tracks</b>: reference/tracks.md
+      - 🎼 <i>neon</i>.<b>midi</b>: reference/midi.md
+      - 🔥 <i>neon</i>.<b>errors</b>: reference/errors.md
+      - 📼 <i>neon</i>.<b>sampler</b>: reference/sampler.md
 
 theme:
   name: material

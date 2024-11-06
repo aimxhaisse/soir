@@ -1,3 +1,3 @@
-# neon
+# ✨ neon
 
 ::: neon

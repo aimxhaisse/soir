@@ -1,29 +1,31 @@
-"""*This is your last chance. After this, there is no turning back.*
+"""
 
 ???+ info
 
-    The **neon** module is the execution context in which music code
-    is written and scheduled: it does not need to be referenced and
-    all the facilities are accessible directly.
+    The **neon** module is the context in which Neon code is written
+    and scheduled: it does not need to be referenced and all the
+    facilities are accessible directly.
 
 The **neon** module is the base for the Neon environment and is the
-context in which you will write and schedule your music code. It
-contains a small set of facilities detailed in this as well as more
-specialized modules which can be accessed by their names.
+context in which is defined and scheduled your music code. It contains
+a small set of facilities detailed in this as well as more specialized
+modules which can be accessed directly by their names.
 
 # Cookbook
 
-## Minimalistic kick/snare track
+## Minimalistic Example
 
 ``` python
-# Set the global BPM.
-bpm.set(120)
+# Define a live function that is executed each time the code is changed.
+@live
+def setup():
+    # Set the tempo to 120 bpm.
+    bpm.set(120)
 
-# Define 1 track with a sampler as an instrument.
-tracks.setup([
-    tracks.mk_sampler(1, muted=False, volume=100),
-    tracks.mk_midi(2, muted=False, volume=100),
-])
+    # Setup the tracks (track 1 is a sampler, track 2 is a midi track).
+    tracks.setup([
+        tracks.mk_sampler(1, muted=False, volume=100),
+    ])
 
 # Create a sampler instance using the sample pack 'passage'.
 s = sampler.new('passage')

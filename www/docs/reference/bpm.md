@@ -1,3 +1,3 @@
-# bpm
+# ⏳ bpm
 
 ::: neon.bpm

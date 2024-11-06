@@ -1,4 +1,4 @@
-"""*Push the tempo.*
+"""
 
 The **bpm** module provides a way to set the tempo of the current
 session. The tempo is a global setting that affects all loops and

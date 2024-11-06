@@ -1,3 +1,3 @@
-# sampler
+# 📼 sampler
 
 ::: neon.sampler

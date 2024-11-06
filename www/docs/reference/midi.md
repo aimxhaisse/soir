@@ -1,3 +1,3 @@
-# midi
+# 🎼 midi
 
 ::: neon.midi
