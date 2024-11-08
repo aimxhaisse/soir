@@ -30,9 +30,10 @@ the global context. For example, to set the BPM, you can use
 module. The available modules are:
 
 - [bpm](/reference/bpm)
-- [sampler](/reference/sampler)
 - [tracks](/reference/tracks)
 - [midi](/reference/midi)
+- [errors](/reference/errors)
+- [sampler](/reference/sampler)
 
 # Cookbook
 
