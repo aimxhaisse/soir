@@ -105,7 +105,7 @@ def note_on(note: int, velocity: int = 127, chan = None) -> float:
     )
 
     
-def note_off(note: int, velocity: int = 127, chan = None) -> float:
+def note_off(note: int, velocity: int = 127, chan: int | None = None) -> float:
     """Send the MIDI note off to the external synthesizer using the track id of the loop as MIDI channel.
 
     Args:
@@ -126,14 +126,14 @@ def note_off(note: int, velocity: int = 127, chan = None) -> float:
     )
 
 
-def note(note: int, duration: float, velocity: int = 127, chan = None) -> None:
+def note(note: int, duration: float, velocity: int = 127, chan: int | None = None) -> None:
     """Send the MIDI note on and off to the external synthesizer using the track id of the loop as MIDI channel.
 
     Args:
         note: The MIDI note to send.
         duration: The duration of the note in beats.
         velocity: The velocity. Defaults to 127.
-        chan: The MIDI chan to send the note to. Uses the value from use_chan() if not provided.
+        chan: The MIDI chan to send the note to.
 
     Raises:
         NotInLoopException: If called from outside a loop.

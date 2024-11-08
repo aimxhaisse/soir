@@ -1,48 +1,59 @@
 """
+Neon is a Python library for live coding music. It provides facilities
+to create and manipulate audio tracks, and to interact with external
+synthesizers. There are two important concepts in Neon:
 
-???+ info
+- **Live** functions ([`@live`](/reference/neon/#neon.live) decorator)
+    that are executed each time the code is changed. They are used to
+    setup the environment, and to create tracks and instruments.
 
-    The **neon** module is the context in which Neon code is written
-    and scheduled: it does not need to be referenced and all the
-    facilities are accessible directly.
+- **Loops** functions ([`@loop`](/reference/neon/#neon.loop)
+    decorator) that are rescheduled every given number of beats. They
+    are used to create patterns and sequences.
 
-The **neon** module is the base for the Neon environment and is the
-context in which is defined and scheduled your music code. It contains
-a small set of facilities detailed in this as well as more specialized
-modules which can be accessed directly by their names.
+
+``` python
+# Live function
+@live
+def setup():
+    bpm.set(120)
+
+# Loop function
+@loop(beats=1)
+def kick():
+    log('beat')
+```
+
+Neon's facilities are organized in modules that are accessible from
+the global context. For example, to set the BPM, you can use
+`bpm.set(120)` without having to explicitly import the `bpm`
+module. The available modules are:
+
+- [bpm](/reference/bpm)
+- [sampler](/reference/sampler)
+- [tracks](/reference/tracks)
+- [midi](/reference/midi)
 
 # Cookbook
 
 ## Minimalistic Example
 
 ``` python
-# Define a live function that is executed each time the code is changed.
 @live
 def setup():
-    # Set the tempo to 120 bpm.
     bpm.set(120)
 
-    # Setup the tracks (track 1 is a sampler, track 2 is a midi track).
     tracks.setup([
         tracks.mk_sampler(1, muted=False, volume=100),
     ])
 
-# Create a sampler instance using the sample pack 'passage'.
 s = sampler.new('passage')
 
-# Define a 4 beats loop that plays a kick sample every beat on track 1.
 @loop(beats=4, track=1)
 def kick():
     for i in range(4):
         s.play('kick')
         sleep(1)
-
-# Define a 2 beats loop that plays a snare sample every 2 beats on track 1.
-@loop(beats=2, track=1)
-def snare():
-    for i in range(2):
-        s.play('snare')
-        sleep(2)
 ```
 
 # Reference
@@ -59,13 +70,13 @@ def loop(beats: int=4, track: int=1, align: bool=True) -> callable:
 
     The concept of a loop is similar to [Sonic
     Pi](https://sonic-pi.net/)'s live loops. Code within a loop is
-    executed using temporal recursion, and can updated in real-time:
-    the next run of the loop will execute the updated version. This
-    provides a way to incrementally build audio performances.  by
-    editing code.  Few rules need to be followed for code in
-    live-loops: it should not be blocking as it would block the main
-    thread. For this reason, blocking facilities such are sleep are
-    provided by the engine.
+    executed using temporal recursion, and can be updated in
+    real-time: the next run of the loop will execute the updated
+    version. This provides a way to incrementally build audio
+    performances by editing code. Loops should not be blocking as it
+    would freeze the main thread. For this reason, blocking facilities
+    such are [`sleep`](/reference/neon/#neon.sleep) are provided by the
+    engine.
 
     ``` python
     @loop

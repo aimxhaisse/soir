@@ -731,45 +731,58 @@
 
   <div class="doc doc-contents first">
   
-      <details class="info" open="open">
-<summary>Info</summary>
-<p>The <strong>neon</strong> module is the context in which Neon code is written
-and scheduled: it does not need to be referenced and all the
-facilities are accessible directly.</p>
-</details>
-<p>The <strong>neon</strong> module is the base for the Neon environment and is the
-context in which is defined and scheduled your music code. It contains
-a small set of facilities detailed in this as well as more specialized
-modules which can be accessed directly by their names.</p>
-<h3 id="neon--cookbook">Cookbook</h3>
-<h4 id="neon--minimalistic-example">Minimalistic Example</h4>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Define a live function that is executed each time the code is changed.</span>
+      <p>Neon is a Python library for live coding music. It provides facilities
+to create and manipulate audio tracks, and to interact with external
+synthesizers. There are two important concepts in Neon:</p>
+<ul>
+<li>
+<p><strong>Live</strong> functions (<a href="/reference/neon/#neon.live"><code>@live</code></a> decorator)
+    that are executed each time the code is changed. They are used to
+    setup the environment, and to create tracks and instruments.</p>
+</li>
+<li>
+<p><strong>Loops</strong> functions (<a href="/reference/neon/#neon.loop"><code>@loop</code></a>
+    decorator) that are rescheduled every given number of beats. They
+    are used to create patterns and sequences.</p>
+</li>
+</ul>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Live function</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nd">@live</span>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="k">def</span> <span class="nf">setup</span><span class="p">():</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="c1"># Set the tempo to 120 bpm.</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">bpm</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="mi">120</span><span class="p">)</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="c1"># Setup the tracks (track 1 is a sampler, track 2 is a midi track).</span>
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="n">tracks</span><span class="o">.</span><span class="n">setup</span><span class="p">([</span>
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>        <span class="n">tracks</span><span class="o">.</span><span class="n">mk_sampler</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">muted</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">volume</span><span class="o">=</span><span class="mi">100</span><span class="p">),</span>
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>    <span class="p">])</span>
-<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>
-<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="c1"># Create a sampler instance using the sample pack &#39;passage&#39;.</span>
-<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="n">s</span> <span class="o">=</span> <span class="n">sampler</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s1">&#39;passage&#39;</span><span class="p">)</span>
-<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>
-<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="c1"># Define a 4 beats loop that plays a kick sample every beat on track 1.</span>
-<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="nd">@loop</span><span class="p">(</span><span class="n">beats</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">track</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="k">def</span> <span class="nf">kick</span><span class="p">():</span>
-<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">):</span>
-<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>        <span class="n">s</span><span class="o">.</span><span class="n">play</span><span class="p">(</span><span class="s1">&#39;kick&#39;</span><span class="p">)</span>
-<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>        <span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>
-<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a><span class="c1"># Define a 2 beats loop that plays a snare sample every 2 beats on track 1.</span>
-<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a><span class="nd">@loop</span><span class="p">(</span><span class="n">beats</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">track</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a><span class="k">def</span> <span class="nf">snare</span><span class="p">():</span>
-<a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">):</span>
-<a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>        <span class="n">s</span><span class="o">.</span><span class="n">play</span><span class="p">(</span><span class="s1">&#39;snare&#39;</span><span class="p">)</span>
-<a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>        <span class="n">sleep</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">bpm</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="mi">120</span><span class="p">)</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="c1"># Loop function</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="nd">@loop</span><span class="p">(</span><span class="n">beats</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="k">def</span> <span class="nf">kick</span><span class="p">():</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    <span class="n">log</span><span class="p">(</span><span class="s1">&#39;beat&#39;</span><span class="p">)</span>
+</code></pre></div>
+<p>Neon's facilities are organized in modules that are accessible from
+the global context. For example, to set the BPM, you can use
+<code>bpm.set(120)</code> without having to explicitly import the <code>bpm</code>
+module. The available modules are:</p>
+<ul>
+<li><a href="/reference/bpm">bpm</a></li>
+<li><a href="/reference/sampler">sampler</a></li>
+<li><a href="/reference/tracks">tracks</a></li>
+<li><a href="/reference/midi">midi</a></li>
+</ul>
+<h3 id="neon--cookbook">Cookbook</h3>
+<h4 id="neon--minimalistic-example">Minimalistic Example</h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nd">@live</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="k">def</span> <span class="nf">setup</span><span class="p">():</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    <span class="n">bpm</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="mi">120</span><span class="p">)</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    <span class="n">tracks</span><span class="o">.</span><span class="n">setup</span><span class="p">([</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>        <span class="n">tracks</span><span class="o">.</span><span class="n">mk_sampler</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">muted</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">volume</span><span class="o">=</span><span class="mi">100</span><span class="p">),</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>    <span class="p">])</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="n">s</span> <span class="o">=</span> <span class="n">sampler</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s1">&#39;passage&#39;</span><span class="p">)</span>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="nd">@loop</span><span class="p">(</span><span class="n">beats</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">track</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="k">def</span> <span class="nf">kick</span><span class="p">():</span>
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">):</span>
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>        <span class="n">s</span><span class="o">.</span><span class="n">play</span><span class="p">(</span><span class="s1">&#39;kick&#39;</span><span class="p">)</span>
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>        <span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 </code></pre></div>
 <h3 id="neon--reference">Reference</h3>
 
@@ -903,13 +916,13 @@ for debugging purposes.</p>
       <p>Decorator to create a loop that is rescheduled every given number of beats.</p>
 <p>The concept of a loop is similar to <a href="https://sonic-pi.net/">Sonic
 Pi</a>'s live loops. Code within a loop is
-executed using temporal recursion, and can updated in real-time:
-the next run of the loop will execute the updated version. This
-provides a way to incrementally build audio performances.  by
-editing code.  Few rules need to be followed for code in
-live-loops: it should not be blocking as it would block the main
-thread. For this reason, blocking facilities such are sleep are
-provided by the engine.</p>
+executed using temporal recursion, and can be updated in
+real-time: the next run of the loop will execute the updated
+version. This provides a way to incrementally build audio
+performances by editing code. Loops should not be blocking as it
+would freeze the main thread. For this reason, blocking facilities
+such are <a href="/reference/neon/#neon.sleep"><code>sleep</code></a> are provided by the
+engine.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nd">@loop</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="k">def</span> <span class="nf">my_loop</span><span class="p">(</span><span class="n">beats</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">track</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>  <span class="n">log</span><span class="p">(</span><span class="s2">&quot;Hello World&quot;</span><span class="p">)</span>
