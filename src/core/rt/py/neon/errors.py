@@ -1,5 +1,4 @@
-"""*Exception is not the rule.*
-
+"""
 The errors module contains exceptions raised by the Neon engine to
 signal errors at runtime.
 """

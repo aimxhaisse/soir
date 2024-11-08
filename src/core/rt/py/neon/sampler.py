@@ -1,5 +1,4 @@
-"""*Samples, lots of samples.*
-
+"""
 ???+ info
 
     The sampler module can be used on loops running on tracks with

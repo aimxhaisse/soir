@@ -1,5 +1,4 @@
-"""*Track them all.*
-
+"""
 The `tracks` module provides a way to setup and control tracks in the
 neon engine. A track has an instrument type and a set of parameters
 and effects. Once a track is created, loops can be scheduled on

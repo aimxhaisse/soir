@@ -1,5 +1,4 @@
-"""*Insert a joke here.*
-
+"""
 The **midi** module provides a way to communicate with external
 synthesizers.
 
