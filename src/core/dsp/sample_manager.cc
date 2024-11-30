@@ -14,6 +14,10 @@ absl::Status SampleManager::Init(const utils::Config& config) {
     return absl::OkStatus();
   }
 
+  if (!std::filesystem::exists(directory_)) {
+    return absl::NotFoundError("Sample directory " + directory_ + " does not exists");
+  }
+
   for (const auto& entry : std::filesystem::directory_iterator(directory_)) {
     if (!entry.is_directory()) {
       auto candidate_pack = entry.path().filename().string();

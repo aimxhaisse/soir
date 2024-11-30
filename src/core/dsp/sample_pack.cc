@@ -3,7 +3,6 @@
 #include <AudioFile.h>
 #include <absl/log/log.h>
 #include <absl/strings/match.h>
-#include <filesystem>
 #include <mutex>
 
 #include "core/dsp/dsp.hh"
