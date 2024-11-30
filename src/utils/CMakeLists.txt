@@ -5,7 +5,7 @@ add_library(neon_utils
 )
 
 target_link_libraries(neon_utils
-  ${YAML_CPP_LIBRARIES}
+  yaml-cpp
   absl::strings
   absl::log
   absl::status  

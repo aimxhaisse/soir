@@ -20,14 +20,15 @@ add_subdirectory(deps/libremidi)
 add_subdirectory(deps/audiofile)
 add_subdirectory(deps/rapidjson)
 add_subdirectory(deps/sdl)
+add_subdirectory(deps/yaml)
+add_subdirectory(deps/ogg)
+add_subdirectory(deps/vorbis)
 
 include(deps/grpc/third_party/protobuf/cmake/protobuf-generate.cmake)
 
-find_package(yaml-cpp REQUIRED)
 find_package(GTest REQUIRED)
 find_package(SDL2 REQUIRED)
 
-include_directories(${YAML_INCLUDE_DIRS})
 include_directories(${SDL2_INCLUDE_DIRS})
 include_directories(src)
 
@@ -48,7 +49,6 @@ target_link_libraries(
   neon_core
   neon_utils
   neon_proto
-  tcmalloc
   absl::base
   absl::log
   absl::status

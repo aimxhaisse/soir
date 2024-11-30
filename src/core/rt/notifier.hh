@@ -3,6 +3,7 @@
 #include <absl/status/status.h>
 #include <condition_variable>
 #include <list>
+#include <thread>
 
 #include "neon.grpc.pb.h"
 #include "utils/config.hh"

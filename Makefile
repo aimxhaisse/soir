@@ -17,6 +17,11 @@ DEPS_LIBREMIDI	:= $(DEPS_DIR)/libremidi
 DEPS_AUDIOFILE	:= $(DEPS_DIR)/audiofile
 DEPS_RAPIDJSON	:= $(DEPS_DIR)/rapidjson
 DEPS_SDL	:= $(DEPS_DIR)/sdl
+DEPS_YAML	:= $(DEPS_DIR)/yaml
+DEPS_OGG	:= $(DEPS_DIR)/ogg
+DEPS_VORBIS	:= $(DEPS_DIR)/vorbis
+
+DEPS 		:= $(DEPS_GRPC) $(DEPS_EFSW) $(DEPS_PYBIND) $(DEPS_HTTPLIB) $(DEPS_LIBREMIDI) $(DEPS_AUDIOFILE) $(DEPS_RAPIDJSON) $(DEPS_SDL) $(DEPS_YAML) $(DEPS_OGG) $(DEPS_VORBIS)
 
 .PHONY: all deps clean full-clean $(BINARY) www docs
 
@@ -24,7 +29,7 @@ DEPS_SDL	:= $(DEPS_DIR)/sdl
 
 all: $(BINARY)
 
-deps: $(DEPS_EFSW) $(DEPS_PYBIND) $(DEPS_HTTPLIB) $(DEPS_LIBREMIDI) $(DEPS_AUDIOFILE) $(DEPS_GRPC) $(DEPS_RAPIDJSON) $(DEPS_SDL)
+deps: $(DEPS)
 
 clean:
 	rm -f $(BINARY)
@@ -40,7 +45,7 @@ serve: docs
 	cd www/site && python -m http.server 4096
 
 full-clean: clean
-	rm -rf $(DEPS_EFSW) $(DEPS_PYBIND) $(DEPS_HTTPLIB) $(DEPS_LIBREMIDI) $(DEPS_AUDIOFILE) $(DEPS_GRPC) $(DEPS_RAPIDJSON) $(DEPS_SDL)
+	rm -rf $(DEPS)
 
 test: all
 	./$(BUILD_DIR)/src/utils/neon_utils_test --gtest_filter=$(TEST_FILTER)
@@ -125,3 +130,18 @@ $(DEPS_SDL):
 	git clone https://github.com/libsdl-org/SDL.git $@ && \
 	cd $@ && \
 	git checkout release-2.30.7
+
+$(DEPS_YAML):
+	git clone https://github.com/jbeder/yaml-cpp.git $@ && \
+	cd $@ && \
+	git checkout 0.8.0
+
+$(DEPS_OGG):
+	git clone https://github.com/xiph/ogg.git $@ && \
+	cd $@ && \
+	git checkout v1.3.5
+
+$(DEPS_VORBIS):
+	git clone https://github.com/xiph/vorbis.git $@ && \
+	cd $@ && \
+	git checkout v1.3.7
