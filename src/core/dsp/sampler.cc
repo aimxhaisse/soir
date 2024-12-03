@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <cstdint>
 
 #include <AudioFile.h>
@@ -17,20 +18,30 @@ absl::Status Sampler::Init(SampleManager* sample_manager) {
   return absl::OkStatus();
 }
 
-void Sampler::PlaySample(Sample* sample) {
+void Sampler::PlaySample(Sample* sample, float start, float end) {
   if (sample == nullptr) {
     return;
   }
 
-  const float durationMs = sample->DurationMs();
+  int duration = static_cast<int>(sample->DurationSamples());
+  int sstart = std::max(
+      0,
+      std::min(static_cast<int>(sample->DurationSamples() * start), duration));
+  int ssend = std::max(
+      0, std::min(static_cast<int>(sample->DurationSamples() * end), duration));
+
+  const float durationMs = sample->DurationMs(ssend - sstart);
   if (durationMs <= kSampleMinimalDurationMs) {
     return;
   }
 
   auto ps = std::make_unique<PlayingSample>();
 
-  ps->pos_ = 0;
+  ps->start_ = sstart;
+  ps->end_ = ssend;
+  ps->pos_ = sstart;
   ps->sample_ = sample;
+  ps->inc_ = (sstart < ssend) ? 1 : -1;
 
   const float attackMs = kSampleMinimalSmoothingMs;
   const float releaseMs = kSampleMinimalSmoothingMs;
@@ -83,9 +94,19 @@ void Sampler::HandleSysex(const proto::MidiSysexInstruction& sysex) {
   auto pack = params["pack"].GetString();
   auto name = params["name"].GetString();
 
+  float start = 0.0f;
+  float end = 1.0f;
+
+  if (params.HasMember("start")) {
+    start = params["start"].GetDouble();
+  }
+  if (params.HasMember("end")) {
+    end = params["end"].GetDouble();
+  }
+
   switch (sysex.type()) {
     case proto::MidiSysexInstruction::SAMPLER_PLAY: {
-      PlaySample(GetSample(pack, name));
+      PlaySample(GetSample(pack, name), start, end);
       break;
     }
 
@@ -157,8 +178,10 @@ void Sampler::Render(SampleTick tick, const std::list<MidiEventAt>& events,
         // Trigger a note-off if we are near the very end of the
         // sample ; this is to ensure we do not glitch at the end of
         // the sample.
-        if (ps->pos_ + kSampleMinimalSmoothingMs >=
-            ps->sample_->DurationSamples()) {
+        if ((ps->inc_ > 0 &&
+             ps->pos_ + kSampleMinimalSmoothingMs >= ps->end_) ||
+            (ps->inc_ < 0 &&
+             ps->pos_ - kSampleMinimalSmoothingMs <= ps->end_)) {
           ps->wrapper_.NoteOff();
         }
 
@@ -167,8 +190,8 @@ void Sampler::Render(SampleTick tick, const std::list<MidiEventAt>& events,
         left += ps->sample_->lb_[ps->pos_] * env;
         right += ps->sample_->rb_[ps->pos_] * env;
 
-        ps->pos_ += 1;
-        if (env == 0.0f || ps->pos_ >= ps->sample_->DurationSamples()) {
+        ps->pos_ += ps->inc_;
+        if (env == 0.0f || ps->pos_ >= ps->end_ || ps->pos_ <= ps->start_) {
           ps->removing_ = true;
           remove.insert(ps.get());
         }

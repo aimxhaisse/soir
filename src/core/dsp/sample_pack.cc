@@ -12,8 +12,12 @@
 namespace neon {
 namespace dsp {
 
+float Sample::DurationMs(std::size_t samples) const {
+  return static_cast<float>(samples) / kSampleRate * 1000.0f;
+}
+
 float Sample::DurationMs() const {
-  return static_cast<float>(lb_.size()) / kSampleRate * 1000.0f;
+  return DurationMs(DurationSamples());
 }
 
 std::size_t Sample::DurationSamples() const {

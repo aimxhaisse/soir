@@ -38,7 +38,7 @@ class Sampler {
   void ProcessMidiEvents(SampleTick tick);
   void HandleSysex(const proto::MidiSysexInstruction& sysex);
 
-  void PlaySample(Sample* s);
+  void PlaySample(Sample* s, float start, float end);
   void StopSample(Sample* s);
   Sample* GetSample(const std::string& pack, const std::string& name);
 
@@ -47,6 +47,10 @@ class Sampler {
     int pos_;
     Sample* sample_;
     bool removing_ = false;
+
+    int start_;
+    int end_;
+    int inc_;
 
     // This ADSR envelope is used to avoid glitches at the beginning
     // and at the end of samples, which is utils with raw data where

@@ -86,10 +86,8 @@ class Sampler:
     def play(
             self,
             name: str,
-            loop: bool = False,
-            length: float | None = None,
-            start: float = 0.0,
-            rev: bool = False,
+            start: float | None = None,
+            end: float | None = None,
     ):
         """Plays a sample by its given name. If there is no exact
         match, attempts to find one that contains the name (for
@@ -99,25 +97,16 @@ class Sampler:
 
         Args:
             name: The name of the sample.
-            loop: Whether to loop the sample or not.
-                If the sample is looping, it will play forever unless a
-                length is specified, or it is explictly stopped.
-            length: Duration in seconds.
-                If None, the sample is played for its entired duration.
-            start: When to start playing the sample in seconds.
-            rev: Whether to reverse the sample or not.
+            start: When in the sample to start playing in the [0.0, 1.0] range.
+            end: When in the sample to end playing in the [0.0, 1.0] range.
         """
         assert_in_loop()
 
         params = {
             'pack': self.pack_name_,
             'name': name,
-
-            # These are not yet implemented in the engine.
-            'loop': loop,
-            'length': length,
             'start': start,
-            'rev': rev,
+            'end': end,
         }
 
         track = current_loop().track
@@ -126,7 +115,6 @@ class Sampler:
             current_loop().current_offset,
             lambda: midi_sysex_sample_play_(track, json.dumps(params))
         )
-
 
     def stop(
             self,

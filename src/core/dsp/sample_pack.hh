@@ -17,6 +17,7 @@ struct Sample {
   std::vector<float> rb_;
 
   float DurationMs() const;
+  float DurationMs(std::size_t samples) const;
   std::size_t DurationSamples() const;
 };
 
