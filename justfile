@@ -37,7 +37,7 @@ perf-record:
 
 # Rebuilds all sample packs from the samples directory.
 mk-sample-packs force="True":
-    #!/usr/bin/env python
+    #!/usr/bin/env -S poetry run python3
     import yaml
     import os
     import sys
