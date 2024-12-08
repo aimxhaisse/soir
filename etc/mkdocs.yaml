@@ -7,8 +7,8 @@ agent:
 
 neon:
   rt:
+    python_path: src/core/rt/py
     initial_bpm: 130
-    delay_ms: 150
   grpc:
     host: localhost
     port: 9000

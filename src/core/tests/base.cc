@@ -16,6 +16,7 @@ recorder:
       port: 9000
 neon:
   rt:
+    python_path: src/core/rt/py
     initial_bpm: 130
   grpc:
     host: localhost
