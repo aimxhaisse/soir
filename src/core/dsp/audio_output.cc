@@ -6,8 +6,21 @@
 namespace soir {
 namespace dsp {
 
+namespace {
+
+void ListAudioDevices() {
+  int num_devices = SDL_GetNumAudioDevices(0);
+  for (int i = 0; i < num_devices; i++) {
+    LOG(INFO) << "Audio device [" << i << "]: " << SDL_GetAudioDeviceName(i, 0);
+  }
+}
+
+}  // namespace
+
 AudioOutput::AudioOutput() {
   SDL_Init(SDL_INIT_AUDIO);
+
+  ListAudioDevices();
 }
 
 AudioOutput::~AudioOutput() {}
@@ -22,8 +35,12 @@ absl::Status AudioOutput::Init(const utils::Config& config) {
   spec.channels = kNumChannels;
   spec.samples = config.Get<unsigned int>("soir.dsp.engine.block_size");
 
+  auto device_id = config.Get<int>("soir.dsp.output.audio.device_id", 0);
+  auto device_name = SDL_GetAudioDeviceName(device_id, 0);
+
+  LOG(INFO) << "Opening audio device: " << device_name;
   SDL_AudioSpec obtained;
-  device_id_ = SDL_OpenAudioDevice(NULL, 0, &spec, &obtained, 0);
+  device_id_ = SDL_OpenAudioDevice(device_name, 0, &spec, &obtained, 0);
   if (device_id_ == 0) {
     LOG(ERROR) << "Failed to open audio device: " << SDL_GetError();
     return absl::InternalError("Failed to open audio device");

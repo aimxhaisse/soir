@@ -21,3 +21,4 @@ soir:
         port: 8081
       audio:
         enable: true
+        device_id: 1
