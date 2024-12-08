@@ -1,6 +1,6 @@
 #include <cstdint>
 
-#include <AudioFile.h>
+#include <AudioFile/AudioFile.h>
 #include <absl/log/log.h>
 #include <absl/strings/match.h>
 #include <mutex>

@@ -56,7 +56,7 @@ YAML::Node Config::GetChildNode(const std::string& location) const {
   // cpp, might be worth spending more time on this.
   YAML::Node current = YAML::Clone(node_);
   for (const auto& key : keys) {
-    current = current[key];
+    current = current[std::string(key)];
   }
 
   return current;

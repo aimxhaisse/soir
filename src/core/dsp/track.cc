@@ -76,11 +76,14 @@ void Track::FastUpdate(const TrackSettings& settings) {
   settings_ = settings;
 
   switch (settings_.instrument_) {
-    case TRACK_MIDI_EXT:
+    case TRACK_MIDI_EXT: {
       auto status = midi_ext_->Init(settings_.extra_);
       if (!status.ok()) {
         LOG(ERROR) << "Failed to update midi ext: " << status.message();
       }
+    } break;
+
+    case TRACK_SAMPLER:
       break;
 
     defaults:

@@ -6,8 +6,18 @@ add_library(soir_agent
 )
 
 target_link_libraries(soir_agent
-  efsw
-  libremidi
+  ${EFSW_INSTALL_DIR}/lib/libefsw.a
+  ${LIBREMIDI_INSTALL_DIR}/lib/libremidi.a
+  ${GRPC_INSTALL_DIR}/lib/libgrpc.a
+  ${GRPC_INSTALL_DIR}/lib/libgrpc++.a
   soir_proto
   soir_utils
+)
+
+add_dependencies(
+  soir_agent
+
+  efsw
+  libremidi
+  grpc
 )

@@ -1,7 +1,7 @@
 #include <absl/log/log.h>
 
 #include "core/dsp/engine.hh"
-#include "soir.grpc.pb.h"
+#include "proto/soir.grpc.pb.h"
 
 namespace soir {
 namespace dsp {

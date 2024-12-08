@@ -14,7 +14,7 @@
 #include "core/dsp/sample_manager.hh"
 #include "core/dsp/sample_pack.hh"
 #include "core/dsp/track.hh"
-#include "soir.grpc.pb.h"
+#include "proto/soir.grpc.pb.h"
 #include "utils/config.hh"
 
 namespace soir {

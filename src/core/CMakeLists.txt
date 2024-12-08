@@ -26,18 +26,29 @@ add_library(soir_core
   rt/notifier.cc
 )
 
-target_link_libraries(soir_core
-  AudioFile
-  httplib::httplib
-  libremidi
+target_link_libraries(
+  soir_core
+
+  ${AUDIOFILE_INSTALL_DIR}/lib/libaudiofile.a
+  ${HTTPLIB_INSTALL_DIR}/lib/libhttplib.a
+  ${LIBREMIDI_INSTALL_DIR}/lib/libremidi.a
+  ${OGG_INSTALL_DIR}/lib/liboff.a
+  ${SDL2_INSTALL_DIR}/lib/libsdl2.a
+  ${VORBIS_INSTALL_DIR}/lib/libvorbis.a
+  ${VORBIS_INSTALL_DIR}/lib/libvorbisenc.a
+  ${PYBIND11_INSTALL_DIR}/lib/libpybind11_headers.a
+  ${PYBIND11_INSTALL_DIR}/lib/libpybind11_embed.a
+
   soir_proto
   soir_utils
-  ogg
-  ${SDL2_LIBRARIES}
-  vorbis
-  vorbisenc
-  pybind11_headers
-  pybind11::embed
+)
+
+add_dependencies(
+  soir_core
+
+  grpc
+  audiofile
+  httplib
 )
 
 add_executable(soir_core_test
@@ -54,6 +65,8 @@ add_executable(soir_core_test
 
 target_link_libraries(
   soir_core_test
+
   soir_core
-  GTest::gtest_main
+
+  ${GOOGLETEST_INSTALL_DIR}/lib/libgoogletest.a
 )

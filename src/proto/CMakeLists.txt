@@ -1,18 +1,37 @@
 # S O I R
 
-set(PROTO_FILES soir.proto)
+find_package(gRPC REQUIRED)
 
-set(_GRPC_CPP_PLUGIN_EXECUTABLE $<TARGET_FILE:grpc_cpp_plugin>)
-
-add_library(soir_proto soir.proto)
-target_link_libraries(soir_proto
-    PUBLIC
-        grpc
-        grpc++
-        protobuf::libprotobuf
-        protobuf::libprotoc
+set(
+  PROTO_FILES
+  soir.proto
 )
-target_include_directories(soir_proto PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 
-protobuf_generate(TARGET soir_proto LANGUAGE cpp)
-protobuf_generate(TARGET soir_proto LANGUAGE grpc GENERATE_EXTENSIONS .grpc.pb.h .grpc.pb.cc PLUGIN "protoc-gen-grpc=${_GRPC_CPP_PLUGIN_EXECUTABLE}")
+add_library(
+  soir_proto
+  ${PROTO_FILES}
+)
+
+target_link_libraries(
+  soir_proto
+
+  ${GRPC_INSTALL_DIR}/lib/libgrpc.a
+  ${GRPC_INSTALL_DIR}/lib/libgrpc++.a
+  ${PROTOBUF_INSTALL_DIR}/lib/libprotobuf.a
+)
+
+protobuf_generate(
+  TARGET soir_proto
+  LANGUAGE cpp
+)
+
+protobuf_generate(
+  TARGET soir_proto
+  LANGUAGE grpc
+  GENERATE_EXTENSIONS .grpc.pb.h .grpc.pb.cc
+  PLUGIN "protoc-gen-grpc=${grpc_cpp_plugin_location}"
+)
+
+target_include_directories(
+  soir_proto PUBLIC ${Protobuf_INCLUDE_DIRS}
+)
