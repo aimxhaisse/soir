@@ -10,6 +10,8 @@ def setup():
 s = sampler.new('hexcells')
     
 @loop()
-def beat():
+def beat(beats=1):
     log('ok')
-    s.play('hex-tik-5', start=0.0, end=0.76)
+    s.play('hex-tik-5', start=0.5, end=0.0)
+    sleep(0.5)
+    s.play('hex-tik-5', start=0.0, end=0.5)

@@ -28,6 +28,8 @@ struct TrackSettings;
 // and release no matter what.
 static constexpr float kSampleMinimalSmoothingMs = 1.0f;
 static constexpr float kSampleMinimalDurationMs = 2 * kSampleMinimalSmoothingMs;
+static constexpr int kSampleMinimalSmoothingSamples =
+    kSampleMinimalDurationMs * kSampleRate / 1000;
 
 class Sampler {
  public:

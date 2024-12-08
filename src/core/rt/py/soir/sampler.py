@@ -86,8 +86,8 @@ class Sampler:
     def play(
             self,
             name: str,
-            start: float | None = None,
-            end: float | None = None,
+            start: float = 0.0,
+            end: float = 1.0,
     ):
         """Plays a sample by its given name. If there is no exact
         match, attempts to find one that contains the name (for

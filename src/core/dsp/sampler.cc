@@ -30,7 +30,7 @@ void Sampler::PlaySample(Sample* sample, float start, float end) {
   int ssend = std::max(
       0, std::min(static_cast<int>(sample->DurationSamples() * end), duration));
 
-  const float durationMs = sample->DurationMs(ssend - sstart);
+  const float durationMs = sample->DurationMs(std::abs(ssend - sstart));
   if (durationMs <= kSampleMinimalDurationMs) {
     return;
   }
@@ -179,9 +179,9 @@ void Sampler::Render(SampleTick tick, const std::list<MidiEventAt>& events,
         // sample ; this is to ensure we do not glitch at the end of
         // the sample.
         if ((ps->inc_ > 0 &&
-             ps->pos_ + kSampleMinimalSmoothingMs >= ps->end_) ||
+             ps->pos_ + kSampleMinimalSmoothingSamples >= ps->end_) ||
             (ps->inc_ < 0 &&
-             ps->pos_ - kSampleMinimalSmoothingMs <= ps->end_)) {
+             ps->pos_ - kSampleMinimalSmoothingSamples <= ps->end_)) {
           ps->wrapper_.NoteOff();
         }
 
@@ -191,7 +191,8 @@ void Sampler::Render(SampleTick tick, const std::list<MidiEventAt>& events,
         right += ps->sample_->rb_[ps->pos_] * env;
 
         ps->pos_ += ps->inc_;
-        if (env == 0.0f || ps->pos_ >= ps->end_ || ps->pos_ <= ps->start_) {
+        if (env == 0.0f || (ps->inc_ > 0 && (ps->pos_ >= ps->end_)) ||
+            (ps->inc_ < 0 && (ps->pos_ <= ps->end_))) {
           ps->removing_ = true;
           remove.insert(ps.get());
         }
