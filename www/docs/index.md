@@ -1,5 +1,5 @@
-# NEON
+# SOIR
 
 *Live Coding Environment*
 
-Neon is a Python-based environment for live coding music.
+Soir is a Python-based environment for live coding music.

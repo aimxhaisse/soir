@@ -3,7 +3,7 @@
 
 #include "agent/agent.hh"
 
-namespace neon {
+namespace soir {
 namespace agent {
 
 Agent::Agent() {}
@@ -11,25 +11,25 @@ Agent::Agent() {}
 Agent::~Agent() {}
 
 absl::Status Agent::Init(const utils::Config& config) {
-  auto neon_grpc_host = config.Get<std::string>("agent.neon.grpc.host");
-  auto neon_grpc_port = config.Get<int>("agent.neon.grpc.port");
+  auto soir_grpc_host = config.Get<std::string>("agent.soir.grpc.host");
+  auto soir_grpc_port = config.Get<int>("agent.soir.grpc.port");
 
-  neon_stub_ = proto::Neon::NewStub(
-      grpc::CreateChannel(neon_grpc_host + ":" + std::to_string(neon_grpc_port),
+  soir_stub_ = proto::Soir::NewStub(
+      grpc::CreateChannel(soir_grpc_host + ":" + std::to_string(soir_grpc_port),
                           grpc::InsecureChannelCredentials()));
-  if (!neon_stub_) {
-    return absl::InternalError("Failed to create Neon gRPC stub");
+  if (!soir_stub_) {
+    return absl::InternalError("Failed to create Soir gRPC stub");
   }
 
   file_watcher_ = std::make_unique<FileWatcher>();
-  auto status = file_watcher_->Init(config, neon_stub_.get());
+  auto status = file_watcher_->Init(config, soir_stub_.get());
   if (!status.ok()) {
     LOG(ERROR) << "Failed to initialize file watcher: " << status.message();
     return status;
   }
 
   controller_watcher_ = std::make_unique<ControllerWatcher>();
-  status = controller_watcher_->Init(config, neon_stub_.get());
+  status = controller_watcher_->Init(config, soir_stub_.get());
   if (!status.ok()) {
     LOG(ERROR) << "Failed to initialize controller watcher: "
                << status.message();
@@ -94,4 +94,4 @@ absl::Status Agent::Stop() {
 }
 
 }  // namespace agent
-}  // namespace neon
+}  // namespace soir

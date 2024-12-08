@@ -1,9 +1,8 @@
-# N E O N
+# S O I R
 
 [![experimental](http://badges.github.io/stability-badges/dist/experimental.svg)](http://github.com/badges/stability-badges)
 
-Neon is a standalone binary for live-coding. Think of it as a DAW
-where orchestration is handled from code.
+Soir is an environment for audio live-coding.
 
 ```python
 bpm.set(110)
@@ -25,3 +24,9 @@ def beats():
         sleep(1)
 ```
 
+## Features
+
+- loops
+- multi-track
+- sampler
+- external MIDI device

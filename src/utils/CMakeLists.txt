@@ -1,10 +1,10 @@
-add_library(neon_utils
+add_library(soir_utils
   config.cc
   signal.cc
   misc.cc
 )
 
-target_link_libraries(neon_utils
+target_link_libraries(soir_utils
   yaml-cpp
   absl::strings
   absl::log
@@ -12,12 +12,12 @@ target_link_libraries(neon_utils
   absl::statusor
 )
 
-add_executable(neon_utils_test
+add_executable(soir_utils_test
   tests/config_test.cc
 )
 
 target_link_libraries(
-  neon_utils_test
-  neon_utils
+  soir_utils_test
+  soir_utils
   GTest::gtest_main
 )

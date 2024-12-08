@@ -5,7 +5,7 @@
 #include "core/dsp/sample_pack.hh"
 #include "utils/config.hh"
 
-namespace neon {
+namespace soir {
 namespace dsp {
 
 class SampleManager {
@@ -24,4 +24,4 @@ class SampleManager {
 };
 
 }  // namespace dsp
-}  // namespace neon
+}  // namespace soir

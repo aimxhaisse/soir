@@ -1,3 +1,3 @@
 # ⏳ bpm
 
-::: neon.bpm
+::: soir.bpm

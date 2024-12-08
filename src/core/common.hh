@@ -3,7 +3,7 @@
 #include <absl/time/clock.h>
 #include <libremidi/libremidi.hpp>
 
-namespace neon {
+namespace soir {
 
 using SampleTick = uint64_t;
 using MicroBeat = uint64_t;
@@ -42,4 +42,4 @@ class MidiEventAt {
   SampleTick tick_;
 };
 
-}  // namespace neon
+}  // namespace soir

@@ -3,7 +3,7 @@
 
 #include "audio_output.hh"
 
-namespace neon {
+namespace soir {
 namespace dsp {
 
 AudioOutput::AudioOutput() {
@@ -20,7 +20,7 @@ absl::Status AudioOutput::Init(const utils::Config& config) {
   spec.freq = kSampleRate;
   spec.format = AUDIO_F32LSB;
   spec.channels = kNumChannels;
-  spec.samples = config.Get<unsigned int>("neon.dsp.engine.block_size");
+  spec.samples = config.Get<unsigned int>("soir.dsp.engine.block_size");
 
   SDL_AudioSpec obtained;
   device_id_ = SDL_OpenAudioDevice(NULL, 0, &spec, &obtained, 0);
@@ -69,4 +69,4 @@ absl::Status AudioOutput::PushAudioBuffer(AudioBuffer& buffer) {
 }
 
 }  // namespace dsp
-}  // namespace neon
+}  // namespace soir

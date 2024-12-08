@@ -4,18 +4,19 @@
 
 #include "core/dsp/sample_manager.hh"
 
-namespace neon {
+namespace soir {
 namespace dsp {
 
 absl::Status SampleManager::Init(const utils::Config& config) {
-  directory_ = config.Get<std::string>("neon.dsp.sample_directory");
+  directory_ = config.Get<std::string>("soir.dsp.sample_directory");
   if (directory_.empty()) {
     LOG(WARNING) << "No sample directory specified in config";
     return absl::OkStatus();
   }
 
   if (!std::filesystem::exists(directory_)) {
-    return absl::NotFoundError("Sample directory " + directory_ + " does not exists");
+    return absl::NotFoundError("Sample directory " + directory_ +
+                               " does not exists");
   }
 
   for (const auto& entry : std::filesystem::directory_iterator(directory_)) {
@@ -80,4 +81,4 @@ std::vector<std::string> SampleManager::GetPackNames() {
 }
 
 }  // namespace dsp
-}  // namespace neon
+}  // namespace soir

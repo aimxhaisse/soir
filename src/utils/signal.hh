@@ -2,7 +2,7 @@
 
 #include <absl/status/status.h>
 
-namespace neon {
+namespace soir {
 namespace utils {
 
 // Wait for the server to be killed by a signal. This is in a
@@ -12,4 +12,4 @@ absl::Status WaitForExitSignal();
 void SignalExit();
 
 }  // namespace utils
-}  // namespace neon
+}  // namespace soir

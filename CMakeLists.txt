@@ -1,8 +1,8 @@
-# Neon.
+# Soir.
 
 cmake_minimum_required(VERSION 3.28.1)
 project(
-  neon
+  soir
   LANGUAGES CXX
 )
 set(CMAKE_CXX_STANDARD 20)
@@ -37,18 +37,18 @@ add_subdirectory(src/utils)
 add_subdirectory(src/proto)
 add_subdirectory(src/core)
 
-add_compile_definitions(NEON_VERSION=${VERSION})
+add_compile_definitions(SOIR_VERSION=${VERSION})
 
-add_executable(neon
+add_executable(soir
   src/main.cc
 )
 
 target_link_libraries(
-  neon
-  neon_agent
-  neon_core
-  neon_utils
-  neon_proto
+  soir
+  soir_agent
+  soir_core
+  soir_utils
+  soir_proto
   absl::base
   absl::log
   absl::status

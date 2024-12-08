@@ -6,16 +6,16 @@ _default:
 # Goal is to get rid of the makefile at some point and only rely on
 # this justfile.
 
-# Build Neon.
+# Build Soir.
 build:
     #!/usr/bin/env bash
     poetry run make
 
-# Runs the Neon unit test suites.
+# Runs the Soir unit test suites.
 test filter='*':
     poetry run make test TEST_FILTER={{filter}}
 
-# Build and push documentation to neon.sbrk.org.
+# Build and push documentation to soir.sbrk.org.
 doc:
     poetry run make push
 
@@ -26,14 +26,14 @@ doc:
 
 sample_dir := "assets/samples"
 
-# Runs Neon.
+# Runs Soir.
 run:
-    poetry run ./bin/neon
+    poetry run ./bin/soir
 
-# Runs Neon measuring perf.
+# Runs Soir measuring perf.
 perf-record:
     #!/usr/bin/env bash
-    perf record -p $(pidof neon)
+    perf record -p $(pidof soir)
 
 # Rebuilds all sample packs from the samples directory.
 mk-sample-packs force="True":
@@ -43,7 +43,7 @@ mk-sample-packs force="True":
     import sys
 
     def normalize_name(name: str) -> str:
-        """Normalize a name to be used as a sample name in Neon.
+        """Normalize a name to be used as a sample name in Soir.
         """
         for char in ["_", "(", ")", "[", "]", "{", "}", ":", ";", ",", ".", "!", "?", " "]:
             name = name.replace(char, "-")

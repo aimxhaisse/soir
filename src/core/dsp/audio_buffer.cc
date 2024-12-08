@@ -3,7 +3,7 @@
 #include "core/dsp/audio_buffer.hh"
 #include "core/dsp/dsp.hh"
 
-namespace neon {
+namespace soir {
 namespace dsp {
 
 AudioBuffer::AudioBuffer(int num_samples) : size_(num_samples) {
@@ -28,4 +28,4 @@ void AudioBuffer::Reset() {
 }
 
 }  // namespace dsp
-}  // namespace neon
+}  // namespace soir

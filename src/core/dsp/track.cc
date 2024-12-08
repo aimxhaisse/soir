@@ -5,7 +5,7 @@
 #include "core/dsp/track.hh"
 #include "utils/misc.hh"
 
-namespace neon {
+namespace soir {
 namespace dsp {
 
 Track::Track() {}
@@ -182,4 +182,4 @@ void Track::Render(SampleTick tick, const std::list<MidiEventAt>& events,
 }
 
 }  // namespace dsp
-}  // namespace neon
+}  // namespace soir

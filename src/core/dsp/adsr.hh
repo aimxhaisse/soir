@@ -2,7 +2,7 @@
 
 #include <absl/status/status.h>
 
-namespace neon {
+namespace soir {
 namespace dsp {
 
 // ADSR envelope that can be used to:
@@ -43,4 +43,4 @@ class ADSR {
 };
 
 }  // namespace dsp
-}  // namespace neon
+}  // namespace soir

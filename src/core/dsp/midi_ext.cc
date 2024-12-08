@@ -39,7 +39,7 @@ void printAudioDevices() {
 
 }  // namespace
 
-namespace neon {
+namespace soir {
 namespace dsp {
 
 MidiExt::MidiExt() {
@@ -270,4 +270,4 @@ void MidiExt::Render(SampleTick tick, const std::list<MidiEventAt>& events,
 }
 
 }  // namespace dsp
-}  // namespace neon
+}  // namespace soir

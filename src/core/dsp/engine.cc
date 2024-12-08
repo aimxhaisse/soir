@@ -1,9 +1,9 @@
 #include <absl/log/log.h>
 
 #include "core/dsp/engine.hh"
-#include "neon.grpc.pb.h"
+#include "soir.grpc.pb.h"
 
-namespace neon {
+namespace soir {
 namespace dsp {
 
 Engine::Engine() {}
@@ -15,7 +15,7 @@ absl::Status Engine::Init(const utils::Config& config) {
 
   current_tick_ = 0;
 
-  auto http_enabled = config.Get<bool>("neon.dsp.output.http.enable");
+  auto http_enabled = config.Get<bool>("soir.dsp.output.http.enable");
 
   if (http_enabled) {
     http_server_ = std::make_unique<HttpServer>();
@@ -26,7 +26,7 @@ absl::Status Engine::Init(const utils::Config& config) {
     }
   }
 
-  auto audio_output_enabled = config.Get<bool>("neon.dsp.output.audio.enable");
+  auto audio_output_enabled = config.Get<bool>("soir.dsp.output.audio.enable");
 
   if (audio_output_enabled) {
     audio_output_ = std::make_unique<AudioOutput>();
@@ -311,4 +311,4 @@ SampleManager& Engine::GetSampleManager() {
 }
 
 }  // namespace dsp
-}  // namespace neon
+}  // namespace soir

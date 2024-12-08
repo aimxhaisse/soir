@@ -5,7 +5,7 @@
 
 #include "config.hh"
 
-namespace neon {
+namespace soir {
 namespace utils {
 
 Config::Config(const YAML::Node& node) : node_(node) {}
@@ -63,4 +63,4 @@ YAML::Node Config::GetChildNode(const std::string& location) const {
 }
 
 }  // namespace utils
-}  // namespace neon
+}  // namespace soir

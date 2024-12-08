@@ -19,11 +19,11 @@ from bindings import (
     midi_note_off_,
     schedule_,
 )
-from neon.internals import (
+from soir.internals import (
     assert_in_loop,
     current_loop,
 )
-from neon.errors import (
+from soir.errors import (
     UnknownMidiTrackException,
 )       
 

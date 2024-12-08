@@ -2,7 +2,7 @@
 
 #include "base.hh"
 
-namespace neon {
+namespace soir {
 namespace core {
 namespace test {
 
@@ -48,7 +48,7 @@ def kick():
   pass
   log('world')
 
-log(str(neon.internals.get_live('kick').code))
+log(str(soir.internals.get_live('kick').code))
 )");
 
   std::this_thread::sleep_for(std::chrono::seconds(1));
@@ -69,7 +69,7 @@ def kick():
   else:
     log('not 42')
 
-log(str(neon.internals.get_live('kick').code))
+log(str(soir.internals.get_live('kick').code))
 )");
 
   std::this_thread::sleep_for(std::chrono::seconds(1));
@@ -86,4 +86,4 @@ log(str(neon.internals.get_live('kick').code))
 
 }  // namespace test
 }  // namespace core
-}  // namespace neon
+}  // namespace soir

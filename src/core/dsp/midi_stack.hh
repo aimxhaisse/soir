@@ -4,7 +4,7 @@
 
 #include "core/common.hh"
 
-namespace neon {
+namespace soir {
 namespace dsp {
 
 class MidiStack {
@@ -19,4 +19,4 @@ class MidiStack {
 };
 
 }  // namespace dsp
-}  // namespace neon
+}  // namespace soir

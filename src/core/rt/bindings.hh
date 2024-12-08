@@ -3,7 +3,7 @@
 #include <absl/status/status.h>
 #include <optional>
 
-namespace neon {
+namespace soir {
 
 namespace dsp {
 class Engine;
@@ -29,4 +29,4 @@ struct PyTrack {
 
 }  // namespace bindings
 }  // namespace rt
-}  // namespace neon
+}  // namespace soir

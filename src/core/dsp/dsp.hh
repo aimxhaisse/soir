@@ -5,7 +5,7 @@
 
 #include "core/dsp/audio_buffer.hh"
 
-namespace neon {
+namespace soir {
 namespace dsp {
 
 static constexpr int kNumChannels = 2;
@@ -57,4 +57,4 @@ static constexpr int kTrackDefaultVolume = 127;
 static constexpr int kTrackDefaultPan = 64;
 
 }  // namespace dsp
-}  // namespace neon
+}  // namespace soir

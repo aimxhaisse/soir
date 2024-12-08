@@ -12,7 +12,7 @@
 #include "core/dsp/audio_buffer.hh"
 #include "core/dsp/midi_stack.hh"
 
-namespace neon {
+namespace soir {
 namespace dsp {
 
 class MidiExt {
@@ -55,4 +55,4 @@ class MidiExt {
 };
 
 }  // namespace dsp
-}  // namespace neon
+}  // namespace soir

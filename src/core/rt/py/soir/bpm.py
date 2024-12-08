@@ -33,7 +33,7 @@ from bindings import (
     get_bpm_,
     get_beat_,
 )
-from neon.internals import (
+from soir.internals import (
     assert_not_in_loop,
     current_loop,
 )

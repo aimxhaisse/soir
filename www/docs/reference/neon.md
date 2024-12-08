@@ -1,3 +1,3 @@
-# ✨ neon
+# ✨ soir
 
-::: neon
+::: soir

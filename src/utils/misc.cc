@@ -2,7 +2,7 @@
 
 #include "misc.hh"
 
-namespace neon {
+namespace soir {
 namespace utils {
 
 absl::StatusOr<std::string> GetFileContents(const std::string& filename) {
@@ -16,4 +16,4 @@ absl::StatusOr<std::string> GetFileContents(const std::string& filename) {
 }
 
 }  // namespace utils
-}  // namespace neon
+}  // namespace soir

@@ -1,3 +1,3 @@
 # 🎬 tracks
 
-::: neon.tracks
+::: soir.tracks

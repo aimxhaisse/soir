@@ -7,7 +7,7 @@
 #include "core/dsp/vorbis_encoder.hh"
 #include "utils/misc.hh"
 
-namespace neon {
+namespace soir {
 namespace dsp {
 
 // Handles a long-lived HTTP stream, transcoding on the fly
@@ -29,4 +29,4 @@ class HttpStream : public SampleConsumer {
 };
 
 }  // namespace dsp
-}  // namespace neon
+}  // namespace soir

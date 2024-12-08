@@ -3,7 +3,7 @@
 #include "core/dsp/http_stream.hh"
 #include "core/dsp/vorbis_encoder.hh"
 
-namespace neon {
+namespace soir {
 namespace dsp {
 
 HttpStream::HttpStream() : initialized_(false) {}
@@ -50,4 +50,4 @@ absl::Status HttpStream::Encode(httplib::DataSink& sink) {
 }
 
 }  // namespace dsp
-}  // namespace neon
+}  // namespace soir

@@ -1,13 +1,13 @@
 """
-Neon is a Python library for live coding music. It provides facilities
+Soir is a Python library for live coding music. It provides facilities
 to create and manipulate audio tracks, and to interact with external
-synthesizers. There are two important concepts in Neon:
+synthesizers. There are two important concepts in Soir:
 
-- **Live** functions ([`@live`](/reference/neon/#neon.live) decorator)
+- **Live** functions ([`@live`](/reference/soir/#soir.live) decorator)
     that are executed each time the code is changed. They are used to
     setup the environment, and to create tracks and instruments.
 
-- **Loops** functions ([`@loop`](/reference/neon/#neon.loop)
+- **Loops** functions ([`@loop`](/reference/soir/#soir.loop)
     decorator) that are rescheduled every given number of beats. They
     are used to create patterns and sequences.
 
@@ -24,7 +24,7 @@ def kick():
     log('beat')
 ```
 
-Neon's facilities are organized in modules that are accessible from
+Soir's facilities are organized in modules that are accessible from
 the global context. For example, to set the BPM, you can use
 `bpm.set(120)` without having to explicitly import the `bpm`
 module. The available modules are:
@@ -62,8 +62,8 @@ def kick():
 
 """
 
-import neon.errors
-import neon.internals
+import soir.errors
+import soir.internals
 
 
 def loop(beats: int=4, track: int=1, align: bool=True) -> callable:
@@ -76,7 +76,7 @@ def loop(beats: int=4, track: int=1, align: bool=True) -> callable:
     version. This provides a way to incrementally build audio
     performances by editing code. Loops should not be blocking as it
     would freeze the main thread. For this reason, blocking facilities
-    such are [`sleep`](/reference/neon/#neon.sleep) are provided by the
+    such are [`sleep`](/reference/soir/#soir.sleep) are provided by the
     engine.
 
     ``` python
@@ -93,7 +93,7 @@ def loop(beats: int=4, track: int=1, align: bool=True) -> callable:
     Returns:
         A decorator registering and scheduling the function in a loop.
     """
-    return neon.internals.loop(beats, track, align)
+    return soir.internals.loop(beats, track, align)
 
 
 def live() -> callable:
@@ -110,7 +110,7 @@ def live() -> callable:
     Returns:
         A decorator registering and executing the live function.
     """
-    return neon.internals.live()
+    return soir.internals.live()
 
 
 def log(message: str) -> None:
@@ -126,7 +126,7 @@ def log(message: str) -> None:
     Args:
         message: The message to log.
     """
-    return neon.internals.log(message)
+    return soir.internals.log(message)
 
 
 def sleep(beats: float) -> None:
@@ -149,12 +149,12 @@ def sleep(beats: float) -> None:
     Raises:
         errors.NotInLiveLoopException: If we are not in a loop.
     """
-    return neon.internals.sleep(beats)
+    return soir.internals.sleep(beats)
 
 
-import neon.bpm as bpm
-import neon.sampler as sampler
-import neon.tracks as tracks
-import neon.midi as midi
+import soir.bpm as bpm
+import soir.sampler as sampler
+import soir.tracks as tracks
+import soir.midi as midi
 
 # Here lies the live code.

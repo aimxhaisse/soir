@@ -7,7 +7,7 @@
 #include "agent/subscriber.hh"
 #include "utils/config.hh"
 
-namespace neon {
+namespace soir {
 namespace agent {
 
 // Agent is a small class that watches incoming events and sends them
@@ -26,11 +26,11 @@ class Agent {
   absl::Status Stop();
 
  private:
-  std::unique_ptr<proto::Neon::Stub> neon_stub_;
+  std::unique_ptr<proto::Soir::Stub> soir_stub_;
   std::unique_ptr<ControllerWatcher> controller_watcher_;
   std::unique_ptr<FileWatcher> file_watcher_;
   std::unique_ptr<Subscriber> subscriber_;
 };
 
 }  // namespace agent
-}  // namespace neon
+}  // namespace soir

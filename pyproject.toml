@@ -1,16 +1,16 @@
 [tool.poetry]
-name = "neon"
+name = "soir"
 version = "0.1.0"
 description = "Live Coding Environment"
 authors = ["s. rannou <mxs@sbrk.org>"]
 license = "MIT"
 readme = "README.md"
 packages = [
-         { from  = "src/core/rt/py", include = "neon" },
+         { from  = "src/core/rt/py", include = "soir" },
 ]
 
 [tool.poetry.dependencies]
-python = "^3.12"
+python = "^3.13"
 mkdocs = "^1.6.0"
 mkdocstrings = {extras = ["python"], version = "^0.25.1"}
 mkdocs-material = "^9.5.21"

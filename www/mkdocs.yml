@@ -1,18 +1,18 @@
-site_name: NEON
+site_name: SOIR
 docs_dir: docs
-repo_url: https://github.com/aimxhaisse/neon
-repo_name: aimxhaisse/neon
+repo_url: https://github.com/aimxhaisse/soir
+repo_name: aimxhaisse/soir
 site_author: s. rannou <mxs@sbrk.org>
 
 nav:
   - Home: index.md
   - Reference:
-      - ✨ <b>neon</b>: reference/neon.md
-      - ⏳ <i>neon</i>.<b>bpm</b>: reference/bpm.md
-      - 🎬 <i>neon</i>.<b>tracks</b>: reference/tracks.md
-      - 🎼 <i>neon</i>.<b>midi</b>: reference/midi.md
-      - 🔥 <i>neon</i>.<b>errors</b>: reference/errors.md
-      - 📼 <i>neon</i>.<b>sampler</b>: reference/sampler.md
+      - ✨ <b>soir</b>: reference/soir.md
+      - ⏳ <i>soir</i>.<b>bpm</b>: reference/bpm.md
+      - 🎬 <i>soir</i>.<b>tracks</b>: reference/tracks.md
+      - 🎼 <i>soir</i>.<b>midi</b>: reference/midi.md
+      - 🔥 <i>soir</i>.<b>errors</b>: reference/errors.md
+      - 📼 <i>soir</i>.<b>sampler</b>: reference/sampler.md
 
 theme:
   name: material

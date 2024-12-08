@@ -2,7 +2,7 @@
 
 #include "base.hh"
 
-namespace neon {
+namespace soir {
 namespace core {
 namespace test {
 
@@ -10,11 +10,11 @@ void CoreTestBase::SetUp() {
   absl::StatusOr<std::unique_ptr<utils::Config>> config_or =
       utils::Config::LoadFromString(R"(
 recorder:
-  neon:
+  soir:
     grpc:
       host: localhost
       port: 9000
-neon:
+soir:
   rt:
     python_path: src/core/rt/py
     initial_bpm: 130
@@ -30,16 +30,16 @@ neon:
   EXPECT_TRUE(config_or.ok());
 
   config_ = std::move(*config_or);
-  neon_ = std::make_unique<Neon>();
+  soir_ = std::make_unique<Soir>();
   recorder_ = std::make_unique<NotificationRecorder>();
 
-  absl::Status status = neon_->Init(*config_);
+  absl::Status status = soir_->Init(*config_);
   EXPECT_TRUE(status.ok());
 
   status = recorder_->Init(*config_);
   EXPECT_TRUE(status.ok());
 
-  status = neon_->Start();
+  status = soir_->Start();
   EXPECT_TRUE(status.ok());
 
   status = recorder_->Start();
@@ -47,7 +47,7 @@ neon:
 }
 
 void CoreTestBase::TearDown() {
-  absl::Status status = neon_->Stop();
+  absl::Status status = soir_->Stop();
   EXPECT_TRUE(status.ok());
 
   status = recorder_->Stop();
@@ -55,7 +55,7 @@ void CoreTestBase::TearDown() {
 
   recorder_.reset();
   config_.reset();
-  neon_.reset();
+  soir_.reset();
 }
 
 void CoreTestBase::PushCode(const std::string& code) {
@@ -65,7 +65,7 @@ void CoreTestBase::PushCode(const std::string& code) {
 
   request.set_code(code);
 
-  grpc::Status status = neon_->PushCodeUpdate(&context, &request, &response);
+  grpc::Status status = soir_->PushCodeUpdate(&context, &request, &response);
 
   EXPECT_TRUE(status.ok());
 }
@@ -75,7 +75,7 @@ bool CoreTestBase::WaitForNotification(const std::string& notification) {
     while (!notifications_.empty()) {
       auto entry = notifications_.front();
 
-      LOG(INFO) << "\e[1;42mN E O N \e[0m\e[1;32m "
+      LOG(INFO) << "\e[1;42mS O I R \e[0m\e[1;32m "
                 << ">\e[0m " << entry << "\n";
 
       notifications_.erase(notifications_.begin());
@@ -98,4 +98,4 @@ bool CoreTestBase::WaitForNotification(const std::string& notification) {
 
 }  // namespace test
 }  // namespace core
-}  // namespace neon
+}  // namespace soir

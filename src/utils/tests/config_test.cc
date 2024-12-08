@@ -2,7 +2,7 @@
 
 #include "utils/config.hh"
 
-namespace neon {
+namespace soir {
 namespace utils {
 namespace {
 
@@ -39,4 +39,4 @@ settings:
 
 }  // namespace
 }  // namespace utils
-}  // namespace neon
+}  // namespace soir

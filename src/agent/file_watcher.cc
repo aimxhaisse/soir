@@ -7,7 +7,7 @@
 #include "utils/config.hh"
 #include "utils/misc.hh"
 
-namespace neon {
+namespace soir {
 namespace agent {
 
 FileWatcher::FileWatcher() : file_pattern_("^[a-z0-9_\\-]+\\.py") {
@@ -17,8 +17,8 @@ FileWatcher::FileWatcher() : file_pattern_("^[a-z0-9_\\-]+\\.py") {
 FileWatcher::~FileWatcher() {}
 
 absl::Status FileWatcher::Init(const utils::Config& config,
-                               proto::Neon::Stub* stub) {
-  neon_stub_ = stub;
+                               proto::Soir::Stub* stub) {
+  soir_stub_ = stub;
 
   directory_ = config.Get<std::string>("agent.directory");
 
@@ -29,7 +29,7 @@ absl::Status FileWatcher::Init(const utils::Config& config,
 
   auto status = InitialCodeUpdate();
   if (!status.ok()) {
-    LOG(ERROR) << "Failed to send initial live update to Neon: "
+    LOG(ERROR) << "Failed to send initial live update to Soir: "
                << status.message();
     return status;
   }
@@ -56,7 +56,7 @@ absl::Status FileWatcher::Stop() {
     thread_.join();
   }
 
-  neon_stub_ = nullptr;
+  soir_stub_ = nullptr;
 
   LOG(INFO) << "File watcher stopped";
 
@@ -76,14 +76,14 @@ absl::Status FileWatcher::SendCodeUpdate(const std::string& filename) const {
 
   update.set_code(contents_or.value());
 
-  grpc::Status status = neon_stub_->PushCodeUpdate(&context, update, &response);
+  grpc::Status status = soir_stub_->PushCodeUpdate(&context, update, &response);
   if (!status.ok()) {
-    LOG(ERROR) << "Failed to push code update to Neon: "
+    LOG(ERROR) << "Failed to push code update to Soir: "
                << status.error_message();
-    return absl::InternalError("Failed to push code update to Neon");
+    return absl::InternalError("Failed to push code update to Soir");
   }
 
-  LOG(INFO) << "Code update pushed to Neon for file: " << filename;
+  LOG(INFO) << "Code update pushed to Soir for file: " << filename;
 
   return absl::OkStatus();
 }
@@ -98,7 +98,7 @@ absl::Status FileWatcher::InitialCodeUpdate() const {
       auto status_or = SendCodeUpdate(
           absl::StrCat(directory_, "/", std::string(file.filename())));
       if (!status_or.ok()) {
-        LOG(ERROR) << "Failed to send initial live update to Neon: "
+        LOG(ERROR) << "Failed to send initial live update to Soir: "
                    << status_or.message();
         return status_or;
       }
@@ -130,4 +130,4 @@ bool FileWatcher::IsLiveCodingFile(const std::string& filename) const {
 }
 
 }  // namespace agent
-}  // namespace neon
+}  // namespace soir

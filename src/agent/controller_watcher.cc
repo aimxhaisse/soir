@@ -2,7 +2,7 @@
 
 #include "agent/controller_watcher.hh"
 
-namespace neon {
+namespace soir {
 namespace agent {
 
 ControllerWatcher::ControllerWatcher() {}
@@ -10,8 +10,8 @@ ControllerWatcher::ControllerWatcher() {}
 ControllerWatcher::~ControllerWatcher() {}
 
 absl::Status ControllerWatcher::Init(const utils::Config& config,
-                                     proto::Neon::Stub* stub) {
-  neon_stub_ = stub;
+                                     proto::Soir::Stub* stub) {
+  soir_stub_ = stub;
 
   LOG(INFO) << "Controller watcher initialized";
 
@@ -32,7 +32,7 @@ absl::Status ControllerWatcher::Start() {
 
                 grpc::ClientContext context;
                 grpc::Status status =
-                    neon_stub_->PushMidiEvents(&context, update, &response);
+                    soir_stub_->PushMidiEvents(&context, update, &response);
                 if (!status.ok()) {
                   LOG(WARNING) << "Failed to send MIDI controller message: "
                                << status.error_message();
@@ -58,4 +58,4 @@ absl::Status ControllerWatcher::Stop() {
 }
 
 }  // namespace agent
-}  // namespace neon
+}  // namespace soir

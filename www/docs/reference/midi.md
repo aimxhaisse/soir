@@ -1,3 +1,3 @@
 # 🎼 midi
 
-::: neon.midi
+::: soir.midi

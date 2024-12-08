@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 
-namespace neon {
+namespace soir {
 namespace utils {
 
 class Config {
@@ -41,4 +41,4 @@ class Config {
 };
 
 }  // namespace utils
-}  // namespace neon
+}  // namespace soir

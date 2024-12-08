@@ -4,13 +4,13 @@
 #include <grpc++/grpc++.h>
 #include <thread>
 
-#include "neon.grpc.pb.h"
+#include "soir.grpc.pb.h"
 #include "utils/config.hh"
 
-namespace neon {
+namespace soir {
 namespace agent {
 
-// Subscribes to notifications from Neon.
+// Subscribes to notifications from Soir.
 class Subscriber {
  public:
   Subscriber();
@@ -26,11 +26,11 @@ class Subscriber {
   std::string user_;
   std::thread thread_;
 
-  std::string neon_grpc_host_;
-  int neon_grpc_port_;
-  std::unique_ptr<proto::Neon::Stub> neon_stub_;
+  std::string soir_grpc_host_;
+  int soir_grpc_port_;
+  std::unique_ptr<proto::Soir::Stub> soir_stub_;
   grpc::ClientContext context_;
 };
 
 }  // namespace agent
-}  // namespace neon
+}  // namespace soir

@@ -10,7 +10,7 @@
 #include "utils/config.hh"
 #include "utils/misc.hh"
 
-namespace neon {
+namespace soir {
 namespace dsp {
 
 class Engine;
@@ -39,4 +39,4 @@ class HttpServer {
 };
 
 }  // namespace dsp
-}  // namespace neon
+}  // namespace soir

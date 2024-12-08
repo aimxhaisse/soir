@@ -2,7 +2,7 @@
 
 #include "base.hh"
 
-namespace neon {
+namespace soir {
 namespace core {
 namespace test {
 
@@ -76,4 +76,4 @@ def kick():
 
 }  // namespace test
 }  // namespace core
-}  // namespace neon
+}  // namespace soir

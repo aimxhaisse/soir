@@ -4,10 +4,10 @@
 #include <libremidi/libremidi.hpp>
 #include <memory>
 
-#include "neon.grpc.pb.h"
+#include "soir.grpc.pb.h"
 #include "utils/config.hh"
 
-namespace neon {
+namespace soir {
 namespace agent {
 
 class ControllerWatcher {
@@ -15,15 +15,15 @@ class ControllerWatcher {
   ControllerWatcher();
   ~ControllerWatcher();
 
-  absl::Status Init(const utils::Config& config, proto::Neon::Stub* stub);
+  absl::Status Init(const utils::Config& config, proto::Soir::Stub* stub);
   absl::Status Start();
   absl::Status Stop();
 
  private:
-  proto::Neon::Stub* neon_stub_;
+  proto::Soir::Stub* soir_stub_;
   std::unique_ptr<libremidi::midi_in> midi_in_;
   std::unique_ptr<libremidi::observer> midi_obs_;
 };
 
 }  // namespace agent
-}  // namespace neon
+}  // namespace soir

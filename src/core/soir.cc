@@ -1,18 +1,18 @@
 #include <absl/log/log.h>
 
-#include "neon.hh"
+#include "soir.hh"
 
-namespace neon {
+namespace soir {
 
-Neon::Neon()
+Soir::Soir()
     : dsp_(std::make_unique<dsp::Engine>()),
       rt_(std::make_unique<rt::Engine>()),
       notifier_(std::make_unique<rt::Notifier>()) {}
 
-Neon::~Neon() {}
+Soir::~Soir() {}
 
-absl::Status Neon::Init(const utils::Config& config) {
-  LOG(INFO) << "Initializing Neon";
+absl::Status Soir::Init(const utils::Config& config) {
+  LOG(INFO) << "Initializing Soir";
 
   auto status = notifier_->Init(config);
   if (!status.ok()) {
@@ -32,8 +32,8 @@ absl::Status Neon::Init(const utils::Config& config) {
     return status;
   }
 
-  auto grpc_host = config.Get<std::string>("neon.grpc.host");
-  auto grpc_port = config.Get<int>("neon.grpc.port");
+  auto grpc_host = config.Get<std::string>("soir.grpc.host");
+  auto grpc_port = config.Get<int>("soir.grpc.port");
 
   grpc::ServerBuilder builder;
 
@@ -46,12 +46,12 @@ absl::Status Neon::Init(const utils::Config& config) {
     return absl::InternalError("Unable to start grpc server");
   }
 
-  LOG(INFO) << "Neon listening on " << grpc_host << ":" << grpc_port;
+  LOG(INFO) << "Soir listening on " << grpc_host << ":" << grpc_port;
 
   return absl::OkStatus();
 }
 
-absl::Status Neon::Start() {
+absl::Status Soir::Start() {
   auto status = notifier_->Start();
   if (!status.ok()) {
     LOG(ERROR) << "Failed to start notifier: " << status;
@@ -73,7 +73,7 @@ absl::Status Neon::Start() {
   return absl::OkStatus();
 }
 
-absl::Status Neon::Stop() {
+absl::Status Soir::Stop() {
   auto status = rt_->Stop();
   if (!status.ok()) {
     LOG(ERROR) << "Failed to stop RT engine: " << status;
@@ -98,7 +98,7 @@ absl::Status Neon::Stop() {
   return absl::OkStatus();
 }
 
-grpc::Status Neon::PushMidiEvents(grpc::ServerContext* context,
+grpc::Status Soir::PushMidiEvents(grpc::ServerContext* context,
                                   const proto::PushMidiEventsRequest* request,
                                   proto::PushMidiEventsResponse* response) {
   libremidi::message msg;
@@ -112,13 +112,13 @@ grpc::Status Neon::PushMidiEvents(grpc::ServerContext* context,
   // those events will be considered late and immediately scheduled on
   // tick 0 of the block.
   auto delay =
-      absl::Microseconds((neon::dsp::kBlockSize * 1e6) / dsp::kSampleRate);
+      absl::Microseconds((soir::dsp::kBlockSize * 1e6) / dsp::kSampleRate);
   dsp_->PushMidiEvent(MidiEventAt(request->track(), msg, absl::Now()));
 
   return grpc::Status::OK;
 }
 
-grpc::Status Neon::PushCodeUpdate(grpc::ServerContext* context,
+grpc::Status Soir::PushCodeUpdate(grpc::ServerContext* context,
                                   const proto::PushCodeUpdateRequest* request,
                                   proto::PushCodeUpdateResponse* response) {
   auto status = rt_->PushCodeUpdate(request->code());
@@ -131,7 +131,7 @@ grpc::Status Neon::PushCodeUpdate(grpc::ServerContext* context,
   return grpc::Status::OK;
 }
 
-grpc::Status Neon::GetLogs(grpc::ServerContext* context,
+grpc::Status Soir::GetLogs(grpc::ServerContext* context,
                            const proto::GetLogsRequest* request,
                            grpc::ServerWriter<proto::GetLogsResponse>* writer) {
   LOG(INFO) << "New log subscription from " << context->peer();
@@ -160,4 +160,4 @@ grpc::Status Neon::GetLogs(grpc::ServerContext* context,
   return grpc::Status::OK;
 }
 
-}  // namespace neon
+}  // namespace soir

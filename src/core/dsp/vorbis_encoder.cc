@@ -2,7 +2,7 @@
 
 #include "core/dsp/vorbis_encoder.hh"
 
-namespace neon {
+namespace soir {
 namespace dsp {
 
 VorbisEncoder::VorbisEncoder() {}
@@ -84,4 +84,4 @@ absl::Status VorbisEncoder::Encode(AudioBuffer& ab, Writer& writer) {
 }
 
 }  // namespace dsp
-}  // namespace neon
+}  // namespace soir

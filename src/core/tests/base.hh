@@ -2,11 +2,11 @@
 
 #include <gtest/gtest.h>
 
-#include "core/neon.hh"
+#include "core/soir.hh"
 #include "notification_recorder.hh"
 #include "utils/config.hh"
 
-namespace neon {
+namespace soir {
 namespace core {
 namespace test {
 
@@ -20,11 +20,11 @@ class CoreTestBase : public testing::Test {
 
  private:
   std::unique_ptr<utils::Config> config_;
-  std::unique_ptr<Neon> neon_;
+  std::unique_ptr<Soir> soir_;
   std::unique_ptr<NotificationRecorder> recorder_;
   std::vector<std::string> notifications_;
 };
 
 }  // namespace test
 }  // namespace core
-}  // namespace neon
+}  // namespace soir

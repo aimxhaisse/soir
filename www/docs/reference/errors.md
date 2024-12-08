@@ -1,3 +1,3 @@
 # 🔥 errors
 
-::: neon.errors
+::: soir.errors

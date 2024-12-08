@@ -2,7 +2,7 @@
 
 #include <vector>
 
-namespace neon {
+namespace soir {
 namespace dsp {
 
 class AudioBuffer {
@@ -23,4 +23,4 @@ class AudioBuffer {
 };
 
 }  // namespace dsp
-}  // namespace neon
+}  // namespace soir

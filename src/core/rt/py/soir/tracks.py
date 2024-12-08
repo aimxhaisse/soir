@@ -1,6 +1,6 @@
 """
 The `tracks` module provides a way to setup and control tracks in the
-neon engine. A track has an instrument type and a set of parameters
+soir engine. A track has an instrument type and a set of parameters
 and effects. Once a track is created, loops can be scheduled on
 it. Tracks can be added & removed in real-time using the `setup()`
 function, existing tracks are untouched.
@@ -34,17 +34,17 @@ from bindings import (
     get_tracks_,
     setup_tracks_,
 )
-from neon.errors import (
+from soir.errors import (
     InLoopException,
 )
-from neon.internals import (
+from soir.internals import (
     assert_not_in_loop,
 )
 
 
 @dataclass
 class Track:
-    """Representation of a Neon track.
+    """Representation of a Soir track.
 
     Attributes:
         instrument: The instrument type.

@@ -1,10 +1,10 @@
-# NEON
+# SOIR
 
 TEST_FILTER 	?= "*"
 
 BUILD_DIR	:= build
 BIN_DIR		:= bin
-BINARY		:= $(BIN_DIR)/neon
+BINARY		:= $(BIN_DIR)/soir
 
 VENV_DIR	:= .venv
 
@@ -39,7 +39,7 @@ docs:
 	$(BINARY) --config etc/mkdocs.yaml --mode script --script scripts/mk-docs.py
 
 push: docs
-	rsync -av www/site/* sbrk.org:services/neon.sbrk.org/data
+	rsync -av www/site/* sbrk.org:services/soir.sbrk.org/data
 
 serve: docs
 	cd www/site && python -m http.server 4096
@@ -48,8 +48,8 @@ full-clean: clean
 	rm -rf $(DEPS)
 
 test: all
-	./$(BUILD_DIR)/src/utils/neon_utils_test --gtest_filter=$(TEST_FILTER)
-	./$(BUILD_DIR)/src/core/neon_core_test --gtest_filter=$(TEST_FILTER)
+	./$(BUILD_DIR)/src/utils/soir_utils_test --gtest_filter=$(TEST_FILTER)
+	./$(BUILD_DIR)/src/core/soir_core_test --gtest_filter=$(TEST_FILTER)
 
 # Build
 
@@ -74,13 +74,13 @@ $(BINARY): deps $(BUILD_DIR) $(BIN_DIR) $(VENV_DIR)
 		-DPYBIND11_FINDPYTHON=ON			\
 		.. && 						\
 	cmake --build . -j 16 					\
-	      --target 	neon					\
-			neon_agent				\
-			neon_core				\
-			neon_utils	 			\
-			neon_utils_test		 		\
-			neon_core_test &&			\
-	cp neon ../$(BINARY)
+	      --target 	soir					\
+			soir_agent				\
+			soir_core				\
+			soir_utils	 			\
+			soir_utils_test		 		\
+			soir_core_test &&			\
+	cp soir ../$(BINARY)
 
 
 # Virtualenv

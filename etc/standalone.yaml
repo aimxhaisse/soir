@@ -1,11 +1,11 @@
 agent:
   directory: ./live
-  neon:
+  soir:
     grpc:
       host: localhost
       port: 9000
 
-neon:
+soir:
   rt:
     python_path: src/core/rt/py
     initial_bpm: 130

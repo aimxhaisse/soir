@@ -6,7 +6,7 @@
 #include "core/dsp/dsp.hh"
 #include "utils/config.hh"
 
-namespace neon {
+namespace soir {
 namespace dsp {
 
 // This class consumes samples from the DSP engine and output them to
@@ -28,4 +28,4 @@ class AudioOutput : public SampleConsumer {
 };
 
 }  // namespace dsp
-}  // namespace neon
+}  // namespace soir

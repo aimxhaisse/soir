@@ -9,7 +9,7 @@
 #include "core/dsp/sampler.hh"
 #include "utils/misc.hh"
 
-namespace neon {
+namespace soir {
 namespace dsp {
 
 absl::Status Sampler::Init(SampleManager* sample_manager) {
@@ -211,4 +211,4 @@ void Sampler::Render(SampleTick tick, const std::list<MidiEventAt>& events,
 }
 
 }  // namespace dsp
-}  // namespace neon
+}  // namespace soir

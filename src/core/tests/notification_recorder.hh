@@ -5,10 +5,10 @@
 
 #include <absl/status/status.h>
 
-#include "neon.grpc.pb.h"
+#include "soir.grpc.pb.h"
 #include "utils/config.hh"
 
-namespace neon {
+namespace soir {
 namespace core {
 namespace test {
 
@@ -27,7 +27,7 @@ class NotificationRecorder {
 
  private:
   std::thread thread_;
-  std::unique_ptr<proto::Neon::Stub> neon_stub_;
+  std::unique_ptr<proto::Soir::Stub> soir_stub_;
   grpc::ClientContext context_;
   std::mutex mutex_;
   std::vector<std::string> notifications_;
@@ -35,4 +35,4 @@ class NotificationRecorder {
 
 }  // namespace test
 }  // namespace core
-}  // namespace neon
+}  // namespace soir

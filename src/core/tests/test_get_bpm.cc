@@ -1,6 +1,6 @@
 #include "base.hh"
 
-namespace neon {
+namespace soir {
 namespace core {
 namespace test {
 
@@ -18,4 +18,4 @@ log(str(bpm.get()));
 
 }  // namespace test
 }  // namespace core
-}  // namespace neon
+}  // namespace soir

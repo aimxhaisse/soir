@@ -3,7 +3,7 @@
 #include "core/dsp/adsr.hh"
 #include "core/dsp/dsp.hh"
 
-namespace neon {
+namespace soir {
 namespace dsp {
 
 absl::Status ADSR::Init(float a, float d, float s, float r) {
@@ -129,4 +129,4 @@ float ADSR::GetNextEnvelope() {
 }
 
 }  // namespace dsp
-}  // namespace neon
+}  // namespace soir

@@ -1,6 +1,6 @@
 #include "base.hh"
 
-namespace neon {
+namespace soir {
 namespace core {
 namespace test {
 
@@ -22,4 +22,4 @@ log('hello, world');
 
 }  // namespace test
 }  // namespace core
-}  // namespace neon
+}  // namespace soir

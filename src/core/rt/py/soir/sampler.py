@@ -51,7 +51,7 @@ from bindings import (
     get_samples_,
     schedule_,
 )
-from neon.internals import (
+from soir.internals import (
     assert_in_loop,
     current_loop,
 )

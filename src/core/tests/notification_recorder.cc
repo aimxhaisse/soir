@@ -4,7 +4,7 @@
 
 #include "notification_recorder.hh"
 
-namespace neon {
+namespace soir {
 namespace core {
 namespace test {
 
@@ -13,18 +13,18 @@ NotificationRecorder::NotificationRecorder() {}
 NotificationRecorder::~NotificationRecorder() {}
 
 absl::Status NotificationRecorder::Init(const utils::Config& config) {
-  auto neon_grpc_host = config.Get<std::string>("recorder.neon.grpc.host");
-  auto neon_grpc_port = config.Get<int>("recorder.neon.grpc.port");
+  auto soir_grpc_host = config.Get<std::string>("recorder.soir.grpc.host");
+  auto soir_grpc_port = config.Get<int>("recorder.soir.grpc.port");
 
-  neon_stub_ = proto::Neon::NewStub(
-      grpc::CreateChannel(neon_grpc_host + ":" + std::to_string(neon_grpc_port),
+  soir_stub_ = proto::Soir::NewStub(
+      grpc::CreateChannel(soir_grpc_host + ":" + std::to_string(soir_grpc_port),
                           grpc::InsecureChannelCredentials()));
-  if (!neon_stub_) {
-    return absl::InternalError("Failed to create Neon gRPC stub");
+  if (!soir_stub_) {
+    return absl::InternalError("Failed to create Soir gRPC stub");
   }
 
-  LOG(INFO) << "Recorder initialized with settings: " << neon_grpc_host << ", "
-            << neon_grpc_port;
+  LOG(INFO) << "Recorder initialized with settings: " << soir_grpc_host << ", "
+            << soir_grpc_port;
 
   return absl::OkStatus();
 }
@@ -61,7 +61,7 @@ absl::Status NotificationRecorder::Stop() {
 absl::Status NotificationRecorder::Run() {
   proto::GetLogsRequest request;
 
-  auto stream = neon_stub_->GetLogs(&context_, request);
+  auto stream = soir_stub_->GetLogs(&context_, request);
   if (!stream) {
     return absl::InternalError("Failed to subscribe to log notifications");
   }
@@ -90,4 +90,4 @@ std::vector<std::string> NotificationRecorder::PopNotifications() {
 
 }  // namespace test
 }  // namespace core
-}  // namespace neon
+}  // namespace soir

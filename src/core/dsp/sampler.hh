@@ -14,10 +14,10 @@
 #include "core/dsp/sample_manager.hh"
 #include "core/dsp/sample_pack.hh"
 #include "core/dsp/track.hh"
-#include "neon.grpc.pb.h"
+#include "soir.grpc.pb.h"
 #include "utils/config.hh"
 
-namespace neon {
+namespace soir {
 namespace dsp {
 
 struct TrackSettings;
@@ -69,4 +69,4 @@ class Sampler {
 };
 
 }  // namespace dsp
-}  // namespace neon
+}  // namespace soir

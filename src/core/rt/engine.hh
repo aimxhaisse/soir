@@ -9,7 +9,7 @@
 #include "core/rt/notifier.hh"
 #include "utils/config.hh"
 
-namespace neon {
+namespace soir {
 namespace rt {
 
 using CbFunc = std::function<void()>;
@@ -113,4 +113,4 @@ class Engine {
 };
 
 }  // namespace rt
-}  // namespace neon
+}  // namespace soir

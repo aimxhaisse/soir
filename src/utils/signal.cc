@@ -6,7 +6,7 @@
 
 #include "signal.hh"
 
-namespace neon {
+namespace soir {
 namespace utils {
 
 namespace {
@@ -74,4 +74,4 @@ absl::Status WaitForExitSignal() {
 }
 
 }  // namespace utils
-}  // namespace neon
+}  // namespace soir

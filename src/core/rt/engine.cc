@@ -9,7 +9,7 @@
 
 namespace py = pybind11;
 
-namespace neon {
+namespace soir {
 namespace rt {
 
 Engine::Engine() : notifier_(nullptr) {}
@@ -22,7 +22,7 @@ absl::Status Engine::Init(const utils::Config& config, dsp::Engine* dsp,
                           Notifier* notifier) {
   LOG(INFO) << "Initializing engine";
 
-  python_path_ = config.Get<std::string>("neon.rt.python_path");
+  python_path_ = config.Get<std::string>("soir.rt.python_path");
   if (python_path_.empty()) {
     LOG(ERROR) << "Python path is empty";
     return absl::InvalidArgumentError("Python path is empty");
@@ -30,7 +30,7 @@ absl::Status Engine::Init(const utils::Config& config, dsp::Engine* dsp,
   notifier_ = notifier;
   dsp_ = dsp;
   current_time_ = absl::Now();
-  SetBPM(config.Get<uint16_t>("neon.rt.initial_bpm"));
+  SetBPM(config.Get<uint16_t>("soir.rt.initial_bpm"));
 
   Beat();
 
@@ -94,12 +94,12 @@ uint64_t Engine::MicroBeatToBeat(MicroBeat beat) const {
 absl::Status Engine::Run() {
   py::scoped_interpreter guard{};
 
-  // Import neon module using the Python path provided in the config.
+  // Import soir module using the Python path provided in the config.
   // Alternatively we could do this via pyproject as well, unclear what
   // the user-packaged setup will be at this stage.
   py::module_ sys = py::module_::import("sys");
   sys.attr("path").attr("insert")(0, python_path_);
-  py::module_ neon_mod = py::module_::import("neon");
+  py::module_ soir_mod = py::module_::import("soir");
 
   while (true) {
     // We assume there is always at least one callback in the queue
@@ -138,7 +138,7 @@ absl::Status Engine::Run() {
       } catch (py::error_already_set& e) {
         if (e.matches(PyExc_SystemExit)) {
           LOG(INFO) << "Received SystemExit, stopping engine";
-          neon::utils::SignalExit();
+          soir::utils::SignalExit();
           return absl::OkStatus();
         }
         LOG(ERROR) << "Python error: " << e.what();
@@ -168,15 +168,15 @@ absl::Status Engine::Run() {
         // inspection of code can be done only when it is actually
         // executed.
         last_evaluated_code_ = code;
-        py::exec(code.c_str(), neon_mod.attr("__dict__"));
+        py::exec(code.c_str(), soir_mod.attr("__dict__"));
 
         // Maybe here we can have some sort of post-execution hook
         // that can be used to do some cleanup or other operations.
-        py::exec("neon.internals.post_eval_()", neon_mod.attr("__dict__"));
+        py::exec("soir.internals.post_eval_()", soir_mod.attr("__dict__"));
       } catch (py::error_already_set& e) {
         if (e.matches(PyExc_SystemExit)) {
           LOG(INFO) << "Received SystemExit, stopping engine";
-          neon::utils::SignalExit();
+          soir::utils::SignalExit();
           return absl::OkStatus();
         }
         LOG(ERROR) << "Python error: " << e.what();
@@ -293,4 +293,4 @@ absl::Status Engine::PushCodeUpdate(const std::string& code) {
 }
 
 }  // namespace rt
-}  // namespace neon
+}  // namespace soir

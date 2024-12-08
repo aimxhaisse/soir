@@ -2,7 +2,7 @@
 
 #include "core/dsp/midi_stack.hh"
 
-namespace neon {
+namespace soir {
 namespace dsp {
 
 MidiStack::MidiStack() {}
@@ -29,4 +29,4 @@ void MidiStack::EventsAtTick(SampleTick sample,
 }
 
 }  // namespace dsp
-}  // namespace neon
+}  // namespace soir

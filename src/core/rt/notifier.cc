@@ -2,7 +2,7 @@
 
 #include "core/rt/notifier.hh"
 
-namespace neon {
+namespace soir {
 namespace rt {
 
 Subscriber::Subscriber(grpc::ServerWriter<proto::GetLogsResponse>& writer)
@@ -142,4 +142,4 @@ absl::Status Notifier::Notify(const proto::GetLogsResponse& notification) {
 }
 
 }  // namespace rt
-}  // namespace neon
+}  // namespace soir

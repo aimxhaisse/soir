@@ -1,6 +1,6 @@
 #include "base.hh"
 
-namespace neon {
+namespace soir {
 namespace core {
 namespace test {
 
@@ -139,4 +139,4 @@ log(str(tracks[0]))
 
 }  // namespace test
 }  // namespace core
-}  // namespace neon
+}  // namespace soir

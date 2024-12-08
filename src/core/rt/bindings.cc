@@ -6,18 +6,18 @@
 #include "core/dsp/track.hh"
 #include "core/rt/bindings.hh"
 #include "core/rt/engine.hh"
-#include "neon.grpc.pb.h"
+#include "soir.grpc.pb.h"
 
 namespace py = pybind11;
 
 namespace {
 
-neon::rt::Engine* gRt_ = nullptr;
-neon::dsp::Engine* gDsp_ = nullptr;
+soir::rt::Engine* gRt_ = nullptr;
+soir::dsp::Engine* gDsp_ = nullptr;
 
 }  // namespace
 
-namespace neon {
+namespace soir {
 namespace rt {
 
 using namespace pybind11::literals;
@@ -40,7 +40,7 @@ void bindings::ResetEngines() {
 }
 
 PYBIND11_EMBEDDED_MODULE(bindings, m) {
-  m.doc() = "Neon Internal Live Module";
+  m.doc() = "Soir Internal Live Module";
 
   m.def("set_bpm_", [](float bpm) { return gRt_->SetBPM(bpm); });
   m.def("get_bpm_", []() { return gRt_->GetBPM(); });
@@ -159,4 +159,4 @@ PYBIND11_EMBEDDED_MODULE(bindings, m) {
 }
 
 }  // namespace rt
-}  // namespace neon
+}  // namespace soir

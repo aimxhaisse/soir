@@ -1,19 +1,19 @@
 """
-The errors module contains exceptions raised by the Neon engine to
+The errors module contains exceptions raised by the Soir engine to
 signal errors at runtime.
 """
 
 
-class NeonException(Exception):
-    """Base class for Neon exceptions.
+class SoirException(Exception):
+    """Base class for Soir exceptions.
     """
     pass
 
 
-class NotInLoopException(NeonException):
+class NotInLoopException(SoirException):
     """Raised when trying to execute code outside of a live context.
 
-    In Neon, some of the code is expected to be used from within a
+    In Soir, some of the code is expected to be used from within a
     loop or a live function, for instance sleeping between two
     instructions. This exception is raised if such code is called from
     the global scope.
@@ -21,20 +21,20 @@ class NotInLoopException(NeonException):
     pass
 
 
-class InLoopException(NeonException):
+class InLoopException(SoirException):
     """Raised when trying to execute code inside a live context.
 
-    In Neon, some of the code is expected to be used from the global
+    In Soir, some of the code is expected to be used from the global
     scope as it affects everything, for example, setting the BPM. This
     exception is raised if such code is called from a loop.
     """
     pass
 
 
-class UnknownMidiTrackException(NeonException):
+class UnknownMidiTrackException(SoirException):
     """Raised when trying to use an invalid MIDI track.
 
-    In Neon, MIDI tracks are used to send MIDI events to the external
+    In Soir, MIDI tracks are used to send MIDI events to the external
     synthesizer. This exception is raised if an invalid MIDI track is
     used.
     """

@@ -3,8 +3,8 @@
 #
 # Modules can only depend on modules from the upper level.
 
-add_library(neon_core
-  neon.cc
+add_library(soir_core
+  soir.cc
 
   dsp/adsr.cc
   dsp/audio_buffer.cc
@@ -26,12 +26,12 @@ add_library(neon_core
   rt/notifier.cc
 )
 
-target_link_libraries(neon_core
+target_link_libraries(soir_core
   AudioFile
   httplib::httplib
   libremidi
-  neon_proto
-  neon_utils
+  soir_proto
+  soir_utils
   ogg
   ${SDL2_LIBRARIES}
   vorbis
@@ -40,7 +40,7 @@ target_link_libraries(neon_core
   pybind11::embed
 )
 
-add_executable(neon_core_test
+add_executable(soir_core_test
   tests/base.cc
   tests/notification_recorder.cc
 
@@ -53,7 +53,7 @@ add_executable(neon_core_test
 )
 
 target_link_libraries(
-  neon_core_test
-  neon_core
+  soir_core_test
+  soir_core
   GTest::gtest_main
 )

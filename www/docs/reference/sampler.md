@@ -1,3 +1,3 @@
 # 📼 sampler
 
-::: neon.sampler
+::: soir.sampler

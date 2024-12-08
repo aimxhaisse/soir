@@ -9,7 +9,7 @@
 #include "core/dsp/sample_pack.hh"
 #include "utils/config.hh"
 
-namespace neon {
+namespace soir {
 namespace dsp {
 
 float Sample::DurationMs(std::size_t samples) const {
@@ -103,4 +103,4 @@ std::vector<std::string> SamplePack::GetSampleNames() const {
 }
 
 }  // namespace dsp
-}  // namespace neon
+}  // namespace soir

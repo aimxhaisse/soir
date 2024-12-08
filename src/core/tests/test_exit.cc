@@ -2,7 +2,7 @@
 
 #include "base.hh"
 
-namespace neon {
+namespace soir {
 namespace core {
 namespace test {
 
@@ -16,4 +16,4 @@ raise SystemExit();
 
 }  // namespace test
 }  // namespace core
-}  // namespace neon
+}  // namespace soir

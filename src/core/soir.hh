@@ -5,15 +5,15 @@
 #include "core/dsp/engine.hh"
 #include "core/rt/engine.hh"
 #include "core/rt/notifier.hh"
-#include "neon.grpc.pb.h"
+#include "soir.grpc.pb.h"
 #include "utils/config.hh"
 
-namespace neon {
+namespace soir {
 
-class Neon : proto::Neon::Service {
+class Soir : proto::Soir::Service {
  public:
-  Neon();
-  ~Neon();
+  Soir();
+  ~Soir();
 
   absl::Status Init(const utils::Config& config);
   absl::Status Start();
@@ -38,4 +38,4 @@ class Neon : proto::Neon::Service {
   std::unique_ptr<grpc::Server> grpc_;
 };
 
-}  // namespace neon
+}  // namespace soir

@@ -11,7 +11,7 @@ from bindings import (
     setup_tracks_,
     get_code_,
 )
-from neon.errors import (
+from soir.errors import (
     InLoopException,
     NotInLoopException,
 )
@@ -174,7 +174,7 @@ current_live_ = None
 def get_code_function_(func: callable) -> str:
     """Get the code of a function.
 
-    This is a helper function to get the code of a function. In Neon
+    This is a helper function to get the code of a function. In Soir
     the code is not executed from a file, but from a buffer, so
     inspect.getsource() won't work as it expects a global __file__
     properly set. We could maybe later support this by having a

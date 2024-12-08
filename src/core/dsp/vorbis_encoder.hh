@@ -9,7 +9,7 @@
 #include "core/dsp/audio_buffer.hh"
 #include "core/dsp/dsp.hh"
 
-namespace neon {
+namespace soir {
 namespace dsp {
 
 // Callback for writing encoded data.
@@ -45,4 +45,4 @@ class VorbisEncoder {
 };
 
 }  // namespace dsp
-}  // namespace neon
+}  // namespace soir

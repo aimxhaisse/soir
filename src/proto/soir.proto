@@ -1,10 +1,10 @@
-// Neon
+// Soir
 
 syntax = "proto3";
 
 package proto;
 
-// --- Neon Interface
+// --- Soir Interface
 
 // Send a code update.
 message PushCodeUpdateRequest {
@@ -15,7 +15,7 @@ message PushCodeUpdateResponse {}
 
 // Midi Sysex Message.
 //
-// This is a special type of MIDI message linked to Neon's
+// This is a special type of MIDI message linked to Soir's
 // specificities, some instruments such as the sampler need fine-grain
 // settings, sometimes strings to select the sample.  It is cumbersome
 // to do it the bank way because we can not select samples by names.
@@ -53,8 +53,8 @@ message GetLogsResponse {
   string notification = 2;
 }
 
-// Main Neon service.
-service Neon {
+// Main Soir service.
+service Soir {
   rpc PushMidiEvents(PushMidiEventsRequest) returns (PushMidiEventsResponse) {}
   rpc PushCodeUpdate(PushCodeUpdateRequest) returns (PushCodeUpdateResponse) {}
   rpc GetLogs(GetLogsRequest) returns (stream GetLogsResponse) {}

@@ -3,7 +3,7 @@
 
 #include "subscriber.hh"
 
-namespace neon {
+namespace soir {
 namespace agent {
 
 Subscriber::Subscriber() {}
@@ -11,18 +11,18 @@ Subscriber::Subscriber() {}
 Subscriber::~Subscriber() {}
 
 absl::Status Subscriber::Init(const utils::Config& config) {
-  neon_grpc_host_ = config.Get<std::string>("agent.neon.grpc.host");
-  neon_grpc_port_ = config.Get<int>("agent.neon.grpc.port");
+  soir_grpc_host_ = config.Get<std::string>("agent.soir.grpc.host");
+  soir_grpc_port_ = config.Get<int>("agent.soir.grpc.port");
 
-  neon_stub_ = proto::Neon::NewStub(grpc::CreateChannel(
-      neon_grpc_host_ + ":" + std::to_string(neon_grpc_port_),
+  soir_stub_ = proto::Soir::NewStub(grpc::CreateChannel(
+      soir_grpc_host_ + ":" + std::to_string(soir_grpc_port_),
       grpc::InsecureChannelCredentials()));
-  if (!neon_stub_) {
-    return absl::InternalError("Failed to create Neon gRPC stub");
+  if (!soir_stub_) {
+    return absl::InternalError("Failed to create Soir gRPC stub");
   }
 
-  LOG(INFO) << "Subscriber initialized with settings: " << neon_grpc_host_
-            << ", " << neon_grpc_port_;
+  LOG(INFO) << "Subscriber initialized with settings: " << soir_grpc_host_
+            << ", " << soir_grpc_port_;
 
   return absl::OkStatus();
 }
@@ -57,7 +57,7 @@ absl::Status Subscriber::Stop() {
 absl::Status Subscriber::Run() {
   proto::GetLogsRequest request;
 
-  auto stream = neon_stub_->GetLogs(&context_, request);
+  auto stream = soir_stub_->GetLogs(&context_, request);
   if (!stream) {
     return absl::InternalError("Failed to subscribe to log notifications");
   }
@@ -76,4 +76,4 @@ absl::Status Subscriber::Run() {
 }
 
 }  // namespace agent
-}  // namespace neon
+}  // namespace soir

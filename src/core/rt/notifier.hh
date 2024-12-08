@@ -5,10 +5,10 @@
 #include <list>
 #include <thread>
 
-#include "neon.grpc.pb.h"
+#include "soir.grpc.pb.h"
 #include "utils/config.hh"
 
-namespace neon {
+namespace soir {
 namespace rt {
 
 // Wrapper around a gRPC writer to allow for safe notification.
@@ -65,4 +65,4 @@ class Notifier {
 };
 
 }  // namespace rt
-}  // namespace neon
+}  // namespace soir

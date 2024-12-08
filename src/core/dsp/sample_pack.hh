@@ -7,7 +7,7 @@
 
 #include "utils/config.hh"
 
-namespace neon {
+namespace soir {
 namespace dsp {
 
 struct Sample {
@@ -38,4 +38,4 @@ class SamplePack {
 };
 
 }  // namespace dsp
-}  // namespace neon
+}  // namespace soir

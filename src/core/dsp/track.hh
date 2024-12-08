@@ -12,7 +12,7 @@
 #include "core/dsp/sampler.hh"
 #include "utils/config.hh"
 
-namespace neon {
+namespace soir {
 namespace dsp {
 
 class Sampler;
@@ -64,4 +64,4 @@ struct Track {
 };
 
 }  // namespace dsp
-}  // namespace neon
+}  // namespace soir
