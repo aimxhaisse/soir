@@ -5,7 +5,6 @@
 
 #include "core/rt/bindings.hh"
 #include "core/rt/engine.hh"
-#include "core/rt/init.hh"
 #include "utils/signal.hh"
 
 namespace py = pybind11;
@@ -23,6 +22,11 @@ absl::Status Engine::Init(const utils::Config& config, dsp::Engine* dsp,
                           Notifier* notifier) {
   LOG(INFO) << "Initializing engine";
 
+  python_path_ = config.Get<std::string>("neon.rt.python_path");
+  if (python_path_.empty()) {
+    LOG(ERROR) << "Python path is empty";
+    return absl::InvalidArgumentError("Python path is empty");
+  }
   notifier_ = notifier;
   dsp_ = dsp;
   current_time_ = absl::Now();
@@ -90,27 +94,12 @@ uint64_t Engine::MicroBeatToBeat(MicroBeat beat) const {
 absl::Status Engine::Run() {
   py::scoped_interpreter guard{};
 
-  // Import all the modules and execute the python code.  Order of
-  // imports is important, modules can depend on each others, we go
-  // from the lower level to the higher level.
-  py::module errors_mod = py::module::import("neon.errors");
-  py::module neon_internals_mod = py::module::import("neon.internals");
-  py::module sampler_mod = py::module::import("neon.sampler");
-  py::module bpm_mod = py::module::import("neon.bpm");
-  py::module midi_mod = py::module::import("neon.midi");
-  py::module neon_mod = py::module::import("neon");
-
-  try {
-    py::exec(kMod0ErrorsPy, errors_mod.attr("__dict__"));
-    py::exec(kMod1InternalsPy, neon_internals_mod.attr("__dict__"));
-    py::exec(kMod2SamplerPy, sampler_mod.attr("__dict__"));
-    py::exec(kMod2BPMPy, bpm_mod.attr("__dict__"));
-    py::exec(kMod2MIDIPy, midi_mod.attr("__dict__"));
-    py::exec(kMod3NeonPy, neon_mod.attr("__dict__"));
-  } catch (py::error_already_set& e) {
-    LOG(ERROR) << "Python error: " << e.what();
-    return absl::InternalError("Python error");
-  }
+  // Import neon module using the Python path provided in the config.
+  // Alternatively we could do this via pyproject as well, unclear what
+  // the user-packaged setup will be at this stage.
+  py::module_ sys = py::module_::import("sys");
+  sys.attr("path").attr("insert")(0, python_path_);
+  py::module_ neon_mod = py::module_::import("neon");
 
   while (true) {
     // We assume there is always at least one callback in the queue

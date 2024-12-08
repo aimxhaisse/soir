@@ -3,22 +3,6 @@
 #
 # Modules can only depend on modules from the upper level.
 
-# Level 0
-file(READ rt/py/neon/errors.py MOD0_ERRORS_PY)
-
-# Level 1
-file(READ rt/py/neon/internals.py MOD1_INTERNALS_PY)
-
-# Level 2
-file(READ rt/py/neon/sampler.py MOD2_SAMPLER_PY)
-file(READ rt/py/neon/bpm.py MOD2_BPM_PY)
-file(READ rt/py/neon/midi.py MOD2_MIDI_PY)
-
-# Level 3
-file(READ rt/py/neon/__init__.py MOD3_NEON_PY)
-
-configure_file(rt/init.cc.in rt/init.cc @ONLY)
-
 add_library(neon_core
   neon.cc
 
@@ -39,7 +23,6 @@ add_library(neon_core
 
   rt/bindings.cc
   rt/engine.cc
-  rt/init.cc
   rt/notifier.cc
 )
 
