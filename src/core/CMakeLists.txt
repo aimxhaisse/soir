@@ -3,7 +3,9 @@
 #
 # Modules can only depend on modules from the upper level.
 
-add_library(soir_core
+add_library(
+  soir_core
+
   soir.cc
 
   dsp/adsr.cc
@@ -29,29 +31,24 @@ add_library(soir_core
 target_link_libraries(
   soir_core
 
-  ${AUDIOFILE_INSTALL_DIR}/lib/libaudiofile.a
-  ${HTTPLIB_INSTALL_DIR}/lib/libhttplib.a
-  ${LIBREMIDI_INSTALL_DIR}/lib/libremidi.a
-  ${OGG_INSTALL_DIR}/lib/liboff.a
-  ${SDL2_INSTALL_DIR}/lib/libsdl2.a
-  ${VORBIS_INSTALL_DIR}/lib/libvorbis.a
-  ${VORBIS_INSTALL_DIR}/lib/libvorbisenc.a
-  ${PYBIND11_INSTALL_DIR}/lib/libpybind11_headers.a
-  ${PYBIND11_INSTALL_DIR}/lib/libpybind11_embed.a
-
+  AudioFile
+  libremidi
+  Ogg::ogg
+  protobuf::libprotobuf
+  SDL2::SDL2
+  Vorbis::vorbis
+  Vorbis::vorbisenc
+  pybind11::embed
+  pybind11::headers
+  rapidjson
+  
   soir_proto
   soir_utils
 )
 
-add_dependencies(
-  soir_core
+add_executable(
+  soir_core_test
 
-  grpc
-  audiofile
-  httplib
-)
-
-add_executable(soir_core_test
   tests/base.cc
   tests/notification_recorder.cc
 
@@ -68,5 +65,5 @@ target_link_libraries(
 
   soir_core
 
-  ${GOOGLETEST_INSTALL_DIR}/lib/libgoogletest.a
+  GTest::gtest_main
 )

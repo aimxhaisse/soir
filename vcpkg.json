@@ -1,0 +1,19 @@
+{
+  "dependencies": [
+    "abseil",
+    "audiofile",
+    "cpp-httplib",
+    "efsw",
+    "grpc",
+    "gtest",
+    "libogg",
+    "libremidi",
+    "libvorbis",
+    "protobuf",
+    "pybind11",
+    "rapidjson",
+    "sdl2",
+    "yaml-cpp",
+    "python3"
+  ]
+}

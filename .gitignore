@@ -7,3 +7,6 @@ assets/
 dist/
 __pycache__/
 tmp/
+vcpkg_installed/
+build/
+CMakeUserPresets.json

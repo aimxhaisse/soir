@@ -1,7 +1,7 @@
 #include <algorithm>
 #include <cstdint>
 
-#include <AudioFile/AudioFile.h>
+#include <AudioFile.h>
 #include <absl/log/log.h>
 #include <rapidjson/document.h>
 #include <filesystem>
