@@ -1,5 +1,4 @@
-build
-deps
+build/
 *.d
 *.o
 bin/
