@@ -9,7 +9,12 @@ _default:
 # Build Soir.
 build:
     #!/usr/bin/env bash
-    poetry run make
+    if ! [ -f build ]
+    then
+       mkdir -p build
+       cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake -B build -G Ninja
+    fi
+    cmake --build build --parallel 16
 
 # Runs the Soir unit test suites.
 test filter='*':
@@ -17,7 +22,7 @@ test filter='*':
 
 # Build and push documentation to soir.sbrk.org.
 doc:
-    poetry run make push
+    poetry run build/soir --config etc/mkdocs.yaml --mode script --script scripts/mk-docs.py
 
 # --- User/session part
 #

@@ -4,12 +4,17 @@ include(ExternalProject)
 
 cmake_minimum_required(VERSION 3.28.1)
 
+set(Python_FIND_VIRTUALENV ONLY)
+set(Python_VIRTUALENV FIRST)
+set(PYBIND11_FINDPYTHON ON)
+
 project(
   soir
   LANGUAGES CXX
 )
 
 set(CMAKE_CXX_STANDARD 20)
+set(LINK_OPTIONS "-w")
 
 find_package(Python 3.11 COMPONENTS Interpreter Development)
 find_package(efsw CONFIG REQUIRED)
@@ -27,6 +32,9 @@ find_package(absl CONFIG REQUIRED)
 find_package(GTest REQUIRED)
 
 set(_GRPC_GRPCPP_UNSECURE gRPC::grpc++_unsecure)
+
+find_program(_gRPC_CPP_PLUGIN_EXECUTABLE grpc_cpp_plugin)
+
 include_directories(src)
 
 add_subdirectory(src/agent)

@@ -89,7 +89,7 @@ class Engine {
 
  private:
   std::thread thread_;
-  std::string python_path_;
+  std::vector<std::string> python_paths_;
 
   Notifier* notifier_;
   dsp::Engine* dsp_;

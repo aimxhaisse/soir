@@ -7,7 +7,9 @@ agent:
 
 soir:
   rt:
-    python_path: src/core/rt/py
+    python_paths:
+      - src/core/rt/py
+      - ./.venv/lib/python3.11/site-packages/
     initial_bpm: 130
   grpc:
     host: localhost

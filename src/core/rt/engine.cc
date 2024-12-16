@@ -22,10 +22,10 @@ absl::Status Engine::Init(const utils::Config& config, dsp::Engine* dsp,
                           Notifier* notifier) {
   LOG(INFO) << "Initializing engine";
 
-  python_path_ = config.Get<std::string>("soir.rt.python_path");
-  if (python_path_.empty()) {
-    LOG(ERROR) << "Python path is empty";
-    return absl::InvalidArgumentError("Python path is empty");
+  python_paths_ = config.Get<std::vector<std::string>>("soir.rt.python_paths");
+  if (python_paths_.empty()) {
+    LOG(ERROR) << "Python paths is empty";
+    return absl::InvalidArgumentError("Python paths is empty");
   }
   notifier_ = notifier;
   dsp_ = dsp;
@@ -98,8 +98,12 @@ absl::Status Engine::Run() {
   // Alternatively we could do this via pyproject as well, unclear what
   // the user-packaged setup will be at this stage.
   py::module_ sys = py::module_::import("sys");
-  sys.attr("path").attr("insert")(0, python_path_);
+  for (auto python_path : python_paths_) {
+    sys.attr("path").attr("append")(python_path);
+  }
   py::module_ soir_mod = py::module_::import("soir");
+
+  LOG(INFO) << "Python version: " << std::string(py::str(sys.attr("version")));
 
   while (true) {
     // We assume there is always at least one callback in the queue
