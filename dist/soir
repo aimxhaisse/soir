@@ -7,26 +7,22 @@ SOIR_BIN_DIR := SOIR_DIR + "/bin"
 _default:
     @just --list --unsorted --justfile {{ justfile() }}
 
-# Initializes the soir environment to the latest released version.
+# Installs the soir environment to the latest released version.
 [group('setup')]
-setup:
+install:
     #!/usr/bin/env bash
     TAG=$(curl -s "https://api.github.com/repos/aimxhaisse/soir/releases/latest" | jq -r .tag_name)
     RELEASE="soir-${TAG}-{{ arch() }}-{{ os() }}"
 
-    echo "$RELEASE"
-    
-    exit
-
     function install_script {
         echo "Updating soir command-line to ${TAG}"
-        curl -L "https://github.com/aimxhaisse/soir/tree/${TAG}/dist/soir" -o "${SOIR_BIN_DIR}/soir"
+        curl "https://github.com/aimxhaisse/soir/tree/${TAG}/dist/soir" -o "${SOIR_BIN_DIR}/soir"
         chmod +x "${SOIR_BIN_DIR}/soir"
     }
 
     function install_binary {
         echo "Updating soir engine to ${TAG}"
-        curl -L "https://github.com/aimxhaisse/soir/releases/download/${TAG}/${RELEASE}" -o "${SOIR_BIN_DIR}/soir-engine"
+        curl "https://github.com/aimxhaisse/soir/releases/download/${TAG}/${RELEASE}" -o "${SOIR_BIN_DIR}/soir-engine"
     }
 
     install_script
