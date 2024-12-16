@@ -15,7 +15,7 @@ function install_dependencies {
             echo "soir: homebrew is required to install dependencies."
             exit 1
         fi
-        brew install --quiet curl git python@3.11 poetry just jq
+        brew install --quiet just jq
     fi
 }
 
