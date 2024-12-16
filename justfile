@@ -33,7 +33,7 @@ sample_dir := "assets/samples"
 
 # Runs Soir.
 run:
-    poetry run ./bin/soir
+    poetry run ./build/soir
 
 # Runs Soir measuring perf.
 perf-record:
