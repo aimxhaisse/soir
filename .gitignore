@@ -9,5 +9,4 @@ tmp/
 vcpkg_installed/
 build/
 CMakeUserPresets.json
-.DS_Store/
-
+.DS_Store
