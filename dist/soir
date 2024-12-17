@@ -16,17 +16,32 @@ install:
 
     function install_script {
         echo "Updating soir command-line to ${TAG}"
-        curl "https://github.com/aimxhaisse/soir/tree/${TAG}/dist/soir" -o "${SOIR_BIN_DIR}/soir"
-        chmod +x "${SOIR_BIN_DIR}/soir"
+        curl -s "https://github.com/aimxhaisse/soir/tree/${TAG}/dist/soir" -o "{{SOIR_BIN_DIR}}/soir"
+        chmod +x "{{SOIR_BIN_DIR}}/soir"
     }
 
     function install_binary {
         echo "Updating soir engine to ${TAG}"
-        curl "https://github.com/aimxhaisse/soir/releases/download/${TAG}/${RELEASE}" -o "${SOIR_BIN_DIR}/soir-engine"
+        curl -s "https://github.com/aimxhaisse/soir/releases/download/${TAG}/${RELEASE}" -o "{{SOIR_BIN_DIR}}/soir-engine"
+        chmod +x "{{SOIR_BIN_DIR}}/soir-engine"
+    }
+
+    function install_config {
+        echo "Updating soir configuration to ${TAG}"
+        curl -s ""
     }
 
     install_script
     install_binary
+    install_config
+
+# Updates the soir environment to the latest released version.
+[group('setup')]
+update: install
+
+# Upgrade the soir environment to the latest released version.
+[group('setup')]
+upgrade: install
 
 # Check if dependencies are installed.
 [group('setup')]
