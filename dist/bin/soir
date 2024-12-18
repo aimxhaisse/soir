@@ -1,0 +1,133 @@
+#!/usr/bin/env just --justfile
+
+export SOIR_BASE_DIR := env("SOIR_BASE_DIR", env_var("HOME"))
+export SOIR_DIR := env("SOIR_DIR", SOIR_BASE_DIR + "/.soir")
+export SOIR_BIN_DIR := env("SOIR_BIN_DIR", SOIR_DIR + "/bin")
+
+_default:
+    @just --list --unsorted --justfile {{ justfile() }}
+
+# Installs the soir environment to the latest released version.
+[group('setup')]
+install:
+    #!/usr/bin/env bash
+    TAG=$(curl -s "https://api.github.com/repos/aimxhaisse/soir/releases/latest" | jq -r .tag_name)
+    RELEASE="soir-${TAG}-{{ arch() }}-{{ os() }}"
+
+    function install_binary {
+        echo "Updating soir engine to ${TAG}"
+        cd "${SOIR_DIR}"
+        curl -s "https://github.com/aimxhaisse/soir/releases/download/${TAG}/${RELEASE}" -o "${SOIR_BIN_DIR}/soir-engine"
+        chmod +x "{{SOIR_BIN_DIR}}/soir-engine"
+    }
+
+    function install_framework {
+          echo "Updating soir Python to ${TAG}"
+          cd "${SOIR_DIR}"
+          curl -s "https://github.com/aimxhaisse/soir/archive/refs/tags/${TAG}.tar.gz" -o "${SOIR_DIR}/soir-${TAG}.tar.gz"
+          tar -xzf "${SOIR_DIR}/soir-${TAG}.tar.gz" --strip-components=1 -C "${SOIR_DIR}" "soir-${TAG}/dist"
+    }
+
+    function install_py {
+        echo "Updating soir project to ${TAG}"
+        poetry -C ${SOIR_DIR} env use -C ${SOIR_DIR} python3.11 -q
+        poetry -C ${SOIR_DIR} install -C ${SOIR_DIR} -q
+    }
+
+    install_binary
+    install_framework
+    install_py
+
+# Updates the soir environment to the latest released version.
+[group('setup')]
+update: install
+
+# Upgrade the soir environment to the latest released version.
+[group('setup')]
+upgrade: install
+
+# Check if dependencies are installed.
+[group('setup')]
+check-deps:
+    #!/usr/bin/env bash
+    function check-dep {
+        if ! command -v $1 &> /dev/null; then
+            echo "$1: KO"
+        else
+            echo "$1: OK"
+        fi
+    }
+
+    check-dep "jq"
+    check-dep "curl"
+    check-dep "git"
+    check-dep "python3.11"
+    check-dep "poetry"
+    check-dep "tar"
+
+# Creates a new soir session.
+[group('session')]
+[no-cd]
+new session:
+    #!/usr/bin/env bash
+
+    echo "Creating a new soir session {{ session }}"
+ 
+    mkdir -p "{{ session }}"
+    mkdir -p "{{ session }}/etc"
+    mkdir -p "{{ session }}/samples"
+ 
+    if ! [ -f "{{ session }}/etc/config.yaml" ]; then
+        just --justfile {{ justfile() }} prepare-config $SOIR_DIR {{ session }}
+    fi
+
+    if ! [ -f "{{ session }}/live.py" ]; then
+        cp "{{ SOIR_DIR }}/live.py.example" "{{ session }}/live.py"
+    fi
+
+# Runs a soir session.
+[group('session')]
+[no-cd]
+run session:
+    #!/usr/bin/env bash
+
+    echo "Running soir session {{ session }}"
+
+    cd "{{ session }}"
+
+    poetry -C ${SOIR_DIR} run -C ${SOIR_DIR} soir-engine --config etc/config.yaml
+
+[private]
+[no-cd]
+prepare-config soir_dir session:
+    #!/usr/bin/env -S poetry -C {{ soir_dir }} run python3.11
+    #
+    # Script to prepare the configuration file for a new soir session.
+    # It uses the template from the SOIR_DIR as a base.
+    import jinja2
+    import os
+    import sys
+
+    def get_virtual_env_site_packages() -> str:
+        """Returns the site-packages of the virtual environment.
+        """
+        dirs = []
+        for path in sys.path:
+            if "site-packages" in path:
+                return path
+        raise ValueError("Could not find the site-packages directory")
+
+    def main(output: str) -> None:
+        with open("{{soir_dir}}/etc/config.yaml.template", "r") as f:
+            template = jinja2.Template(f.read())
+            with open(f"{output}/etc/config.yaml", "w") as f:
+                f.write(
+                    template.render(
+                        soir_dir=os.environ.get("SOIR_DIR"),
+                        audio_device_id=1,
+                        site_packages=get_virtual_env_site_packages(),
+                    )
+                )
+    
+    if __name__ == '__main__':
+        main("{{session}}")
