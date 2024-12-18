@@ -1,0 +1,24 @@
+# This configuration file was automatically generated. Feel free to update it.
+
+agent:
+  directory: .
+  soir:
+    grpc:
+      host: localhost
+      port: 9430
+
+soir:
+  rt:
+    python_paths:
+      - {{ site_packages }}
+      - {{ soir_dir }}/py
+    initial_bpm: 130
+  grpc:
+    host: localhost
+    port: 9430
+  dsp:
+    sample_directory: ./samples
+    output:
+      audio:
+        enable: true
+        device_id: {{ audio_device_id }}

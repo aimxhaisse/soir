@@ -1,0 +1,16 @@
+# █▀ █▀█ █ █▀█
+# ▄█ █▄█ █ █▀▄ @ https://soir.sbrk.org
+
+@live()
+def setup():
+    bpm.set(120)
+
+    tracks.setup([
+        tracks.mk_sampler(1),
+    ])
+
+@loop()
+def beat(beats=4):
+    for i in range(4):
+        log('tick')
+        sleep(1)

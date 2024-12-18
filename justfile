@@ -15,6 +15,7 @@ build:
        cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake -B build -G Ninja
     fi
     cmake --build build --parallel 16
+    cp build/soir dist/bin/soir-engine
 
 # Runs the Soir unit test suites.
 test filter='*':

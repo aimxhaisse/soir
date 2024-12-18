@@ -28,11 +28,10 @@ const std::string kVersion = "v0.1.0";
 namespace soir {
 
 absl::Status Preamble() {
-  LOG(INFO) << "Soir v" << kVersion;
+  LOG(INFO) << "Soir " << kVersion;
   LOG(INFO) << "█▀ █▀█ █ █▀█";
-  LOG(INFO) << "▄█ █▄█ █ █▀▄";
+  LOG(INFO) << "▄█ █▄█ █ █▀▄ @ https://soir.sbrk.org/";
   LOG(INFO) << "";
-  LOG(INFO) << "Happy c0ding!";
 
   return absl::OkStatus();
 }
