@@ -6,7 +6,7 @@ BASE_DIR="${XDG_CONFIG_HOME:-$HOME}"
 SOIR_DIR="${SOIR_DIR:-"$BASE_DIR/.soir"}"
 SOIR_BIN_DIR="$SOIR_DIR/bin"
 
-BIN_URL="https://raw.githubusercontent.com/aimxhaisse/soir/refs/heads/main/dist/soir"
+BIN_URL="https://raw.githubusercontent.com/aimxhaisse/soir/refs/heads/main/dist/bin/soir"
 BIN_PATH="$SOIR_BIN_DIR/soir"
 
 function install_dependencies {
