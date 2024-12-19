@@ -15,11 +15,11 @@ function install_dependencies {
             echo "soir: homebrew is required to install dependencies."
             exit 1
         fi
-        brew install --quiet just jq
+        brew install --quiet just jq python@3.11 poetry curl
     fi
 }
 
-function install_binaries {
+function install_binary {
     mkdir -p "$SOIR_BIN_DIR"
     curl -sSf -L "$BIN_URL" -o "$BIN_PATH"
     chmod +x "$BIN_PATH"
@@ -60,7 +60,7 @@ function install_path {
 echo "installing soir..."
 
 install_dependencies
-install_binaries
+install_binary
 install_path
 
 echo "soir was installed successfully to ${SOIR_BIN_DIR}"

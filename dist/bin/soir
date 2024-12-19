@@ -60,10 +60,8 @@ check-deps:
 
     check-dep "jq"
     check-dep "curl"
-    check-dep "git"
     check-dep "python3.11"
     check-dep "poetry"
-    check-dep "tar"
 
 # Creates a new soir session.
 [group('session')]
