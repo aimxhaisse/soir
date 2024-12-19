@@ -6,10 +6,10 @@ BASE_DIR="${XDG_CONFIG_HOME:-$HOME}"
 SOIR_DIR="${SOIR_DIR:-"$BASE_DIR/.soir"}"
 SOIR_BIN_DIR="$SOIR_DIR/bin"
 
-BIN_URL="https://raw.githubusercontent.com/aimxhaisse/soir/refs/heads/main/dist/bin/soir"
-BIN_PATH="$SOIR_BIN_DIR/soir"
+TAG=$(curl -s "https://api.github.com/repos/aimxhaisse/soir/releases/latest" | jq -r .tag_name)
+RELEASE="soir-${TAG}-{{ arch() }}-{{ os() }}"
 
-function install_dependencies {
+function install_deps {
     if [[ "$OSTYPE" =~ ^darwin ]]; then
         if ! command -v brew &> /dev/null; then
             echo "soir: homebrew is required to install dependencies."
@@ -19,10 +19,17 @@ function install_dependencies {
     fi
 }
 
-function install_binary {
-    mkdir -p "$SOIR_BIN_DIR"
-    curl -sSf -L "$BIN_URL" -o "$BIN_PATH"
-    chmod +x "$BIN_PATH"
+function install_dist {
+    echo "Setting up distribution for ${TAG}"
+    cd "${SOIR_DIR}"
+    curl -s "https://github.com/aimxhaisse/soir/archive/refs/tags/${TAG}.tar.gz" -o "${SOIR_DIR}/soir-${TAG}.tar.gz"
+    tar -xzf "${SOIR_DIR}/soir-${TAG}.tar.gz" --strip-components=1 -C "${SOIR_DIR}"
+}
+
+function install_py {
+    echo "Setting up Python dependencies for ${TAG}"
+    poetry -C ${SOIR_DIR} env use -C ${SOIR_DIR} python3.11 -q
+    poetry -C ${SOIR_DIR} install -C ${SOIR_DIR} -q
 }
 
 function install_path {
@@ -59,8 +66,9 @@ function install_path {
 
 echo "installing soir..."
 
-install_dependencies
-install_binary
+install_deps
+install_dist
+install_py
 install_path
 
 echo "soir was installed successfully to ${SOIR_BIN_DIR}"
