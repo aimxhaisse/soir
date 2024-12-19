@@ -7,44 +7,13 @@ export SOIR_BIN_DIR := env("SOIR_BIN_DIR", SOIR_DIR + "/bin")
 _default:
     @just --list --unsorted --justfile {{ justfile() }}
 
-# Installs the soir environment to the latest released version.
+# Show environment informations
 [group('setup')]
-install:
+info:
     #!/usr/bin/env bash
-    TAG=$(curl -s "https://api.github.com/repos/aimxhaisse/soir/releases/latest" | jq -r .tag_name)
-    RELEASE="soir-${TAG}-{{ arch() }}-{{ os() }}"
-
-    function install_binary {
-        echo "Updating soir engine to ${TAG}"
-        cd "${SOIR_DIR}"
-        curl -s "https://github.com/aimxhaisse/soir/releases/download/${TAG}/${RELEASE}" -o "${SOIR_BIN_DIR}/soir-engine"
-        chmod +x "{{SOIR_BIN_DIR}}/soir-engine"
-    }
-
-    function install_framework {
-          echo "Updating soir Python to ${TAG}"
-          cd "${SOIR_DIR}"
-          curl -s "https://github.com/aimxhaisse/soir/archive/refs/tags/${TAG}.tar.gz" -o "${SOIR_DIR}/soir-${TAG}.tar.gz"
-          tar -xzf "${SOIR_DIR}/soir-${TAG}.tar.gz" --strip-components=1 -C "${SOIR_DIR}" "soir-${TAG}/dist"
-    }
-
-    function install_py {
-        echo "Updating soir project to ${TAG}"
-        poetry -C ${SOIR_DIR} env use -C ${SOIR_DIR} python3.11 -q
-        poetry -C ${SOIR_DIR} install -C ${SOIR_DIR} -q
-    }
-
-    install_binary
-    install_framework
-    install_py
-
-# Updates the soir environment to the latest released version.
-[group('setup')]
-update: install
-
-# Upgrade the soir environment to the latest released version.
-[group('setup')]
-upgrade: install
+    echo "SOIR_BASE_DIR: $SOIR_BASE_DIR"
+    echo "SOIR_DIR: $SOIR_DIR"
+    echo "SOIR_BIN_DIR: $SOIR_BIN_DIR"
 
 # Check if dependencies are installed.
 [group('setup')]
