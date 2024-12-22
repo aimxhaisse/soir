@@ -6,6 +6,7 @@ site_author: s. rannou <mxs@sbrk.org>
 
 nav:
   - Home: index.md
+  - Install: install.md
   - Reference:
       - ✨ <b>soir</b>: reference/soir.md
       - ⏳ <i>soir</i>.<b>bpm</b>: reference/bpm.md
