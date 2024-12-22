@@ -66,7 +66,7 @@ run session:
 
 [private]
 [no-cd]
-prepare-config soir_dir session:
+prepare-config soir_dir session template="config.yaml.template":
     #!/usr/bin/env -S poetry -C {{ soir_dir }} run python3.11
     #
     # Script to prepare the configuration file for a new soir session.
@@ -85,7 +85,7 @@ prepare-config soir_dir session:
         raise ValueError("Could not find the site-packages directory")
 
     def main(output: str) -> None:
-        with open("{{soir_dir}}/etc/config.yaml.template", "r") as f:
+        with open("{{soir_dir}}/etc/{{ template }}", "r") as f:
             template = jinja2.Template(f.read())
             with open(f"{output}/etc/config.yaml", "w") as f:
                 f.write(
