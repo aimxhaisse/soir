@@ -1,30 +1,20 @@
 # Quick Start
 
-Soir can be controlled via the `soir` tool, which provides commands 
-to create or load live sessions:
+## Checking installation
 
-```
-$ soir
-Available recipes:
-    [setup]
-    info        # Show environment informations
-    check-deps  # Check if dependencies are installed.
+To check your installation and dependencies:
 
-    [session]
-    new session # Creates a new soir session.
-    run session # Runs a soir session.
+```bash
+soir info
+soir check-deps
 ```
 
-Let's start by creating a new soir session and running it:
+## Your first live session
 
-```
-$ soir new session-0x01
-$ soir run session-0x01
-```
+You can use the `soir new` and `soir run` commands to create and run a new soir session:
 
-Now open the `live.py` file from the session-0x01 directory with
-your favorite editor:
+![New soir session](assets/images/new-session.gif)
 
-```
-$ emacs session-0x01/live.py
-```
+Then in another terminal, start live coding by opening the `live.py` file from the session directory:
+
+![Open soir session](assets/images/open-session.gif)
