@@ -1,5 +1,6 @@
+---
+template: home.html
+title: Soir
+---
+
 # SOIR
-
-*Live Coding Environment*
-
-Soir is a Python-based environment for live coding music.

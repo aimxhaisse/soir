@@ -1,4 +1,4 @@
-site_name: SOIR
+site_name: soir
 docs_dir: docs
 repo_url: https://github.com/aimxhaisse/soir
 repo_name: aimxhaisse/soir
@@ -25,15 +25,25 @@ theme:
     - navigation.tabs
     - navigation.sections
     - navigation.path
+    - navigation.footer
+    - search.suggest
+    - search.highlight
+    - search.share
   language: en
   palette:
     scheme: slate
+    primary: amber
+    accent: amber
   icon:
     repo: fontawesome/brands/github-alt
+  custom_dir: overrides
+
+
 
 plugins:
   - autorefs
-  - search
+  - search:
+      enabled: true
   - mkdocstrings:
       default_handler: python
       handlers:
@@ -65,3 +75,7 @@ markdown_extensions:
   - pymdownx.superfences 
   - admonition
 
+extra:
+  generator: false
+
+copyright: by <a href="https://mxs.sbrk.org">mxs</a>
