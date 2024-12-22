@@ -36,6 +36,13 @@ mkdocs:
     just --justfile {{ justfile() }} prepare-config ${SOIR_DIR} ${tmp} "scripts.yaml.template"
     poetry -C ${SOIR_DIR} run -C ${SOIR_DIR} ${SOIR_BIN_DIR}/soir-engine --config "${tmp}/etc/config.yaml" --mode script --script scripts/mk-docs.py
     rm -rf ${tmp}
+    cp dist/install.sh www/site/
+
+# Push the documentation to soir.sh.
+[group('dev')]
+push-docs: mkdocs
+    #!/usr/bin/env bash
+    rsync -avz --delete www/site/ soir.dev:services/soir.dev/data
 
 # Build the package for Soir.
 [group('dev')]
