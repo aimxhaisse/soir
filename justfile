@@ -11,7 +11,7 @@ _default:
     @just --list --unsorted --justfile {{ justfile() }}
 
 # Build Soir.
-[group('devel')]
+[group('dev')]
 build:
     #!/usr/bin/env bash
     if ! [ -f build ]
@@ -23,17 +23,22 @@ build:
     cp build/soir dist/bin/soir-engine
 
 # Runs the Soir unit test suites.
-[group('devel')]
+[group('dev')]
 test filter='*':
     poetry run make test TEST_FILTER={{filter}}
 
 # Build and push documentation to soir.sbrk.org.
-[group('devel')]
-doc:
-    poetry run build/soir --config etc/mkdocs.yaml --mode script --script scripts/mk-docs.py
+[group('dev')]
+mkdocs:
+    #!/usr/bin/env bash
+    tmp=$(mktemp -d)
+    mkdir -p "${tmp}/etc"
+    just --justfile {{ justfile() }} prepare-config ${SOIR_DIR} ${tmp} "scripts.yaml.template"
+    poetry -C ${SOIR_DIR} run -C ${SOIR_DIR} ${SOIR_BIN_DIR}/soir-engine --config "${tmp}/etc/config.yaml" --mode script --script scripts/mk-docs.py
+    rm -rf ${tmp}
 
 # Build the package for Soir.
-[group('devel')]
+[group('dev')]
 package: build
     #!/usr/bin/env bash
     git fetch --tags

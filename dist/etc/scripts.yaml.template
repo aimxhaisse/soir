@@ -8,8 +8,8 @@ agent:
 soir:
   rt:
     python_paths:
-    - src/core/rt/py
-    - ./.venv/lib/python3.11/site-packages/
+      - {{ site_packages }}
+      - {{ soir_dir }}/py
     initial_bpm: 130
   grpc:
     host: localhost
@@ -17,10 +17,6 @@ soir:
   dsp:
     sample_directory: assets/samples
     output:
-      http:
-        enable: true
-        host: localhost
-        port: 8081
       audio:
         # Disable audio so that we can generate documentation without
         # cutting our spotify playlist.
