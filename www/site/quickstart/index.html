@@ -363,6 +363,17 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Quick Start
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         
   
@@ -372,6 +383,43 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#checking-installation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Checking installation
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#your-first-live-session" class="md-nav__link">
+    <span class="md-ellipsis">
+      Your first live session
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -570,6 +618,32 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#checking-installation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Checking installation
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#your-first-live-session" class="md-nav__link">
+    <span class="md-ellipsis">
+      Your first live session
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -587,26 +661,16 @@
 
 
 <h1 id="quick-start">Quick Start</h1>
-<p>Soir can be controlled via the <code>soir</code> tool, which provides commands 
-to create or load live sessions:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>$ soir
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>Available recipes:
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    [setup]
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    info        # Show environment informations
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    check-deps  # Check if dependencies are installed.
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    [session]
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    new session # Creates a new soir session.
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    run session # Runs a soir session.
+<h2 id="checking-installation">Checking installation</h2>
+<p>To check your installation and dependencies:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>soir<span class="w"> </span>info
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>soir<span class="w"> </span>check-deps
 </code></pre></div>
-<p>Let's start by creating a new soir session and running it:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>$ soir new session-0x01
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>$ soir run session-0x01
-</code></pre></div>
-<p>Now open the <code>live.py</code> file from the session-0x01 directory with
-your favorite editor:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>$ emacs session-0x01/live.py
-</code></pre></div>
+<h2 id="your-first-live-session">Your first live session</h2>
+<p>You can use the <code>soir new</code> and <code>soir run</code> commands to create and run a new soir session:</p>
+<p><img alt="New soir session" src="../assets/images/new-session.gif" /></p>
+<p>Then in another terminal, start live coding by opening the <code>live.py</code> file from the session directory:</p>
+<p><img alt="Open soir session" src="../assets/images/open-session.gif" /></p>
 
 
 

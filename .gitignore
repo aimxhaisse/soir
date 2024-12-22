@@ -2,7 +2,7 @@ build/
 *.d
 *.o
 bin/
-assets/
+./assets/
 __pycache__/
 tmp/
 vcpkg_installed/
