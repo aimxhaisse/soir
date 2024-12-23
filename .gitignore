@@ -2,10 +2,10 @@ build/
 *.d
 *.o
 bin/
-./assets/
 __pycache__/
 tmp/
 vcpkg_installed/
 build/
 CMakeUserPresets.json
 .DS_Store
+*.tar.gz
