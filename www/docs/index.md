@@ -1,6 +1,6 @@
 ---
 template: home.html
-title: Soir
+title: Homepage
 ---
 
 # SOIR
