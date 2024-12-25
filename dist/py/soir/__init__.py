@@ -80,8 +80,8 @@ def loop(beats: int=4, track: int=1, align: bool=True) -> callable:
     engine.
 
     ``` python
-    @loop
-    def my_loop(beats=4, track=1):
+    @loop(beats=4, track=1)
+    def my_loop():
       log("Hello World")
     ```
 
