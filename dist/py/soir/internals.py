@@ -54,7 +54,7 @@ class Loop_:
         if self.align:
             at = self.beats - (now % self.beats)
 
-        def loop():
+        def _loop():
             if self.name not in loop_registry_:
                 return
 
@@ -68,7 +68,7 @@ class Loop_:
             except Exception as e:
                 err = e
             current_loop_ = None
-            schedule_(self.beats, loop)
+            schedule_(self.beats, _loop)
 
             # We raise after rescheduling the loop, this helps making
             # sure we don't have dead loops if an error is raised
@@ -77,7 +77,7 @@ class Loop_:
             if err:
                 raise err
 
-        schedule_(at, loop)
+        schedule_(at, _loop)
 
 
 def loop(beats: int, track: int, align: bool) -> callable:
