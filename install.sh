@@ -39,7 +39,7 @@ function install_deps {
             echo "soir: homebrew is required to install dependencies."
             exit 1
         fi
-        brew install --quiet just jq python@3.11 poetry curl
+        brew install --quiet just jq python@3.11 poetry curl ffmpeg
     fi
 }
 

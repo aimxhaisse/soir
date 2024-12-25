@@ -25,8 +25,6 @@ absl::Status SampleManager::Init(const utils::Config& config) {
 
       if (absl::EndsWith(candidate_pack, ".pack.yaml")) {
         auto pack = candidate_pack.substr(0, candidate_pack.size() - 10);
-        LOG(INFO) << "Loading pack: " << pack;
-
         auto status = LoadPack(pack);
         if (!status.ok()) {
           return status;
@@ -41,6 +39,8 @@ absl::Status SampleManager::Init(const utils::Config& config) {
 absl::Status SampleManager::LoadPack(const std::string& name) {
   auto config_path = directory_ + "/" + name + ".pack.yaml";
 
+  LOG(INFO) << "Loading pack: " << name;
+
   {
     std::lock_guard<std::mutex> lock(mutex_);
     if (packs_.find(name) != packs_.end()) {
@@ -50,8 +50,9 @@ absl::Status SampleManager::LoadPack(const std::string& name) {
 
   SamplePack pack;
 
-  auto status = pack.Init(config_path);
+  auto status = pack.Init(directory_, config_path);
   if (!status.ok()) {
+    LOG(ERROR) << "Failed to load pack " << name << ": " << status;
     return status;
   }
 

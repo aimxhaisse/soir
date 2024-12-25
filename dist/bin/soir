@@ -210,6 +210,25 @@ sample-install-pack sample-pack:
     echo "Sample pack ${1} not found"
 
 
+# Convert a sample directory to 48kHz.
+[group('samples')]
+[no-cd]
+sample-convert-48khz sample-dir:
+    #!/usr/bin/env bash
+
+    function convert {
+        if [ -f "${1}/${2}" ]; then
+            ffmpeg -i "${1}/${2}" -ar 48000 -ac 2 "${1}/${2}.48khz.wav"
+            rm "${1}/${2}"
+            mv "${1}/${2}.48khz.wav" "${1}/${2}"
+        fi
+    }
+
+    for file in $(find "{{ sample-dir }}" -type f -name "*.wav"); do
+        convert $(dirname "${file}") $(basename "${file}")
+    done
+
+
 # --- HELPERS
 
 [private]

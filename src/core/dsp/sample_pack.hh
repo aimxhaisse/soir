@@ -23,7 +23,7 @@ struct Sample {
 
 class SamplePack {
  public:
-  absl::Status Init(const std::string& pack_config);
+  absl::Status Init(const std::string& dir, const std::string& pack_config);
 
   // Do not provide a way to remove samples from a pack as it would be
   // unsafe in today's approach: the sample can be in-use in multiple

@@ -10,9 +10,10 @@ import 'dist/bin/soir'
 _default:
     @just --list --unsorted --justfile {{ justfile() }}
 
+
 # Build Soir.
 [group('dev')]
-build:
+dev-build:
     #!/usr/bin/env bash
     if ! [ -f build ]
     then
@@ -24,34 +25,38 @@ build:
 
 # Runs the Soir unit test suites.
 [group('dev')]
-test filter='*':
+dev-test filter='*':
     #!/usr/bin/env bash
     tmp=$(mktemp -d)
     mkdir -p "${tmp}/etc"
-    just --justfile {{ justfile() }} prepare-config ${tmp} "scripts.yaml.template"
+    just --justfile {{ justfile() }} prepare-config dist "scripts.yaml.template"
     poetry -C ${SOIR_DIR} run make test TEST_FILTER={{filter}}
     rm -rf ${tmp}
 
-# Build and push documentation to soir.sbrk.org.
+# Build and push documentation to soir.dev.
 [group('dev')]
-mkdocs:
+dev-mk-docs:
     #!/usr/bin/env bash
-    tmp=$(mktemp -d)
-    mkdir -p "${tmp}/etc"
-    just --justfile {{ justfile() }} prepare-config ${tmp} "scripts.yaml.template"
-    poetry -C ${SOIR_DIR} run -C ${SOIR_DIR} ${SOIR_BIN_DIR}/soir-engine --config "${tmp}/etc/config.yaml" --mode script --script scripts/mk-docs.py
-    rm -rf ${tmp}
-    cp dist/install.sh www/site/
+    just --justfile {{ justfile() }} prepare-config dist "scripts.yaml.template"
+    poetry -C ${SOIR_DIR} run -C ${SOIR_DIR} ${SOIR_BIN_DIR}/soir-engine --config dist/etc/config.yaml --mode script --script scripts/mk-docs.py
+    cp install.sh www/site/
+
+# Run the Soir engine in audio mode.
+[group('dev')]
+dev-run:
+    #!/usr/bin/env bash
+    just --justfile {{ justfile() }} prepare-config dist "config.yaml.template"
+    poetry -C ${SOIR_DIR} run -C ${SOIR_DIR} ${SOIR_BIN_DIR}/soir-engine --config dist/etc/config.yaml --mode standalone
 
 # Push the documentation to soir.sh.
 [group('dev')]
-push-docs: mkdocs
+dev-sync-docs: dev-mk-docs
     #!/usr/bin/env bash
     rsync -avz --delete www/site/ soir.dev:services/soir.dev/data
 
 # Build the package for Soir.
 [group('dev')]
-package: build
+dev-mk-package: dev-build
     #!/usr/bin/env bash
     git fetch --tags
     TAG=$(git describe --tags `git rev-list --tags --max-count=1`)

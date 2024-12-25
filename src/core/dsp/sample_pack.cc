@@ -24,7 +24,8 @@ std::size_t Sample::DurationSamples() const {
   return lb_.size();
 }
 
-absl::Status SamplePack::Init(const std::string& pack_config) {
+absl::Status SamplePack::Init(const std::string& dir,
+                              const std::string& pack_config) {
   auto config_or = utils::Config::LoadFromPath(pack_config);
   if (!config_or.ok()) {
     return config_or.status();
@@ -40,7 +41,7 @@ absl::Status SamplePack::Init(const std::string& pack_config) {
     Sample s;
 
     s.name_ = sample_config->Get<std::string>("name");
-    s.path_ = sample_config->Get<std::string>("path");
+    s.path_ = dir + "/" + sample_config->Get<std::string>("path");
 
     AudioFile<float> audio_file;
 
@@ -49,7 +50,7 @@ absl::Status SamplePack::Init(const std::string& pack_config) {
     }
     if (audio_file.getSampleRate() != kSampleRate) {
       return absl::InvalidArgumentError(
-          "Only 48kHz sample rate is supported for now");
+          "Only 48kHz sample rate is supported for now, sample=" + s.path_);
     }
 
     if (audio_file.getNumChannels() == 1) {
