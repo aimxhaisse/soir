@@ -12,7 +12,7 @@
 #include "agent/agent.hh"
 #include "core/soir.hh"
 
-ABSL_FLAG(std::string, config, "etc/standalone.yaml", "Path to config file");
+ABSL_FLAG(std::string, config, "etc/config.yaml", "Path to config file");
 ABSL_FLAG(std::string, mode, "standalone",
           "Mode to run in (standalone, script)");
 ABSL_FLAG(std::string, script, "", "Script to run in script mode");
@@ -21,7 +21,7 @@ namespace {
 
 const std::string kModeStandalone = "standalone";
 const std::string kModeScript = "script";
-const std::string kVersion = "v0.1.0";
+const std::string kVersion = "v0.6.0";
 
 }  // namespace
 
@@ -30,7 +30,7 @@ namespace soir {
 absl::Status Preamble() {
   LOG(INFO) << "Soir " << kVersion;
   LOG(INFO) << "█▀ █▀█ █ █▀█";
-  LOG(INFO) << "▄█ █▄█ █ █▀▄ @ https://soir.sbrk.org/";
+  LOG(INFO) << "▄█ █▄█ █ █▀▄ @ https://soir.dev/";
   LOG(INFO) << "";
 
   return absl::OkStatus();
