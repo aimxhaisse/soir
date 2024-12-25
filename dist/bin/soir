@@ -10,9 +10,9 @@ _default:
 
 # --- SETUP
 
-# Show environment informations
+# Show environment informations.
 [group('setup')]
-info:
+setup-info:
     #!/usr/bin/env bash
     echo "SOIR_BASE_DIR: $SOIR_BASE_DIR"
     echo "SOIR_DIR: $SOIR_DIR"
@@ -21,7 +21,7 @@ info:
 
 # Check if dependencies are installed.
 [group('setup')]
-check-deps:
+setup-check-deps:
     #!/usr/bin/env bash
     function check-dep {
         if ! command -v $1 &> /dev/null; then
@@ -38,7 +38,7 @@ check-deps:
 
 # Upgrade soir to the latest version.
 [group('setup')]
-upgrade:
+setup-upgrade:
     #!/usr/bin/env bash
     curl -sL https://soir.dev/install.sh | bash
 
@@ -47,7 +47,7 @@ upgrade:
 # Creates a new soir session.
 [group('session')]
 [no-cd]
-new session:
+session-new session:
     #!/usr/bin/env bash
 
     echo "Creating a new soir session {{ session }}"
@@ -67,7 +67,7 @@ new session:
 # Runs a soir session.
 [group('session')]
 [no-cd]
-run session:
+session-run session:
     #!/usr/bin/env bash
 
     echo "Running soir session {{ session }}"
@@ -76,48 +76,11 @@ run session:
 
     poetry -C ${SOIR_DIR} run -C ${SOIR_DIR} soir-engine --config etc/config.yaml
 
-[private]
-[no-cd]
-prepare-config session template="config.yaml.template":
-    #!/usr/bin/env -S poetry -C {{ SOIR_DIR }} run python3.11
-    #
-    # Script to prepare the configuration file for a new soir session.
-    # It uses the template from the SOIR_DIR as a base.
-    import jinja2
-    import os
-    import sys
-
-    soir_dir = os.environ.get("SOIR_DIR")
-
-    def get_virtual_env_site_packages() -> str:
-        """Returns the site-packages of the virtual environment.
-        """
-        dirs = []
-        for path in sys.path:
-            if "site-packages" in path:
-                return path
-        raise ValueError("Could not find the site-packages directory")
-
-    def main(output: str) -> None:
-        with open(f"{soir_dir}/etc/{{ template }}", "r") as f:
-            template = jinja2.Template(f.read())
-            with open(f"{output}/etc/config.yaml", "w") as f:
-                f.write(
-                    template.render(
-                        soir_dir=os.environ.get("SOIR_DIR"),
-                        audio_device_id=1,
-                        site_packages=get_virtual_env_site_packages(),
-                    )
-                )
-    
-    if __name__ == '__main__':
-        main("{{session}}")
-
 # --- SAMPLES
 
-# List sample packs
+# List sample packs.
 [group('samples')]
-sp-ls:
+sample-ls-packs:
     #!/usr/bin/env -S poetry -C {{ SOIR_DIR }} run python3.11
     import os
     import json
@@ -153,10 +116,10 @@ sp-ls:
 
     main()
 
-# Create a sample pack
+# Create a sample pack.
 [group('samples')]
 [no-cd]
-sp-mk sample-pack:
+sample-mk-pack sample-pack:
     #!/usr/bin/env -S poetry -C {{ SOIR_DIR }} run python3.11
     import yaml
     import os
@@ -202,15 +165,15 @@ sp-mk sample-pack:
         with open(pack_file, "w") as f:
             data = {'name': sp, 'samples': samples}
             yaml.dump(data, f)
-            print(f"Sample pack { sp } created, you can now install it with `soir sp-install { sp }`")
+            print(f"Sample pack { sp } created, you can now install it with `soir sample-install-pack { sp }`")
 
     main()
 
 
-# Install a sample pack
+# Install a sample pack.
 [group('samples')]
 [no-cd]
-sp-install sample-pack:
+sample-install-pack sample-pack:
     #!/usr/bin/env bash
 
     function check_if_installed {
@@ -245,3 +208,42 @@ sp-install sample-pack:
     maybe_install_remote "{{ sample-pack }}"
 
     echo "Sample pack ${1} not found"
+
+
+# --- HELPERS
+
+[private]
+[no-cd]
+prepare-config session template="config.yaml.template":
+    #!/usr/bin/env -S poetry -C {{ SOIR_DIR }} run python3.11
+    #
+    # Script to prepare the configuration file for a new soir session.
+    # It uses the template from the SOIR_DIR as a base.
+    import jinja2
+    import os
+    import sys
+
+    soir_dir = os.environ.get("SOIR_DIR")
+
+    def get_virtual_env_site_packages() -> str:
+        """Returns the site-packages of the virtual environment.
+        """
+        dirs = []
+        for path in sys.path:
+            if "site-packages" in path:
+                return path
+        raise ValueError("Could not find the site-packages directory")
+
+    def main(output: str) -> None:
+        with open(f"{soir_dir}/etc/{{ template }}", "r") as f:
+            template = jinja2.Template(f.read())
+            with open(f"{output}/etc/config.yaml", "w") as f:
+                f.write(
+                    template.render(
+                        soir_dir=os.environ.get("SOIR_DIR"),
+                        audio_device_id=1,
+                        site_packages=get_virtual_env_site_packages(),
+                    )
+                )
+    
+    main("{{session}}")

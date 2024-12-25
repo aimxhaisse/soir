@@ -1,3 +1,4 @@
 *.tar.gz
 *.lock
 soir_engine
+etc/config.yaml

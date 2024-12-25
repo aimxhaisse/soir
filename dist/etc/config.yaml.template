@@ -17,7 +17,7 @@ soir:
     host: localhost
     port: 9430
   dsp:
-    sample_directory: ./samples
+    sample_directory: {{ soir_dir }}/samples
     output:
       audio:
         enable: true

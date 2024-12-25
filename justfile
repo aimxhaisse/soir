@@ -28,7 +28,7 @@ test filter='*':
     #!/usr/bin/env bash
     tmp=$(mktemp -d)
     mkdir -p "${tmp}/etc"
-    just --justfile {{ justfile() }} prepare-config ${SOIR_DIR} ${tmp} "scripts.yaml.template"
+    just --justfile {{ justfile() }} prepare-config ${tmp} "scripts.yaml.template"
     poetry -C ${SOIR_DIR} run make test TEST_FILTER={{filter}}
     rm -rf ${tmp}
 
@@ -38,7 +38,7 @@ mkdocs:
     #!/usr/bin/env bash
     tmp=$(mktemp -d)
     mkdir -p "${tmp}/etc"
-    just --justfile {{ justfile() }} prepare-config ${SOIR_DIR} ${tmp} "scripts.yaml.template"
+    just --justfile {{ justfile() }} prepare-config ${tmp} "scripts.yaml.template"
     poetry -C ${SOIR_DIR} run -C ${SOIR_DIR} ${SOIR_BIN_DIR}/soir-engine --config "${tmp}/etc/config.yaml" --mode script --script scripts/mk-docs.py
     rm -rf ${tmp}
     cp dist/install.sh www/site/
