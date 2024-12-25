@@ -25,7 +25,12 @@ build:
 # Runs the Soir unit test suites.
 [group('dev')]
 test filter='*':
-    poetry run make test TEST_FILTER={{filter}}
+    #!/usr/bin/env bash
+    tmp=$(mktemp -d)
+    mkdir -p "${tmp}/etc"
+    just --justfile {{ justfile() }} prepare-config ${SOIR_DIR} ${tmp} "scripts.yaml.template"
+    poetry -C ${SOIR_DIR} run make test TEST_FILTER={{filter}}
+    rm -rf ${tmp}
 
 # Build and push documentation to soir.sbrk.org.
 [group('dev')]

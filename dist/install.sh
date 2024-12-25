@@ -21,6 +21,7 @@ function install_deps {
 
 function install_dist {
     echo "Setting up distribution for ${TAG}"
+    mkdir -p ${SOIR_DIR}
     cd "${SOIR_DIR}"
     curl -s "https://github.com/aimxhaisse/soir/archive/refs/tags/${TAG}.tar.gz" -o "${SOIR_DIR}/soir-${TAG}.tar.gz"
     tar -xzf "${SOIR_DIR}/soir-${TAG}.tar.gz" --strip-components=1 -C "${SOIR_DIR}"
