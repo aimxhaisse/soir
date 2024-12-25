@@ -3,7 +3,7 @@
 ## Mac OS
 
 ```
-curl -S https://soir.dev/install.sh | bash
+curl -sL https://soir.dev/install.sh | bash
 ```
 
 ## Linux

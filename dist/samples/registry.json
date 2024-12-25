@@ -1,0 +1,12 @@
+{
+  "packs": [
+    {
+      "name": "hazardous",
+      "description": "hazardous audio materials",
+      "author": "berklee for OLPC",
+      "license": "https://creativecommons.org/licenses/by/3.0/",
+      "uploader": "s. rannou <mxs@sbrk.org>",
+      "url": "https://data.mxs.sbrk.org/hazardous.tar.gz"
+    }
+  ]
+}
