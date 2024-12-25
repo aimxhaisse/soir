@@ -57,4 +57,14 @@ package: build
     TAG=$(git describe --tags `git rev-list --tags --max-count=1`)
     RELEASE="soir-${TAG}-{{ arch() }}-{{ os() }}"
     cp build/soir dist/bin/soir-engine
-    tar -czf ${RELEASE}.tar.gz dist
+
+    # Here we are explicit so that we can be sure we don't embed assets
+    # or other files that are not needed.
+    tar -czf ${RELEASE}.tar.gz \
+        dist/bin \
+        dist/etc \
+        dist/py/__init__.py \
+        dist/py/soir/*.py \
+        dist/samples/registry.json \
+        dist/pyproject.toml \
+        dist/live.py.example
