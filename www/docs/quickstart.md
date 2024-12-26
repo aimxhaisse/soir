@@ -1,20 +1,42 @@
 # Quick Start
 
-## Checking installation
-
-To check your installation and dependencies:
-
-```bash
-soir info
-soir check-deps
+## Installation
+       
+```
+curl -sL https://soir.dev/install.sh | bash
 ```
 
-## Your first live session
+For now, only Mac OS with M processing are supported.
+            
+## Your First Session
 
-You can use the `soir new` and `soir run` commands to create and run a new soir session:
+Let's start by installing the `hazardous` sample pack:
 
-![New soir session](assets/images/new-session.gif)
+```sh
+soir sample-install-pack hazardous
+```
 
-Then in another terminal, start live coding by opening the `live.py` file from the session directory:
+Now we can create a new soir session and run it:
+    
+```sh
+soir new-session session-0x01
+soir run-session session-0x01
+```
 
-![Open soir session](assets/images/open-session.gif)
+Then in another terminal, open the `session-0x01/live.py` file and paste the following:
+
+```python
+@live()
+def setup():
+    bpm.set(120)
+
+    tracks.setup([
+        tracks.mk_sampler(1),
+    ])
+
+sp = sampler.new('hazardous')
+
+@loop(beats=8)
+def hazardous():
+    sp.play('synth-filter2', pan=rnd.between(-1.0, 1.0))
+```
