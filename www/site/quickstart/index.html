@@ -11,7 +11,7 @@
       
       
       
-        <link rel="prev" href="../install/">
+        <link rel="prev" href="..">
       
       
         <link rel="next" href="../reference/soir/">
@@ -211,23 +211,6 @@
         
   
   
-  
-    <li class="md-tabs__item">
-      <a href="../install/" class="md-tabs__link">
-        
-  
-    
-  
-  Install
-
-      </a>
-    </li>
-  
-
-      
-        
-  
-  
     
   
   
@@ -331,26 +314,6 @@
       
   
   
-  
-  
-    <li class="md-nav__item">
-      <a href="../install/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Install
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-    
-      
-      
-  
-  
     
   
   
@@ -400,18 +363,18 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#checking-installation" class="md-nav__link">
+  <a href="#installation" class="md-nav__link">
     <span class="md-ellipsis">
-      Checking installation
+      Installation
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#your-first-live-session" class="md-nav__link">
+  <a href="#your-first-session" class="md-nav__link">
     <span class="md-ellipsis">
-      Your first live session
+      Your First Session
     </span>
   </a>
   
@@ -444,10 +407,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
         
           
-          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
             
   
   <span class="md-ellipsis">
@@ -458,8 +421,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_4">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             Reference
           </label>
@@ -646,18 +609,18 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#checking-installation" class="md-nav__link">
+  <a href="#installation" class="md-nav__link">
     <span class="md-ellipsis">
-      Checking installation
+      Installation
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#your-first-live-session" class="md-nav__link">
+  <a href="#your-first-session" class="md-nav__link">
     <span class="md-ellipsis">
-      Your first live session
+      Your First Session
     </span>
   </a>
   
@@ -682,16 +645,33 @@
 
 
 <h1 id="quick-start">Quick Start</h1>
-<h2 id="checking-installation">Checking installation</h2>
-<p>To check your installation and dependencies:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>soir<span class="w"> </span>info
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>soir<span class="w"> </span>check-deps
+<h2 id="installation">Installation</h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>curl -sL https://soir.dev/install.sh | bash
 </code></pre></div>
-<h2 id="your-first-live-session">Your first live session</h2>
-<p>You can use the <code>soir new</code> and <code>soir run</code> commands to create and run a new soir session:</p>
-<p><img alt="New soir session" src="../assets/images/new-session.gif" /></p>
-<p>Then in another terminal, start live coding by opening the <code>live.py</code> file from the session directory:</p>
-<p><img alt="Open soir session" src="../assets/images/open-session.gif" /></p>
+<p>For now, only Mac OS with M processing are supported.</p>
+<h2 id="your-first-session">Your First Session</h2>
+<p>Let's start by installing the <code>hazardous</code> sample pack:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>soir<span class="w"> </span>sample-install-pack<span class="w"> </span>hazardous
+</code></pre></div>
+<p>Now we can create a new soir session and run it:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>soir<span class="w"> </span>new-session<span class="w"> </span>session-0x01
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>soir<span class="w"> </span>run-session<span class="w"> </span>session-0x01
+</code></pre></div>
+<p>Then in another terminal, open the <code>session-0x01/live.py</code> file and paste the following:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="nd">@live</span><span class="p">()</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="k">def</span> <span class="nf">setup</span><span class="p">():</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>    <span class="n">bpm</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="mi">120</span><span class="p">)</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>    <span class="n">tracks</span><span class="o">.</span><span class="n">setup</span><span class="p">([</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>        <span class="n">tracks</span><span class="o">.</span><span class="n">mk_sampler</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>    <span class="p">])</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="n">sp</span> <span class="o">=</span> <span class="n">sampler</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s1">&#39;hazardous&#39;</span><span class="p">)</span>
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="nd">@loop</span><span class="p">(</span><span class="n">beats</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="k">def</span> <span class="nf">hazardous</span><span class="p">():</span>
+<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>    <span class="n">sp</span><span class="o">.</span><span class="n">play</span><span class="p">(</span><span class="s1">&#39;synth-filter2&#39;</span><span class="p">,</span> <span class="n">pan</span><span class="o">=</span><span class="n">rnd</span><span class="o">.</span><span class="n">between</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">))</span>
+</code></pre></div>
 
 
 
@@ -727,7 +707,7 @@
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../install/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Install">
+          <a href=".." class="md-footer__link md-footer__link--prev" aria-label="Previous: Home">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -737,7 +717,7 @@
                 Previous
               </span>
               <div class="md-ellipsis">
-                Install
+                Home
               </div>
             </div>
           </a>
