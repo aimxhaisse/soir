@@ -6,7 +6,7 @@
 curl -sL https://soir.dev/install.sh | bash
 ```
 
-For now, only Mac OS with M processing are supported.
+For now, only Mac OS with M processors are supported.
             
 ## Your First Session
 
