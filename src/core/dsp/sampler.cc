@@ -97,7 +97,7 @@ void Sampler::HandleSysex(const proto::MidiSysexInstruction& sysex) {
 
   float start = 0.0f;
   float end = 1.0f;
-  float pan = 0.5f;
+  float pan = 0.0f;
 
   if (params.HasMember("start")) {
     start = params["start"].GetDouble();
@@ -193,8 +193,8 @@ void Sampler::Render(SampleTick tick, const std::list<MidiEventAt>& events,
         const float env = ps->wrapper_.GetNextEnvelope();
 
         // Left and right panning.
-        const float lp = ps->pan_ > 0.5f ? (1.0f - ps->pan_) * 2.0f : 1.0f;
-        const float rp = ps->pan_ < 0.5f ? ps->pan_ * 2.0f : 1.0f;
+        const float lp = ps->pan_ > 0.0f ? (1.0f - ps->pan_) : 1.0f;
+        const float rp = ps->pan_ < 0.0f ? (1.0f + ps->pan_) : 1.0f;
 
         left += ps->sample_->lb_[ps->pos_] * env * lp;
         right += ps->sample_->rb_[ps->pos_] * env * rp;
