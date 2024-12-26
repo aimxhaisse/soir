@@ -1,5 +1,5 @@
 # █▀ █▀█ █ █▀█
-# ▄█ █▄█ █ █▀▄ @ https://soir.sbrk.org
+# ▄█ █▄█ █ █▀▄ @ https://soir.dev
 
 @live()
 def setup():
@@ -9,8 +9,6 @@ def setup():
         tracks.mk_sampler(1),
     ])
 
-@loop()
-def beat(beats=4):
-    for i in range(4):
-        log('tick')
-        sleep(1)
+@loop(beats=4)
+def beat():
+    log('beat')
