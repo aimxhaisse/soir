@@ -18,7 +18,7 @@ absl::Status Sampler::Init(SampleManager* sample_manager) {
   return absl::OkStatus();
 }
 
-void Sampler::PlaySample(Sample* sample, float start, float end) {
+void Sampler::PlaySample(Sample* sample, float start, float end, float pan) {
   if (sample == nullptr) {
     return;
   }
@@ -42,6 +42,7 @@ void Sampler::PlaySample(Sample* sample, float start, float end) {
   ps->pos_ = sstart;
   ps->sample_ = sample;
   ps->inc_ = (sstart < ssend) ? 1 : -1;
+  ps->pan_ = pan;
 
   const float attackMs = kSampleMinimalSmoothingMs;
   const float releaseMs = kSampleMinimalSmoothingMs;
@@ -96,6 +97,7 @@ void Sampler::HandleSysex(const proto::MidiSysexInstruction& sysex) {
 
   float start = 0.0f;
   float end = 1.0f;
+  float pan = 0.5f;
 
   if (params.HasMember("start")) {
     start = params["start"].GetDouble();
@@ -103,10 +105,13 @@ void Sampler::HandleSysex(const proto::MidiSysexInstruction& sysex) {
   if (params.HasMember("end")) {
     end = params["end"].GetDouble();
   }
+  if (params.HasMember("pan")) {
+    pan = params["pan"].GetDouble();
+  }
 
   switch (sysex.type()) {
     case proto::MidiSysexInstruction::SAMPLER_PLAY: {
-      PlaySample(GetSample(pack, name), start, end);
+      PlaySample(GetSample(pack, name), start, end, pan);
       break;
     }
 
@@ -187,8 +192,12 @@ void Sampler::Render(SampleTick tick, const std::list<MidiEventAt>& events,
 
         const float env = ps->wrapper_.GetNextEnvelope();
 
-        left += ps->sample_->lb_[ps->pos_] * env;
-        right += ps->sample_->rb_[ps->pos_] * env;
+        // Left and right panning.
+        const float lp = ps->pan_ > 0.5f ? (1.0f - ps->pan_) * 2.0f : 1.0f;
+        const float rp = ps->pan_ < 0.5f ? ps->pan_ * 2.0f : 1.0f;
+
+        left += ps->sample_->lb_[ps->pos_] * env * lp;
+        right += ps->sample_->rb_[ps->pos_] * env * rp;
 
         ps->pos_ += ps->inc_;
         if (env == 0.0f || (ps->inc_ > 0 && (ps->pos_ >= ps->end_)) ||
