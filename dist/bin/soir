@@ -54,7 +54,6 @@ session-new session:
  
     mkdir -p "{{ session }}"
     mkdir -p "{{ session }}/etc"
-    mkdir -p "{{ session }}/samples"
  
     if ! [ -f "{{ session }}/etc/config.yaml" ]; then
         just --justfile {{ justfile() }} prepare-config {{ session }}

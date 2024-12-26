@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "soir"
-version = "0.2.0"
+version = "0.7.0"
 description = "Live Coding Environment"
 authors = ["s. rannou <mxs@sbrk.org>"]
 license = "MIT"
