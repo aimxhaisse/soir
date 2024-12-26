@@ -34,6 +34,7 @@ module. The available modules are:
 - [midi](/reference/midi)
 - [errors](/reference/errors)
 - [sampler](/reference/sampler)
+- [rnd](/reference/rnd)
 
 # Cookbook
 

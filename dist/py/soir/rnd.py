@@ -17,7 +17,7 @@ rnd.between(1, 10)
 import random
 
 
-def between(begin, end):
+def between(begin: float, end: float):
     """Get a random number between two values.
 
      Args:
