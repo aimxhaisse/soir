@@ -156,5 +156,6 @@ import soir.bpm as bpm
 import soir.sampler as sampler
 import soir.tracks as tracks
 import soir.midi as midi
+import soir.rnd as rnd
 
 # Here lies the live code.
