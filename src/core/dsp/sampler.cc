@@ -118,6 +118,19 @@ void Sampler::PlaySampleParameters::FromJson(const rapidjson::Value& json,
   // Playback rate
   if (json.HasMember("rate")) {
     p->rate_ = json["rate"].GetDouble();
+
+    // This is a trick, if the rate is negative, we want to play the
+    // sample backward. As we already handle inverted start/end to do
+    // so, we re-use the same mecanism here to not have to fiddle too
+    // much with the rendering which is already complex.
+    if (p->rate_ < 0.0f) {
+      float swap = p->start_;
+
+      p->start_ = p->end_;
+      p->end_ = swap;
+
+      p->rate_ = -p->rate_;
+    }
   }
 
   // Envelope
