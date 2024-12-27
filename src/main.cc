@@ -21,7 +21,7 @@ namespace {
 
 const std::string kModeStandalone = "standalone";
 const std::string kModeScript = "script";
-const std::string kVersion = "v0.6.0";
+const std::string kVersion = "v0.8.0";
 
 }  // namespace
 
