@@ -28,8 +28,8 @@ dev-build:
 dev-test filter='*': dev-build
     #!/usr/bin/env bash
     just --justfile {{ justfile() }} prepare-config dist "scripts.yaml.template"
-    poetry -C ${SOIR_DIR} run -C ${SOIR_DIR} build/src/core/soir_core_test TEST_FILTER={{filter}}
-    poetry -C ${SOIR_DIR} run -C ${SOIR_DIR} build/src/utils/soir_utils_test TEST_FILTER={{filter}}
+    poetry -C ${SOIR_DIR} run -C ${SOIR_DIR} build/src/core/soir_core_test --gtest_filter='{{filter}}'
+    poetry -C ${SOIR_DIR} run -C ${SOIR_DIR} build/src/utils/soir_utils_test --gtest_filter='{{filter}}'
 
 # Build and push documentation to soir.dev.
 [group('dev')]
