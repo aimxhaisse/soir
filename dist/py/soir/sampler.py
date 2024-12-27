@@ -122,6 +122,7 @@ class Sampler:
             'decay': decay,
             'sustain': sustain,
             'release': release,
+            'rate': 1.0,
         }
 
         track = current_loop().track
