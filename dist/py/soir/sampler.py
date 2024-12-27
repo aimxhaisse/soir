@@ -94,6 +94,7 @@ class Sampler:
             sustain: float = 1.0,
             release: float = 0.0,
             rate: float = 1.0,
+            amp: float = 1.0,
     ):
         """Plays a sample by its given name. If there is no exact
         match, attempts to find one that contains the name (for
@@ -111,6 +112,7 @@ class Sampler:
             sustain: The sustain level in the [0.0, 1.0] range.
             release: The release time in seconds.
             rate: The playback rate of the sample.
+            amp: The amplitude of the sample.
         """
         assert_in_loop()
 
@@ -125,6 +127,7 @@ class Sampler:
             'sustain': sustain,
             'release': release,
             'rate': rate,
+            'amp': amp,
         }
 
         track = current_loop().track

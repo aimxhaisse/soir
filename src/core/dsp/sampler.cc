@@ -45,6 +45,7 @@ void Sampler::PlaySample(Sample* sample, const PlaySampleParameters& p) {
   ps->inc_ = (sstart < ssend) ? 1 : -1;
   ps->pan_ = p.pan_;
   ps->rate_ = p.rate_;
+  ps->amp_ = p.amp_;
 
   // This is for the envelope to prevent glitches.
 
@@ -131,6 +132,11 @@ void Sampler::PlaySampleParameters::FromJson(const rapidjson::Value& json,
   }
   if (json.HasMember("release")) {
     p->release_ = json["release"].GetDouble();
+  }
+
+  // Amplitude
+  if (json.HasMember("amp")) {
+    p->amp_ = json["amp"].GetDouble();
   }
 }
 
@@ -241,7 +247,7 @@ void Sampler::Render(SampleTick tick, const std::list<MidiEventAt>& events,
 
         const float wrapper_env = ps->wrapper_.GetNextEnvelope();
         const float user_env = ps->env_.GetNextEnvelope();
-        const float env = wrapper_env * user_env;
+        const float env = wrapper_env * user_env * ps->amp_;
 
         left +=
             Interpolate(ps->sample_->lb_, ps->pos_) * env * LeftPan(ps->pan_);
