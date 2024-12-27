@@ -52,6 +52,7 @@ class Sampler {
     float decay_ = 0.0f;
     float sustain_ = 1.0f;
     float release_ = 0.0f;
+    float amp_ = 1.0f;
 
     static void FromJson(const rapidjson::Value& v, PlaySampleParameters* p);
   };
@@ -72,6 +73,7 @@ class Sampler {
     int inc_;
     float pan_;
     float rate_;
+    float amp_;
 
     // This ADSR envelope is used to avoid glitches at the beginning
     // and at the end of samples, which is utils with raw data where
