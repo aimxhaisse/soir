@@ -22,6 +22,7 @@ add_library(
   dsp/vorbis_encoder.cc
   dsp/audio_output.cc
   dsp/midi_stack.cc
+  dsp/tools.cc
 
   rt/bindings.cc
   rt/engine.cc
@@ -58,6 +59,7 @@ add_executable(
   tests/test_get_bpm.cc
   tests/test_setup_tracks.cc
   tests/test_exit.cc
+  tests/test_tools.cc
 )
 
 target_link_libraries(
