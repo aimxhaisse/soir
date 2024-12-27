@@ -23,7 +23,7 @@ void Sampler::PlaySample(Sample* sample, const PlaySampleParameters& p) {
     return;
   }
 
-  int duration = static_cast<int>(sample->DurationSamples());
+  int duration = static_cast<int>(sample->DurationSamples()) * p.rate_;
   int sstart = std::max(
       0, std::min(static_cast<int>(sample->DurationSamples() * p.start_),
                   duration));
@@ -44,6 +44,7 @@ void Sampler::PlaySample(Sample* sample, const PlaySampleParameters& p) {
   ps->sample_ = sample;
   ps->inc_ = (sstart < ssend) ? 1 : -1;
   ps->pan_ = p.pan_;
+  ps->rate_ = p.rate_;
 
   // This is for the envelope to prevent glitches.
 
@@ -193,6 +194,20 @@ void Sampler::ProcessMidiEvents(SampleTick tick) {
   }
 }
 
+float Sampler::Interpolate(const std::vector<float>& v, float pos) {
+  // Here the goal is to find an interpolated value between two
+  // samples. We are using a linear interpolation for now but we could
+  // use a more complex interpolation method in the future.
+
+  float v0 = v[static_cast<int>(pos) % v.size()];
+  float v1 = v[(static_cast<int>(pos) + 1) % v.size()];
+
+  float w1 = pos - static_cast<int>(pos);
+  float w0 = 1.0f - w1;
+
+  return v0 * w0 + v1 * w1;
+}
+
 void Sampler::Render(SampleTick tick, const std::list<MidiEventAt>& events,
                      AudioBuffer& buffer) {
   midi_stack_.AddEvents(events);
@@ -228,10 +243,15 @@ void Sampler::Render(SampleTick tick, const std::list<MidiEventAt>& events,
         const float user_env = ps->env_.GetNextEnvelope();
         const float env = wrapper_env * user_env;
 
-        left += ps->sample_->lb_[ps->pos_] * env * LeftPan(ps->pan_);
-        right += ps->sample_->rb_[ps->pos_] * env * RightPan(ps->pan_);
+        left +=
+            Interpolate(ps->sample_->lb_, ps->pos_) * env * LeftPan(ps->pan_);
+        right +=
+            Interpolate(ps->sample_->rb_, ps->pos_) * env * RightPan(ps->pan_);
 
-        ps->pos_ += ps->inc_;
+        // Update the position of the sample taking into account the rate
+        // of playback.
+        ps->pos_ += ps->inc_ * ps->rate_;
+
         if (env == 0.0f || (ps->inc_ > 0 && (ps->pos_ >= ps->end_)) ||
             (ps->inc_ < 0 && (ps->pos_ <= ps->end_))) {
           ps->removing_ = true;

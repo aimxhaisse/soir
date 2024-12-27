@@ -93,6 +93,7 @@ class Sampler:
             decay: float = 0.0,
             sustain: float = 1.0,
             release: float = 0.0,
+            rate: float = 1.0,
     ):
         """Plays a sample by its given name. If there is no exact
         match, attempts to find one that contains the name (for
@@ -109,6 +110,7 @@ class Sampler:
             decay: The decay time in seconds.
             sustain: The sustain level in the [0.0, 1.0] range.
             release: The release time in seconds.
+            rate: The playback rate of the sample.
         """
         assert_in_loop()
 
@@ -122,7 +124,7 @@ class Sampler:
             'decay': decay,
             'sustain': sustain,
             'release': release,
-            'rate': 1.0,
+            'rate': rate,
         }
 
         track = current_loop().track

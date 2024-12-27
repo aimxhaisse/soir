@@ -59,10 +59,11 @@ class Sampler {
   void PlaySample(Sample* sp, const PlaySampleParameters& p);
   void StopSample(Sample* s);
   Sample* GetSample(const std::string& pack, const std::string& name);
+  float Interpolate(const std::vector<float>& v, float pos);
 
   // We only support MONO audio for now.
   struct PlayingSample {
-    int pos_;
+    float pos_;
     Sample* sample_;
     bool removing_ = false;
 
@@ -70,6 +71,7 @@ class Sampler {
     int end_;
     int inc_;
     float pan_;
+    float rate_;
 
     // This ADSR envelope is used to avoid glitches at the beginning
     // and at the end of samples, which is utils with raw data where
