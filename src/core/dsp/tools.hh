@@ -3,13 +3,8 @@
 namespace soir {
 namespace dsp {
 
-float LeftPan(float pan) {
-  return pan > 0.0f ? (1.0f - pan) : 1.0f;
-}
-
-float RightPan(float pan) {
-  return pan < 0.0f ? (1.0f + pan) : 1.0f;
-}
+float LeftPan(float pan);
+float RightPan(float pan);
 
 }  // namespace dsp
 }  // namespace soir
