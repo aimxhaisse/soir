@@ -3,7 +3,6 @@
 
 #include <AudioFile.h>
 #include <absl/log/log.h>
-#include <rapidjson/document.h>
 #include <filesystem>
 
 #include "core/dsp/sampler.hh"
@@ -19,18 +18,18 @@ absl::Status Sampler::Init(SampleManager* sample_manager) {
   return absl::OkStatus();
 }
 
-void Sampler::PlaySample(Sample* sample, float start, float end, float pan,
-                         float a, float d, float s, float r) {
+void Sampler::PlaySample(Sample* sample, const PlaySampleParameters& p) {
   if (sample == nullptr) {
     return;
   }
 
   int duration = static_cast<int>(sample->DurationSamples());
   int sstart = std::max(
-      0,
-      std::min(static_cast<int>(sample->DurationSamples() * start), duration));
+      0, std::min(static_cast<int>(sample->DurationSamples() * p.start_),
+                  duration));
   int ssend = std::max(
-      0, std::min(static_cast<int>(sample->DurationSamples() * end), duration));
+      0,
+      std::min(static_cast<int>(sample->DurationSamples() * p.end_), duration));
 
   const float durationMs = sample->DurationMs(std::abs(ssend - sstart));
   if (durationMs <= kSampleMinimalDurationMs) {
@@ -44,7 +43,7 @@ void Sampler::PlaySample(Sample* sample, float start, float end, float pan,
   ps->pos_ = sstart;
   ps->sample_ = sample;
   ps->inc_ = (sstart < ssend) ? 1 : -1;
-  ps->pan_ = pan;
+  ps->pan_ = p.pan_;
 
   // This is for the envelope to prevent glitches.
 
@@ -63,7 +62,7 @@ void Sampler::PlaySample(Sample* sample, float start, float end, float pan,
 
   // This is for the envelope controlled by the user.
 
-  status = ps->env_.Init(a, d, s, r);
+  status = ps->env_.Init(p.attack_, p.decay_, p.sustain_, p.release_);
   if (status != absl::OkStatus()) {
     LOG(WARNING) << "Failed to initialize envelope in play sample: " << status;
   }
@@ -99,6 +98,41 @@ Sample* Sampler::GetSample(const std::string& pack, const std::string& name) {
   return sample_pack->GetSample(name);
 }
 
+void Sampler::PlaySampleParameters::FromJson(const rapidjson::Value& json,
+                                             PlaySampleParameters* p) {
+  // Offsets
+  if (json.HasMember("start")) {
+    p->start_ = json["start"].GetDouble();
+  }
+  if (json.HasMember("end")) {
+    p->end_ = json["end"].GetDouble();
+  }
+
+  // Pan
+  if (json.HasMember("pan")) {
+    p->pan_ = json["pan"].GetDouble();
+  }
+
+  // Playback rate
+  if (json.HasMember("rate")) {
+    p->rate_ = json["rate"].GetDouble();
+  }
+
+  // Envelope
+  if (json.HasMember("attack")) {
+    p->attack_ = json["attack"].GetDouble();
+  }
+  if (json.HasMember("decay")) {
+    p->decay_ = json["decay"].GetDouble();
+  }
+  if (json.HasMember("sustain")) {
+    p->sustain_ = json["sustain"].GetDouble();
+  }
+  if (json.HasMember("release")) {
+    p->release_ = json["release"].GetDouble();
+  }
+}
+
 void Sampler::HandleSysex(const proto::MidiSysexInstruction& sysex) {
   rapidjson::Document params;
 
@@ -107,49 +141,11 @@ void Sampler::HandleSysex(const proto::MidiSysexInstruction& sysex) {
   auto pack = params["pack"].GetString();
   auto name = params["name"].GetString();
 
-  // Offsets
-
-  float start = 0.0f;
-  float end = 1.0f;
-
-  if (params.HasMember("start")) {
-    start = params["start"].GetDouble();
-  }
-  if (params.HasMember("end")) {
-    end = params["end"].GetDouble();
-  }
-
-  // Pan
-
-  float pan = 0.0f;
-
-  if (params.HasMember("pan")) {
-    pan = params["pan"].GetDouble();
-  }
-
-  // Envelope
-
-  float a = 0.0f;
-  float d = 0.0f;
-  float s = 1.0f;
-  float r = 0.0f;
-
-  if (params.HasMember("attack")) {
-    a = params["attack"].GetDouble() * 1000.0f;
-  }
-  if (params.HasMember("decay")) {
-    d = params["decay"].GetDouble() * 1000.0f;
-  }
-  if (params.HasMember("sustain")) {
-    s = params["sustain"].GetDouble();
-  }
-  if (params.HasMember("release")) {
-    r = params["release"].GetDouble() * 1000.0f;
-  }
-
   switch (sysex.type()) {
     case proto::MidiSysexInstruction::SAMPLER_PLAY: {
-      PlaySample(GetSample(pack, name), start, end, pan, a, d, s, r);
+      PlaySampleParameters p;
+      PlaySampleParameters::FromJson(params, &p);
+      PlaySample(GetSample(pack, name), p);
       break;
     }
 

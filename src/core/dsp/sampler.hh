@@ -1,6 +1,7 @@
 #pragma once
 
 #include <absl/status/status.h>
+#include <rapidjson/document.h>
 #include <libremidi/libremidi.hpp>
 #include <list>
 #include <map>
@@ -31,6 +32,7 @@ static constexpr float kSampleMinimalDurationMs = 2 * kSampleMinimalSmoothingMs;
 static constexpr int kSampleMinimalSmoothingSamples =
     kSampleMinimalDurationMs * kSampleRate / 1000;
 
+// This is the main class that will handle the rendering of the samples
 class Sampler {
  public:
   absl::Status Init(SampleManager* sample_manager);
@@ -40,8 +42,21 @@ class Sampler {
   void ProcessMidiEvents(SampleTick tick);
   void HandleSysex(const proto::MidiSysexInstruction& sysex);
 
-  void PlaySample(Sample* sp, float start, float end, float pan, float a,
-                  float d, float s, float r);
+  // Parameters for PlaySample
+  struct PlaySampleParameters {
+    float start_ = 0.0f;
+    float end_ = 1.0f;
+    float pan_ = 0.0f;
+    float rate_ = 1.0f;
+    float attack_ = 0.0f;
+    float decay_ = 0.0f;
+    float sustain_ = 1.0f;
+    float release_ = 0.0f;
+
+    static void FromJson(const rapidjson::Value& v, PlaySampleParameters* p);
+  };
+
+  void PlaySample(Sample* sp, const PlaySampleParameters& p);
   void StopSample(Sample* s);
   Sample* GetSample(const std::string& pack, const std::string& name);
 
