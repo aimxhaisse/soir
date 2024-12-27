@@ -7,6 +7,7 @@
 #include <filesystem>
 
 #include "core/dsp/sampler.hh"
+#include "core/dsp/tools.hh"
 #include "utils/misc.hh"
 
 namespace soir {
@@ -192,12 +193,8 @@ void Sampler::Render(SampleTick tick, const std::list<MidiEventAt>& events,
 
         const float env = ps->wrapper_.GetNextEnvelope();
 
-        // Left and right panning.
-        const float lp = ps->pan_ > 0.0f ? (1.0f - ps->pan_) : 1.0f;
-        const float rp = ps->pan_ < 0.0f ? (1.0f + ps->pan_) : 1.0f;
-
-        left += ps->sample_->lb_[ps->pos_] * env * lp;
-        right += ps->sample_->rb_[ps->pos_] * env * rp;
+        left += ps->sample_->lb_[ps->pos_] * env * LeftPan(ps->pan_);
+        right += ps->sample_->rb_[ps->pos_] * env * RightPan(ps->pan_);
 
         ps->pos_ += ps->inc_;
         if (env == 0.0f || (ps->inc_ > 0 && (ps->pos_ >= ps->end_)) ||
