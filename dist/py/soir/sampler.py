@@ -89,6 +89,10 @@ class Sampler:
             start: float = 0.0,
             end: float = 1.0,
             pan: float = 0.0,
+            attack: float = 0.0,
+            decay: float = 0.0,
+            sustain: float = 1.0,
+            release: float = 0.0,
     ):
         """Plays a sample by its given name. If there is no exact
         match, attempts to find one that contains the name (for
@@ -101,6 +105,10 @@ class Sampler:
             start: When in the sample to start playing in the [0.0, 1.0] range.
             end: When in the sample to end playing in the [0.0, 1.0] range.
             pan: The panning of the sample in the [-1.0, 1.0] range.
+            attack: The attack time in seconds.
+            decay: The decay time in seconds.
+            sustain: The sustain level in the [0.0, 1.0] range.
+            release: The release time in seconds.
         """
         assert_in_loop()
 
@@ -110,6 +118,10 @@ class Sampler:
             'start': start,
             'end': end,
             'pan': pan,
+            'attack': attack,
+            'decay': decay,
+            'sustain': sustain,
+            'release': release,
         }
 
         track = current_loop().track

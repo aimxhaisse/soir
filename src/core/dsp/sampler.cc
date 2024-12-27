@@ -19,7 +19,8 @@ absl::Status Sampler::Init(SampleManager* sample_manager) {
   return absl::OkStatus();
 }
 
-void Sampler::PlaySample(Sample* sample, float start, float end, float pan) {
+void Sampler::PlaySample(Sample* sample, float start, float end, float pan,
+                         float a, float d, float s, float r) {
   if (sample == nullptr) {
     return;
   }
@@ -45,6 +46,8 @@ void Sampler::PlaySample(Sample* sample, float start, float end, float pan) {
   ps->inc_ = (sstart < ssend) ? 1 : -1;
   ps->pan_ = pan;
 
+  // This is for the envelope to prevent glitches.
+
   const float attackMs = kSampleMinimalSmoothingMs;
   const float releaseMs = kSampleMinimalSmoothingMs;
   const float decayMs = 0.0f;
@@ -57,6 +60,14 @@ void Sampler::PlaySample(Sample* sample, float start, float end, float pan) {
   }
 
   ps->wrapper_.NoteOn();
+
+  // This is for the envelope controlled by the user.
+
+  status = ps->env_.Init(a, d, s, r);
+  if (status != absl::OkStatus()) {
+    LOG(WARNING) << "Failed to initialize envelope in play sample: " << status;
+  }
+  ps->env_.NoteOn();
 
   playing_[sample].push_back(std::move(ps));
 }
@@ -96,9 +107,10 @@ void Sampler::HandleSysex(const proto::MidiSysexInstruction& sysex) {
   auto pack = params["pack"].GetString();
   auto name = params["name"].GetString();
 
+  // Offsets
+
   float start = 0.0f;
   float end = 1.0f;
-  float pan = 0.0f;
 
   if (params.HasMember("start")) {
     start = params["start"].GetDouble();
@@ -106,13 +118,38 @@ void Sampler::HandleSysex(const proto::MidiSysexInstruction& sysex) {
   if (params.HasMember("end")) {
     end = params["end"].GetDouble();
   }
+
+  // Pan
+
+  float pan = 0.0f;
+
   if (params.HasMember("pan")) {
     pan = params["pan"].GetDouble();
   }
 
+  // Envelope
+
+  float a = 0.0f;
+  float d = 0.0f;
+  float s = 1.0f;
+  float r = 0.0f;
+
+  if (params.HasMember("attack")) {
+    a = params["attack"].GetDouble() * 1000.0f;
+  }
+  if (params.HasMember("decay")) {
+    d = params["decay"].GetDouble() * 1000.0f;
+  }
+  if (params.HasMember("sustain")) {
+    s = params["sustain"].GetDouble();
+  }
+  if (params.HasMember("release")) {
+    r = params["release"].GetDouble() * 1000.0f;
+  }
+
   switch (sysex.type()) {
     case proto::MidiSysexInstruction::SAMPLER_PLAY: {
-      PlaySample(GetSample(pack, name), start, end, pan);
+      PlaySample(GetSample(pack, name), start, end, pan, a, d, s, r);
       break;
     }
 
@@ -191,7 +228,9 @@ void Sampler::Render(SampleTick tick, const std::list<MidiEventAt>& events,
           ps->wrapper_.NoteOff();
         }
 
-        const float env = ps->wrapper_.GetNextEnvelope();
+        const float wrapper_env = ps->wrapper_.GetNextEnvelope();
+        const float user_env = ps->env_.GetNextEnvelope();
+        const float env = wrapper_env * user_env;
 
         left += ps->sample_->lb_[ps->pos_] * env * LeftPan(ps->pan_);
         right += ps->sample_->rb_[ps->pos_] * env * RightPan(ps->pan_);
