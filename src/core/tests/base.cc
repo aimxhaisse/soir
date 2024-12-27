@@ -16,7 +16,8 @@ recorder:
       port: 9000
 soir:
   rt:
-    python_path: src/core/rt/py
+    python_paths:
+      - dist/py
     initial_bpm: 130
   grpc:
     host: localhost

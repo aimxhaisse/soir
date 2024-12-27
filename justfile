@@ -25,13 +25,11 @@ dev-build:
 
 # Runs the Soir unit test suites.
 [group('dev')]
-dev-test filter='*':
+dev-test filter='*': dev-build
     #!/usr/bin/env bash
-    tmp=$(mktemp -d)
-    mkdir -p "${tmp}/etc"
     just --justfile {{ justfile() }} prepare-config dist "scripts.yaml.template"
-    poetry -C ${SOIR_DIR} run make test TEST_FILTER={{filter}}
-    rm -rf ${tmp}
+    poetry -C ${SOIR_DIR} run -C ${SOIR_DIR} build/src/core/soir_core_test TEST_FILTER={{filter}}
+    poetry -C ${SOIR_DIR} run -C ${SOIR_DIR} build/src/utils/soir_utils_test TEST_FILTER={{filter}}
 
 # Build and push documentation to soir.dev.
 [group('dev')]
