@@ -23,15 +23,18 @@ void Sampler::PlaySample(Sample* sample, const PlaySampleParameters& p) {
     return;
   }
 
-  int duration = static_cast<int>(sample->DurationSamples()) * p.rate_;
-  int sstart = std::max(
-      0, std::min(static_cast<int>(sample->DurationSamples() * p.start_),
-                  duration));
-  int ssend = std::max(
-      0,
-      std::min(static_cast<int>(sample->DurationSamples() * p.end_), duration));
+  // We don't scale this to the rate, this is the window in which we look
+  // for samples.
+  int range = static_cast<int>(sample->DurationSamples());
+  int sstart = std::max(0, std::min(static_cast<int>(range * p.start_), range));
+  int ssend = std::max(0, std::min(static_cast<int>(range * p.end_), range));
 
-  const float durationMs = sample->DurationMs(std::abs(ssend - sstart));
+  // Prevent glitches if the sample to play is too small. We might
+  // need to find a better approach here, devices like elektron
+  // machines can play in loop very short samples without glitch,
+  // likely through some interpolation.
+  const float durationMs =
+      sample->DurationMs(std::abs(ssend - sstart)) * p.rate_;
   if (durationMs <= kSampleMinimalDurationMs) {
     return;
   }
@@ -269,7 +272,7 @@ void Sampler::Render(SampleTick tick, const std::list<MidiEventAt>& events,
 
         // Update the position of the sample taking into account the rate
         // of playback.
-        ps->pos_ += ps->inc_ * ps->rate_;
+        ps->pos_ += static_cast<float>(ps->inc_) * ps->rate_;
 
         if (env == 0.0f || (ps->inc_ > 0 && (ps->pos_ >= ps->end_)) ||
             (ps->inc_ < 0 && (ps->pos_ <= ps->end_))) {

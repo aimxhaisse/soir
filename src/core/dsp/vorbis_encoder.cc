@@ -21,7 +21,7 @@ absl::Status VorbisEncoder::Init(Writer& writer) {
 
   vorbis_comment_init(&vc_);
 
-  vorbis_comment_add_tag(&vc_, "title", "Maethstro L I V E");
+  vorbis_comment_add_tag(&vc_, "title", "soir");
   vorbis_analysis_init(&vd_, &vi_);
   vorbis_block_init(&vd_, &vb_);
 
