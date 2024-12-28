@@ -216,15 +216,17 @@ sample-convert-48khz sample-dir:
     #!/usr/bin/env bash
 
     function convert {
-        if [ -f "${1}/${2}" ]; then
-            ffmpeg -i "${1}/${2}" -ar 48000 -ac 2 "${1}/${2}.48khz.wav"
-            rm "${1}/${2}"
-            mv "${1}/${2}.48khz.wav" "${1}/${2}"
-        fi
+        sp="${1}/${2}"
+        echo -n "Converting ${sp} to 48kHz... "
+        ffmpeg -i "${sp}" -ar 48000 -ac 2 "${sp}.48khz.wav" &> /dev/null
+        rm "${sp}"
+        mv "${sp}.48khz.wav" "${sp}"
+        echo "OK"
     }
 
-    for file in $(find "{{ sample-dir }}" -type f -name "*.wav"); do
-        convert $(dirname "${file}") $(basename "${file}")
+    find "{{ sample-dir }}" -name "*.wav" -print0 | while read -d $'\0' file
+    do
+        convert "$(dirname "${file}")" "$(basename "${file}")"
     done
 
 

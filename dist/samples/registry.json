@@ -7,6 +7,13 @@
       "license": "https://creativecommons.org/licenses/by/3.0/",
       "uploader": "s. rannou <mxs@sbrk.org>",
       "url": "https://data.mxs.sbrk.org/hazardous.tar.gz"
+    },
+    {
+      "name": "drumnibus",
+      "description": "electro drums from Legowelt",
+      "author": "Legowelt",
+      "uploader": "s. rannou <mxs@sbrk.org>",
+      "url": "https://data.mxs.sbrk.org/drumnibus.tar.gz"
     }
   ]
 }
