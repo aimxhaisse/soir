@@ -683,31 +683,36 @@
 
 <h1 id="quick-start">Quick Start</h1>
 <h2 id="installation">Installation</h2>
+<p>Run this command to install soir on your system:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>curl -sL https://soir.dev/install.sh | bash
+</code></pre></div>
+<p>Then add the following to your shell configuration:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>export SOIR_DIR=&quot;$HOME/.soir&quot;
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>export PATH=&quot;${SOIR_DIR}/bin:$PATH&quot;
 </code></pre></div>
 <p>For now, only Mac OS with M processors are supported.</p>
 <h2 id="your-first-session">Your First Session</h2>
 <p>Let's start by installing the <code>hazardous</code> sample pack:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>soir<span class="w"> </span>sample-install-pack<span class="w"> </span>hazardous
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>soir<span class="w"> </span>sample-install-pack<span class="w"> </span>hazardous
 </code></pre></div>
 <p>Now we can create a new soir session and run it:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>soir<span class="w"> </span>new-session<span class="w"> </span>session-0x01
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>soir<span class="w"> </span>run-session<span class="w"> </span>session-0x01
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>soir<span class="w"> </span>session-new<span class="w"> </span>session-0x01
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>soir<span class="w"> </span>session-run<span class="w"> </span>session-0x01
 </code></pre></div>
 <p>Then in another terminal, open the <code>session-0x01/live.py</code> file and paste the following:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="nd">@live</span><span class="p">()</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="k">def</span> <span class="nf">setup</span><span class="p">():</span>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>    <span class="n">bpm</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="mi">120</span><span class="p">)</span>
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>    <span class="n">tracks</span><span class="o">.</span><span class="n">setup</span><span class="p">([</span>
-<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>        <span class="n">tracks</span><span class="o">.</span><span class="n">mk_sampler</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span>
-<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>    <span class="p">])</span>
-<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>
-<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="n">sp</span> <span class="o">=</span> <span class="n">sampler</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s1">&#39;hazardous&#39;</span><span class="p">)</span>
-<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>
-<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="nd">@loop</span><span class="p">(</span><span class="n">beats</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
-<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="k">def</span> <span class="nf">hazardous</span><span class="p">():</span>
-<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>    <span class="n">sp</span><span class="o">.</span><span class="n">play</span><span class="p">(</span><span class="s1">&#39;synth-filter2&#39;</span><span class="p">,</span> <span class="n">pan</span><span class="o">=</span><span class="n">rnd</span><span class="o">.</span><span class="n">between</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">))</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nd">@live</span><span class="p">()</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="k">def</span> <span class="nf">setup</span><span class="p">():</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>    <span class="n">bpm</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="mi">120</span><span class="p">)</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>    <span class="n">tracks</span><span class="o">.</span><span class="n">setup</span><span class="p">([</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>        <span class="n">tracks</span><span class="o">.</span><span class="n">mk_sampler</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>    <span class="p">])</span>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="n">sp</span> <span class="o">=</span> <span class="n">sampler</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s1">&#39;hazardous&#39;</span><span class="p">)</span>
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>
+<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="nd">@loop</span><span class="p">(</span><span class="n">beats</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="k">def</span> <span class="nf">hazardous</span><span class="p">():</span>
+<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a>    <span class="n">sp</span><span class="o">.</span><span class="n">play</span><span class="p">(</span><span class="s1">&#39;synth-filter2&#39;</span><span class="p">,</span> <span class="n">pan</span><span class="o">=</span><span class="n">rnd</span><span class="o">.</span><span class="n">between</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">))</span>
 </code></pre></div>
 
 
