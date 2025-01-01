@@ -20,8 +20,17 @@ import random
 def between(begin: float, end: float):
     """Get a random number between two values.
 
-     Args:
+    Args:
          begin: The lower bound.
          end: The upper bound.
     """
     return random.uniform(begin, end)
+
+
+def one_in(chance: int) -> bool:
+    """Returns True with a chance of 1 in `chance`.
+
+    Args:
+         chance: The chance of returning True.
+    """
+    return random.randint(0, chance) == 0
