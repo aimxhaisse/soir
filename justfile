@@ -4,12 +4,14 @@
 # this justfile.
 
 set allow-duplicate-recipes := true
+set allow-duplicate-variables := true
+
+export SOIR_DIR := "./dist"
 
 import 'dist/bin/soir'
 
 _default:
     @just --list --unsorted --justfile {{ justfile() }}
-
 
 # Build Soir.
 [group('dev')]

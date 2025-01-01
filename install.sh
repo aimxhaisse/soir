@@ -112,8 +112,10 @@ function download_and_install {
 
     ensure mkdir -p "${SOIR_DIR}"
     ensure curl -sL "https://github.com/aimxhaisse/soir/releases/download/${tag}/${release}.tar.gz" -o "${SOIR_DIR}/soir.tar.gz"
-    ensure tar -xf "${SOIR_DIR}/soir.tar.gz" -C "${SOIR_DIR}"
+    ensure tar -xf "${SOIR_DIR}/soir.tar.gz" --strip-components=1 -C "${SOIR_DIR}"
     ensure rm -f "${SOIR_DIR}/soir.tar.gz"
+    ensure chmod +x "${SOIR_DIR}/bin/soir"
+    ensure ${SOIR_DIR}/bin/soir setup-init
 }
 
 while [[ $# -gt 0 ]]; do
@@ -121,9 +123,6 @@ while [[ $# -gt 0 ]]; do
         -h|--help)
             usage
             exit 0
-            ;;
-        -s|--with-samples)
-            WITH_SAMPLES=1
             ;;
         *)
             err "Unknown option: $1"
@@ -136,6 +135,7 @@ done
 
 check_deps && download_and_install
 
+echo ""
 echo "> █▀ █▀█ █ █▀█"
 echo "> ▄█ █▄█ █ █▀▄ installed to ${SOIR_DIR}"
 echo ">"
