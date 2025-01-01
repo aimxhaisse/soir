@@ -1,9 +1,18 @@
 # Quick Start
 
 ## Installation
-       
+
+Run this command to install soir on your system:
+
 ```
 curl -sL https://soir.dev/install.sh | bash
+```
+
+Then add the following to your shell configuration:
+
+```
+export SOIR_DIR="$HOME/.soir"
+export PATH="${SOIR_DIR}/bin:$PATH"
 ```
 
 For now, only Mac OS with M processors are supported.
@@ -19,8 +28,8 @@ soir sample-install-pack hazardous
 Now we can create a new soir session and run it:
     
 ```sh
-soir new-session session-0x01
-soir run-session session-0x01
+soir session-new session-0x01
+soir session-run session-0x01
 ```
 
 Then in another terminal, open the `session-0x01/live.py` file and paste the following:

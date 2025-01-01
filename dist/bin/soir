@@ -13,10 +13,16 @@ _default:
 [group('setup')]
 setup-info:
     #!/usr/bin/env bash
-    echo "SOIR_BASE_DIR: $SOIR_BASE_DIR"
     echo "SOIR_DIR: $SOIR_DIR"
     echo "SOIR_BIN_DIR: $SOIR_BIN_DIR"
     echo "SOIR_SAMPLES_DIR: $SOIR_SAMPLES_DIR"
+
+# Initializes soir Python environment.
+[group('setup')]
+setup-init:
+    #!/usr/bin/env bash
+    poetry -C ${SOIR_DIR} env use -C ${SOIR_DIR} python3.11
+    poetry -C ${SOIR_DIR} install -C ${SOIR_DIR}
 
 # Check if dependencies are installed.
 [group('setup')]
