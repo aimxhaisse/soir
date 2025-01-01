@@ -1,9 +1,8 @@
 #!/usr/bin/env just --justfile
 
-export SOIR_BASE_DIR := env("SOIR_BASE_DIR", env_var("HOME"))
-export SOIR_DIR := env("SOIR_DIR", SOIR_BASE_DIR + "/.soir")
-export SOIR_BIN_DIR := env("SOIR_BIN_DIR", SOIR_DIR + "/bin")
-export SOIR_SAMPLES_DIR := env("SOIR_SAMPLES_DIR", SOIR_DIR + "/samples")
+export SOIR_DIR := env("SOIR_DIR", env_var("HOME") + "/.soir")
+export SOIR_BIN_DIR := SOIR_DIR + "/bin"
+export SOIR_SAMPLES_DIR := SOIR_DIR + "/samples"
 
 _default:
     @just --list --unsorted --justfile {{ justfile() }}
