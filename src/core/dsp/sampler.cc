@@ -55,10 +55,9 @@ void Sampler::PlaySample(Sample* sample, const PlaySampleParameters& p) {
   const float attackMs = kSampleMinimalSmoothingMs;
   const float releaseMs = kSampleMinimalSmoothingMs;
   const float decayMs = 0.0f;
-  const float sustainLevel = 1.0f;
+  const float level = 1.0f;
 
-  absl::Status status =
-      ps->wrapper_.Init(attackMs, decayMs, sustainLevel, releaseMs);
+  absl::Status status = ps->wrapper_.Init(attackMs, decayMs, level, releaseMs);
   if (status != absl::OkStatus()) {
     LOG(WARNING) << "Failed to initialize envelope in play sample: " << status;
   }
@@ -67,7 +66,7 @@ void Sampler::PlaySample(Sample* sample, const PlaySampleParameters& p) {
 
   // This is for the envelope controlled by the user.
 
-  status = ps->env_.Init(p.attack_, p.decay_, p.sustain_, p.release_);
+  status = ps->env_.Init(p.attack_, p.decay_, p.release_, p.level_);
   if (status != absl::OkStatus()) {
     LOG(WARNING) << "Failed to initialize envelope in play sample: " << status;
   }
@@ -143,8 +142,8 @@ void Sampler::PlaySampleParameters::FromJson(const rapidjson::Value& json,
   if (json.HasMember("decay")) {
     p->decay_ = json["decay"].GetDouble();
   }
-  if (json.HasMember("sustain")) {
-    p->sustain_ = json["sustain"].GetDouble();
+  if (json.HasMember("level")) {
+    p->level_ = json["level"].GetDouble();
   }
   if (json.HasMember("release")) {
     p->release_ = json["release"].GetDouble();

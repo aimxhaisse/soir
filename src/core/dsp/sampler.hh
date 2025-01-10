@@ -50,7 +50,7 @@ class Sampler {
     float rate_ = 1.0f;
     float attack_ = 0.0f;
     float decay_ = 0.0f;
-    float sustain_ = 1.0f;
+    float level_ = 1.0f;
     float release_ = 0.0f;
     float amp_ = 1.0f;
 

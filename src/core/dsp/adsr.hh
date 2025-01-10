@@ -18,8 +18,8 @@ class ADSR {
   // the duration of the current phase without glitching (steps will
   // stretch in time without creating a too big jump for the
   // envelope).
-  absl::Status Init(float attackMs, float decayMs, float sustainLevel,
-                    float releaseMs);
+  absl::Status Init(float attackMs, float decayMs, float relMs, float level);
+
   void Reset();
   void NoteOn();
   void NoteOff();

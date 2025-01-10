@@ -91,7 +91,8 @@ class Sampler:
             pan: float = 0.0,
             attack: float = 0.0,
             decay: float = 0.0,
-            sustain: float = 1.0,
+            sustain: float | None = None,
+            level: float = 1.0,
             release: float = 0.0,
             rate: float = 1.0,
             amp: float = 1.0,
@@ -109,8 +110,9 @@ class Sampler:
             pan: The panning of the sample in the [-1.0, 1.0] range.
             attack: The attack time in seconds.
             decay: The decay time in seconds.
-            sustain: The sustain level in the [0.0, 1.0] range.
+            sustain: The sustain time in seconds, infered from the sample duration if None.
             release: The release time in seconds.
+            level: The sustain level in the [0.0, 1.0] range.
             rate: The playback rate of the sample.
             amp: The amplitude of the sample.
         """
@@ -124,7 +126,7 @@ class Sampler:
             'pan': pan,
             'attack': attack,
             'decay': decay,
-            'sustain': sustain,
+            'level': level,
             'release': release,
             'rate': rate,
             'amp': amp,

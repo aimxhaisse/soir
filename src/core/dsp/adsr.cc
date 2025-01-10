@@ -6,23 +6,23 @@
 namespace soir {
 namespace dsp {
 
-absl::Status ADSR::Init(float a, float d, float s, float r) {
+absl::Status ADSR::Init(float a, float d, float r, float level) {
   if (a < 0.0) {
     return absl::InvalidArgumentError("Attack must be > 0");
   }
   if (d < 0.0) {
     return absl::InvalidArgumentError("Decay must be > 0");
   }
-  if (s < 0.0 || s > 1.0) {
-    return absl::InvalidArgumentError("Sustain not in [0,1]");
-  }
   if (r < 0.0) {
     return absl::InvalidArgumentError("Release must be > 0");
+  }
+  if (level < 0.0 || level > 1.0) {
+    return absl::InvalidArgumentError("Sustain level not in [0,1]");
   }
 
   attackMs_ = a;
   decayMs_ = d;
-  sustainLevel_ = s;
+  sustainLevel_ = level;
   releaseMs_ = r;
 
   if (attackMs_) {
