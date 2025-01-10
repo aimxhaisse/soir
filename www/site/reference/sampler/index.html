@@ -1142,7 +1142,7 @@ the duration is the length of the sample in seconds.</p>
 
 
 <h4 id="soir.sampler.Sampler.play" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">play</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">pan</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">attack</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">sustain</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">release</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">rate</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">amp</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">play</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">pan</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">attack</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">sustain</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">release</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">rate</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">amp</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span></code>
 
 </h4>
 
@@ -1254,15 +1254,15 @@ to play simultaneously multiple times the same sample.</p>
           <tr class="doc-section-item">
             <td><code>sustain</code></td>
             <td>
-                  <code>float</code>
+                  <code>float | None</code>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>The sustain level in the [0.0, 1.0] range.</p>
+                <p>The sustain time in seconds, infered from the sample duration if None.</p>
               </div>
             </td>
             <td>
-                  <code>1.0</code>
+                  <code>None</code>
             </td>
           </tr>
           <tr class="doc-section-item">
@@ -1277,6 +1277,20 @@ to play simultaneously multiple times the same sample.</p>
             </td>
             <td>
                   <code>0.0</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code>level</code></td>
+            <td>
+                  <code>float</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The sustain level in the [0.0, 1.0] range.</p>
+              </div>
+            </td>
+            <td>
+                  <code>1.0</code>
             </td>
           </tr>
           <tr class="doc-section-item">
