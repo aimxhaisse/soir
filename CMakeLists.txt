@@ -4,9 +4,8 @@ include(ExternalProject)
 
 cmake_minimum_required(VERSION 3.28.1)
 
-set(Python_FIND_VIRTUALENV ONLY)
-set(Python_VIRTUALENV FIRST)
-set(PYBIND11_FINDPYTHON ON)
+set(PYBIND11_FINDPYTHON True)
+set(BUILD_SHARED_LIBS OFF)
 
 project(
   soir
@@ -16,7 +15,6 @@ project(
 set(CMAKE_CXX_STANDARD 20)
 set(LINK_OPTIONS "-w")
 
-find_package(Python 3.11 COMPONENTS Interpreter Development)
 find_package(efsw CONFIG REQUIRED)
 find_package(audiofile CONFIG REQUIRED)
 find_package(gRPC CONFIG REQUIRED)
@@ -62,4 +60,10 @@ target_link_libraries(
   absl::strings
   absl::flags
   absl::flags_parse
+)
+
+add_custom_command(
+  TARGET soir
+  POST_BUILD
+  COMMAND strip $<TARGET_FILE:soir>
 )
