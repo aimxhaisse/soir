@@ -9,6 +9,7 @@ set allow-duplicate-variables := true
 export SOIR_DIR := "./dist"
 
 import 'dist/bin/soir'
+import 'pkg/justfile'
 
 _default:
     @just --list --unsorted --justfile {{ justfile() }}
