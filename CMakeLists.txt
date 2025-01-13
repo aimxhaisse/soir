@@ -61,9 +61,3 @@ target_link_libraries(
   absl::flags
   absl::flags_parse
 )
-
-add_custom_command(
-  TARGET soir
-  POST_BUILD
-  COMMAND strip $<TARGET_FILE:soir>
-)
