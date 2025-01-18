@@ -10,11 +10,10 @@ function, existing tracks are untouched.
 ## Setup tracks
 
 ``` python
-tracks.setup([
-    tracks.mk('sampler', 0),
-    tracks.mk('sampler', 1),
-    tracks.mk('sampler', 2),
-])
+tracks.setup({
+    'bass': tracks.mk('sampler'),
+    'melody': tracks.mk('sampler'),
+})
 ```
 
 ## Get current tracks
@@ -47,25 +46,25 @@ class Track:
     """Representation of a Soir track.
 
     Attributes:
+        name: The track name.
         instrument: The instrument type.
-        track: The track id.
         muted: The muted state. Defaults to None.
         volume: The volume. Defaults to None.
         pan: The pan. Defaults to None.
         extra: Extra parameters. Defaults to None.
     """
+    name: str = None
     instrument: str = None
-    track: int = None
     muted: bool | None = None
     volume: float | None  = None
     pan: float | None = None
     extra: dict | None = None
 
     def __repr__(self):
-        return f'Track(instrument={self.instrument}, track={self.track}, muted={self.muted}, volume={self.volume}, pan={self.pan})'
+        return f'Track(name={self.name}, instrument={self.instrument}, muted={self.muted}, volume={self.volume}, pan={self.pan})'
 
 
-def layout() -> list[Track]:
+def layout() -> dict[Track]:
     """Get the current tracks.
 
     Returns:
@@ -76,29 +75,33 @@ def layout() -> list[Track]:
     """
     assert_not_in_loop()
 
-    return [Track(**t) for t in get_tracks_()]
+    return {trk['name']: Track(**trk) for trk in get_tracks_()}
 
 
-def setup(tracks: list[Track]) -> bool:
+def setup(tracks: dict[str, Track]) -> bool:
     """Setup tracks.
 
     Args:
-        tracks (list[Track]): The tracks to setup.
+        tracks (dict[str, Track]): The tracks to setup.
 
     Raises:
         InLoopException: If called from inside a loop.
     """
     assert_not_in_loop()
 
-    return setup_tracks_([asdict(track) for track in tracks])
+    track_dict = {}
+    for name, track in tracks.items():
+        track.name = name
+        track_dict[name] = asdict(track)
+
+    return setup_tracks_(track_dict)
 
 
-def mk(instrument: str, track: int, muted=None, volume=None, pan=None, extra=None) -> Track:
+def mk(instrument: str, muted=None, volume=None, pan=None, extra=None) -> Track:
     """Creates a new track.
 
     Args:
         instrument (str): The instrument type.
-        track (int): The track number.
         muted (bool, optional): The muted state. Defaults to None.
         volume (float, optional): The volume. Defaults to None.
         pan (float, optional): The pan. Defaults to None.
@@ -107,7 +110,6 @@ def mk(instrument: str, track: int, muted=None, volume=None, pan=None, extra=Non
     t = Track()
 
     t.instrument = instrument
-    t.track = track
     t.muted = muted
     t.volume = volume
     t.pan = pan
@@ -116,20 +118,19 @@ def mk(instrument: str, track: int, muted=None, volume=None, pan=None, extra=Non
     return t
 
 
-def mk_sampler(track: int, muted=None, volume=None, pan=None, extra=None) -> Track:
+def mk_sampler(muted=None, volume=None, pan=None, extra=None) -> Track:
     """Creates a new sampler track.
 
     Args:
-        track (int): The track id.
         muted (bool, optional): The muted state. Defaults to None.
         volume (float, optional): The volume. Defaults to None.
         pan (float, optional): The pan. Defaults to None.
         extra (dict, optional): Extra parameters. Defaults to None.
     """
-    return mk('sampler', track, muted, volume, pan, extra)
+    return mk('sampler', muted, volume, pan, extra)
 
 
-def mk_midi(track: int, muted=None, volume=None, pan=None, midi_device=0, audio_device=0) -> Track:
+def mk_midi(muted=None, volume=None, pan=None, midi_device=0, audio_device=0) -> Track:
     """Creates a new midi track.
 
     Args:
@@ -140,4 +141,4 @@ def mk_midi(track: int, muted=None, volume=None, pan=None, midi_device=0, audio_
         midi_device (int, optional): The midi device. Defaults to -1.
         audio_device (int, optional): The audio device. Defaults to -1.
     """
-    return mk('midi_ext', track, muted, volume, pan, extra={'midi_device': midi_device, 'audio_device': audio_device})
+    return mk('midi_ext', muted, volume, pan, extra={'midi_device': midi_device, 'audio_device': audio_device})

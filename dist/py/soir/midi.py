@@ -25,7 +25,7 @@ from soir.internals import (
 )
 from soir.errors import (
     UnknownMidiTrackException,
-)       
+)
 
 
 
@@ -39,15 +39,15 @@ class use_chan():
     Examples:
 
     ``` python
-    @loop(beats=4, track=1)
+    @loop(track='bass', beats=4)
     def my_loop:
-        # This block will send MIDI events to channel 1.
+        # This block will send MIDI events to channel 1 on the 'bass' track.
         with midi.use_chan(1):
             midi.note_on(60)
             sleep(1)
             midi.note_off(60)
 
-       # From this point on, MIDI events will be sent to channel 3.
+       # From this point on, MIDI events will be sent to channel 3 on the 'bass' track.
        midi.use_chan(3)
        midi.note_on(60)
     ```
@@ -85,7 +85,7 @@ def _get_chan(chan = None) -> int:
 
 
 def note_on(note: int, velocity: int = 127, chan = None) -> float:
-    """Send the MIDI note to the external synthesizer using the track id of the loop as MIDI channel.
+    """Send the MIDI note to the external synthesizer configured on the track.
     Args:
         note: The MIDI note to send.
         velocity: The velocity. Defaults to 127.
@@ -96,7 +96,10 @@ def note_on(note: int, velocity: int = 127, chan = None) -> float:
     """
     loop = assert_in_loop()
     chan = _get_chan(chan)
+
     track = loop.track
+    if not track:
+        raise UnknownMidiTrackException()
 
     schedule_(
         loop.current_offset,
@@ -117,7 +120,10 @@ def note_off(note: int, velocity: int = 127, chan: int | None = None) -> float:
     """
     loop = assert_in_loop()
     chan = _get_chan(chan)
+
     track = loop.track
+    if not track:
+        raise UnknownMidiTrackException()
 
     schedule_(
         loop.current_offset,
@@ -139,7 +145,10 @@ def note(note: int, duration: float, velocity: int = 127, chan: int | None = Non
     """
     loop = assert_in_loop()
     chan = _get_chan(chan)
+
     track = loop.track
+    if not track:
+        raise UnknownMidiTrackException()
 
     schedule_(
         loop.current_offset,

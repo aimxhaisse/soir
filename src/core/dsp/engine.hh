@@ -70,12 +70,12 @@ class Engine {
   // during the processing of a block.
   std::mutex setup_tracks_mutex_;
   std::mutex tracks_mutex_;
-  std::map<int, std::unique_ptr<Track>> tracks_;
+  std::map<std::string, std::unique_ptr<Track>> tracks_;
 
   // MIDI events are pushed by the RT engine and consumed by the DSP
   // engine upon each block processing at the beginning.
   std::mutex msgs_mutex_;
-  std::map<int, std::list<MidiEventAt>> msgs_by_track_;
+  std::map<std::string, std::list<MidiEventAt>> msgs_by_track_;
 
   std::unique_ptr<SampleManager> sample_manager_;
 };

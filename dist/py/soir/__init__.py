@@ -45,13 +45,13 @@ module. The available modules are:
 def setup():
     bpm.set(120)
 
-    tracks.setup([
-        tracks.mk_sampler(1, muted=False, volume=100),
-    ])
+    tracks.setup({
+        'sampler': tracks.mk_sampler(muted=False, volume=100),
+    })
 
 s = sampler.new('passage')
 
-@loop(beats=4, track=1)
+@loop(track='sampler', beats=4)
 def kick():
     for i in range(4):
         s.play('kick')
@@ -67,7 +67,7 @@ import soir.errors
 import soir.internals
 
 
-def loop(beats: int=4, track: int=1, align: bool=True) -> callable:
+def loop(track: str=None, beats: int=4, align: bool=True) -> callable:
     """Decorator to create a loop that is rescheduled every given number of beats.
 
     The concept of a loop is similar to [Sonic
@@ -81,20 +81,20 @@ def loop(beats: int=4, track: int=1, align: bool=True) -> callable:
     engine.
 
     ``` python
-    @loop(beats=4, track=1)
+    @loop('bass', beats=4, track=1)
     def my_loop():
       log("Hello World")
     ```
 
     Args:
-        beats: The duration of the loop in beats.
         track: The track to use.
+        beats: The duration of the loop in beats.
         align: Whether to align the loop on its next beat sequence.
 
     Returns:
         A decorator registering and scheduling the function in a loop.
     """
-    return soir.internals.loop(beats, track, align)
+    return soir.internals.loop(track, beats, align)
 
 
 def live() -> callable:
@@ -103,9 +103,9 @@ def live() -> callable:
     ``` python
     @live
     def setup:
-      tracks.setup([
-        tracks.mk("sampler", 1, muted=False, volume=100),
-      ])
+      tracks.setup({
+        'bass': tracks.mk("sampler", 1, muted=False, volume=100),
+      })
     ```
 
     Returns:
