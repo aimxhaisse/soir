@@ -842,15 +842,15 @@ synthesizers.</p>
 can be used as a context manager to set the MIDI channel to use, or
 as a function from within a loop.</p>
 <p>Examples:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nd">@loop</span><span class="p">(</span><span class="n">beats</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">track</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nd">@loop</span><span class="p">(</span><span class="n">track</span><span class="o">=</span><span class="s1">&#39;bass&#39;</span><span class="p">,</span> <span class="n">beats</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="k">def</span> <span class="nf">my_loop</span><span class="p">:</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="c1"># This block will send MIDI events to channel 1.</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="c1"># This block will send MIDI events to channel 1 on the &#39;bass&#39; track.</span>
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="k">with</span> <span class="n">midi</span><span class="o">.</span><span class="n">use_chan</span><span class="p">(</span><span class="mi">1</span><span class="p">):</span>
 <a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>        <span class="n">midi</span><span class="o">.</span><span class="n">note_on</span><span class="p">(</span><span class="mi">60</span><span class="p">)</span>
 <a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>        <span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 <a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>        <span class="n">midi</span><span class="o">.</span><span class="n">note_off</span><span class="p">(</span><span class="mi">60</span><span class="p">)</span>
 <a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>   <span class="c1"># From this point on, MIDI events will be sent to channel 3.</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>   <span class="c1"># From this point on, MIDI events will be sent to channel 3 on the &#39;bass&#39; track.</span>
 <a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>   <span class="n">midi</span><span class="o">.</span><span class="n">use_chan</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
 <a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>   <span class="n">midi</span><span class="o">.</span><span class="n">note_on</span><span class="p">(</span><span class="mi">60</span><span class="p">)</span>
 </code></pre></div>
@@ -1096,7 +1096,7 @@ as a function from within a loop.</p>
 
     <div class="doc doc-contents ">
 
-      <p>Send the MIDI note to the external synthesizer using the track id of the loop as MIDI channel.
+      <p>Send the MIDI note to the external synthesizer configured on the track.
 Args:
     note: The MIDI note to send.
     velocity: The velocity. Defaults to 127.
