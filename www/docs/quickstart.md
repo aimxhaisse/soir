@@ -39,13 +39,13 @@ Then in another terminal, open the `session-0x01/live.py` file and paste the fol
 def setup():
     bpm.set(120)
 
-    tracks.setup([
-        tracks.mk_sampler(1),
-    ])
+    tracks.setup({
+        'exp': tracks.mk_sampler(),
+    })
 
 sp = sampler.new('hazardous')
 
-@loop(beats=8)
+@loop(track='exp', beats=8)
 def hazardous():
     sp.play('synth-filter2', pan=rnd.between(-1.0, 1.0))
 ```
