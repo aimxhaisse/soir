@@ -9,13 +9,13 @@ bpm.set(110)
 
 @live
 def setup():
-    tracks.setup([
-        tracks.mk("mono_sampler", 1, muted=False, volume=100),
-    ])
+    tracks.setup({
+        'drums': tracks.mk_sampler(muted=False, volume=100),
+    })
 
 s = sampler.new('passage')
 
-@loop(track=1, beats=4)
+@loop(track='drums', beats=4)
 def beats():
     for i in range(4):
         s.play('kick')
