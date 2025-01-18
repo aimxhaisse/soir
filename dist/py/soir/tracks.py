@@ -68,7 +68,7 @@ def layout() -> dict[Track]:
     """Get the current tracks.
 
     Returns:
-        list[Track]: The current tracks.
+        dict[Track]: The current tracks.
 
     Raises:
         InLoopException: If called from inside a loop.
