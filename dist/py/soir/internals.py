@@ -32,7 +32,7 @@ current_loop_ = None
 class Loop_:
     """Helper class to manage a loop function.
     """
-    def __init__(self, name: str, beats: int, track: int, align: bool, func: callable):
+    def __init__(self, name: str, beats: int, track: str | None, align: bool, func: callable):
         self.name = name
         self.beats = beats
         self.track = track
@@ -80,7 +80,7 @@ class Loop_:
         schedule_(at, _loop)
 
 
-def loop(beats: int, track: int, align: bool) -> callable:
+def loop(track: str | None, beats: int, align: bool) -> callable:
 
     def wrapper(func):
         name = func.__name__

@@ -190,7 +190,7 @@ absl::Status Engine::Run() {
       }
     }
 
-    std::map<int, std::list<MidiEventAt>> events;
+    std::map<std::string, std::list<MidiEventAt>> events;
     {
       std::lock_guard<std::mutex> lock(msgs_mutex_);
       events.swap(msgs_by_track_);
@@ -201,7 +201,7 @@ absl::Status Engine::Run() {
       std::scoped_lock<std::mutex> lock(tracks_mutex_);
       for (auto& it : tracks_) {
         auto track = it.second.get();
-        auto evlist = events[track->GetTrackId()];
+        auto evlist = events[track->GetTrackName()];
         SetTicks(evlist);
         track->Render(current_tick_, evlist, buffer);
       }
@@ -254,25 +254,25 @@ absl::Status Engine::SetupTracks(const std::list<TrackSettings>& settings) {
 
   // Use maps here to ensure we don't override the same track multiple
   // times.
-  std::map<int, TrackSettings> tracks_to_add;
-  std::map<int, TrackSettings> tracks_to_update;
+  std::map<std::string, TrackSettings> tracks_to_add;
+  std::map<std::string, TrackSettings> tracks_to_update;
 
   // Check what we need to do.
   {
     std::scoped_lock<std::mutex> lock(tracks_mutex_);
     for (auto& track_settings : settings) {
-      auto track_id = track_settings.track_;
-      auto it = tracks_.find(track_id);
+      auto name = track_settings.name_;
+      auto it = tracks_.find(name);
 
       if (it == tracks_.end() || !it->second->CanFastUpdate(track_settings)) {
-        tracks_to_add[track_id] = track_settings;
+        tracks_to_add[name] = track_settings;
       } else {
-        tracks_to_update[track_id] = track_settings;
+        tracks_to_update[name] = track_settings;
       }
     }
   }
 
-  std::map<int, std::unique_ptr<Track>> updated_tracks;
+  std::map<std::string, std::unique_ptr<Track>> updated_tracks;
 
   // Perform slow operations here.
   for (auto& track : tracks_to_add) {
@@ -290,14 +290,14 @@ absl::Status Engine::SetupTracks(const std::list<TrackSettings>& settings) {
   {
     std::scoped_lock<std::mutex> lock(tracks_mutex_);
     for (auto& track_request : tracks_to_update) {
-      auto track_id = track_request.first;
-      auto& track = tracks_[track_id];
+      auto name = track_request.first;
+      auto& track = tracks_[name];
 
       // This can't fail otherwise the design is not atomic, we don't
       // want partial upgrades to be possible.
       track->FastUpdate(track_request.second);
 
-      updated_tracks[track_id] = std::move(track);
+      updated_tracks[name] = std::move(track);
     }
 
     tracks_.swap(updated_tracks);

@@ -13,20 +13,21 @@ static constexpr uint64_t kOneBeat = 1000000;
 // map it to a tick on the rendering side.
 class MidiEventAt {
  public:
-  MidiEventAt(int track, const libremidi::message& msg, absl::Time at)
+  MidiEventAt(const std::string& track, const libremidi::message& msg,
+              absl::Time at)
       : track_(track), msg_(msg), at_(at), tick_(0) {}
 
-  int Track() const { return track_; }
+  const std::string& Track() const { return track_; }
   const libremidi::message& Msg() const { return msg_; }
   const absl::Time At() const { return at_; }
   void SetTick(SampleTick tick) { tick_ = tick; }
   SampleTick Tick() const { return tick_; }
 
  private:
-  // Track number of the event, this is used to route the event to the
+  // Track name of the event, this is used to route the event to the
   // correct track in the DSP. A track can control multiple MIDI
   // channels and is independent.
-  int track_;
+  std::string track_;
 
   libremidi::message msg_;
 

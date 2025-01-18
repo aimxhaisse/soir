@@ -98,46 +98,14 @@ TrackSettings Track::GetSettings() {
   return settings_;
 }
 
-int Track::GetTrackId() {
+const std::string& Track::GetTrackName() {
   std::scoped_lock<std::mutex> lock(mutex_);
 
-  return settings_.track_;
-}
-
-void Track::ProcessMidiEvents(const std::list<MidiEventAt>& events_at) {
-  for (const auto& event_at : events_at) {
-    auto event = event_at.Msg();
-    auto type = event.get_message_type();
-
-    if (type == libremidi::message_type::CONTROL_CHANGE) {
-      const int control = static_cast<int>(event.bytes[1]);
-
-      switch (control) {
-        case kMidiControlMuteTrack:
-          if (event.bytes[2] != 0) {
-            settings_.muted_ = !settings_.muted_;
-          }
-          break;
-
-        case kMidiControlVolume:
-          settings_.volume_ = event.bytes[2];
-          break;
-
-        case kMidiControlPan:
-          settings_.pan_ = event.bytes[2];
-          break;
-
-        default:
-          break;
-      }
-    }
-  }
+  return settings_.name_;
 }
 
 void Track::Render(SampleTick tick, const std::list<MidiEventAt>& events,
                    AudioBuffer& buffer) {
-  midi_stack_.AddEvents(events);
-
   AudioBuffer track_buffer(buffer.Size());
 
   switch (settings_.instrument_) {
@@ -163,9 +131,6 @@ void Track::Render(SampleTick tick, const std::list<MidiEventAt>& events,
     std::scoped_lock<std::mutex> lock(mutex_);
 
     for (int i = 0; i < track_buffer.Size(); ++i) {
-      std::list<MidiEventAt> events;
-      midi_stack_.EventsAtTick(tick + i, events);
-      ProcessMidiEvents(events);
       if (!settings_.muted_) {
         auto lgain = settings_.volume_ / 127.0f;
         auto rgain = settings_.volume_ / 127.0f;

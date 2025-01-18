@@ -113,7 +113,7 @@ grpc::Status Soir::PushMidiEvents(grpc::ServerContext* context,
   // tick 0 of the block.
   auto delay =
       absl::Microseconds((soir::dsp::kBlockSize * 1e6) / dsp::kSampleRate);
-  dsp_->PushMidiEvent(MidiEventAt(request->track(), msg, absl::Now()));
+  dsp_->PushMidiEvent(MidiEventAt("*", msg, absl::Now()));
 
   return grpc::Status::OK;
 }
