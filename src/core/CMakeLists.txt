@@ -15,6 +15,7 @@ add_library(
   dsp/http.cc
   dsp/http_stream.cc
   dsp/midi_ext.cc
+  dsp/sample.cc
   dsp/sampler.cc
   dsp/sample_manager.cc
   dsp/sample_pack.cc

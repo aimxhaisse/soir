@@ -12,18 +12,6 @@
 namespace soir {
 namespace dsp {
 
-float Sample::DurationMs(std::size_t samples) const {
-  return static_cast<float>(samples) / kSampleRate * 1000.0f;
-}
-
-float Sample::DurationMs() const {
-  return DurationMs(DurationSamples());
-}
-
-std::size_t Sample::DurationSamples() const {
-  return lb_.size();
-}
-
 absl::Status SamplePack::Init(const std::string& dir,
                               const std::string& pack_config) {
   auto config_or = utils::Config::LoadFromPath(pack_config);
