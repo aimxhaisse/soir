@@ -9,10 +9,12 @@ function, existing tracks are untouched.
 
 ## Setup tracks
 
-``` python
+```python
 tracks.setup({
-    'bass': tracks.mk('sampler'),
-    'melody': tracks.mk('sampler'),
+    'bass': tracks.mk_sampler(fx={
+        'rev': fx.mk_reverb(mix=0.2),
+    }),
+    'melody': tracks.mk_sampler()
 })
 ```
 
