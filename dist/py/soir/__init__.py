@@ -31,6 +31,7 @@ module. The available modules are:
 
 - [bpm](/reference/bpm)
 - [tracks](/reference/tracks)
+- [fx](/reference/fx)
 - [midi](/reference/midi)
 - [errors](/reference/errors)
 - [sampler](/reference/sampler)

@@ -12,7 +12,7 @@ function, existing tracks are untouched.
 ```python
 tracks.setup({
     'bass': tracks.mk_sampler(fx={
-        'rev': fx.mk_reverb(mix=0.2),
+        'reverb': fx.mk_reverb(mix=0.2),
     }),
     'melody': tracks.mk_sampler()
 })
@@ -38,6 +38,9 @@ from bindings import (
 from soir.errors import (
     InLoopException,
 )
+from soir.fx import (
+    Fx,
+)
 from soir.internals import (
     assert_not_in_loop,
 )
@@ -53,17 +56,19 @@ class Track:
         muted: The muted state. Defaults to None.
         volume: The volume. Defaults to None.
         pan: The pan. Defaults to None.
+        fx: The effects. Defaults to None.
         extra: Extra parameters. Defaults to None.
     """
-    name: str = None
-    instrument: str = None
+    name: str = 'Unbound'
+    instrument: str = 'Unknown'
     muted: bool | None = None
     volume: float | None  = None
     pan: float | None = None
+    fx: dict | None = None
     extra: dict | None = None
 
     def __repr__(self):
-        return f'Track(name={self.name}, instrument={self.instrument}, muted={self.muted}, volume={self.volume}, pan={self.pan})'
+        return f'Track(name={self.name}, instrument={self.instrument}, muted={self.muted}, volume={self.volume}, pan={self.pan}, fx={self.fx})'
 
 
 def layout() -> dict[Track]:
@@ -93,13 +98,19 @@ def setup(tracks: dict[str, Track]) -> bool:
 
     track_dict = {}
     for name, track in tracks.items():
+        # Setup names of tracks and FX based on the key of the dict
+        # that defines them. This is done at the setup stage to avoid
+        # double-repeat the effect name.
         track.name = name
+        if track.fx:
+            for fx_name, fx in track.fx.items():
+                track.fx[fx_name].name = fx_name
         track_dict[name] = asdict(track)
 
     return setup_tracks_(track_dict)
 
 
-def mk(instrument: str, muted=None, volume=None, pan=None, extra=None) -> Track:
+def mk(instrument: str, muted=None, volume=None, pan=None, fx=None, extra=None) -> Track:
     """Creates a new track.
 
     Args:
@@ -107,6 +118,7 @@ def mk(instrument: str, muted=None, volume=None, pan=None, extra=None) -> Track:
         muted (bool, optional): The muted state. Defaults to None.
         volume (float, optional): The volume. Defaults to None.
         pan (float, optional): The pan. Defaults to None.
+        fx (dict, optional): The effects to apply to the track. Defaults to None.
         extra (dict, optional): Extra parameters. Defaults to None.
     """
     t = Track()
@@ -115,6 +127,7 @@ def mk(instrument: str, muted=None, volume=None, pan=None, extra=None) -> Track:
     t.muted = muted
     t.volume = volume
     t.pan = pan
+    t.fx = fx
     t.extra = json.dumps(extra)
 
     return t
