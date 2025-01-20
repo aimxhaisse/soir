@@ -11,10 +11,10 @@
       
       
       
-        <link rel="prev" href="../midi/">
+        <link rel="prev" href="../tracks/">
       
       
-        <link rel="next" href="../sampler/">
+        <link rel="next" href="../midi/">
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
@@ -74,7 +74,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#errors" class="md-skip">
+        <a href="#fx" class="md-skip">
           Skip to content
         </a>
       
@@ -479,10 +479,30 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../fx/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    🪛 <i>soir</i>.<b>fx</b>
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   <span class="md-ellipsis">
@@ -491,6 +511,92 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#soir.fx" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-module"></code>&nbsp;fx
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label=" fx">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#soir.fx--cookbook" class="md-nav__link">
+    <span class="md-ellipsis">
+      Cookbook
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Cookbook">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#soir.fx--setup-tracks-with-effects" class="md-nav__link">
+    <span class="md-ellipsis">
+      Setup tracks with effects
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#soir.fx.Fx" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;Fx
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#soir.fx.mk" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;mk
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#soir.fx.mk_chorus" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;mk_chorus
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -521,30 +627,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  <span class="md-ellipsis">
-    🔥 <i>soir</i>.<b>errors</b>
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../errors/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -553,77 +639,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#soir.errors" class="md-nav__link">
-    <span class="md-ellipsis">
-      <code class="doc-symbol doc-symbol-toc doc-symbol-module"></code>&nbsp;errors
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label=" errors">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#soir.errors.InLoopException" class="md-nav__link">
-    <span class="md-ellipsis">
-      <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;InLoopException
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#soir.errors.NotInLoopException" class="md-nav__link">
-    <span class="md-ellipsis">
-      <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;NotInLoopException
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#soir.errors.SoirException" class="md-nav__link">
-    <span class="md-ellipsis">
-      <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;SoirException
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#soir.errors.UnknownMidiTrackException" class="md-nav__link">
-    <span class="md-ellipsis">
-      <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;UnknownMidiTrackException
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -705,46 +720,61 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#soir.errors" class="md-nav__link">
+  <a href="#soir.fx" class="md-nav__link">
     <span class="md-ellipsis">
-      <code class="doc-symbol doc-symbol-toc doc-symbol-module"></code>&nbsp;errors
+      <code class="doc-symbol doc-symbol-toc doc-symbol-module"></code>&nbsp;fx
     </span>
   </a>
   
-    <nav class="md-nav" aria-label=" errors">
+    <nav class="md-nav" aria-label=" fx">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#soir.errors.InLoopException" class="md-nav__link">
+  <a href="#soir.fx--cookbook" class="md-nav__link">
     <span class="md-ellipsis">
-      <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;InLoopException
+      Cookbook
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Cookbook">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#soir.fx--setup-tracks-with-effects" class="md-nav__link">
+    <span class="md-ellipsis">
+      Setup tracks with effects
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#soir.fx.Fx" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;Fx
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#soir.errors.NotInLoopException" class="md-nav__link">
+  <a href="#soir.fx.mk" class="md-nav__link">
     <span class="md-ellipsis">
-      <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;NotInLoopException
+      <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;mk
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#soir.errors.SoirException" class="md-nav__link">
+  <a href="#soir.fx.mk_chorus" class="md-nav__link">
     <span class="md-ellipsis">
-      <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;SoirException
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#soir.errors.UnknownMidiTrackException" class="md-nav__link">
-    <span class="md-ellipsis">
-      <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;UnknownMidiTrackException
+      <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;mk_chorus
     </span>
   </a>
   
@@ -773,23 +803,33 @@
   
 
 
-<h1 id="errors">🔥 errors</h1>
+<h1 id="fx">🪛 fx</h1>
 
 
 <div class="doc doc-object doc-module">
 
 
 
-<h2 id="soir.errors" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-module"></code>            <code>errors</code>
+<h2 id="soir.fx" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-module"></code>            <code>fx</code>
 
 
 </h2>
 
     <div class="doc doc-contents first">
 
-      <p>The errors module contains exceptions raised by the Soir engine to
-signal errors at runtime.</p>
+      <p>The <code>fx</code> module provides a set of audio effects that can be applied to
+tracks in the soir engine. Each track can have a set of effects with
+corresponding parameters, which are typically defined using the
+<code>tracks.setup()</code> function.</p>
+<h3 id="soir.fx--cookbook">Cookbook</h3>
+<h4 id="soir.fx--setup-tracks-with-effects">Setup tracks with effects</h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">tracks</span><span class="o">.</span><span class="n">setup</span><span class="p">({</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="s1">&#39;bass&#39;</span><span class="p">:</span> <span class="n">tracks</span><span class="o">.</span><span class="n">mk_sampler</span><span class="p">(</span><span class="n">fx</span><span class="o">=</span><span class="p">{</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>        <span class="s1">&#39;rev&#39;</span><span class="p">:</span> <span class="n">fx</span><span class="o">.</span><span class="n">mk_chorus</span><span class="p">(),</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="p">}),</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="p">})</span>
+</code></pre></div>
 
 
 
@@ -806,104 +846,194 @@ signal errors at runtime.</p>
 
 
 
-<h3 id="soir.errors.InLoopException" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <code>InLoopException</code>
+<h3 id="soir.fx.Fx" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>              <code class="highlight language-python"><span class="n">Fx</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;Unbound&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s1">&#39;Unknown&#39;</span><span class="p">,</span> <span class="n">mix</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
 
-
-</h3>
-
-
-    <div class="doc doc-contents ">
-            <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="soir.errors.SoirException" href="#soir.errors.SoirException">SoirException</a></code></p>
-
-
-      <p>Raised when trying to execute code inside a live context.</p>
-<p>In Soir, some of the code is expected to be used from the global
-scope as it affects everything, for example, setting the BPM. This
-exception is raised if such code is called from a loop.</p>
-
-
-    </div>
-
-</div>
-
-<div class="doc doc-object doc-class">
-
-
-
-<h3 id="soir.errors.NotInLoopException" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <code>NotInLoopException</code>
-
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
 
 </h3>
 
 
     <div class="doc doc-contents ">
-            <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="soir.errors.SoirException" href="#soir.errors.SoirException">SoirException</a></code></p>
 
 
-      <p>Raised when trying to execute code outside of a live context.</p>
-<p>In Soir, some of the code is expected to be used from within a
-loop or a live function, for instance sleeping between two
-instructions. This exception is raised if such code is called from
-the global scope.</p>
+      <p>Representation of a Soir FX.</p>
 
+
+<p><span class="doc-section-title">Attributes:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code><span title="soir.fx.Fx.name">name</span></code></td>
+            <td>
+                  <code>str</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The name of the effect.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="soir.fx.Fx.type">type</span></code></td>
+            <td>
+                  <code>str</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The effect type.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="soir.fx.Fx.mix">mix</span></code></td>
+            <td>
+                  <code>float | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The mix parameter of the effect. Defaults to 1.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+  </div>
 
     </div>
 
 </div>
 
-<div class="doc doc-object doc-class">
+
+<div class="doc doc-object doc-function">
 
 
-
-<h3 id="soir.errors.SoirException" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <code>SoirException</code>
-
+<h3 id="soir.fx.mk" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">mk</span><span class="p">(</span><span class="nb">type</span><span class="p">,</span> <span class="n">mix</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
 
 </h3>
 
 
     <div class="doc doc-contents ">
-            <p class="doc doc-class-bases">
-              Bases: <code>Exception</code></p>
+
+      <p>Creates a new Fx.</p>
 
 
-      <p>Base class for Soir exceptions.</p>
-
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code>type</code></td>
+            <td>
+                  <code>str</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The effect type.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code>mix</code></td>
+            <td>
+                  <code>float</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The mix parameter of the effect. Defaults to None.</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
 
     </div>
 
 </div>
 
-<div class="doc doc-object doc-class">
+<div class="doc doc-object doc-function">
 
 
-
-<h3 id="soir.errors.UnknownMidiTrackException" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <code>UnknownMidiTrackException</code>
-
+<h3 id="soir.fx.mk_chorus" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">mk_chorus</span><span class="p">(</span><span class="n">mix</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
 
 </h3>
 
 
     <div class="doc doc-contents ">
-            <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="soir.errors.SoirException" href="#soir.errors.SoirException">SoirException</a></code></p>
+
+      <p>Creates a new Chorus FX.</p>
 
 
-      <p>Raised when trying to use an invalid MIDI track.</p>
-<p>In Soir, MIDI tracks are used to send MIDI events to the external
-synthesizer. This exception is raised if an invalid MIDI track is
-used.</p>
-
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code>mix</code></td>
+            <td>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The mix parameter of the chorus effect. Defaults to None.</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
 
     </div>
 
 </div>
-
 
 
 
@@ -950,7 +1080,7 @@ used.</p>
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../midi/" class="md-footer__link md-footer__link--prev" aria-label="Previous: 🎼 &lt;i&gt;soir&lt;/i&gt;.&lt;b&gt;midi&lt;/b&gt;">
+          <a href="../tracks/" class="md-footer__link md-footer__link--prev" aria-label="Previous: 🎬 &lt;i&gt;soir&lt;/i&gt;.&lt;b&gt;tracks&lt;/b&gt;">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -960,20 +1090,20 @@ used.</p>
                 Previous
               </span>
               <div class="md-ellipsis">
-                🎼 <i>soir</i>.<b>midi</b>
+                🎬 <i>soir</i>.<b>tracks</b>
               </div>
             </div>
           </a>
         
         
           
-          <a href="../sampler/" class="md-footer__link md-footer__link--next" aria-label="Next: 📼 &lt;i&gt;soir&lt;/i&gt;.&lt;b&gt;sampler&lt;/b&gt;">
+          <a href="../midi/" class="md-footer__link md-footer__link--next" aria-label="Next: 🎼 &lt;i&gt;soir&lt;/i&gt;.&lt;b&gt;midi&lt;/b&gt;">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                📼 <i>soir</i>.<b>sampler</b>
+                🎼 <i>soir</i>.<b>midi</b>
               </div>
             </div>
             <div class="md-footer__button md-icon">
