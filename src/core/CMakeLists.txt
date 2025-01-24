@@ -12,6 +12,8 @@ add_library(
   dsp/audio_buffer.cc
   dsp/audio_output.cc
   dsp/engine.cc
+  dsp/fx.cc
+  dsp/fx_stack.cc
   dsp/http.cc
   dsp/http_stream.cc
   dsp/midi_ext.cc

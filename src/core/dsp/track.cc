@@ -67,6 +67,10 @@ bool Track::CanFastUpdate(const TrackSettings& settings) {
     return false;
   }
 
+  if (!fx_stack_.CanFastUpdate(settings.fxs_)) {
+    return false;
+  }
+
   return true;
 }
 
