@@ -245,12 +245,11 @@ absl::Status Engine::SetupTracks(const std::list<TrackSettings>& settings) {
   std::scoped_lock<std::mutex> setup_lock(setup_tracks_mutex_);
 
   // We have here a somewhat complex design: initializing a track can
-  // take time as we may need to load samples from disk. We don't want
-  // to block the engine thread for that. So we take twice the tracks
-  // lock: 1st time to know what we have to do (add new tracks,
-  // initialize instruments, initialize effects, ...), then we prepare
-  // everything, and take the lock to update the tracks with
-  // everything pre-loaded.
+  // take time We don't want to block the engine thread for that. So
+  // we take twice the tracks lock: 1st time to know what we have to
+  // do (add new tracks, initialize instruments, initialize effects,
+  // ...), then we prepare everything, and take the lock to update the
+  // tracks with everything pre-loaded.
 
   // Use maps here to ensure we don't override the same track multiple
   // times.
@@ -264,6 +263,7 @@ absl::Status Engine::SetupTracks(const std::list<TrackSettings>& settings) {
       auto name = track_settings.name_;
       auto it = tracks_.find(name);
 
+      // Tracks.
       if (it == tracks_.end() || !it->second->CanFastUpdate(track_settings)) {
         tracks_to_add[name] = track_settings;
       } else {

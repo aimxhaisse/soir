@@ -2,10 +2,12 @@
 
 #include <absl/status/status.h>
 #include <libremidi/libremidi.hpp>
+#include <map>
 #include <mutex>
 #include <optional>
 
 #include "core/dsp/audio_buffer.hh"
+#include "core/dsp/fx_stack.hh"
 #include "core/dsp/midi_ext.hh"
 #include "core/dsp/midi_stack.hh"
 #include "core/dsp/sample_manager.hh"
@@ -30,6 +32,7 @@ struct TrackSettings {
   bool muted_ = false;
   int volume_ = 127;
   int pan_ = 64;
+  std::list<FxSettings> fxs_;
   std::string extra_;
 };
 
@@ -58,6 +61,7 @@ struct Track {
   TrackSettings settings_;
   std::unique_ptr<Sampler> sampler_;
   std::unique_ptr<MidiExt> midi_ext_;
+  FxStack fx_stack_;
   MidiStack midi_stack_;
 };
 

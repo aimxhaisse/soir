@@ -102,10 +102,13 @@ def setup(tracks: dict[str, Track]) -> bool:
         # that defines them. This is done at the setup stage to avoid
         # double-repeat the effect name.
         track.name = name
+        fx = []
         if track.fx:
             for fx_name, fx in track.fx.items():
-                track.fx[fx_name].name = fx_name
+                fx.name = fx_name
+                fx.append(fx)
         track_dict[name] = asdict(track)
+        track_dict[name]['fx'] = fx
 
     return setup_tracks_(track_dict)
 

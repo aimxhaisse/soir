@@ -116,6 +116,10 @@ PYBIND11_EMBEDDED_MODULE(bindings, m) {
       s.pan_ = track["pan"].cast<std::optional<int>>().value_or(64);
       s.extra_ = track["extra"].cast<std::optional<std::string>>().value_or("");
 
+      auto fx = track["fx"].cast<py::dict>();
+
+      //@HERE
+
       settings.push_back(s);
     }
 
