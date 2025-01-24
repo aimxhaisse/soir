@@ -103,7 +103,7 @@ def setup(tracks: dict[str, Track]) -> bool:
         # double-repeat the effect name.
         track.name = name
         fxs = []
-        if track.fx:
+        if track.fxs:
             for fx_name, fx in track.fxs.items():
                 fx.name = fx_name
                 fxs.append(fx)

@@ -27,7 +27,7 @@ for name, track in tracks.layout().items():
   EXPECT_TRUE(WaitForNotification("sp"));
   EXPECT_TRUE(
       WaitForNotification("Track(name=sp, instrument=sampler, "
-                          "muted=False, volume=127, pan=64, fx=None)"));
+                          "muted=False, volume=1.0, pan=0.0, fxs=None)"));
 }
 
 TEST_F(CoreTestBase, SetupTracksThree) {
@@ -46,17 +46,17 @@ for name, track in tracks.layout().items():
   EXPECT_TRUE(WaitForNotification("sp1"));
   EXPECT_TRUE(
       WaitForNotification("Track(name=sp1, instrument=sampler, "
-                          "muted=False, volume=127, pan=64, fx=None)"));
+                          "muted=False, volume=1.0, pan=0.0, fxs=None)"));
 
   EXPECT_TRUE(WaitForNotification("sp2"));
   EXPECT_TRUE(
       WaitForNotification("Track(name=sp2, instrument=sampler, "
-                          "muted=False, volume=127, pan=64, fx=None)"));
+                          "muted=False, volume=1.0, pan=0.0, fxs=None)"));
 
   EXPECT_TRUE(WaitForNotification("sp3"));
   EXPECT_TRUE(
       WaitForNotification("Track(name=sp3, instrument=sampler, "
-                          "muted=False, volume=127, pan=64, fx=None)"));
+                          "muted=False, volume=1.0, pan=0.0, fxs=None)"));
 }
 
 TEST_F(CoreTestBase, SetupTracksThreeRemoveOne) {
@@ -83,7 +83,7 @@ log(str(tracks['sp1']))
   EXPECT_TRUE(WaitForNotification("1"));
   EXPECT_TRUE(
       WaitForNotification("Track(name=sp1, instrument=sampler, "
-                          "muted=False, volume=127, pan=64, fx=None)"));
+                          "muted=False, volume=1.0, pan=0.0, fxs=None)"));
 }
 
 TEST_F(CoreTestBase, SetupTracksOneThenTwo) {
@@ -110,10 +110,10 @@ log(str(tracks['sp2']))
   EXPECT_TRUE(WaitForNotification("2"));
   EXPECT_TRUE(
       WaitForNotification("Track(name=sp1, instrument=sampler, "
-                          "muted=False, volume=127, pan=64, fx=None)"));
+                          "muted=False, volume=1.0, pan=0.0, fxs=None)"));
   EXPECT_TRUE(
       WaitForNotification("Track(name=sp2, instrument=sampler, "
-                          "muted=False, volume=127, pan=64, fx=None)"));
+                          "muted=False, volume=1.0, pan=0.0, fxs=None)"));
 }
 
 TEST_F(CoreTestBase, SetupTracksOneTwice) {
@@ -142,7 +142,7 @@ log(str(tracks['sp2']))
   EXPECT_TRUE(WaitForNotification("1"));
   EXPECT_TRUE(
       WaitForNotification("Track(name=sp2, instrument=sampler, "
-                          "muted=False, volume=127, pan=64, fx=None)"));
+                          "muted=False, volume=1.0, pan=0.0, fxs=None)"));
 }
 
 }  // namespace test
