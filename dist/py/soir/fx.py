@@ -11,7 +11,7 @@ corresponding parameters, which are typically defined using the
 
 ```python
 tracks.setup({
-    'bass': tracks.mk_sampler(fx={
+    'bass': tracks.mk_sampler(fxs={
         'rev': fx.mk_chorus(),
     }),
 })
@@ -30,27 +30,31 @@ class Fx:
     Attributes:
         name: The name of the effect.
         type: The effect type.
-        mix: The mix parameter of the effect. Defaults to 1.
+        mix: The mix parameter of the effect. Defaults to None.
+        extra: Extra parameters for the effect, JSON encoded. Defaults to None.
     """
-    name: str = 'Unbound'
-    type: str = 'Unknown'
+    name: str = 'unnamed'
+    type: str = 'unknown'
     mix: float | None = None
+    extra: str | None = None
 
     def __repr__(self):
-        return f'Fx(name={self.name}, type={self.type}, mix={self.mix})'
+        return f'Fx(name={self.name}, type={self.type}, mix={self.mix}, extra={self.extra})'
 
 
-def mk(type: str, mix=None) -> Fx:
+def mk(type: str, mix=None, extra=None) -> Fx:
     """Creates a new Fx.
 
     Args:
         type (str): The effect type.
         mix (float, optional): The mix parameter of the effect. Defaults to None.
+        extra (dict, optional): The extra parameters of the effect. Default to None.
     """
     fx = Fx()
 
     fx.type = type
     fx.mix = mix
+    fx.extra = json.dumps(extra)
 
     return fx
 
@@ -61,4 +65,13 @@ def mk_chorus(mix=None) -> Fx:
     Args:
         mix: The mix parameter of the chorus effect. Defaults to None.
     """
-    return mk('chorus', mix=mix)
+    return mk('chorus', mix=mix, extra=None)
+
+
+def mk_reverb(mix=None) -> Fx:
+    """Creates a new Reverb FX.
+
+    Args:
+        mix: The mix parameter of the chorus effect. Defaults to None.
+    """
+    return mk('reverb', mix=mix, extra=None)

@@ -112,13 +112,29 @@ PYBIND11_EMBEDDED_MODULE(bindings, m) {
 
       s.name_ = name;
       s.muted_ = track["muted"].cast<std::optional<bool>>().value_or(false);
-      s.volume_ = track["volume"].cast<std::optional<int>>().value_or(127);
-      s.pan_ = track["pan"].cast<std::optional<int>>().value_or(64);
+      s.volume_ = track["volume"].cast<std::optional<float>>().value_or(1.0f);
+      s.pan_ = track["pan"].cast<std::optional<float>>().value_or(0.0f);
       s.extra_ = track["extra"].cast<std::optional<std::string>>().value_or("");
 
-      auto fx = track["fx"].cast<py::dict>();
+      auto fxs = track["fxs"].cast<std::list<py::dict>>();
+      for (auto it : fxs) {
+        dsp::FxSettings fx_settings;
 
-      //@HERE
+        fx_settings.name_ = it["name"].cast<std::string>();
+        fx_settings.mix_ = it["mix"].cast<std::optional<float>>().value_or(1.0);
+        fx_settings.extra_ =
+            it["extra"].cast<std::optional<std::string>>().value_or("");
+
+        if (it["type"].cast<std::string>() == "chorus") {
+          fx_settings.type_ = dsp::FX_CHORUS;
+        } else if (it["type"].cast<std::string>() == "reverb") {
+          fx_settings.type_ = dsp::FX_REVERB;
+        } else {
+          fx_settings.type_ = dsp::FX_UNKNOWN;
+        }
+
+        s.fxs_.push_back(fx_settings);
+      }
 
       settings.push_back(s);
     }

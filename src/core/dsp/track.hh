@@ -21,19 +21,20 @@ class Sampler;
 
 // Types of instruments available.
 typedef enum {
-  TRACK_SAMPLER = 0,
-  TRACK_MIDI_EXT = 1,
+  TRACK_UNKNOWN = 0,
+  TRACK_SAMPLER = 1,
+  TRACK_MIDI_EXT = 2,
 } TrackInstrument;
 
 // Settings of a track.
 struct TrackSettings {
-  TrackInstrument instrument_;
   std::string name_ = "unknown";
+  TrackInstrument instrument_ = TRACK_UNKNOWN;
   bool muted_ = false;
-  int volume_ = 127;
-  int pan_ = 64;
-  std::list<FxSettings> fxs_;
+  float volume_ = 1.0f;
+  float pan_ = 0.0f;
   std::string extra_;
+  std::list<FxSettings> fxs_;
 };
 
 // Only sample tracks for now, keep it stupid simple
