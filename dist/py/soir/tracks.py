@@ -11,7 +11,7 @@ function, existing tracks are untouched.
 
 ```python
 tracks.setup({
-    'bass': tracks.mk_sampler(fx={
+    'bass': tracks.mk_sampler(fxs={
         'reverb': fx.mk_reverb(mix=0.2),
     }),
     'melody': tracks.mk_sampler()
@@ -56,19 +56,19 @@ class Track:
         muted: The muted state. Defaults to None.
         volume: The volume. Defaults to None.
         pan: The pan. Defaults to None.
-        fx: The effects. Defaults to None.
-        extra: Extra parameters. Defaults to None.
+        fxs: The effects. Defaults to None.
+        extra: Extra parameters, JSON encoded. Defaults to None.
     """
-    name: str = 'Unbound'
-    instrument: str = 'Unknown'
+    name: str = 'unnamed'
+    instrument: str = 'unknown'
     muted: bool | None = None
     volume: float | None  = None
     pan: float | None = None
-    fx: dict | None = None
-    extra: dict | None = None
+    fxs: dict | None = None
+    extra: str | None = None
 
     def __repr__(self):
-        return f'Track(name={self.name}, instrument={self.instrument}, muted={self.muted}, volume={self.volume}, pan={self.pan}, fx={self.fx})'
+        return f'Track(name={self.name}, instrument={self.instrument}, muted={self.muted}, volume={self.volume}, pan={self.pan}, fxs={self.fxs})'
 
 
 def layout() -> dict[Track]:
@@ -102,18 +102,18 @@ def setup(tracks: dict[str, Track]) -> bool:
         # that defines them. This is done at the setup stage to avoid
         # double-repeat the effect name.
         track.name = name
-        fx = []
+        fxs = []
         if track.fx:
-            for fx_name, fx in track.fx.items():
+            for fx_name, fx in track.fxs.items():
                 fx.name = fx_name
-                fx.append(fx)
+                fxs.append(fx)
         track_dict[name] = asdict(track)
-        track_dict[name]['fx'] = fx
+        track_dict[name]['fxs'] = fxs
 
     return setup_tracks_(track_dict)
 
 
-def mk(instrument: str, muted=None, volume=None, pan=None, fx=None, extra=None) -> Track:
+def mk(instrument: str, muted=None, volume=None, pan=None, fxs=None, extra=None) -> Track:
     """Creates a new track.
 
     Args:
@@ -121,7 +121,7 @@ def mk(instrument: str, muted=None, volume=None, pan=None, fx=None, extra=None) 
         muted (bool, optional): The muted state. Defaults to None.
         volume (float, optional): The volume. Defaults to None.
         pan (float, optional): The pan. Defaults to None.
-        fx (dict, optional): The effects to apply to the track. Defaults to None.
+        fxs (dict, optional): The effects to apply to the track. Defaults to None.
         extra (dict, optional): Extra parameters. Defaults to None.
     """
     t = Track()
@@ -130,7 +130,7 @@ def mk(instrument: str, muted=None, volume=None, pan=None, fx=None, extra=None) 
     t.muted = muted
     t.volume = volume
     t.pan = pan
-    t.fx = fx
+    t.fxs = fxs
     t.extra = json.dumps(extra)
 
     return t

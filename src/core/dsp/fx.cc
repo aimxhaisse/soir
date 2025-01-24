@@ -18,7 +18,7 @@ absl::Status Fx::Stop() {
 bool Fx::CanFastUpdate(const FxSettings& settings) {
   std::lock_guard<std::mutex> lock(mutex_);
 
-  if (settings_.fx_ != settings.fx_) {
+  if (settings_.type_ != settings.type_) {
     return false;
   }
 

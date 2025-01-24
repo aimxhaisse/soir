@@ -10,12 +10,12 @@ namespace soir {
 namespace dsp {
 
 // Types of instruments available.
-typedef enum { FX_REVERB = 0, FX_CHORUS = 1 } FxType;
+typedef enum { FX_UNKNOWN = 0, FX_REVERB = 1, FX_CHORUS = 2 } FxType;
 
 // Settings of an Fx.
 struct FxSettings {
   std::string name_ = "unknown";
-  FxType fx_ = FX_REVERB;
+  FxType type_ = FX_UNKNOWN;
   float mix_ = 0.0;
   std::string extra_;
 };

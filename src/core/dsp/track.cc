@@ -2,6 +2,7 @@
 #include <absl/status/status.h>
 #include <filesystem>
 
+#include "core/dsp/tools.hh"
 #include "core/dsp/track.hh"
 #include "utils/misc.hh"
 
@@ -90,6 +91,7 @@ void Track::FastUpdate(const TrackSettings& settings) {
     case TRACK_SAMPLER:
       break;
 
+    case TRACK_UNKNOWN:
     defaults:
       LOG(WARNING) << "Unable to fast update due to unknown instrument";
       break;
@@ -121,6 +123,7 @@ void Track::Render(SampleTick tick, const std::list<MidiEventAt>& events,
       midi_ext_->Render(tick, events, track_buffer);
       break;
 
+    case TRACK_UNKNOWN:
     defaults:
       LOG(WARNING) << "Unknown instrument";
       break;
@@ -136,15 +139,8 @@ void Track::Render(SampleTick tick, const std::list<MidiEventAt>& events,
 
     for (int i = 0; i < track_buffer.Size(); ++i) {
       if (!settings_.muted_) {
-        auto lgain = settings_.volume_ / 127.0f;
-        auto rgain = settings_.volume_ / 127.0f;
-        auto pan = settings_.pan_ / 127.0f;
-
-        if (pan > 0.5f) {
-          lgain *= (1.0f - pan) * 2.0f;
-        } else {
-          rgain *= pan * 2.0f;
-        }
+        auto lgain = settings_.volume_ * LeftPan(settings_.pan_);
+        auto rgain = settings_.volume_ * RightPan(settings_.pan_);
 
         olch[i] += ilch[i] * lgain;
         orch[i] += irch[i] * rgain;
