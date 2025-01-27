@@ -34,7 +34,7 @@ struct TrackSettings {
   float volume_ = 1.0f;
   float pan_ = 0.0f;
   std::string extra_;
-  std::list<FxSettings> fxs_;
+  std::list<Fx::Settings> fxs_;
 };
 
 // Only sample tracks for now, keep it stupid simple

@@ -86,11 +86,11 @@ PYBIND11_EMBEDDED_MODULE(bindings, m) {
         std::string type;
 
         switch (fx.type_) {
-          case dsp::FX_CHORUS:
+          case dsp::Fx::FX_CHORUS:
             type = "chorus";
             break;
 
-          case dsp::FX_REVERB:
+          case dsp::Fx::FX_REVERB:
             type = "reverb";
             break;
 
@@ -139,7 +139,7 @@ PYBIND11_EMBEDDED_MODULE(bindings, m) {
 
       auto fxs = track["fxs"].cast<std::list<py::dict>>();
       for (auto it : fxs) {
-        dsp::FxSettings fx_settings;
+        dsp::Fx::Settings fx_settings;
 
         fx_settings.name_ = it["name"].cast<std::string>();
         fx_settings.mix_ = it["mix"].cast<std::optional<float>>().value_or(1.0);
@@ -147,11 +147,11 @@ PYBIND11_EMBEDDED_MODULE(bindings, m) {
             it["extra"].cast<std::optional<std::string>>().value_or("");
 
         if (it["type"].cast<std::string>() == "chorus") {
-          fx_settings.type_ = dsp::FX_CHORUS;
+          fx_settings.type_ = dsp::Fx::FX_CHORUS;
         } else if (it["type"].cast<std::string>() == "reverb") {
-          fx_settings.type_ = dsp::FX_REVERB;
+          fx_settings.type_ = dsp::Fx::FX_REVERB;
         } else {
-          fx_settings.type_ = dsp::FX_UNKNOWN;
+          fx_settings.type_ = dsp::Fx::FX_UNKNOWN;
         }
 
         s.fxs_.push_back(fx_settings);

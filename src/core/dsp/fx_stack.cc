@@ -7,7 +7,7 @@ namespace dsp {
 
 FxStack::FxStack() {}
 
-absl::Status FxStack::Init(const std::list<FxSettings> fx_settings) {
+absl::Status FxStack::Init(const std::list<Fx::Settings> fx_settings) {
   std::lock_guard<std::mutex> lock(mutex_);
 
   for (auto& settings : fx_settings) {
@@ -43,7 +43,7 @@ absl::Status FxStack::Stop() {
   return absl::OkStatus();
 }
 
-bool FxStack::CanFastUpdate(const std::list<FxSettings> fx_settings) {
+bool FxStack::CanFastUpdate(const std::list<Fx::Settings> fx_settings) {
   std::lock_guard<std::mutex> lock(mutex_);
 
   for (auto& settings : fx_settings) {
@@ -58,7 +58,7 @@ bool FxStack::CanFastUpdate(const std::list<FxSettings> fx_settings) {
   return true;
 }
 
-void FxStack::FastUpdate(const std::list<FxSettings> fx_settings) {
+void FxStack::FastUpdate(const std::list<Fx::Settings> fx_settings) {
   std::list<std::string> order;
   std::map<std::string, std::unique_ptr<Fx>> fxs;
   std::lock_guard<std::mutex> lock(mutex_);
