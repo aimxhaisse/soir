@@ -227,7 +227,7 @@ absl::Status Engine::Run() {
   return absl::OkStatus();
 }
 
-absl::Status Engine::GetTracks(std::list<TrackSettings>* response) {
+absl::Status Engine::GetTracks(std::list<Track::Settings>* response) {
   std::scoped_lock<std::mutex> lock(tracks_mutex_);
 
   for (auto& it : tracks_) {
@@ -239,7 +239,7 @@ absl::Status Engine::GetTracks(std::list<TrackSettings>* response) {
   return absl::OkStatus();
 }
 
-absl::Status Engine::SetupTracks(const std::list<TrackSettings>& settings) {
+absl::Status Engine::SetupTracks(const std::list<Track::Settings>& settings) {
   // Make sure we don't have concurrent calls here because the
   // following design described below is not atomic.
   std::scoped_lock<std::mutex> setup_lock(setup_tracks_mutex_);
@@ -253,8 +253,8 @@ absl::Status Engine::SetupTracks(const std::list<TrackSettings>& settings) {
 
   // Use maps here to ensure we don't override the same track multiple
   // times.
-  std::map<std::string, TrackSettings> tracks_to_add;
-  std::map<std::string, TrackSettings> tracks_to_update;
+  std::map<std::string, Track::Settings> tracks_to_add;
+  std::map<std::string, Track::Settings> tracks_to_update;
 
   // Check what we need to do.
   {

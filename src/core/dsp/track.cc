@@ -11,7 +11,7 @@ namespace dsp {
 
 Track::Track() {}
 
-absl::Status Track::Init(const TrackSettings& settings,
+absl::Status Track::Init(const Settings& settings,
                          SampleManager* sample_manager) {
   settings_ = settings;
 
@@ -61,7 +61,7 @@ absl::Status Track::Stop() {
   }
 }
 
-bool Track::CanFastUpdate(const TrackSettings& settings) {
+bool Track::CanFastUpdate(const Settings& settings) {
   std::scoped_lock<std::mutex> lock(mutex_);
 
   if (settings.instrument_ != settings_.instrument_) {
@@ -75,7 +75,7 @@ bool Track::CanFastUpdate(const TrackSettings& settings) {
   return true;
 }
 
-void Track::FastUpdate(const TrackSettings& settings) {
+void Track::FastUpdate(const Settings& settings) {
   std::scoped_lock<std::mutex> lock(mutex_);
 
   settings_ = settings;
@@ -98,7 +98,7 @@ void Track::FastUpdate(const TrackSettings& settings) {
   }
 }
 
-TrackSettings Track::GetSettings() {
+Track::Settings Track::GetSettings() {
   std::scoped_lock<std::mutex> lock(mutex_);
 
   return settings_;

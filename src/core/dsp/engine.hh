@@ -36,8 +36,8 @@ class Engine {
   void RemoveConsumer(SampleConsumer* consumer);
   void PushMidiEvent(const MidiEventAt& event);
 
-  absl::Status SetupTracks(const std::list<TrackSettings>& settings);
-  absl::Status GetTracks(std::list<TrackSettings>* settings);
+  absl::Status SetupTracks(const std::list<Track::Settings>& settings);
+  absl::Status GetTracks(std::list<Track::Settings>* settings);
 
   SampleManager& GetSampleManager();
 
