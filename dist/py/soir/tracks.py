@@ -106,7 +106,7 @@ def setup(tracks: dict[str, Track]) -> bool:
         if track.fxs:
             for fx_name, fx in track.fxs.items():
                 fx.name = fx_name
-                fxs.append(fx)
+                fxs.append(asdict(fx))
         track_dict[name] = asdict(track)
         track_dict[name]['fxs'] = fxs
 

@@ -20,6 +20,12 @@ struct FxSettings {
   std::string extra_;
 };
 
+// Similar to tracks, can be called from two contexts:
+//
+// - Rt context to update parameters of the Fx,
+// - Dsp context to actually render the track,
+//
+// Those two contexts are protected by mutex_.
 struct Fx {
   Fx();
 

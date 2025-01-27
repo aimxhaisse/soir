@@ -81,10 +81,31 @@ PYBIND11_EMBEDDED_MODULE(bindings, m) {
           break;
       }
 
+      std::list<std::string> fxs;
+      for (const auto& fx : track.fxs_) {
+        std::string type;
+
+        switch (fx.type_) {
+          case dsp::FX_CHORUS:
+            type = "chorus";
+            break;
+
+          case dsp::FX_REVERB:
+            type = "reverb";
+            break;
+
+          default:
+            type = "unknown";
+            break;
+        }
+
+        fxs.push_back(type);
+      }
+
       result.push_back(
           py::dict("name"_a = track.name_, "muted"_a = track.muted_,
                    "volume"_a = track.volume_, "pan"_a = track.pan_,
-                   "instrument"_a = instrument));
+                   "instrument"_a = instrument, "fxs"_a = fxs));
     }
 
     return result;
