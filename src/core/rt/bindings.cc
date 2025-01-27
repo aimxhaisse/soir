@@ -55,7 +55,7 @@ PYBIND11_EMBEDDED_MODULE(bindings, m) {
   });
 
   m.def("get_tracks_", []() {
-    std::list<dsp::TrackSettings> tracks;
+    std::list<dsp::Track::Settings> tracks;
     std::vector<py::dict> result;
 
     auto status = gDsp_->GetTracks(&tracks);
@@ -68,11 +68,11 @@ PYBIND11_EMBEDDED_MODULE(bindings, m) {
       std::string instrument;
 
       switch (track.instrument_) {
-        case dsp::TRACK_SAMPLER:
+        case dsp::Track::TRACK_SAMPLER:
           instrument = "sampler";
           break;
 
-        case dsp::TRACK_MIDI_EXT:
+        case dsp::Track::TRACK_MIDI_EXT:
           instrument = "midi_ext";
           break;
 
@@ -112,10 +112,10 @@ PYBIND11_EMBEDDED_MODULE(bindings, m) {
   });
 
   m.def("setup_tracks_", [](const py::dict& tracks) {
-    std::list<dsp::TrackSettings> settings;
+    std::list<dsp::Track::Settings> settings;
 
     for (auto& it : tracks) {
-      dsp::TrackSettings s;
+      dsp::Track::Settings s;
 
       auto name = it.first.cast<std::string>();
       auto track = it.second.cast<py::dict>();
@@ -123,9 +123,9 @@ PYBIND11_EMBEDDED_MODULE(bindings, m) {
       auto instr = track["instrument"].cast<std::string>();
 
       if (instr == "sampler") {
-        s.instrument_ = dsp::TRACK_SAMPLER;
+        s.instrument_ = dsp::Track::TRACK_SAMPLER;
       } else if (instr == "midi_ext") {
-        s.instrument_ = dsp::TRACK_MIDI_EXT;
+        s.instrument_ = dsp::Track::TRACK_MIDI_EXT;
       } else {
         LOG(ERROR) << "Unknown instrument: " << instr;
         return false;
