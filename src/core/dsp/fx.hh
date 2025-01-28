@@ -9,6 +9,8 @@
 namespace soir {
 namespace dsp {
 
+class FxChorus;
+
 // Similar to tracks, can be called from two contexts:
 //
 // - Rt context to update parameters of the Fx,
