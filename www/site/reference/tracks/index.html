@@ -916,7 +916,7 @@ function, existing tracks are untouched.</p>
 <h3 id="soir.tracks--cookbook">Cookbook</h3>
 <h4 id="soir.tracks--setup-tracks">Setup tracks</h4>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">tracks</span><span class="o">.</span><span class="n">setup</span><span class="p">({</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="s1">&#39;bass&#39;</span><span class="p">:</span> <span class="n">tracks</span><span class="o">.</span><span class="n">mk_sampler</span><span class="p">(</span><span class="n">fx</span><span class="o">=</span><span class="p">{</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="s1">&#39;bass&#39;</span><span class="p">:</span> <span class="n">tracks</span><span class="o">.</span><span class="n">mk_sampler</span><span class="p">(</span><span class="n">fxs</span><span class="o">=</span><span class="p">{</span>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>        <span class="s1">&#39;reverb&#39;</span><span class="p">:</span> <span class="n">fx</span><span class="o">.</span><span class="n">mk_reverb</span><span class="p">(</span><span class="n">mix</span><span class="o">=</span><span class="mf">0.2</span><span class="p">),</span>
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="p">}),</span>
 <a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="s1">&#39;melody&#39;</span><span class="p">:</span> <span class="n">tracks</span><span class="o">.</span><span class="n">mk_sampler</span><span class="p">()</span>
@@ -943,7 +943,7 @@ function, existing tracks are untouched.</p>
 
 
 <h3 id="soir.tracks.Track" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>              <code class="highlight language-python"><span class="n">Track</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;Unbound&#39;</span><span class="p">,</span> <span class="n">instrument</span><span class="o">=</span><span class="s1">&#39;Unknown&#39;</span><span class="p">,</span> <span class="n">muted</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">volume</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">pan</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>              <code class="highlight language-python"><span class="n">Track</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;unnamed&#39;</span><span class="p">,</span> <span class="n">instrument</span><span class="o">=</span><span class="s1">&#39;unknown&#39;</span><span class="p">,</span> <span class="n">muted</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">volume</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">pan</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fxs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
@@ -1024,7 +1024,7 @@ function, existing tracks are untouched.</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code><span title="soir.tracks.Track.fx">fx</span></code></td>
+            <td><code><span title="soir.tracks.Track.fxs">fxs</span></code></td>
             <td>
                   <code>dict | None</code>
             </td>
@@ -1037,11 +1037,11 @@ function, existing tracks are untouched.</p>
           <tr class="doc-section-item">
             <td><code><span title="soir.tracks.Track.extra">extra</span></code></td>
             <td>
-                  <code>dict | None</code>
+                  <code>str | None</code>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>Extra parameters. Defaults to None.</p>
+                <p>Extra parameters, JSON encoded. Defaults to None.</p>
               </div>
             </td>
           </tr>
@@ -1137,7 +1137,7 @@ function, existing tracks are untouched.</p>
 
 
 <h3 id="soir.tracks.mk" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">mk</span><span class="p">(</span><span class="n">instrument</span><span class="p">,</span> <span class="n">muted</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">volume</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">pan</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">mk</span><span class="p">(</span><span class="n">instrument</span><span class="p">,</span> <span class="n">muted</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">volume</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">pan</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fxs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
 
 </h3>
 
@@ -1215,7 +1215,7 @@ function, existing tracks are untouched.</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>fx</code></td>
+            <td><code>fxs</code></td>
             <td>
                   <code>dict</code>
             </td>
