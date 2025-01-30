@@ -53,7 +53,7 @@ dev-run:
 [group('dev')]
 dev-sync-docs: dev-mk-docs
     #!/usr/bin/env bash
-    rsync -avz --delete www/site/ soir.dev:services/soir.dev/data
+    rsync -avz --delete www/site/ soir.dev:srv/services/soir.dev/data
 
 # Build the package for Soir.
 [group('dev')]
