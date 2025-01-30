@@ -588,6 +588,15 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#soir.fx.mk_reverb" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;mk_reverb
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -780,6 +789,15 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#soir.fx.mk_reverb" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;mk_reverb
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -825,7 +843,7 @@ corresponding parameters, which are typically defined using the
 <h3 id="soir.fx--cookbook">Cookbook</h3>
 <h4 id="soir.fx--setup-tracks-with-effects">Setup tracks with effects</h4>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">tracks</span><span class="o">.</span><span class="n">setup</span><span class="p">({</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="s1">&#39;bass&#39;</span><span class="p">:</span> <span class="n">tracks</span><span class="o">.</span><span class="n">mk_sampler</span><span class="p">(</span><span class="n">fx</span><span class="o">=</span><span class="p">{</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="s1">&#39;bass&#39;</span><span class="p">:</span> <span class="n">tracks</span><span class="o">.</span><span class="n">mk_sampler</span><span class="p">(</span><span class="n">fxs</span><span class="o">=</span><span class="p">{</span>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>        <span class="s1">&#39;rev&#39;</span><span class="p">:</span> <span class="n">fx</span><span class="o">.</span><span class="n">mk_chorus</span><span class="p">(),</span>
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="p">}),</span>
 <a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="p">})</span>
@@ -847,7 +865,7 @@ corresponding parameters, which are typically defined using the
 
 
 <h3 id="soir.fx.Fx" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>              <code class="highlight language-python"><span class="n">Fx</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;Unbound&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s1">&#39;Unknown&#39;</span><span class="p">,</span> <span class="n">mix</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>              <code class="highlight language-python"><span class="n">Fx</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;unnamed&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s1">&#39;unknown&#39;</span><span class="p">,</span> <span class="n">mix</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
@@ -901,7 +919,18 @@ corresponding parameters, which are typically defined using the
             </td>
             <td>
               <div class="doc-md-description">
-                <p>The mix parameter of the effect. Defaults to 1.</p>
+                <p>The mix parameter of the effect. Defaults to None.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="soir.fx.Fx.extra">extra</span></code></td>
+            <td>
+                  <code>str | None</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Extra parameters for the effect, JSON encoded. Defaults to None.</p>
               </div>
             </td>
           </tr>
@@ -934,7 +963,7 @@ corresponding parameters, which are typically defined using the
 
 
 <h3 id="soir.fx.mk" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">mk</span><span class="p">(</span><span class="nb">type</span><span class="p">,</span> <span class="n">mix</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">mk</span><span class="p">(</span><span class="nb">type</span><span class="p">,</span> <span class="n">mix</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
 
 </h3>
 
@@ -983,6 +1012,20 @@ corresponding parameters, which are typically defined using the
                   <code>None</code>
             </td>
           </tr>
+          <tr class="doc-section-item">
+            <td><code>extra</code></td>
+            <td>
+                  <code>dict</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The extra parameters of the effect. Default to None.</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
       </tbody>
     </table>
 
@@ -1002,6 +1045,51 @@ corresponding parameters, which are typically defined using the
     <div class="doc doc-contents ">
 
       <p>Creates a new Chorus FX.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code>mix</code></td>
+            <td>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The mix parameter of the chorus effect. Defaults to None.</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="soir.fx.mk_reverb" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">mk_reverb</span><span class="p">(</span><span class="n">mix</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+      <p>Creates a new Reverb FX.</p>
 
 
 <p><span class="doc-section-title">Parameters:</span></p>
