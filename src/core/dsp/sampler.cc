@@ -200,7 +200,7 @@ void Sampler::ProcessMidiEvents(SampleTick tick) {
       case libremidi::message_type::SYSTEM_EXCLUSIVE: {
         proto::MidiSysexInstruction sysex;
         if (!sysex.ParseFromArray(msg.bytes.data() + 1, msg.bytes.size() - 1)) {
-          LOG(WARNING) << "Failed to parse sysex message";
+          LOG(WARNING) << "Failed to parse sysex message in sampler";
           break;
         }
 

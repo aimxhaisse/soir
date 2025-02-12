@@ -8,6 +8,7 @@ namespace soir {
 using SampleTick = uint64_t;
 using MicroBeat = uint64_t;
 static constexpr uint64_t kOneBeat = 1000000;
+static constexpr std::string_view kInternalControls = "soir_internal_controls";
 
 // Goal of this class is to store a midi event with a timestamp and
 // map it to a tick on the rendering side.

@@ -2,6 +2,7 @@
 #include <pybind11/embed.h>
 #include <pybind11/stl.h>
 
+#include "core/dsp/dsp.hh"
 #include "core/dsp/engine.hh"
 #include "core/dsp/track.hh"
 #include "core/rt/bindings.hh"
@@ -188,6 +189,14 @@ PYBIND11_EMBEDDED_MODULE(bindings, m) {
         [](const std::string& track, const std::string& p) {
           gRt_->MidiSysex(track, proto::MidiSysexInstruction::SAMPLER_STOP, p);
         });
+
+  m.def("controls_get_frequency_update_",
+        []() { return dsp::kControlsFrequencyUpdate; });
+
+  m.def("midi_sysex_update_controls_", [](const std::string& p) {
+    gRt_->MidiSysex(std::string(kInternalControls),
+                    proto::MidiSysexInstruction::UPDATE_CONTROLS, p);
+  });
 
   m.def("get_packs_",
         []() { return gDsp_->GetSampleManager().GetPackNames(); });

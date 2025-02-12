@@ -17,6 +17,7 @@ nav:
       - 🔥 <i>soir</i>.<b>errors</b>: reference/errors.md
       - 📼 <i>soir</i>.<b>sampler</b>: reference/sampler.md
       - 🎲 <i>soir</i>.<b>rnd</b>: reference/rnd.md
+  - Architecture: arch.md
 
 theme:
   name: material
