@@ -35,6 +35,12 @@ static constexpr int kMidiExtChunkSize = 128;
 // audio device we get something accurate.
 static constexpr int kBlockProcessingDelay = 7;
 
+// Number of times per second the control knobs are updated. This is
+// way lower than the sample frequency because values are computed
+// from Python so it is slow (but flexible). We interpolate values in
+// between.
+static constexpr int kControlsFrequencyUpdate = 100;
+
 class SampleConsumer {
  public:
   virtual absl::Status PushAudioBuffer(AudioBuffer&) = 0;

@@ -44,6 +44,13 @@ absl::Status Engine::Init(const utils::Config& config) {
     return status;
   }
 
+  controls_ = std::make_unique<Controls>();
+  status = controls_->Init();
+  if (!status.ok()) {
+    LOG(ERROR) << "Failed to initialize controls: " << status;
+    return status;
+  }
+
   return absl::OkStatus();
 }
 
@@ -194,6 +201,14 @@ absl::Status Engine::Run() {
     {
       std::lock_guard<std::mutex> lock(msgs_mutex_);
       events.swap(msgs_by_track_);
+    }
+
+    // Update knobs prior to rendering so it uses up-to-date values.
+    {
+      auto evlist = events[std::string(kInternalControls)];
+      SetTicks(evlist);
+      controls_->AddEvents(evlist);
+      controls_->Update(current_tick_);
     }
 
     buffer.Reset();

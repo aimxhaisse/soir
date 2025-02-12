@@ -11,6 +11,7 @@ add_library(
   dsp/adsr.cc
   dsp/audio_buffer.cc
   dsp/audio_output.cc
+  dsp/controls.cc
   dsp/engine.cc
   dsp/fx.cc
   dsp/fx_stack.cc

@@ -8,6 +8,7 @@
 
 #include "core/common.hh"
 #include "core/dsp/audio_output.hh"
+#include "core/dsp/controls.hh"
 #include "core/dsp/http.hh"
 #include "core/dsp/sample_manager.hh"
 #include "core/dsp/track.hh"
@@ -71,6 +72,7 @@ class Engine {
   std::mutex setup_tracks_mutex_;
   std::mutex tracks_mutex_;
   std::map<std::string, std::unique_ptr<Track>> tracks_;
+  std::unique_ptr<Controls> controls_;
 
   // MIDI events are pushed by the RT engine and consumed by the DSP
   // engine upon each block processing at the beginning.

@@ -27,6 +27,7 @@ message MidiSysexInstruction {
   enum InstructionType {
     SAMPLER_PLAY = 0;
     SAMPLER_STOP = 1;
+    UPDATE_CONTROLS = 2;
   };
 
   InstructionType type = 1;
