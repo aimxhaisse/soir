@@ -41,7 +41,7 @@ from soir.errors import (
 from soir.fx import (
     Fx,
 )
-from soir.internals import (
+from soir._internals import (
     assert_not_in_loop,
 )
 

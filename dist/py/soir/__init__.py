@@ -30,6 +30,7 @@ the global context. For example, to set the BPM, you can use
 module. The available modules are:
 
 - [bpm](/reference/bpm)
+- [ctrls](/reference/ctrls)
 - [tracks](/reference/tracks)
 - [fx](/reference/fx)
 - [midi](/reference/midi)
@@ -65,7 +66,7 @@ def kick():
 """
 
 import soir.errors
-import soir.internals
+import soir._internals
 
 
 def loop(track: str=None, beats: int=4, align: bool=True) -> callable:
@@ -95,7 +96,7 @@ def loop(track: str=None, beats: int=4, align: bool=True) -> callable:
     Returns:
         A decorator registering and scheduling the function in a loop.
     """
-    return soir.internals.loop(track, beats, align)
+    return soir._internals.loop(track, beats, align)
 
 
 def live() -> callable:
@@ -112,7 +113,7 @@ def live() -> callable:
     Returns:
         A decorator registering and executing the live function.
     """
-    return soir.internals.live()
+    return soir._internals.live()
 
 
 def log(message: str) -> None:
@@ -128,7 +129,7 @@ def log(message: str) -> None:
     Args:
         message: The message to log.
     """
-    return soir.internals.log(message)
+    return soir._internals.log(message)
 
 
 def sleep(beats: float) -> None:
@@ -151,7 +152,7 @@ def sleep(beats: float) -> None:
     Raises:
         errors.NotInLiveLoopException: If we are not in a loop.
     """
-    return soir.internals.sleep(beats)
+    return soir._internals.sleep(beats)
 
 
 import soir.bpm as bpm
@@ -159,5 +160,6 @@ import soir.sampler as sampler
 import soir.tracks as tracks
 import soir.midi as midi
 import soir.rnd as rnd
+import soir.ctrls as ctrls
 
 # Here lies the live code.

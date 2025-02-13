@@ -19,7 +19,7 @@ from bindings import (
     midi_note_off_,
     schedule_,
 )
-from soir.internals import (
+from soir._internals import (
     assert_in_loop,
     current_loop,
 )

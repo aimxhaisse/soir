@@ -51,7 +51,7 @@ from bindings import (
     get_samples_,
     schedule_,
 )
-from soir.internals import (
+from soir._internals import (
     assert_in_loop,
     current_loop,
 )
