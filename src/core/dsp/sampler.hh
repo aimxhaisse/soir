@@ -10,8 +10,10 @@
 #include "core/common.hh"
 #include "core/dsp/adsr.hh"
 #include "core/dsp/audio_buffer.hh"
+#include "core/dsp/controls.hh"
 #include "core/dsp/dsp.hh"
 #include "core/dsp/midi_stack.hh"
+#include "core/dsp/parameter.hh"
 #include "core/dsp/sample_manager.hh"
 #include "core/dsp/sample_pack.hh"
 #include "core/dsp/track.hh"
@@ -35,7 +37,7 @@ static constexpr int kSampleMinimalSmoothingSamples =
 // This is the main class that will handle the rendering of the samples
 class Sampler {
  public:
-  absl::Status Init(SampleManager* sample_manager);
+  absl::Status Init(SampleManager* sample_manager, Controls* controls);
   void Render(SampleTick tick, const std::list<MidiEventAt>&, AudioBuffer&);
 
  private:
@@ -46,7 +48,7 @@ class Sampler {
   struct PlaySampleParameters {
     float start_ = 0.0f;
     float end_ = 1.0f;
-    float pan_ = 0.0f;
+    Parameter pan_;
     float rate_ = 1.0f;
     float attack_ = 0.0f;
     float decay_ = 0.0f;
@@ -54,7 +56,8 @@ class Sampler {
     float release_ = 0.0f;
     float amp_ = 1.0f;
 
-    static void FromJson(const rapidjson::Value& v, PlaySampleParameters* p);
+    static void FromJson(Controls* controls, const rapidjson::Value& v,
+                         PlaySampleParameters* p);
   };
 
   void PlaySample(Sample* sp, const PlaySampleParameters& p);
@@ -71,7 +74,7 @@ class Sampler {
     int start_;
     int end_;
     int inc_;
-    float pan_;
+    Parameter pan_;
     float rate_;
     float amp_;
 
@@ -91,7 +94,7 @@ class Sampler {
   // user triggers a midi note off.
   std::map<Sample*, std::list<std::unique_ptr<PlayingSample>>> playing_;
   SampleManager* sample_manager_;
-
+  Controls* controls_;
   MidiStack midi_stack_;
 };
 

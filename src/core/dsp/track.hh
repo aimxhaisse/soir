@@ -7,6 +7,7 @@
 #include <optional>
 
 #include "core/dsp/audio_buffer.hh"
+#include "core/dsp/controls.hh"
 #include "core/dsp/fx_stack.hh"
 #include "core/dsp/midi_ext.hh"
 #include "core/dsp/midi_stack.hh"
@@ -42,7 +43,8 @@ struct Track {
 
   Track();
 
-  absl::Status Init(const Settings& settings, SampleManager* sample_manager);
+  absl::Status Init(const Settings& settings, SampleManager* sample_manager,
+                    Controls* controls);
   absl::Status Stop();
 
   // If MaybeFastUpdate returns false, it means the track can't update

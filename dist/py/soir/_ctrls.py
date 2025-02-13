@@ -21,6 +21,9 @@ tick_sec_ = 1 / frequency_
 class BaseParameter_:
     """Base class for parameters.
     """
+    def __init__(self, name):
+        controls_registry_[name] = self
+    
     def get_next_value() -> float:
         raise NotImplementedError()
 
@@ -28,7 +31,9 @@ class BaseParameter_:
 class LFO_(BaseParameter_):
     """A simple LFO parameter.
     """
-    def __init__(self, rate: float, intensity: float):
+    def __init__(self, name: str, rate: float, intensity: float):
+        super().__init__(name)
+
         self.rate_ = rate
         self.intensity_ = intensity
         self.tick_ = 0
