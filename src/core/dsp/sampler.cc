@@ -12,8 +12,9 @@
 namespace soir {
 namespace dsp {
 
-absl::Status Sampler::Init(SampleManager* sample_manager) {
+absl::Status Sampler::Init(SampleManager* sample_manager, Controls* controls) {
   sample_manager_ = sample_manager;
+  controls_ = controls;
 
   return absl::OkStatus();
 }
@@ -102,7 +103,8 @@ Sample* Sampler::GetSample(const std::string& pack, const std::string& name) {
   return sample_pack->GetSample(name);
 }
 
-void Sampler::PlaySampleParameters::FromJson(const rapidjson::Value& json,
+void Sampler::PlaySampleParameters::FromJson(Controls* controls,
+                                             const rapidjson::Value& json,
                                              PlaySampleParameters* p) {
   // Offsets
   if (json.HasMember("start")) {
@@ -114,7 +116,12 @@ void Sampler::PlaySampleParameters::FromJson(const rapidjson::Value& json,
 
   // Pan
   if (json.HasMember("pan")) {
-    p->pan_ = json["pan"].GetDouble();
+    if (json["pan"].IsString()) {
+      const std::string pan = json["pan"].GetString();
+      p->pan_.SetKnob(controls, pan);
+    } else {
+      p->pan_.SetConstant(json["pan"].GetDouble());
+    }
   }
 
   // Playback rate
@@ -166,7 +173,7 @@ void Sampler::HandleSysex(const proto::MidiSysexInstruction& sysex) {
   switch (sysex.type()) {
     case proto::MidiSysexInstruction::SAMPLER_PLAY: {
       PlaySampleParameters p;
-      PlaySampleParameters::FromJson(params, &p);
+      PlaySampleParameters::FromJson(controls_, params, &p);
       PlaySample(GetSample(pack, name), p);
       break;
     }
@@ -239,7 +246,9 @@ void Sampler::Render(SampleTick tick, const std::list<MidiEventAt>& events,
   std::set<PlayingSample*> remove;
 
   for (int i = 0; i < buffer.Size(); ++i) {
-    ProcessMidiEvents(tick + i);
+    const SampleTick current_tick = tick + i;
+
+    ProcessMidiEvents(current_tick);
 
     float left = left_chan[i];
     float right = right_chan[i];
@@ -263,11 +272,10 @@ void Sampler::Render(SampleTick tick, const std::list<MidiEventAt>& events,
         const float wrapper_env = ps->wrapper_.GetNextEnvelope();
         const float user_env = ps->env_.GetNextEnvelope();
         const float env = wrapper_env * user_env * ps->amp_;
+        const float pan = ps->pan_.GetValue(current_tick);
 
-        left +=
-            Interpolate(ps->sample_->lb_, ps->pos_) * env * LeftPan(ps->pan_);
-        right +=
-            Interpolate(ps->sample_->rb_, ps->pos_) * env * RightPan(ps->pan_);
+        left += Interpolate(ps->sample_->lb_, ps->pos_) * env * LeftPan(pan);
+        right += Interpolate(ps->sample_->rb_, ps->pos_) * env * RightPan(pan);
 
         // Update the position of the sample taking into account the rate
         // of playback.

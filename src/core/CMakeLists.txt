@@ -17,17 +17,17 @@ add_library(
   dsp/fx_stack.cc
   dsp/http.cc
   dsp/http_stream.cc
-  dsp/midi_ext.cc
   dsp/lfo.cc
+  dsp/midi_ext.cc
   dsp/sample.cc
   dsp/sampler.cc
   dsp/sample_manager.cc
   dsp/sample_pack.cc
-  dsp/track.cc
-  dsp/vorbis_encoder.cc
-  dsp/audio_output.cc
-  dsp/midi_stack.cc
   dsp/tools.cc
+  dsp/track.cc
+  dsp/midi_stack.cc
+  dsp/parameter.cc
+  dsp/vorbis_encoder.cc
 
   rt/bindings.cc
   rt/engine.cc

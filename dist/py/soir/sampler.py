@@ -88,7 +88,7 @@ class Sampler:
             name: str,
             start: float = 0.0,
             end: float = 1.0,
-            pan: float = 0.0,
+            pan: float | str = 0.0,
             attack: float = 0.0,
             decay: float = 0.0,
             sustain: float | None = None,
@@ -107,7 +107,7 @@ class Sampler:
             name: The name of the sample.
             start: When in the sample to start playing in the [0.0, 1.0] range.
             end: When in the sample to end playing in the [0.0, 1.0] range.
-            pan: The panning of the sample in the [-1.0, 1.0] range.
+            pan: The panning of the sample in the [-1.0, 1.0] range, or a control name.
             attack: The attack time in seconds.
             decay: The decay time in seconds.
             sustain: The sustain time in seconds, infered from the sample duration if None.
