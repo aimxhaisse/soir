@@ -24,7 +24,7 @@ class BaseParameter_:
     def __init__(self, name):
         controls_registry_[name] = self
     
-    def get_next_value() -> float:
+    def get_next_value(self) -> float:
         raise NotImplementedError()
 
 
@@ -38,7 +38,7 @@ class LFO_(BaseParameter_):
         self.intensity_ = intensity
         self.tick_ = 0
                  
-    def get_next_value() -> float:
+    def get_next_value(self) -> float:
         value = self.intensity_ * math.sin(self.tick_ * 2 * math.pi * self.rate_)
         self.tick_ += tick_sec_
         return value
@@ -53,7 +53,7 @@ class Linear_(BaseParameter_):
         self.duration_ = duration
         self.tick_ = 0
 
-    def get_next_value() -> float:
+    def get_next_value(self) -> float:
         value = self.start_ + (self.end_ - self.start_) * (self.tick_ / self.duration_)
         self.tick_ += tick_sec_
         return value
@@ -67,12 +67,11 @@ def update_loop_():
     controls with fresh values which are sent as MIDI events to the
     controller destination.
     """
-    payload = {'knobs': {}, 'frequency': frequency_}
+    payload = {'knobs': {}}
 
     # We sort by alphabetical order to ensure that dependencies are
     # correctly resolved.
-    for name, ctrl in dict(sorted(controls_registry_.items())):
-        ctrl.update()
+    for name, ctrl in dict(sorted(controls_registry_.items())).items():
         payload['knobs'][name] = ctrl.get_next_value()
 
     midi_sysex_update_controls_(json.dumps(payload))
