@@ -48,7 +48,7 @@ def kick():
   pass
   log('world')
 
-log(str(soir.internals.get_live('kick').code))
+log(str(soir._internals.get_live('kick').code))
 )");
 
   std::this_thread::sleep_for(std::chrono::seconds(1));
@@ -69,7 +69,7 @@ def kick():
   else:
     log('not 42')
 
-log(str(soir.internals.get_live('kick').code))
+log(str(soir._internals.get_live('kick').code))
 )");
 
   std::this_thread::sleep_for(std::chrono::seconds(1));

@@ -73,4 +73,4 @@ def update_loop_():
     midi_sysex_update_controls_(json.dumps(payload))
     
     next_at = (1 / frequency_) * get_bpm_() / 60
-    schedule_(next_, update_loop)
+    schedule_(next_at, update_loop_)

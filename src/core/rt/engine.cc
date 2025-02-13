@@ -105,6 +105,9 @@ absl::Status Engine::Run() {
 
   LOG(INFO) << "Python version: " << std::string(py::str(sys.attr("version")));
 
+  // Setup the initial feedback loop for controls.
+  py::exec(R"(soir._ctrls.update_loop_())", soir_mod.attr("__dict__"));
+
   while (true) {
     // We assume there is always at least one callback in the queue
     // due to the beat scheduling.
@@ -176,7 +179,7 @@ absl::Status Engine::Run() {
 
         // Maybe here we can have some sort of post-execution hook
         // that can be used to do some cleanup or other operations.
-        py::exec("soir.internals.post_eval_()", soir_mod.attr("__dict__"));
+        py::exec("soir._internals.post_eval_()", soir_mod.attr("__dict__"));
       } catch (py::error_already_set& e) {
         if (e.matches(PyExc_SystemExit)) {
           LOG(INFO) << "Received SystemExit, stopping engine";
