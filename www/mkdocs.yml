@@ -11,6 +11,7 @@ nav:
   - Reference:
       - ✨ <b>soir</b>: reference/soir.md
       - ⏳ <i>soir</i>.<b>bpm</b>: reference/bpm.md
+      - 🎛️ <i>soir</i>.<b>ctrls</b>: reference/ctrls.md
       - 🎬 <i>soir</i>.<b>tracks</b>: reference/tracks.md
       - 🪛 <i>soir</i>.<b>fx</b>: reference/fx.md
       - 🎼 <i>soir</i>.<b>midi</b>: reference/midi.md

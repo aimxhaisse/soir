@@ -33,7 +33,7 @@ from bindings import (
     get_bpm_,
     get_beat_,
 )
-from soir.internals import (
+from soir._internals import (
     assert_not_in_loop,
     current_loop,
 )
