@@ -118,7 +118,7 @@ void Sampler::PlaySampleParameters::FromJson(Controls* controls,
   if (json.HasMember("pan")) {
     if (json["pan"].IsString()) {
       const std::string pan = json["pan"].GetString();
-      p->pan_.SetKnob(controls, pan);
+      p->pan_.SetControl(controls, pan);
     } else {
       p->pan_.SetConstant(json["pan"].GetDouble());
     }

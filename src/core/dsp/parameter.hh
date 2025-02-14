@@ -15,7 +15,7 @@ class Parameter {
   float GetValue(SampleTick tick);
 
   void SetConstant(float value);
-  void SetKnob(Controls* controls, const std::string& value);
+  void SetControl(Controls* controls, const std::string& value);
 
  private:
   enum class Type {
@@ -25,7 +25,7 @@ class Parameter {
 
   Type type_ = Type::CONSTANT;
   float constant_ = 0.0f;
-  Knob* knob_ = nullptr;
+  Control* knob_ = nullptr;
 };
 
 }  // namespace dsp

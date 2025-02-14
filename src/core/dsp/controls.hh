@@ -12,9 +12,9 @@ namespace soir {
 namespace dsp {
 
 // A control that is interpolated over time.
-class Knob {
+class Control {
  public:
-  Knob();
+  Control();
 
   // This is meant to be used by the RT thread to update the target
   // value of the knob against which we interpolate.
@@ -49,13 +49,13 @@ class Controls {
 
   void AddEvents(const std::list<MidiEventAt>& events);
   void Update(SampleTick current);
-  Knob* GetControl(const std::string& name);
+  Control* GetControl(const std::string& name);
 
  private:
   void ProcessEvent(MidiEventAt& event_at);
 
   std::shared_mutex mutex_;
-  std::map<std::string, std::unique_ptr<Knob>> controls_;
+  std::map<std::string, std::unique_ptr<Control>> controls_;
   MidiStack midi_stack_;
 };
 
