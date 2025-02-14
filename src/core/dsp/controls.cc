@@ -7,9 +7,9 @@
 namespace soir {
 namespace dsp {
 
-Knob::Knob() {}
+Control::Control() {}
 
-void Knob::SetTargetValue(SampleTick tick, float target) {
+void Control::SetTargetValue(SampleTick tick, float target) {
   std::unique_lock<std::shared_mutex> lock(mutex_);
 
   initialValue_ = targetValue_;
@@ -19,7 +19,7 @@ void Knob::SetTargetValue(SampleTick tick, float target) {
   toTick_ = tick + kSampleRate / kControlsFrequencyUpdate;
 }
 
-float Knob::GetValue(SampleTick tick) {
+float Control::GetValue(SampleTick tick) {
   std::shared_lock<std::shared_mutex> lock(mutex_);
 
   if (tick >= toTick_) {
@@ -37,7 +37,7 @@ absl::Status Controls::Init() {
 
 Controls::Controls() {}
 
-Knob* Controls::GetControl(const std::string& id) {
+Control* Controls::GetControl(const std::string& id) {
   std::shared_lock<std::shared_mutex> lock(mutex_);
 
   auto it = controls_.find(id);
@@ -96,7 +96,7 @@ void Controls::ProcessEvent(MidiEventAt& event_at) {
     auto target = v.second;
     auto it = controls_.find(name);
     if (it == controls_.end()) {
-      it = controls_.emplace(name, std::make_unique<Knob>()).first;
+      it = controls_.emplace(name, std::make_unique<Control>()).first;
     }
 
     it->second->SetTargetValue(event_at.Tick(), target);

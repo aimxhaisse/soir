@@ -627,6 +627,15 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#soir.errors.NotInControlLoopException" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;NotInControlLoopException
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#soir.errors.NotInLoopException" class="md-nav__link">
     <span class="md-ellipsis">
       <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;NotInLoopException
@@ -782,6 +791,15 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#soir.errors.NotInControlLoopException" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;NotInControlLoopException
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#soir.errors.NotInLoopException" class="md-nav__link">
     <span class="md-ellipsis">
       <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;NotInLoopException
@@ -880,6 +898,32 @@ signal errors at runtime.</p>
 <p>In Soir, some of the code is expected to be used from the global
 scope as it affects everything, for example, setting the BPM. This
 exception is raised if such code is called from a loop.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="soir.errors.NotInControlLoopException" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <code>NotInControlLoopException</code>
+
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="soir.errors.SoirException" href="#soir.errors.SoirException">SoirException</a></code></p>
+
+
+      <p>Raised when trying to use a control outside of a control loop.</p>
+<p>In Soir, controls are used to change settings in real-time and are
+orchestrated by the engine. This exception is raised if a control
+is instrumented from outside of the Soir control loop.</p>
 
 
     </div>

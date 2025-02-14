@@ -543,6 +543,48 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#soir.ctrls.Control" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;Control
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label=" Control">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#soir.ctrls.Control.fwd" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;fwd
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#soir.ctrls.Control.get" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;get
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#soir.ctrls.Control.set" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;set
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#soir.ctrls.layout" class="md-nav__link">
     <span class="md-ellipsis">
       <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;layout
@@ -555,6 +597,15 @@
   <a href="#soir.ctrls.mk_lfo" class="md-nav__link">
     <span class="md-ellipsis">
       <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;mk_lfo
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#soir.ctrls.mk_linear" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;mk_linear
     </span>
   </a>
   
@@ -773,6 +824,48 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#soir.ctrls.Control" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;Control
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label=" Control">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#soir.ctrls.Control.fwd" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;fwd
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#soir.ctrls.Control.get" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;get
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#soir.ctrls.Control.set" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;set
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#soir.ctrls.layout" class="md-nav__link">
     <span class="md-ellipsis">
       <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;layout
@@ -785,6 +878,15 @@
   <a href="#soir.ctrls.mk_lfo" class="md-nav__link">
     <span class="md-ellipsis">
       <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;mk_lfo
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#soir.ctrls.mk_linear" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;mk_linear
     </span>
   </a>
   
@@ -831,11 +933,15 @@
       <p>The <strong>ctrls</strong> module contains facilities to control settings of soir
 in real-time.</p>
 <h3 id="soir.ctrls--cookbook">Cookbook</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nd">@live</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nd">@live</span><span class="p">()</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="k">def</span> <span class="nf">controls</span><span class="p">():</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">ctrls</span><span class="o">.</span><span class="n">mk_lfo</span><span class="p">(</span><span class="s1">&#39;[x1]&#39;</span><span class="p">,</span> <span class="n">rate</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">ctrls</span><span class="o">.</span><span class="n">mk_lfo</span><span class="p">(</span><span class="s1">&#39;[x2]&#39;</span><span class="p">,</span> <span class="n">rate</span><span class="o">=</span><span class="mf">2.5</span><span class="p">)</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">ctrls</span><span class="o">.</span><span class="n">mk_lfo</span><span class="p">(</span><span class="s1">&#39;[x3]&#39;</span><span class="p">,</span> <span class="n">rate</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span> <span class="n">intensity</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">ctrls</span><span class="o">.</span><span class="n">mk_lfo</span><span class="p">(</span><span class="s1">&#39;[x0]&#39;</span><span class="p">,</span> <span class="n">rate</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">intensity</span><span class="o">=</span><span class="mf">0.75</span><span class="p">)</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="n">sp</span> <span class="o">=</span> <span class="n">samples</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s1">&#39;my-pack&#39;</span><span class="p">)</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="nd">@loop</span><span class="p">()</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="k">def</span> <span class="nf">play</span><span class="p">():</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    <span class="n">sp</span><span class="o">.</span><span class="n">play</span><span class="p">(</span><span class="s1">&#39;my-sample&#39;</span><span class="p">,</span> <span class="n">pan</span><span class="o">=</span><span class="n">ctrl</span><span class="p">(</span><span class="s1">&#39;[x0]&#39;</span><span class="p">)</span>
 </code></pre></div>
 
 
@@ -848,6 +954,161 @@ in real-time.</p>
 
 
 
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="soir.ctrls.Control" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>              <code class="highlight language-python"><span class="n">Control</span><span class="p">()</span></code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="soir._ctrls.Control_">Control_</span></code></p>
+
+
+      <p>Base class for a control.</p>
+<p>A control computes a value to the Soir engine about 100 times per
+second via the <code>Control.fwd()</code> call, this value is then
+interpolated by the C++ engine to provide a smooth transition
+between values.</p>
+<p>The Control class is not meant to be created directly unless you
+want to implement your own control, helpers are available to
+create specific controls:</p>
+<ul>
+<li>mk_lfo()</li>
+<li>mk_linear()</li>
+</ul>
+<p>Once a control is created, it can be referred to by using the
+<code>ctrl('name')</code> facility and can passed as a parameter to
+instrument calls or FXs.</p>
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="soir.ctrls.Control.fwd" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">fwd</span><span class="p">()</span></code>
+
+</h4>
+
+
+    <div class="doc doc-contents ">
+
+      <p>Computes the next value of the control and advance the tick.</p>
+<p>This is meant to be used by the soir engine.</p>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="soir.ctrls.Control.get" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">get</span><span class="p">()</span></code>
+
+</h4>
+
+
+    <div class="doc doc-contents ">
+
+      <p>Get the current value of the control.</p>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code>float</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The current value of the control.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="soir.ctrls.Control.set" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="nb">set</span><span class="p">(</span><span class="o">**</span><span class="n">params</span><span class="p">)</span></code>
+
+</h4>
+
+
+    <div class="doc doc-contents ">
+
+      <p>Set the control parameters.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code>**params</code></td>
+            <td>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The parameters to set.</p>
+              </div>
+            </td>
+            <td>
+                  <code>{}</code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
 
 
 <div class="doc doc-object doc-function">
@@ -875,11 +1136,11 @@ in real-time.</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                  <code>list[str]</code>
+                  <code>list[<a class="autorefs autorefs-internal" title="soir.ctrls.Control" href="#soir.ctrls.Control">Control</a>]</code>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>A list of all control names.</p>
+                <p>A list of all controls.</p>
               </div>
             </td>
           </tr>
@@ -960,24 +1221,89 @@ in real-time.</p>
       </tbody>
     </table>
 
+    </div>
 
-    <p><span class="doc-section-title">Returns:</span></p>
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="soir.ctrls.mk_linear" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">mk_linear</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">duration</span><span class="p">)</span></code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+      <p>Create a new linear parameter.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
     <table>
       <thead>
         <tr>
+          <th>Name</th>
           <th>Type</th>
           <th>Description</th>
+          <th>Default</th>
         </tr>
       </thead>
       <tbody>
           <tr class="doc-section-item">
+            <td><code>name</code></td>
             <td>
-                  <code>None</code>
+                  <code>str</code>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>A new LFO parameter.</p>
+                <p>The name of the parameter.</p>
               </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code>start</code></td>
+            <td>
+                  <code>float</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The start value.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code>end</code></td>
+            <td>
+                  <code>float</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The end value.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code>duration</code></td>
+            <td>
+                  <code>float</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The duration of the transition in seconds.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
             </td>
           </tr>
       </tbody>

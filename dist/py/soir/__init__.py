@@ -67,6 +67,7 @@ def kick():
 
 import soir.errors
 import soir._internals
+import soir._ctrls
 
 
 def loop(track: str=None, beats: int=4, align: bool=True) -> callable:
@@ -161,5 +162,21 @@ import soir.tracks as tracks
 import soir.midi as midi
 import soir.rnd as rnd
 import soir.ctrls as ctrls
+
+
+def ctrl(name: str) -> ctrls.Control:
+    """Get a control by its name.
+        
+    Args:
+        name: The name of the control.
+
+    Returns:
+        The control.
+    """
+    ctrl = soir._ctrls.controls_register_.get(name)
+    if not ctrl:
+        raise soir.errors.ControlNotFoundException(name)
+    return ctrl
+
 
 # Here lies the live code.

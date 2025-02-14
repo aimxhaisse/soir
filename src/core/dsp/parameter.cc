@@ -21,7 +21,7 @@ void Parameter::SetConstant(float constant) {
   knob_ = nullptr;
 }
 
-void Parameter::SetKnob(Controls* controls, const std::string& name) {
+void Parameter::SetControl(Controls* controls, const std::string& name) {
   knob_ = controls->GetControl(name);
 
   if (knob_ == nullptr) {

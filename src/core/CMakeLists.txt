@@ -61,6 +61,7 @@ add_executable(
   tests/test_basic_live.cc
   tests/test_basic_log.cc
   tests/test_basic_loop.cc
+  tests/test_controls.cc
   tests/test_get_bpm.cc
   tests/test_lfo.cc
   tests/test_setup_tracks.cc
