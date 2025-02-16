@@ -87,7 +87,7 @@ def mk_linear(name: str, start: float, end: float, duration: float) -> None:
         duration: The duration of the transition in seconds.
     """
     soir._ctrls.Linear_(name, start, end, duration)
-    
+
 
 def layout() -> list[Control]:
     """Get the list of all controls.
