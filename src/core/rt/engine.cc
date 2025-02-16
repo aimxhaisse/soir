@@ -180,6 +180,7 @@ absl::Status Engine::Run() {
         // Maybe here we can have some sort of post-execution hook
         // that can be used to do some cleanup or other operations.
         py::exec("soir._internals.post_eval_()", soir_mod.attr("__dict__"));
+        py::exec("soir._ctrls.post_eval_()", soir_mod.attr("__dict__"));
       } catch (py::error_already_set& e) {
         if (e.matches(PyExc_SystemExit)) {
           LOG(INFO) << "Received SystemExit, stopping engine";
