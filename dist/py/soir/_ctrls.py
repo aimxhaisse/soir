@@ -47,7 +47,8 @@ class Control_:
         """Scope of the control.
         """
         GLOBAL = 0
-        FUNC = 1
+        LIVE = 1
+        LOOP = 2
     
     def __init__(self, name):
         self.name_ = name
@@ -65,11 +66,17 @@ class Control_:
 
         # We need to keep the func scope here so that we know how to
         # clean up the resource when it's not around anymore.
-        func = soir._internals.current_loop() or soir._internals.current_live()
-        if func:
-            self.scope_ = Control_.Scope.FUNC
-            self.scope_func_name_ = func.name
-            self.scope_func_eval_at_ = func.eval_at
+        loop = soir._internals.current_loop()
+        live = soir._internals.current_live()
+
+        if live:
+            self.scope_ = Control_.Scope.LIVE
+            self.scope_live_name_ = live.name
+            self.scope_live_eval_at_ = live.eval_at
+        elif loop:
+            self.scope_ = Control_.Scope.LOOP
+            self.scope_loop_name_ = loop.name
+            self.scope_loop_eval_at_ = loop.eval_at
         else:
             self.scope_ = Control_.Scope.GLOBAL
             self.scope_global_eval_id_ = eval_id_
@@ -168,7 +175,7 @@ def update_loop_():
     in_update_loop_ = False
 
 
-def post_eval():
+def post_eval_():
     """Called after each buffer evaluation.
 
     Currently used to clean-up buffers that aren't defined anymore.
@@ -189,15 +196,28 @@ def post_eval():
                 # in the global scope and we can remove it.
                 delete.append(name)
                 continue
-        if ctrl.scope_ == Control_.Scope.FUNC:
-            live = soir._internals.get_live(ctrl.scope_func_name)
-            loop = soir._internals.get_loop(ctrl.scope_func_name)
-            func = live or loop
-            if not func or func.eval_at != ctrl.scope_func_eval_at_:
-                # Here it means, either the live/loop function was
-                # removed or it evalued without re-creating the
-                # control which means the control is not there
-                # anymore.
+        if ctrl.scope_ == Control_.Scope.LIVE:
+            live = soir._internals.get_live(ctrl.scope_live_name_)
+            if not live or live.eval_at != ctrl.scope_live_eval_at_:
+                # Here it means, either the live function was removed
+                # or it evalued without re-creating the control which
+                # means the control is not there anymore.
+                delete.append(name)
+                continue
+        if ctrl.scope_ == Control_.Scope.LOOP:
+            loop = soir._internals.get_live(ctrl.scope_loop_name_)
+            if not loop:
+                delete.append(name)
+                continue
+            elif loop.eval_at != ctrl.scope_loop_eval_at_:
+                # We don't fully handle loops here because this
+                # function is only called upon code evaluation not
+                # loop execution. To handle loops, we'd need a cleanup
+                # function at the end of the loop which does
+                # it. Unsure at this stage if this is something we
+                # want to do or not.
+                #
+                # If we want to do so, we can remove this block.
                 delete.append(name)
                 continue
 
