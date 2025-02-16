@@ -39,6 +39,7 @@ class Loop_:
         self.align = align
         self.func = func
         self.updated_at = None
+        self.eval_at = None
 
         self.extra = {}
 
@@ -64,6 +65,7 @@ class Loop_:
             current_loop_ = self
             self.current_offset = 0
             try:
+                self.eval_at = get_beat_()
                 self.func()
             except Exception as e:
                 err = e
@@ -161,7 +163,7 @@ def get_loop(name: str) -> Loop_:
     Returns:
         The loop function.
     """
-    return loop_registry_[name]
+    return loop_registry_.get(name)
 
 
 # Decorator API for @live
@@ -210,6 +212,7 @@ class Live_:
         self.func = func
         self.code = code
         self.updated_at = None
+        self.eval_at = None
 
     def run(self):
         """Executes right away the live function.
@@ -231,8 +234,6 @@ class Live_:
 def live() -> callable:
 
     def wrapper(func):
-        """
-        """
         name = func.__name__
         ll = live_registry_.get(name)
         code = get_code_function_(func)
@@ -248,6 +249,7 @@ def live() -> callable:
                 ll.run()
 
         ll.updated_at = eval_id_
+        ll.eval_at = get_beat_()
 
         # This is a bit counter-intuitive: we don't allow to execute
         # the decorated function directly, it is scheduled the moment
@@ -278,7 +280,7 @@ def get_live(name: str) -> Live_:
     Returns:
         The live function.
     """
-    return live_registry_[name]
+    return live_registry_.get(name)
 
 
 ## Internal facilities
