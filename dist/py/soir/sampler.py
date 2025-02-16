@@ -55,6 +55,12 @@ from soir._internals import (
     assert_in_loop,
     current_loop,
 )
+from soir.ctrls import (
+    Control,
+)
+from soir._helpers import (
+    serialize_parameters,
+)
 
 
 def new(pack_name: str) -> 'Sampler':
@@ -88,7 +94,7 @@ class Sampler:
             name: str,
             start: float = 0.0,
             end: float = 1.0,
-            pan: float | str = 0.0,
+            pan: float | Control = 0.0,
             attack: float = 0.0,
             decay: float = 0.0,
             sustain: float | None = None,
@@ -107,7 +113,7 @@ class Sampler:
             name: The name of the sample.
             start: When in the sample to start playing in the [0.0, 1.0] range.
             end: When in the sample to end playing in the [0.0, 1.0] range.
-            pan: The panning of the sample in the [-1.0, 1.0] range, or a control name.
+            pan: The panning of the sample in the [-1.0, 1.0] range, or a control.
             attack: The attack time in seconds.
             decay: The decay time in seconds.
             sustain: The sustain time in seconds, infered from the sample duration if None.
@@ -136,7 +142,7 @@ class Sampler:
         
         schedule_(
             current_loop().current_offset,
-            lambda: midi_sysex_sample_play_(track, json.dumps(params))
+            lambda: midi_sysex_sample_play_(track, serialize_parameters(params))
         )
 
     def stop(
