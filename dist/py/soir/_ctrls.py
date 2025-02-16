@@ -89,6 +89,9 @@ class Control_:
     def get(self) -> float:
         return self.value_
 
+    def name(self) -> str:
+        return self.name
+
     # This is meant to be implemented by inheriting classes.
 
     def set(self, **params) -> None:

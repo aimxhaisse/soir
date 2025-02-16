@@ -42,6 +42,14 @@ class Control(soir._ctrls.Control_):
     def __init__(self) -> None:
         raise NotImplementedError()
 
+    def name(self) -> str:
+        """Get the name of the control.
+
+        Returns:
+            The name of the control.
+        """
+        raise NotImplementedError()
+
     def set(self, **params) -> None:
         """Set the control parameters.
 
@@ -89,6 +97,16 @@ def mk_linear(name: str, start: float, end: float, duration: float) -> None:
     soir._ctrls.Linear_(name, start, end, duration)
 
 
+def mk_val(name: str, value: float) -> None:
+    """Create a new value parameter.
+
+    Args:
+        name: The name of the parameter.
+        value: The value.
+    """
+    soir._ctrls.Val_(name, value)
+
+    
 def layout() -> list[Control]:
     """Get the list of all controls.
 

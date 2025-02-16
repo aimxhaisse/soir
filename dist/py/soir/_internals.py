@@ -241,15 +241,16 @@ def live() -> callable:
         if not ll:
             ll = Live_(name, func, code)
             live_registry_[name] = ll
+            ll.updated_at = eval_id_
+            ll.eval_at = get_beat_()
             ll.run()
         else:
             if ll.code != code:
                 ll.func = func
                 ll.code = code
+                ll.updated_at = eval_id_
+                ll.eval_at = get_beat_()
                 ll.run()
-
-        ll.updated_at = eval_id_
-        ll.eval_at = get_beat_()
 
         # This is a bit counter-intuitive: we don't allow to execute
         # the decorated function directly, it is scheduled the moment

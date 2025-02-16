@@ -173,7 +173,7 @@ def ctrl(name: str) -> ctrls.Control:
     Returns:
         The control.
     """
-    ctrl = soir._ctrls.controls_register_.get(name)
+    ctrl = soir._ctrls.controls_registry_.get(name)
     if not ctrl:
         raise soir.errors.ControlNotFoundException(name)
     return ctrl
