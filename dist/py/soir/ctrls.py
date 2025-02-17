@@ -13,7 +13,7 @@ sp = samples.new('my-pack')
 
 @loop()
 def play():
-    sp.play('my-sample', pan=ctrl('[x0]')
+    sp.play('my-sample', pan=ctrl('[x0]'))
 ```
 """
 
@@ -30,10 +30,7 @@ class Control(soir._ctrls.Control_):
 
     The Control class is not meant to be created directly unless you
     want to implement your own control, helpers are available to
-    create specific controls:
-
-    - mk_lfo()
-    - mk_linear()
+    create specific controls (see below).
 
     Once a control is created, it can be referred to by using the
     `ctrl('name')` facility and can passed as a parameter to
