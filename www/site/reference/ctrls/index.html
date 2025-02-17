@@ -977,7 +977,7 @@ in real-time.</p>
 <a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
 <a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="nd">@loop</span><span class="p">()</span>
 <a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="k">def</span> <span class="nf">play</span><span class="p">():</span>
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    <span class="n">sp</span><span class="o">.</span><span class="n">play</span><span class="p">(</span><span class="s1">&#39;my-sample&#39;</span><span class="p">,</span> <span class="n">pan</span><span class="o">=</span><span class="n">ctrl</span><span class="p">(</span><span class="s1">&#39;[x0]&#39;</span><span class="p">)</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    <span class="n">sp</span><span class="o">.</span><span class="n">play</span><span class="p">(</span><span class="s1">&#39;my-sample&#39;</span><span class="p">,</span> <span class="n">pan</span><span class="o">=</span><span class="n">ctrl</span><span class="p">(</span><span class="s1">&#39;[x0]&#39;</span><span class="p">))</span>
 </code></pre></div>
 
 
@@ -1013,11 +1013,7 @@ interpolated by the C++ engine to provide a smooth transition
 between values.</p>
 <p>The Control class is not meant to be created directly unless you
 want to implement your own control, helpers are available to
-create specific controls:</p>
-<ul>
-<li>mk_lfo()</li>
-<li>mk_linear()</li>
-</ul>
+create specific controls (see below).</p>
 <p>Once a control is created, it can be referred to by using the
 <code>ctrl('name')</code> facility and can passed as a parameter to
 instrument calls or FXs.</p>
