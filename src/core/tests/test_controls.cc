@@ -161,6 +161,33 @@ log(str(ctrls.layout()))
   EXPECT_TRUE(WaitForNotification("[]"));
 }
 
+TEST_F(CoreTestBase, ControlsValue) {
+  PushCode(R"(
+@loop(beats=1)
+def helloop():
+    ctrls.mk_val("c1", 0.5)
+    log(str(ctrls.layout()))
+  )");
+
+  EXPECT_TRUE(WaitForNotification("[[c1=0.5]]"));
+
+  PushCode(R"(
+@live()
+def setup():
+    ctrls.mk_val("c1", 0.5)
+
+@loop(beats=1)
+def helloop():
+    log(str(ctrls.layout()))
+    sleep(1)
+    ctrl("c1").set(0.8)
+    log(str(ctrls.layout()))
+  )");
+
+  EXPECT_TRUE(WaitForNotification("[[c1=0.5]]"));
+  EXPECT_TRUE(WaitForNotification("[[c1=0.8]]"));
+}
+
 }  // namespace test
 }  // namespace core
 }  // namespace soir
