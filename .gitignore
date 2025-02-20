@@ -1,6 +1,7 @@
 build/
 *.d
 *.o
+pkg/
 bin/
 __pycache__/
 tmp/
@@ -9,3 +10,5 @@ build/
 CMakeUserPresets.json
 .DS_Store
 *.tar.gz
+.aider*
+exp/ramblings
