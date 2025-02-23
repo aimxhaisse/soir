@@ -31,15 +31,15 @@ dev-build:
 dev-test filter='*': dev-build
     #!/usr/bin/env bash
     just --justfile {{ justfile() }} prepare-config dist "scripts.yaml.template"
-    poetry -C ${SOIR_DIR} run -C ${SOIR_DIR} build/src/core/soir_core_test --gtest_filter='{{filter}}'
-    poetry -C ${SOIR_DIR} run -C ${SOIR_DIR} build/src/utils/soir_utils_test --gtest_filter='{{filter}}'
+    poetry -P ${SOIR_DIR} run build/src/core/soir_core_test --gtest_filter='{{filter}}'
+    poetry -P ${SOIR_DIR} run build/src/utils/soir_utils_test --gtest_filter='{{filter}}'
 
 # Build and push documentation to soir.dev.
 [group('dev')]
 dev-mk-docs:
     #!/usr/bin/env bash
     just --justfile {{ justfile() }} prepare-config dist "scripts.yaml.template"
-    poetry -C ${SOIR_DIR} run -C ${SOIR_DIR} ${SOIR_BIN_DIR}/soir-engine --config dist/etc/config.yaml --mode script --script scripts/mk-docs.py
+    poetry -P ${SOIR_DIR} run ${SOIR_BIN_DIR}/soir-engine --config dist/etc/config.yaml --mode script --script scripts/mk-docs.py
     cp install.sh www/site/
 
 # Run the Soir engine in audio mode.
@@ -47,7 +47,7 @@ dev-mk-docs:
 dev-run:
     #!/usr/bin/env bash
     just --justfile {{ justfile() }} prepare-config dist "config.yaml.template"
-    poetry -C ${SOIR_DIR} run -C ${SOIR_DIR} ${SOIR_BIN_DIR}/soir-engine --config dist/etc/config.yaml --mode standalone
+    poetry -P ${SOIR_DIR} run ${SOIR_BIN_DIR}/soir-engine --config dist/etc/config.yaml --mode standalone
 
 # Push the documentation to soir.sh.
 [group('dev')]
