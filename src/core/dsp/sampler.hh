@@ -13,10 +13,10 @@
 #include "core/dsp/controls.hh"
 #include "core/dsp/dsp.hh"
 #include "core/dsp/midi_stack.hh"
-#include "core/dsp/parameter.hh"
 #include "core/dsp/sample_manager.hh"
 #include "core/dsp/sample_pack.hh"
 #include "core/dsp/track.hh"
+#include "core/parameter.hh"
 #include "soir.grpc.pb.h"
 #include "utils/config.hh"
 

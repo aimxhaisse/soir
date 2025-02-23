@@ -1,13 +1,17 @@
 #pragma once
 
 #include "core/common.hh"
-#include "core/dsp/controls.hh"
 
 namespace soir {
+
 namespace dsp {
+class Controls;
+class Control;
+}  // namespace dsp
 
 // Wrapper around a parameter that can either be controlled by a knob
-// or set directly.
+// or set directly. This is meant to be initialized in rt bindings'
+// code and used in DSP code to provide smooth interpolated values.
 class Parameter {
  public:
   Parameter() = default;
@@ -15,7 +19,7 @@ class Parameter {
   float GetValue(SampleTick tick);
 
   void SetConstant(float value);
-  void SetControl(Controls* controls, const std::string& value);
+  void SetControl(dsp::Controls* controls, const std::string& value);
 
  private:
   enum class Type {
@@ -25,8 +29,7 @@ class Parameter {
 
   Type type_ = Type::CONSTANT;
   float constant_ = 0.0f;
-  Control* knob_ = nullptr;
+  dsp::Control* knob_ = nullptr;
 };
 
-}  // namespace dsp
 }  // namespace soir

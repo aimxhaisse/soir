@@ -7,6 +7,7 @@ add_library(
   soir_core
 
   soir.cc
+  parameter.cc
 
   dsp/adsr.cc
   dsp/audio_buffer.cc
@@ -26,7 +27,6 @@ add_library(
   dsp/tools.cc
   dsp/track.cc
   dsp/midi_stack.cc
-  dsp/parameter.cc
   dsp/vorbis_encoder.cc
 
   rt/bindings.cc

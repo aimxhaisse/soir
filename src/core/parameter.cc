@@ -1,7 +1,8 @@
-#include "core/dsp/parameter.hh"
+#include "core/dsp/controls.hh"
+
+#include "core/parameter.hh"
 
 namespace soir {
-namespace dsp {
 
 float Parameter::GetValue(SampleTick tick) {
   switch (type_) {
@@ -21,7 +22,7 @@ void Parameter::SetConstant(float constant) {
   knob_ = nullptr;
 }
 
-void Parameter::SetControl(Controls* controls, const std::string& name) {
+void Parameter::SetControl(dsp::Controls* controls, const std::string& name) {
   knob_ = controls->GetControl(name);
 
   if (knob_ == nullptr) {
@@ -32,5 +33,4 @@ void Parameter::SetControl(Controls* controls, const std::string& name) {
   }
 }
 
-}  // namespace dsp
 }  // namespace soir
