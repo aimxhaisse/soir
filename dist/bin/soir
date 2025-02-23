@@ -21,8 +21,8 @@ setup-info:
 [group('setup')]
 setup-init:
     #!/usr/bin/env bash
-    poetry -C ${SOIR_DIR} env use -C ${SOIR_DIR} python3.11
-    poetry -C ${SOIR_DIR} install -C ${SOIR_DIR}
+    poetry -P ${SOIR_DIR} env use python3.11
+    poetry -P ${SOIR_DIR} install
 
 # Check if dependencies are installed.
 [group('setup')]
@@ -78,14 +78,14 @@ session-run session:
 
     cd "{{ session }}"
 
-    poetry -C ${SOIR_DIR} run -C ${SOIR_DIR} soir-engine --config etc/config.yaml
+    poetry -P ${SOIR_DIR} run soir-engine --config etc/config.yaml
 
 # --- SAMPLES
 
 # List sample packs.
 [group('samples')]
 sample-ls-packs:
-    #!/usr/bin/env -S poetry -C {{ SOIR_DIR }} run python3.11
+    #!/usr/bin/env -S poetry -P {{ SOIR_DIR }} run python3.11
     import os
     import json
     import prettytable
@@ -124,7 +124,7 @@ sample-ls-packs:
 [group('samples')]
 [no-cd]
 sample-mk-pack sample-pack:
-    #!/usr/bin/env -S poetry -C {{ SOIR_DIR }} run python3.11
+    #!/usr/bin/env -S poetry -P {{ SOIR_DIR }} run python3.11
     import yaml
     import os
     import shutil
@@ -240,7 +240,7 @@ sample-convert-48khz sample-dir:
 [private]
 [no-cd]
 prepare-config session template="config.yaml.template":
-    #!/usr/bin/env -S poetry -C {{ SOIR_DIR }} run python3.11
+    #!/usr/bin/env -S poetry -P {{ SOIR_DIR }} run python3.11
     #
     # Script to prepare the configuration file for a new soir session.
     # It uses the template from the SOIR_DIR as a base.
