@@ -245,10 +245,10 @@ def live() -> callable:
             ll.eval_at = get_beat_()
             ll.run()
         else:
+            ll.updated_at = eval_id_
             if ll.code != code:
                 ll.func = func
                 ll.code = code
-                ll.updated_at = eval_id_
                 ll.eval_at = get_beat_()
                 ll.run()
 
