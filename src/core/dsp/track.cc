@@ -138,9 +138,14 @@ void Track::Render(SampleTick tick, const std::list<MidiEventAt>& events,
     std::scoped_lock<std::mutex> lock(mutex_);
 
     for (int i = 0; i < track_buffer.Size(); ++i) {
+      SampleTick current_tick = tick + i;
+
       if (!settings_.muted_) {
-        auto lgain = settings_.volume_ * LeftPan(settings_.pan_);
-        auto rgain = settings_.volume_ * RightPan(settings_.pan_);
+        const float vol = settings_.volume_.GetValue(current_tick);
+        const float pan = settings_.pan_.GetValue(current_tick);
+
+        auto lgain = vol * LeftPan(pan);
+        auto rgain = vol * RightPan(pan);
 
         olch[i] += ilch[i] * lgain;
         orch[i] += irch[i] * rgain;
