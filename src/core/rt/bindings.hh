@@ -17,6 +17,8 @@ namespace bindings {
 
 absl::Status SetEngines(rt::Engine* rt, dsp::Engine* dsp);
 void ResetEngines();
+dsp::Engine* GetDsp();
+rt::Engine* GetRt();
 
 struct PyTrack {
   std::string instrument;

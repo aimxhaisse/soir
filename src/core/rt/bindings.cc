@@ -40,6 +40,14 @@ void bindings::ResetEngines() {
   gDsp_ = nullptr;
 }
 
+dsp::Engine* bindings::GetDsp() {
+  return gDsp_;
+}
+
+rt::Engine* bindings::GetRt() {
+  return gRt_;
+}
+
 PYBIND11_EMBEDDED_MODULE(bindings, m) {
   m.doc() = "Soir Internal Live Module";
 
