@@ -54,6 +54,10 @@ absl::Status Engine::Init(const utils::Config& config) {
   return absl::OkStatus();
 }
 
+Controls* Engine::GetControls() {
+  return controls_.get();
+}
+
 absl::Status Engine::Start() {
   LOG(INFO) << "Starting engine";
 

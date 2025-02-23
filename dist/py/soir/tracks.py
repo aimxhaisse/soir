@@ -41,6 +41,9 @@ from soir.errors import (
 from soir.fx import (
     Fx,
 )
+from soir.ctrls import (
+    Control,
+)
 from soir._internals import (
     assert_not_in_loop,
 )
@@ -54,16 +57,16 @@ class Track:
         name: The track name.
         instrument: The instrument type.
         muted: The muted state. Defaults to None.
-        volume: The volume. Defaults to None.
-        pan: The pan. Defaults to None.
+        volume: The volume in the [0.0, 1.0] range. Defaults to 1.0.
+        pan: The pan in the [-1.0, 0.0] range. Defaults to 0.0.
         fxs: The effects. Defaults to None.
         extra: Extra parameters, JSON encoded. Defaults to None.
     """
     name: str = 'unnamed'
     instrument: str = 'unknown'
     muted: bool | None = None
-    volume: float | None  = None
-    pan: float | None = None
+    volume: float | Control = 1.0
+    pan: float | Control = 0.0
     fxs: dict | None = None
     extra: str | None = None
 
@@ -103,6 +106,7 @@ def setup(tracks: dict[str, Track]) -> bool:
         # double-repeat the effect name.
         track.name = name
         fxs = []
+        print(track)
         if track.fxs:
             for fx_name, fx in track.fxs.items():
                 fx.name = fx_name
@@ -113,14 +117,14 @@ def setup(tracks: dict[str, Track]) -> bool:
     return setup_tracks_(track_dict)
 
 
-def mk(instrument: str, muted=None, volume=None, pan=None, fxs=None, extra=None) -> Track:
+def mk(instrument: str, muted=None, volume=1.0, pan=0.0, fxs=None, extra=None) -> Track:
     """Creates a new track.
 
     Args:
         instrument (str): The instrument type.
         muted (bool, optional): The muted state. Defaults to None.
-        volume (float, optional): The volume. Defaults to None.
-        pan (float, optional): The pan. Defaults to None.
+        volume (float | Control): The volume in the [0.0, 1.0] range. Defaults to 1.0.
+        pan (float | Control): The pan in the [-1.0, 1.0] range. Defaults to 0.0.
         fxs (dict, optional): The effects to apply to the track. Defaults to None.
         extra (dict, optional): Extra parameters. Defaults to None.
     """
@@ -136,26 +140,26 @@ def mk(instrument: str, muted=None, volume=None, pan=None, fxs=None, extra=None)
     return t
 
 
-def mk_sampler(muted=None, volume=None, pan=None, extra=None) -> Track:
+def mk_sampler(muted=None, volume=1.0, pan=0.0, extra=None) -> Track:
     """Creates a new sampler track.
 
     Args:
         muted (bool, optional): The muted state. Defaults to None.
-        volume (float, optional): The volume. Defaults to None.
-        pan (float, optional): The pan. Defaults to None.
+        volume (float | Control): The volume in the [0.0, 1.0] range. Defaults to 1.0.
+        pan (float | Control): The pan in the [-1.0, 1.0] range. Defaults to 0.0.
         extra (dict, optional): Extra parameters. Defaults to None.
     """
     return mk('sampler', muted, volume, pan, extra)
 
 
-def mk_midi(muted=None, volume=None, pan=None, midi_device=0, audio_device=0) -> Track:
+def mk_midi(muted=None, volume=1.0, pan=0.0, midi_device=0, audio_device=0) -> Track:
     """Creates a new midi track.
 
     Args:
         track (int): The track id.
         muted (bool, optional): The muted state. Defaults to None.
-        volume (float, optional): The volume. Defaults to None.
-        pan (float, optional): The pan. Defaults to None.
+        volume (float | Control): The volume in the [0.0, 1.0] range. Defaults to 1.0.
+        pan (float | Control): The pan in the [-1.0, 1.0] range. Defaults to 0.0.
         midi_device (int, optional): The midi device. Defaults to -1.
         audio_device (int, optional): The audio device. Defaults to -1.
     """

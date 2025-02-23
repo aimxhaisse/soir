@@ -1,6 +1,10 @@
 #pragma once
 
+#include <pybind11/stl.h>
+
 #include "core/common.hh"
+
+namespace py = pybind11;
 
 namespace soir {
 
@@ -20,6 +24,8 @@ class Parameter {
 
   void SetConstant(float value);
   void SetControl(dsp::Controls* controls, const std::string& value);
+
+  static Parameter FromPyDict(dsp::Controls* c, py::dict& p, const char* n);
 
  private:
   enum class Type {

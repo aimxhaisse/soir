@@ -40,6 +40,8 @@ class Engine {
   absl::Status SetupTracks(const std::list<Track::Settings>& settings);
   absl::Status GetTracks(std::list<Track::Settings>* settings);
 
+  Controls* GetControls();
+
   SampleManager& GetSampleManager();
 
  private:

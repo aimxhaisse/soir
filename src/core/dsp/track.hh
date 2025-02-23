@@ -13,6 +13,7 @@
 #include "core/dsp/midi_stack.hh"
 #include "core/dsp/sample_manager.hh"
 #include "core/dsp/sampler.hh"
+#include "core/parameter.hh"
 #include "utils/config.hh"
 
 namespace soir {
@@ -35,8 +36,8 @@ struct Track {
     std::string name_ = "unknown";
     TrackInstrument instrument_ = TRACK_UNKNOWN;
     bool muted_ = false;
-    float volume_ = 1.0f;
-    float pan_ = 0.0f;
+    Parameter volume_;
+    Parameter pan_;
     std::string extra_;
     std::list<Fx::Settings> fxs_;
   };

@@ -122,6 +122,7 @@ PYBIND11_EMBEDDED_MODULE(bindings, m) {
 
   m.def("setup_tracks_", [](const py::dict& tracks) {
     std::list<dsp::Track::Settings> settings;
+    dsp::Controls* ctrls = gDsp_->GetControls();
 
     for (auto& it : tracks) {
       dsp::Track::Settings s;
@@ -142,8 +143,8 @@ PYBIND11_EMBEDDED_MODULE(bindings, m) {
 
       s.name_ = name;
       s.muted_ = track["muted"].cast<std::optional<bool>>().value_or(false);
-      s.volume_ = track["volume"].cast<std::optional<float>>().value_or(1.0f);
-      s.pan_ = track["pan"].cast<std::optional<float>>().value_or(0.0f);
+      s.volume_ = Parameter::FromPyDict(ctrls, track, "volume");
+      s.pan_ = Parameter::FromPyDict(ctrls, track, "pan");
       s.extra_ = track["extra"].cast<std::optional<std::string>>().value_or("");
 
       auto fxs = track["fxs"].cast<std::list<py::dict>>();
