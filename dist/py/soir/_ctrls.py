@@ -151,6 +151,21 @@ class Val_(Control_):
         pass
 
 
+class Func_(Control_):
+    """A function parameter.
+    """
+    def __init__(self, name: str, func: callable):
+        super().__init__(name)
+
+        self.callable_ = func
+        self.value_ = self.callable_()
+
+    def fwd(self) -> float:
+        assert_in_update_loop()
+
+        self.value_ = self.callable_()
+
+
 def update_loop_():
     """Ticker for the controls.
 

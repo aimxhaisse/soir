@@ -103,6 +103,16 @@ def mk_val(name: str, value: float) -> None:
     """
     soir._ctrls.Val_(name, value)
 
+
+def mk_func(name: str, func: callable) -> None:
+    """Create a new function parameter.
+
+    Args:
+        name: The name of the parameter.
+        func: The function to compute the value.
+    """
+    soir._ctrls.Func_(name, func)
+
     
 def layout() -> list[Control]:
     """Get the list of all controls.

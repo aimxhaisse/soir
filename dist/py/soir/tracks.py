@@ -85,7 +85,12 @@ def layout() -> dict[Track]:
     """
     assert_not_in_loop()
 
-    return {trk['name']: Track(**trk) for trk in get_tracks_()}
+    tracks = {}
+    for trk in get_tracks_():
+        print(str(trk))
+        tracks['name']: Track(**trk)
+
+    return tracks
 
 
 def setup(tracks: dict[str, Track]) -> bool:
