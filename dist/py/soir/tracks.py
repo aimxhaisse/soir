@@ -44,6 +44,9 @@ from soir.fx import (
 from soir.ctrls import (
     Control,
 )
+from soir._ctrls import (
+    controls_registry_,
+)
 from soir._internals import (
     assert_not_in_loop,
 )
@@ -64,6 +67,7 @@ class Track:
     """
     name: str = 'unnamed'
     instrument: str = 'unknown'
+
     muted: bool | None = None
     volume: float | Control = 1.0
     pan: float | Control = 0.0
@@ -87,8 +91,19 @@ def layout() -> dict[Track]:
 
     tracks = {}
     for trk in get_tracks_():
-        print(str(trk))
-        tracks['name']: Track(**trk)
+        # Here we translate back control names into actual Control
+        # parameters, this allows setup()/layout() to be somewhat
+        # idempotent calls using the same parameter formats.
+        params = {}
+        for k, v in trk.items():
+            # Avoid parameters that need to be kept as a string, maybe
+            # a better way via Track.__dict__ or something to check
+            # the type.
+            if isinstance(v, str) and k not in ['name', 'instrument']:
+                params[k] = controls_registry_[v]
+            else:
+                params[k] = v
+        tracks[params['name']] = Track(**params)
 
     return tracks
 
@@ -111,7 +126,6 @@ def setup(tracks: dict[str, Track]) -> bool:
         # double-repeat the effect name.
         track.name = name
         fxs = []
-        print(track)
         if track.fxs:
             for fx_name, fx in track.fxs.items():
                 fx.name = fx_name
@@ -134,7 +148,6 @@ def mk(instrument: str, muted=None, volume=1.0, pan=0.0, fxs=None, extra=None) -
         extra (dict, optional): Extra parameters. Defaults to None.
     """
     t = Track()
-
     t.instrument = instrument
     t.muted = muted
     t.volume = volume

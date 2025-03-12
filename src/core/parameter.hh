@@ -1,6 +1,7 @@
 #pragma once
 
 #include <pybind11/stl.h>
+#include <variant>
 
 #include "core/common.hh"
 
@@ -13,6 +14,13 @@ class Controls;
 class Control;
 }  // namespace dsp
 
+// This is meant to be used in Python bindings to map back the correct
+// Python type so that we can have idempotent get_tracks/setup_tracks
+// calls.
+using ParameterRaw = std::variant<std::string,  // Name of the control if knob
+                                  float  // Value of the parameter if constant
+                                  >;
+
 // Wrapper around a parameter that can either be controlled by a knob
 // or set directly. This is meant to be initialized in rt bindings'
 // code and used in DSP code to provide smooth interpolated values.
@@ -21,9 +29,9 @@ class Parameter {
   Parameter() = default;
 
   float GetValue(SampleTick tick);
-
   void SetConstant(float value);
   void SetControl(dsp::Controls* controls, const std::string& value);
+  ParameterRaw Raw() const;
 
   static Parameter FromPyDict(dsp::Controls* c, py::dict& p, const char* n);
 
@@ -35,6 +43,7 @@ class Parameter {
 
   Type type_ = Type::CONSTANT;
   float constant_ = 0.0f;
+  std::string controlName_;
   dsp::Control* knob_ = nullptr;
 };
 

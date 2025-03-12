@@ -6,7 +6,10 @@ from soir._ctrls import (
 
 
 def serialize_parameters(params: object) -> str:
-    """Helper to serialize parameters.
+    """Helper to serialize parameters to JSON.
+
+    This is meant to pass parameters to arbitrary DSP code via JSON
+    encoding. The controls are assumed to be strings.
     """
     result = {}
     for k, v in params.items():
