@@ -1,3 +1,5 @@
+#include <absl/log/log.h>
+
 #include "core/dsp/controls.hh"
 
 #include "core/parameter.hh"
@@ -5,32 +7,34 @@
 namespace soir {
 
 float Parameter::GetValue(SampleTick tick) {
-  switch (type_) {
-    case Type::KNOB:
-      return knob_->GetValue(tick);
-    case Type::CONSTANT:
-      return constant_;
+  if (type_ == Type::KNOB && knob_) {
+    return knob_->GetValue(tick);
   }
+
+  return constant_;
 }
 
-void Parameter::SetConstant(float constant) {
+void Parameter::Reset() {
   type_ = Type::CONSTANT;
-  constant_ = constant;
+  constant_ = 0.0f;
+  controlName_.clear();
 
   // TODO: here if we handle ref counted knobs, we should somehow
   // decrement our reference.
   knob_ = nullptr;
-  controlName_.clear();
+}
+
+void Parameter::SetConstant(float constant) {
+  Reset();
+
+  type_ = Type::CONSTANT;
+  constant_ = constant;
 }
 
 void Parameter::SetControl(dsp::Controls* controls, const std::string& name) {
+  Reset();
+
   knob_ = controls->GetControl(name);
-
-  if (knob_ == nullptr) {
-    SetConstant(0.0f);
-    return;
-  }
-
   type_ = Type::KNOB;
   controlName_ = name;
 }

@@ -36,6 +36,8 @@ class Parameter {
   static Parameter FromPyDict(dsp::Controls* c, py::dict& p, const char* n);
 
  private:
+  void Reset();
+
   enum class Type {
     CONSTANT,
     KNOB,
