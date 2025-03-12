@@ -20,17 +20,19 @@ void Parameter::SetConstant(float constant) {
   // TODO: here if we handle ref counted knobs, we should somehow
   // decrement our reference.
   knob_ = nullptr;
+  controlName_.clear();
 }
 
 void Parameter::SetControl(dsp::Controls* controls, const std::string& name) {
   knob_ = controls->GetControl(name);
 
   if (knob_ == nullptr) {
-    constant_ = 0.0f;
-    type_ = Type::CONSTANT;
-  } else {
-    type_ = Type::KNOB;
+    SetConstant(0.0f);
+    return;
   }
+
+  type_ = Type::KNOB;
+  controlName_ = name;
 }
 
 Parameter Parameter::FromPyDict(dsp::Controls* c, py::dict& p, const char* n) {
@@ -47,6 +49,16 @@ Parameter Parameter::FromPyDict(dsp::Controls* c, py::dict& p, const char* n) {
   }
 
   return param;
+}
+
+ParameterRaw Parameter::Raw() const {
+  switch (type_) {
+    case Type::KNOB:
+      return controlName_;
+
+    default:
+      return constant_;
+  }
 }
 
 }  // namespace soir

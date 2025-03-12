@@ -113,7 +113,7 @@ PYBIND11_EMBEDDED_MODULE(bindings, m) {
 
       result.push_back(
           py::dict("name"_a = track.name_, "muted"_a = track.muted_,
-                   "volume"_a = track.volume_, "pan"_a = track.pan_,
+                   "volume"_a = track.volume_.Raw(), "pan"_a = track.pan_.Raw(),
                    "instrument"_a = instrument, "fxs"_a = fxs));
     }
 
