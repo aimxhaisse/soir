@@ -244,6 +244,62 @@ for name, track in tracks.layout().items():
       "muted=False, volume=1.0, pan=0.0, fxs=['reverb', 'chorus'])"));
 }
 
+TEST_F(CoreTestBase, SetupTrackVolume) {
+  PushCode(R"(
+ctrls.mk_val("c1", 0.5)
+tracks.setup({'sp': tracks.mk('sampler', volume=ctrl('c1'))})
+
+for name, track in tracks.layout().items():
+  log(str(name))
+  log(str(track))
+  )");
+
+  EXPECT_TRUE(WaitForNotification("sp"));
+  EXPECT_TRUE(
+      WaitForNotification("Track(name=sp, instrument=sampler, muted=False, "
+                          "volume=[c1=0.5], pan=0.0, fxs=[])"));
+
+  PushCode(R"(
+ctrls.mk_val("c1", 0.5)
+tracks.setup({'sp': tracks.mk('sampler', volume=0.3)})
+
+for name, track in tracks.layout().items():
+  log(str(track))
+  )");
+
+  EXPECT_TRUE(
+      WaitForNotification("Track(name=sp, instrument=sampler, muted=False, "
+                          "volume=0.30000001192092896, pan=0.0, fxs=[])"));
+}
+
+TEST_F(CoreTestBase, SetupTrackPan) {
+  PushCode(R"(
+ctrls.mk_val("c4", 0.5)
+tracks.setup({'sp': tracks.mk('sampler', pan=ctrl('c4'))})
+
+for name, track in tracks.layout().items():
+  log(str(name))
+  log(str(track))
+  )");
+
+  EXPECT_TRUE(WaitForNotification("sp"));
+  EXPECT_TRUE(
+      WaitForNotification("Track(name=sp, instrument=sampler, muted=False, "
+                          "volume=1.0, pan=[c4=0.5], fxs=[])"));
+
+  PushCode(R"(
+ctrls.mk_val("c1", 0.5)
+tracks.setup({'sp': tracks.mk('sampler', pan=0.3)})
+
+for name, track in tracks.layout().items():
+  log(str(track))
+  )");
+
+  EXPECT_TRUE(
+      WaitForNotification("Track(name=sp, instrument=sampler, muted=False, "
+                          "volume=1.0, pan=0.30000001192092896, fxs=[])"));
+}
+
 }  // namespace test
 }  // namespace core
 }  // namespace soir
