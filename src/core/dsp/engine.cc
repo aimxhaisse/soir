@@ -208,6 +208,9 @@ absl::Status Engine::Run() {
     }
 
     // Update knobs prior to rendering so it uses up-to-date values.
+    //
+    // This is important as some of the DSP code can be bound to the
+    // knob values which aren't yet created.
     {
       auto evlist = events[std::string(kInternalControls)];
       SetTicks(evlist);
