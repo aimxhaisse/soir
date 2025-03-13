@@ -7,8 +7,19 @@
 namespace soir {
 
 float Parameter::GetValue(SampleTick tick) {
-  if (type_ == Type::KNOB && knob_) {
-    return knob_->GetValue(tick);
+  if (type_ == Type::KNOB) {
+    if (!knob_) {
+      // Because knob creation happens asynchronously via MIDI events
+      // that are scheduled from the RT thread, there is a possibility
+      // a control is defined in Python but not yet reflected in the
+      // DSP code. We lazily try to get it here, which has a cost
+      // (O(log(n)) but should only happen at worst once, because MIDI
+      // events are processed prior to rendering in the DSP thread.
+      knob_ = dsp::Controls::GetControl(controlName_);
+    }
+    if (knob_) {
+      return knob_->GetValue(tick);
+    }
   }
 
   return constant_;
