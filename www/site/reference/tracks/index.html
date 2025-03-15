@@ -1001,7 +1001,7 @@ function, existing tracks are untouched.</p>
 
 
 <h3 id="soir.tracks.Track" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>              <code class="highlight language-python"><span class="n">Track</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;unnamed&#39;</span><span class="p">,</span> <span class="n">instrument</span><span class="o">=</span><span class="s1">&#39;unknown&#39;</span><span class="p">,</span> <span class="n">muted</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">volume</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">pan</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fxs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>              <code class="highlight language-python"><span class="n">Track</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;unnamed&#39;</span><span class="p">,</span> <span class="n">instrument</span><span class="o">=</span><span class="s1">&#39;unknown&#39;</span><span class="p">,</span> <span class="n">muted</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">volume</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">pan</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">fxs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
@@ -1062,22 +1062,22 @@ function, existing tracks are untouched.</p>
           <tr class="doc-section-item">
             <td><code><span title="soir.tracks.Track.volume">volume</span></code></td>
             <td>
-                  <code>float | None</code>
+                  <code>float | <a class="autorefs autorefs-internal" title="soir.ctrls.Control" href="../ctrls/#soir.ctrls.Control">Control</a></code>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>The volume. Defaults to None.</p>
+                <p>The volume in the [0.0, 1.0] range. Defaults to 1.0.</p>
               </div>
             </td>
           </tr>
           <tr class="doc-section-item">
             <td><code><span title="soir.tracks.Track.pan">pan</span></code></td>
             <td>
-                  <code>float | None</code>
+                  <code>float | <a class="autorefs autorefs-internal" title="soir.ctrls.Control" href="../ctrls/#soir.ctrls.Control">Control</a></code>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>The pan. Defaults to None.</p>
+                <p>The pan in the [-1.0, 0.0] range. Defaults to 0.0.</p>
               </div>
             </td>
           </tr>
@@ -1195,7 +1195,7 @@ function, existing tracks are untouched.</p>
 
 
 <h3 id="soir.tracks.mk" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">mk</span><span class="p">(</span><span class="n">instrument</span><span class="p">,</span> <span class="n">muted</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">volume</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">pan</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fxs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">mk</span><span class="p">(</span><span class="n">instrument</span><span class="p">,</span> <span class="n">muted</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">volume</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">pan</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">fxs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
 
 </h3>
 
@@ -1247,29 +1247,29 @@ function, existing tracks are untouched.</p>
           <tr class="doc-section-item">
             <td><code>volume</code></td>
             <td>
-                  <code>float</code>
+                  <code>float | <a class="autorefs autorefs-internal" title="soir.ctrls.Control" href="../ctrls/#soir.ctrls.Control">Control</a></code>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>The volume. Defaults to None.</p>
+                <p>The volume in the [0.0, 1.0] range. Defaults to 1.0.</p>
               </div>
             </td>
             <td>
-                  <code>None</code>
+                  <code>1.0</code>
             </td>
           </tr>
           <tr class="doc-section-item">
             <td><code>pan</code></td>
             <td>
-                  <code>float</code>
+                  <code>float | <a class="autorefs autorefs-internal" title="soir.ctrls.Control" href="../ctrls/#soir.ctrls.Control">Control</a></code>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>The pan. Defaults to None.</p>
+                <p>The pan in the [-1.0, 1.0] range. Defaults to 0.0.</p>
               </div>
             </td>
             <td>
-                  <code>None</code>
+                  <code>0.0</code>
             </td>
           </tr>
           <tr class="doc-section-item">
@@ -1311,7 +1311,7 @@ function, existing tracks are untouched.</p>
 
 
 <h3 id="soir.tracks.mk_midi" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">mk_midi</span><span class="p">(</span><span class="n">muted</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">volume</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">pan</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">midi_device</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">audio_device</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">mk_midi</span><span class="p">(</span><span class="n">muted</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">volume</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">pan</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">midi_device</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">audio_device</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></code>
 
 </h3>
 
@@ -1363,29 +1363,29 @@ function, existing tracks are untouched.</p>
           <tr class="doc-section-item">
             <td><code>volume</code></td>
             <td>
-                  <code>float</code>
+                  <code>float | <a class="autorefs autorefs-internal" title="soir.ctrls.Control" href="../ctrls/#soir.ctrls.Control">Control</a></code>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>The volume. Defaults to None.</p>
+                <p>The volume in the [0.0, 1.0] range. Defaults to 1.0.</p>
               </div>
             </td>
             <td>
-                  <code>None</code>
+                  <code>1.0</code>
             </td>
           </tr>
           <tr class="doc-section-item">
             <td><code>pan</code></td>
             <td>
-                  <code>float</code>
+                  <code>float | <a class="autorefs autorefs-internal" title="soir.ctrls.Control" href="../ctrls/#soir.ctrls.Control">Control</a></code>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>The pan. Defaults to None.</p>
+                <p>The pan in the [-1.0, 1.0] range. Defaults to 0.0.</p>
               </div>
             </td>
             <td>
-                  <code>None</code>
+                  <code>0.0</code>
             </td>
           </tr>
           <tr class="doc-section-item">
@@ -1427,7 +1427,7 @@ function, existing tracks are untouched.</p>
 
 
 <h3 id="soir.tracks.mk_sampler" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">mk_sampler</span><span class="p">(</span><span class="n">muted</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">volume</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">pan</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">mk_sampler</span><span class="p">(</span><span class="n">muted</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">volume</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">pan</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
 
 </h3>
 
@@ -1465,29 +1465,29 @@ function, existing tracks are untouched.</p>
           <tr class="doc-section-item">
             <td><code>volume</code></td>
             <td>
-                  <code>float</code>
+                  <code>float | <a class="autorefs autorefs-internal" title="soir.ctrls.Control" href="../ctrls/#soir.ctrls.Control">Control</a></code>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>The volume. Defaults to None.</p>
+                <p>The volume in the [0.0, 1.0] range. Defaults to 1.0.</p>
               </div>
             </td>
             <td>
-                  <code>None</code>
+                  <code>1.0</code>
             </td>
           </tr>
           <tr class="doc-section-item">
             <td><code>pan</code></td>
             <td>
-                  <code>float</code>
+                  <code>float | <a class="autorefs autorefs-internal" title="soir.ctrls.Control" href="../ctrls/#soir.ctrls.Control">Control</a></code>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>The pan. Defaults to None.</p>
+                <p>The pan in the [-1.0, 1.0] range. Defaults to 0.0.</p>
               </div>
             </td>
             <td>
-                  <code>None</code>
+                  <code>0.0</code>
             </td>
           </tr>
           <tr class="doc-section-item">
