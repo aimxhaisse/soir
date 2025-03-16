@@ -37,7 +37,7 @@ absl::Status Controls::Init() {
 
 Controls::Controls() {}
 
-Control* Controls::GetControl(const std::string& id) {
+std::shared_ptr<Control> Controls::GetControl(const std::string& id) {
   std::shared_lock<std::shared_mutex> lock(mutex_);
 
   auto it = controls_.find(id);
@@ -45,7 +45,7 @@ Control* Controls::GetControl(const std::string& id) {
     return nullptr;
   }
 
-  return it->second.get();
+  return it->second;
 }
 
 void Controls::AddEvents(const std::list<MidiEventAt>& events) {
@@ -96,7 +96,7 @@ void Controls::ProcessEvent(MidiEventAt& event_at) {
     auto target = v.second;
     auto it = controls_.find(name);
     if (it == controls_.end()) {
-      it = controls_.emplace(name, std::make_unique<Control>()).first;
+      it = controls_.emplace(name, std::make_shared<Control>()).first;
     }
 
     it->second->SetTargetValue(event_at.Tick(), target);

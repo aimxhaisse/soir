@@ -2,6 +2,7 @@
 
 #include <absl/status/status.h>
 #include <map>
+#include <memory>
 #include <shared_mutex>
 
 #include "core/common.hh"
@@ -49,13 +50,13 @@ class Controls {
 
   void AddEvents(const std::list<MidiEventAt>& events);
   void Update(SampleTick current);
-  Control* GetControl(const std::string& name);
+  std::shared_ptr<Control> GetControl(const std::string& name);
 
  private:
   void ProcessEvent(MidiEventAt& event_at);
 
   std::shared_mutex mutex_;
-  std::map<std::string, std::unique_ptr<Control>> controls_;
+  std::map<std::string, std::shared_ptr<Control>> controls_;
   MidiStack midi_stack_;
 };
 
