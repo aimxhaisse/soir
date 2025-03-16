@@ -151,6 +151,8 @@ void Track::Render(SampleTick tick, const std::list<MidiEventAt>& events,
         orch[i] += irch[i] * rgain;
       }
     }
+
+    fx_stack_.Render(tick, buffer);
   }
 }
 
