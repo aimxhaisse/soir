@@ -15,7 +15,7 @@ float Parameter::GetValue(SampleTick tick) {
       // DSP code. We lazily try to get it here, which has a cost
       // (O(log(n)) but should only happen at worst once, because MIDI
       // events are processed prior to rendering in the DSP thread.
-      knob_ = dsp::Controls::GetControl(controlName_);
+      knob_ = controls_->GetControl(controlName_);
     }
     if (knob_) {
       return knob_->GetValue(tick);
@@ -29,10 +29,7 @@ void Parameter::Reset() {
   type_ = Type::CONSTANT;
   constant_ = 0.0f;
   controlName_.clear();
-
-  // TODO: here if we handle ref counted knobs, we should somehow
-  // decrement our reference.
-  knob_ = nullptr;
+  controls_ = nullptr;
 }
 
 void Parameter::SetConstant(float constant) {
@@ -48,6 +45,7 @@ void Parameter::SetControl(dsp::Controls* controls, const std::string& name) {
   knob_ = controls->GetControl(name);
   type_ = Type::KNOB;
   controlName_ = name;
+  controls_ = controls;
 }
 
 Parameter Parameter::FromPyDict(dsp::Controls* c, py::dict& p, const char* n) {

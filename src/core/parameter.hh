@@ -44,9 +44,12 @@ class Parameter {
   };
 
   Type type_ = Type::CONSTANT;
+
   float constant_ = 0.0f;
+
+  dsp::Controls* controls_ = nullptr;
   std::string controlName_;
-  dsp::Control* knob_ = nullptr;
+  std::shared_ptr<dsp::Control> knob_ = nullptr;
 };
 
 }  // namespace soir
