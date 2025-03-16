@@ -6,7 +6,6 @@ site_author: s. rannou <mxs@sbrk.org>
 
 nav:
   - Home: index.md
-  - Quick Start: quickstart.md
   - Guides: guides.md
   - Reference:
       - ✨ <b>soir</b>: reference/soir.md
