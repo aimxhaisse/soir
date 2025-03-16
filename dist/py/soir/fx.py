@@ -8,7 +8,6 @@ corresponding parameters, which are typically defined using the
 
 ## Setup tracks with effects
 
-
 ```python
 tracks.setup({
     'bass': tracks.mk_sampler(fxs={
