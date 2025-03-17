@@ -7,7 +7,7 @@
 namespace soir {
 namespace dsp {
 
-FxStack::FxStack() {}
+FxStack::FxStack(dsp::Controls* controls) : controls_(controls) {}
 
 absl::Status FxStack::Init(const std::list<Fx::Settings> fx_settings) {
   std::lock_guard<std::mutex> lock(mutex_);
@@ -17,7 +17,7 @@ absl::Status FxStack::Init(const std::list<Fx::Settings> fx_settings) {
   for (auto& settings : fx_settings) {
     switch (settings.type_) {
       case Fx::FxType::FX_CHORUS:
-        fx = std::make_unique<FxChorus>();
+        fx = std::make_unique<FxChorus>(controls_);
         break;
       default:
         return absl::InvalidArgumentError("Unknown FX type");

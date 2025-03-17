@@ -15,7 +15,7 @@ namespace dsp {
 // Represents a stack of ordered DSP fx.
 class FxStack {
  public:
-  FxStack();
+  FxStack(dsp::Controls* controls);
 
   absl::Status Init(const std::list<Fx::Settings> fx_settings);
 
@@ -29,6 +29,8 @@ class FxStack {
   void Render(SampleTick tick, AudioBuffer& buffer);
 
  private:
+  dsp::Controls* controls_;
+
   std::mutex mutex_;
   std::list<std::string> order_;
   std::map<std::string, std::unique_ptr<Fx>> fxs_;

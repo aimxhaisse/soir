@@ -3,6 +3,9 @@
 namespace soir {
 namespace dsp {
 
+FxChorus::FxChorus(dsp::Controls* controls)
+    : controls_(controls), time_(0.5f), depth_(0.0f), rate_(0.5f) {}
+
 absl::Status FxChorus::Init(const Fx::Settings& settings) {
   settings_ = settings;
 

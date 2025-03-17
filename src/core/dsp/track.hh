@@ -60,11 +60,13 @@ struct Track {
   void Render(SampleTick tick, const std::list<MidiEventAt>&, AudioBuffer&);
 
  private:
+  dsp::Controls* controls_;
+
   std::mutex mutex_;
   Settings settings_;
   std::unique_ptr<Sampler> sampler_;
   std::unique_ptr<MidiExt> midi_ext_;
-  FxStack fx_stack_;
+  std::unique_ptr<FxStack> fx_stack_;
   MidiStack midi_stack_;
 };
 

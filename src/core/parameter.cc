@@ -6,6 +6,14 @@
 
 namespace soir {
 
+Parameter::Parameter() {
+  Reset();
+}
+
+Parameter::Parameter(float constant) {
+  SetConstant(constant);
+}
+
 float Parameter::GetValue(SampleTick tick) {
   if (type_ == Type::KNOB) {
     if (!knob_) {
