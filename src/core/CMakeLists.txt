@@ -66,6 +66,7 @@ add_executable(
   tests/test_lfo.cc
   tests/test_setup_tracks.cc
   tests/test_exit.cc
+  tests/test_parameter.cc
   tests/test_tools.cc
 )
 
