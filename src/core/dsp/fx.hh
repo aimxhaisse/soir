@@ -9,8 +9,6 @@
 namespace soir {
 namespace dsp {
 
-class FxChorus;
-
 // Similar to tracks, can be called from two contexts:
 //
 // - Rt context to update parameters of the Fx,
@@ -29,20 +27,16 @@ struct Fx {
     std::string extra_;
   };
 
-  Fx();
+  virtual ~Fx() {};
 
-  absl::Status Init(const Settings& settings);
-  absl::Status Stop();
+  virtual absl::Status Init(const Settings& settings) = 0;
 
   // If MaybeFastUpdate returns false, it means the FX can't update
   // itself quickly so it likely needs to be re-created.
-  bool CanFastUpdate(const Settings& settings);
-  void FastUpdate(const Settings& settings);
-  void Render(SampleTick tick, AudioBuffer&);
 
- private:
-  std::mutex mutex_;
-  Settings settings_;
+  virtual bool CanFastUpdate(const Settings& settings) = 0;
+  virtual void FastUpdate(const Settings& settings) = 0;
+  virtual void Render(SampleTick tick, AudioBuffer&) = 0;
 };
 
 }  // namespace dsp

@@ -1,5 +1,7 @@
 #include <absl/log/log.h>
 
+#include "fx_chorus.hh"
+
 #include "fx_stack.hh"
 
 namespace soir {
@@ -10,8 +12,17 @@ FxStack::FxStack() {}
 absl::Status FxStack::Init(const std::list<Fx::Settings> fx_settings) {
   std::lock_guard<std::mutex> lock(mutex_);
 
+  std::unique_ptr<Fx> fx;
+
   for (auto& settings : fx_settings) {
-    auto fx = std::make_unique<Fx>();
+    switch (settings.type_) {
+      case Fx::FxType::FX_CHORUS:
+        fx = std::make_unique<FxChorus>();
+        break;
+      default:
+        return absl::InvalidArgumentError("Unknown FX type");
+    }
+
     auto status = fx->Init(settings);
 
     if (!status.ok()) {
@@ -24,20 +35,6 @@ absl::Status FxStack::Init(const std::list<Fx::Settings> fx_settings) {
     order_.push_back(settings.name_);
 
     LOG(INFO) << "Initialized FX '" << settings.name_ << "'";
-  }
-
-  return absl::OkStatus();
-}
-
-absl::Status FxStack::Stop() {
-  std::lock_guard<std::mutex> lock(mutex_);
-
-  for (auto& it : fxs_) {
-    auto status = it.second->Stop();
-    if (!status.ok()) {
-      LOG(WARNING) << "Unable to stop FX '" << it.first
-                   << "' properly, skipped";
-    }
   }
 
   return absl::OkStatus();

@@ -18,7 +18,6 @@ class FxStack {
   FxStack();
 
   absl::Status Init(const std::list<Fx::Settings> fx_settings);
-  absl::Status Stop();
 
   // This is not the most optimal implementation: if an FX is added to
   // the list we consider we can't update it quickly (while we could
@@ -26,9 +25,8 @@ class FxStack {
   //
   // It's simple enough for now though.
   bool CanFastUpdate(const std::list<Fx::Settings> fx_settings);
-
   void FastUpdate(const std::list<Fx::Settings> fx_settings);
-  void Render(SampleTick tick, AudioBuffer&);
+  void Render(SampleTick tick, AudioBuffer& buffer);
 
  private:
   std::mutex mutex_;
