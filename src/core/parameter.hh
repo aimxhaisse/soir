@@ -26,7 +26,8 @@ using ParameterRaw = std::variant<std::string,  // Name of the control if knob
 // code and used in DSP code to provide smooth interpolated values.
 class Parameter {
  public:
-  Parameter() = default;
+  Parameter();
+  Parameter(float v);
 
   float GetValue(SampleTick tick);
   void SetConstant(float value);

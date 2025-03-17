@@ -14,6 +14,7 @@ Track::Track() {}
 absl::Status Track::Init(const Settings& settings,
                          SampleManager* sample_manager, Controls* controls) {
   settings_ = settings;
+  controls_ = controls;
 
   switch (settings_.instrument_) {
 
@@ -49,7 +50,9 @@ absl::Status Track::Init(const Settings& settings,
       return absl::InvalidArgumentError("Unknown instrument");
   }
 
-  auto status = fx_stack_.Init(settings_.fxs_);
+  fx_stack_ = std::make_unique<FxStack>(controls_);
+
+  auto status = fx_stack_->Init(settings_.fxs_);
   if (!status.ok()) {
     LOG(ERROR) << "Failed to init fx stack: " << status.message();
     return status;
@@ -74,7 +77,7 @@ bool Track::CanFastUpdate(const Settings& settings) {
     return false;
   }
 
-  if (!fx_stack_.CanFastUpdate(settings.fxs_)) {
+  if (!fx_stack_->CanFastUpdate(settings.fxs_)) {
     return false;
   }
 
@@ -103,7 +106,7 @@ void Track::FastUpdate(const Settings& settings) {
       break;
   }
 
-  fx_stack_.FastUpdate(settings_.fxs_);
+  fx_stack_->FastUpdate(settings_.fxs_);
 }
 
 Track::Settings Track::GetSettings() {
@@ -160,7 +163,7 @@ void Track::Render(SampleTick tick, const std::list<MidiEventAt>& events,
       }
     }
 
-    fx_stack_.Render(tick, buffer);
+    fx_stack_->Render(tick, buffer);
   }
 }
 
