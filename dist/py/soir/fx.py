@@ -19,7 +19,10 @@ tracks.setup({
 
 import json
 
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass
+from soir.ctrls import (
+    Control,
+)
 
 
 @dataclass
@@ -58,13 +61,16 @@ def mk(type: str, mix=None, extra=None) -> Fx:
     return fx
 
 
-def mk_chorus(mix=None) -> Fx:
+def mk_chorus(mix=None, time: float | Control = 0.5, depth: float | Control = 0.5, rate: float | Control = 0.5) -> Fx:
     """Creates a new Chorus FX.
 
     Args:
         mix: The mix parameter of the chorus effect. Defaults to None.
+        time: The time parameter of the chorus effect. Defaults to 0.5.
+        depth: The depth parameter of the chorus effect. Defaults to 0.5.
+        rate: The rate parameter of the chorus effect. Defaults to 0.5.
     """
-    return mk('chorus', mix=mix, extra=None)
+    return mk('chorus', mix=mix, extra={'time': time, 'depth': depth, 'rate': rate})
 
 
 def mk_reverb(mix=None) -> Fx:

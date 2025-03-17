@@ -21,10 +21,6 @@ struct FxReverb : public Fx {
 
   std::mutex mutex_;
   Fx::Settings settings_;
-
-  Parameter time_;
-  Parameter depth_;
-  Parameter rate_;
 };
 
 }  // namespace dsp

@@ -1,3 +1,5 @@
+#include <absl/log/log.h>
+
 #include "fx_chorus.hh"
 
 namespace soir {
@@ -8,6 +10,8 @@ FxChorus::FxChorus(dsp::Controls* controls)
 
 absl::Status FxChorus::Init(const Fx::Settings& settings) {
   settings_ = settings;
+
+  ReloadParams();
 
   return absl::OkStatus();
 }
@@ -25,7 +29,24 @@ bool FxChorus::CanFastUpdate(const Fx::Settings& settings) {
 void FxChorus::FastUpdate(const Fx::Settings& settings) {
   std::lock_guard<std::mutex> lock(mutex_);
 
-  settings_ = settings;
+  if (settings_.extra_ != settings.extra_) {
+    settings_ = settings;
+    ReloadParams();
+  }
+}
+
+void FxChorus::ReloadParams() {
+  rapidjson::Document doc;
+
+  doc.Parse(settings_.extra_.c_str());
+  if (doc.HasParseError()) {
+    LOG(ERROR) << "Failed to parse JSON: " << settings_.extra_;
+    return;
+  }
+
+  time_ = Parameter::FromJSON(controls_, doc, "time");
+  depth_ = Parameter::FromJSON(controls_, doc, "depth");
+  rate_ = Parameter::FromJSON(controls_, doc, "rate");
 }
 
 void FxChorus::Render(SampleTick tick, AudioBuffer&) {

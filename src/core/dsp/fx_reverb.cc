@@ -3,8 +3,7 @@
 namespace soir {
 namespace dsp {
 
-FxReverb::FxReverb(dsp::Controls* controls)
-    : controls_(controls), time_(0.5f), depth_(0.0f), rate_(0.5f) {}
+FxReverb::FxReverb(dsp::Controls* controls) : controls_(controls) {}
 
 absl::Status FxReverb::Init(const Fx::Settings& settings) {
   settings_ = settings;

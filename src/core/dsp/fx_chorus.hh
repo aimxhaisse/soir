@@ -17,6 +17,8 @@ struct FxChorus : public Fx {
   void Render(SampleTick tick, AudioBuffer&) override;
 
  private:
+  void ReloadParams();
+
   dsp::Controls* controls_;
 
   std::mutex mutex_;
