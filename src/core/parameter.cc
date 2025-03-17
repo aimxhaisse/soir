@@ -78,6 +78,10 @@ Parameter Parameter::FromJSON(dsp::Controls* c, rapidjson::Document& p,
                               const char* n) {
   Parameter param;
 
+  if (!p.HasMember(n)) {
+    return param;
+  }
+
   // Unsafe, we assume we always have a value here.
   const rapidjson::Value& ref = p[n];
 

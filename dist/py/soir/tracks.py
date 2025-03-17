@@ -29,8 +29,10 @@ trks = tracks.layout()
 
 import json
 
-from dataclasses import dataclass, asdict
-
+from dataclasses import (
+    dataclass,
+    asdict,
+)
 from bindings import (
     get_tracks_,
     setup_tracks_,
