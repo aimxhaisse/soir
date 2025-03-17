@@ -1,6 +1,7 @@
 #include <absl/log/log.h>
 
 #include "fx_chorus.hh"
+#include "fx_reverb.hh"
 
 #include "fx_stack.hh"
 
@@ -18,6 +19,9 @@ absl::Status FxStack::Init(const std::list<Fx::Settings> fx_settings) {
     switch (settings.type_) {
       case Fx::FxType::FX_CHORUS:
         fx = std::make_unique<FxChorus>(controls_);
+        break;
+      case Fx::FxType::FX_REVERB:
+        fx = std::make_unique<FxReverb>(controls_);
         break;
       default:
         return absl::InvalidArgumentError("Unknown FX type");
