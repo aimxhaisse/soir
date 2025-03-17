@@ -69,6 +69,34 @@ Parameter Parameter::FromPyDict(dsp::Controls* c, py::dict& p, const char* n) {
     param.SetConstant(ref.cast<float>());
   }
 
+  // Bool not handled yet.
+
+  return param;
+}
+
+Parameter Parameter::FromJSON(dsp::Controls* c, rapidjson::Document& p,
+                              const char* n) {
+  Parameter param;
+
+  // Unsafe, we assume we always have a value here.
+  const rapidjson::Value& ref = p[n];
+
+  if (ref.IsString()) {
+    param.SetControl(c, ref.GetString());
+  } else if (ref.IsUint()) {
+    param.SetConstant(static_cast<float>(ref.GetUint()));
+  } else if (ref.IsInt()) {
+    param.SetConstant(static_cast<float>(ref.GetInt()));
+  } else if (ref.IsUint64()) {
+    param.SetConstant(static_cast<float>(ref.GetUint64()));
+  } else if (ref.IsInt64()) {
+    param.SetConstant(static_cast<float>(ref.GetInt64()));
+  } else {
+    param.SetConstant(static_cast<float>(ref.GetDouble()));
+  }
+
+  // Bool not handled yet.
+
   return param;
 }
 

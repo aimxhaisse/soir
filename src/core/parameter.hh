@@ -1,6 +1,7 @@
 #pragma once
 
 #include <pybind11/stl.h>
+#include <rapidjson/document.h>
 #include <variant>
 
 #include "core/common.hh"
@@ -35,6 +36,8 @@ class Parameter {
   ParameterRaw Raw() const;
 
   static Parameter FromPyDict(dsp::Controls* c, py::dict& p, const char* n);
+  static Parameter FromJSON(dsp::Controls* c, rapidjson::Document& p,
+                            const char* n);
 
  private:
   void Reset();
