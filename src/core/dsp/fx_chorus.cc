@@ -1,21 +1,15 @@
-#include "fx.hh"
+#include "fx_chorus.hh"
 
 namespace soir {
 namespace dsp {
 
-Fx::Fx() {}
-
-absl::Status Fx::Init(const Settings& settings) {
+absl::Status FxChorus::Init(const Fx::Settings& settings) {
   settings_ = settings;
 
   return absl::OkStatus();
 }
 
-absl::Status Fx::Stop() {
-  return absl::OkStatus();
-}
-
-bool Fx::CanFastUpdate(const Settings& settings) {
+bool FxChorus::CanFastUpdate(const Fx::Settings& settings) {
   std::lock_guard<std::mutex> lock(mutex_);
 
   if (settings_.type_ != settings.type_) {
@@ -25,13 +19,13 @@ bool Fx::CanFastUpdate(const Settings& settings) {
   return true;
 }
 
-void Fx::FastUpdate(const Settings& settings) {
+void FxChorus::FastUpdate(const Fx::Settings& settings) {
   std::lock_guard<std::mutex> lock(mutex_);
 
   settings_ = settings;
 }
 
-void Fx::Render(SampleTick tick, AudioBuffer&) {
+void FxChorus::Render(SampleTick tick, AudioBuffer&) {
   std::lock_guard<std::mutex> lock(mutex_);
 }
 

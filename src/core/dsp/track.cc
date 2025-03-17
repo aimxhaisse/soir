@@ -49,6 +49,12 @@ absl::Status Track::Init(const Settings& settings,
       return absl::InvalidArgumentError("Unknown instrument");
   }
 
+  auto status = fx_stack_.Init(settings_.fxs_);
+  if (!status.ok()) {
+    LOG(ERROR) << "Failed to init fx stack: " << status.message();
+    return status;
+  }
+
   return absl::OkStatus();
 }
 
@@ -96,6 +102,8 @@ void Track::FastUpdate(const Settings& settings) {
       LOG(WARNING) << "Unable to fast update due to unknown instrument";
       break;
   }
+
+  fx_stack_.FastUpdate(settings_.fxs_);
 }
 
 Track::Settings Track::GetSettings() {

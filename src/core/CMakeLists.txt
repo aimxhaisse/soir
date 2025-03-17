@@ -14,7 +14,7 @@ add_library(
   dsp/audio_output.cc
   dsp/controls.cc
   dsp/engine.cc
-  dsp/fx.cc
+  dsp/fx_chorus.cc
   dsp/fx_stack.cc
   dsp/http.cc
   dsp/http_stream.cc
