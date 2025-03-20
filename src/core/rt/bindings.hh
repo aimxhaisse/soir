@@ -5,9 +5,9 @@
 
 namespace soir {
 
-namespace dsp {
+namespace engine {
 class Engine;
-}  // namespace dsp
+}  // namespace engine
 
 namespace rt {
 
@@ -15,9 +15,9 @@ class Engine;
 
 namespace bindings {
 
-absl::Status SetEngines(rt::Engine* rt, dsp::Engine* dsp);
+absl::Status SetEngines(rt::Engine* rt, engine::Engine* dsp);
 void ResetEngines();
-dsp::Engine* GetDsp();
+engine::Engine* GetDsp();
 rt::Engine* GetRt();
 
 }  // namespace bindings
