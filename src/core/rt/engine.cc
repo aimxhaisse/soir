@@ -18,7 +18,7 @@ Engine::~Engine() {
   bindings::ResetEngines();
 }
 
-absl::Status Engine::Init(const utils::Config& config, dsp::Engine* dsp,
+absl::Status Engine::Init(const utils::Config& config, engine::Engine* dsp,
                           Notifier* notifier) {
   LOG(INFO) << "Initializing engine";
 

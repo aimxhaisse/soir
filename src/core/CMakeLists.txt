@@ -9,26 +9,26 @@ add_library(
   soir.cc
   parameter.cc
 
-  dsp/adsr.cc
-  dsp/audio_buffer.cc
-  dsp/audio_output.cc
-  dsp/controls.cc
-  dsp/engine.cc
-  dsp/fx_chorus.cc
-  dsp/fx_reverb.cc
-  dsp/fx_stack.cc
-  dsp/http.cc
-  dsp/http_stream.cc
-  dsp/lfo.cc
-  dsp/midi_ext.cc
-  dsp/sample.cc
-  dsp/sampler.cc
-  dsp/sample_manager.cc
-  dsp/sample_pack.cc
-  dsp/tools.cc
-  dsp/track.cc
-  dsp/midi_stack.cc
-  dsp/vorbis_encoder.cc
+  engine/adsr.cc
+  engine/audio_buffer.cc
+  engine/audio_output.cc
+  engine/controls.cc
+  engine/engine.cc
+  engine/fx_chorus.cc
+  engine/fx_reverb.cc
+  engine/fx_stack.cc
+  engine/http.cc
+  engine/http_stream.cc
+  engine/lfo.cc
+  engine/midi_ext.cc
+  engine/sample.cc
+  engine/sampler.cc
+  engine/sample_manager.cc
+  engine/sample_pack.cc
+  engine/tools.cc
+  engine/track.cc
+  engine/midi_stack.cc
+  engine/vorbis_encoder.cc
 
   rt/bindings.cc
   rt/engine.cc

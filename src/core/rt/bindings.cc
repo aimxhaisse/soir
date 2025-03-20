@@ -2,9 +2,9 @@
 #include <pybind11/embed.h>
 #include <pybind11/stl.h>
 
-#include "core/dsp/dsp.hh"
-#include "core/dsp/engine.hh"
-#include "core/dsp/track.hh"
+#include "core/engine/dsp.hh"
+#include "core/engine/engine.hh"
+#include "core/engine/track.hh"
 #include "core/rt/bindings.hh"
 #include "core/rt/engine.hh"
 #include "soir.grpc.pb.h"
@@ -14,7 +14,7 @@ namespace py = pybind11;
 namespace {
 
 soir::rt::Engine* gRt_ = nullptr;
-soir::dsp::Engine* gDsp_ = nullptr;
+soir::engine::Engine* gDsp_ = nullptr;
 
 }  // namespace
 
@@ -23,7 +23,7 @@ namespace rt {
 
 using namespace pybind11::literals;
 
-absl::Status bindings::SetEngines(rt::Engine* rt, dsp::Engine* dsp) {
+absl::Status bindings::SetEngines(rt::Engine* rt, engine::Engine* dsp) {
   if (gRt_ != nullptr) {
     LOG(ERROR) << "Engines already initialized, unable to run multiple "
                   "instances at the same time";
@@ -40,7 +40,7 @@ void bindings::ResetEngines() {
   gDsp_ = nullptr;
 }
 
-dsp::Engine* bindings::GetDsp() {
+engine::Engine* bindings::GetDsp() {
   return gDsp_;
 }
 
@@ -64,7 +64,7 @@ PYBIND11_EMBEDDED_MODULE(bindings, m) {
   });
 
   m.def("get_tracks_", []() {
-    std::list<dsp::Track::Settings> tracks;
+    std::list<engine::Track::Settings> tracks;
     std::vector<py::dict> result;
 
     auto status = gDsp_->GetTracks(&tracks);
@@ -77,11 +77,11 @@ PYBIND11_EMBEDDED_MODULE(bindings, m) {
       std::string instrument;
 
       switch (track.instrument_) {
-        case dsp::Track::TRACK_SAMPLER:
+        case engine::Track::TRACK_SAMPLER:
           instrument = "sampler";
           break;
 
-        case dsp::Track::TRACK_MIDI_EXT:
+        case engine::Track::TRACK_MIDI_EXT:
           instrument = "midi_ext";
           break;
 
@@ -95,11 +95,11 @@ PYBIND11_EMBEDDED_MODULE(bindings, m) {
         std::string type;
 
         switch (fx.type_) {
-          case dsp::Fx::FX_CHORUS:
+          case engine::Fx::FX_CHORUS:
             type = "chorus";
             break;
 
-          case dsp::Fx::FX_REVERB:
+          case engine::Fx::FX_REVERB:
             type = "reverb";
             break;
 
@@ -121,11 +121,11 @@ PYBIND11_EMBEDDED_MODULE(bindings, m) {
   });
 
   m.def("setup_tracks_", [](const py::dict& tracks) {
-    std::list<dsp::Track::Settings> settings;
-    dsp::Controls* ctrls = gDsp_->GetControls();
+    std::list<engine::Track::Settings> settings;
+    engine::Controls* ctrls = gDsp_->GetControls();
 
     for (auto& it : tracks) {
-      dsp::Track::Settings s;
+      engine::Track::Settings s;
 
       auto name = it.first.cast<std::string>();
       auto track = it.second.cast<py::dict>();
@@ -133,9 +133,9 @@ PYBIND11_EMBEDDED_MODULE(bindings, m) {
       auto instr = track["instrument"].cast<std::string>();
 
       if (instr == "sampler") {
-        s.instrument_ = dsp::Track::TRACK_SAMPLER;
+        s.instrument_ = engine::Track::TRACK_SAMPLER;
       } else if (instr == "midi_ext") {
-        s.instrument_ = dsp::Track::TRACK_MIDI_EXT;
+        s.instrument_ = engine::Track::TRACK_MIDI_EXT;
       } else {
         LOG(ERROR) << "Unknown instrument: " << instr;
         return false;
@@ -149,7 +149,7 @@ PYBIND11_EMBEDDED_MODULE(bindings, m) {
 
       auto fxs = track["fxs"].cast<std::list<py::dict>>();
       for (auto it : fxs) {
-        dsp::Fx::Settings fx_settings;
+        engine::Fx::Settings fx_settings;
 
         fx_settings.name_ = it["name"].cast<std::string>();
         fx_settings.mix_ = it["mix"].cast<std::optional<float>>().value_or(1.0);
@@ -157,11 +157,11 @@ PYBIND11_EMBEDDED_MODULE(bindings, m) {
             it["extra"].cast<std::optional<std::string>>().value_or("");
 
         if (it["type"].cast<std::string>() == "chorus") {
-          fx_settings.type_ = dsp::Fx::FX_CHORUS;
+          fx_settings.type_ = engine::Fx::FX_CHORUS;
         } else if (it["type"].cast<std::string>() == "reverb") {
-          fx_settings.type_ = dsp::Fx::FX_REVERB;
+          fx_settings.type_ = engine::Fx::FX_REVERB;
         } else {
-          fx_settings.type_ = dsp::Fx::FX_UNKNOWN;
+          fx_settings.type_ = engine::Fx::FX_UNKNOWN;
         }
 
         s.fxs_.push_back(fx_settings);
@@ -200,7 +200,7 @@ PYBIND11_EMBEDDED_MODULE(bindings, m) {
         });
 
   m.def("controls_get_frequency_update_",
-        []() { return dsp::kControlsFrequencyUpdate; });
+        []() { return engine::kControlsFrequencyUpdate; });
 
   m.def("midi_sysex_update_controls_", [](const std::string& p) {
     gRt_->MidiSysex(std::string(kInternalControls),
