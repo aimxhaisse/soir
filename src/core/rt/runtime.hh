@@ -33,7 +33,7 @@ struct Cb {
   }
 };
 
-// This is the main engine that runs the Python code and schedules
+// This is the main runtime that runs the Python code and schedules
 // callbacks. It uses a temporal recursion pattern to avoid time
 // drifts (this is heavily inspired from Extempore).
 //
@@ -47,10 +47,10 @@ struct Cb {
 //
 // We'll need to update this model in case we want to schedule
 // callbacks from other threads.
-class Engine {
+class Runtime {
  public:
-  Engine();
-  ~Engine();
+  Runtime();
+  ~Runtime();
 
   absl::Status Init(const utils::Config& config, engine::Engine* dsp,
                     Notifier* notifier);

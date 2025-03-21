@@ -6,7 +6,7 @@ namespace soir {
 
 Soir::Soir()
     : dsp_(std::make_unique<engine::Engine>()),
-      rt_(std::make_unique<rt::Engine>()),
+      rt_(std::make_unique<rt::Runtime>()),
       notifier_(std::make_unique<rt::Notifier>()) {}
 
 Soir::~Soir() {}

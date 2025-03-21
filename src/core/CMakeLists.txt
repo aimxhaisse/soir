@@ -31,7 +31,7 @@ add_library(
   engine/vorbis_encoder.cc
 
   rt/bindings.cc
-  rt/engine.cc
+  rt/runtime.cc
   rt/notifier.cc
 )
 

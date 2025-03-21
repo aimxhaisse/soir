@@ -4,7 +4,7 @@
 #include <libremidi/libremidi.hpp>
 
 #include "core/rt/bindings.hh"
-#include "core/rt/engine.hh"
+#include "core/rt/runtime.hh"
 #include "utils/signal.hh"
 
 namespace py = pybind11;
@@ -12,15 +12,15 @@ namespace py = pybind11;
 namespace soir {
 namespace rt {
 
-Engine::Engine() : notifier_(nullptr) {}
+Runtime::Runtime() : notifier_(nullptr) {}
 
-Engine::~Engine() {
+Runtime::~Runtime() {
   bindings::ResetEngines();
 }
 
-absl::Status Engine::Init(const utils::Config& config, engine::Engine* dsp,
+absl::Status Runtime::Init(const utils::Config& config, engine::Engine* dsp,
                           Notifier* notifier) {
-  LOG(INFO) << "Initializing engine";
+  LOG(INFO) << "Initializing runtime";
 
   python_paths_ = config.Get<std::vector<std::string>>("soir.rt.python_paths");
   if (python_paths_.empty()) {
@@ -45,21 +45,21 @@ absl::Status Engine::Init(const utils::Config& config, engine::Engine* dsp,
   return absl::OkStatus();
 }
 
-absl::Status Engine::Start() {
-  LOG(INFO) << "Starting engine";
+absl::Status Runtime::Start() {
+  LOG(INFO) << "Starting runtime";
 
   thread_ = std::thread([this]() {
     auto status = Run();
     if (!status.ok()) {
-      LOG(ERROR) << "Engine failed: " << status;
+      LOG(ERROR) << "Runtime failed: " << status;
     }
   });
 
   return absl::OkStatus();
 }
 
-absl::Status Engine::Stop() {
-  LOG(INFO) << "Stopping engine";
+absl::Status Runtime::Stop() {
+  LOG(INFO) << "Stopping runtime";
 
   {
     std::lock_guard<std::mutex> lock(loop_mutex_);
@@ -69,29 +69,29 @@ absl::Status Engine::Stop() {
 
   thread_.join();
 
-  LOG(INFO) << "Engine stopped";
+  LOG(INFO) << "Runtime stopped";
 
   return absl::OkStatus();
 }
 
-absl::Time Engine::MicroBeatToTime(MicroBeat beat) const {
+absl::Time Runtime::MicroBeatToTime(MicroBeat beat) const {
   MicroBeat diff_mb = (beat > current_beat_) ? beat - current_beat_ : 0;
   uint64_t diff_us = (diff_mb * beat_us_) / 1000000.0;
 
   return current_time_ + absl::Microseconds(diff_us);
 }
 
-MicroBeat Engine::DurationToMicroBeat(absl::Duration duration) const {
+MicroBeat Runtime::DurationToMicroBeat(absl::Duration duration) const {
   auto duration_us = duration / absl::Microseconds(1);
 
   return bpm_ * duration_us / (60.0 * 1000000.0);
 }
 
-uint64_t Engine::MicroBeatToBeat(MicroBeat beat) const {
+uint64_t Runtime::MicroBeatToBeat(MicroBeat beat) const {
   return beat / kOneBeat;
 }
 
-absl::Status Engine::Run() {
+absl::Status Runtime::Run() {
   py::scoped_interpreter guard{};
 
   // Import soir module using the Python path provided in the config.
@@ -112,7 +112,7 @@ absl::Status Engine::Run() {
     // We assume there is always at least one callback in the queue
     // due to the beat scheduling.
     auto next = schedule_.begin();
-    auto at_time = Engine::MicroBeatToTime(next->at);
+    auto at_time = Runtime::MicroBeatToTime(next->at);
 
     std::string code;
     {
@@ -144,7 +144,7 @@ absl::Status Engine::Run() {
         next->func();
       } catch (py::error_already_set& e) {
         if (e.matches(PyExc_SystemExit)) {
-          LOG(INFO) << "Received SystemExit, stopping engine";
+          LOG(INFO) << "Received SystemExit, stopping runtime";
           soir::utils::SignalExit();
           return absl::OkStatus();
         }
@@ -168,7 +168,7 @@ absl::Status Engine::Run() {
       // accurate so that the Python engine can use it to schedule
       // events while padding to beat new loop creations with
       // alignment.
-      current_beat_ += Engine::DurationToMicroBeat(now - current_time_);
+      current_beat_ += Runtime::DurationToMicroBeat(now - current_time_);
 
       try {
         // We set the last evaluated code at the last moment so that
@@ -183,7 +183,7 @@ absl::Status Engine::Run() {
         py::exec("soir._ctrls.post_eval_()", soir_mod.attr("__dict__"));
       } catch (py::error_already_set& e) {
         if (e.matches(PyExc_SystemExit)) {
-          LOG(INFO) << "Received SystemExit, stopping engine";
+          LOG(INFO) << "Received SystemExit, stopping runtime";
           soir::utils::SignalExit();
           return absl::OkStatus();
         }
@@ -200,7 +200,7 @@ absl::Status Engine::Run() {
   return absl::OkStatus();
 }
 
-float Engine::SetBPM(float bpm) {
+float Runtime::SetBPM(float bpm) {
   LOG(INFO) << "Setting BPM to " << bpm;
 
   bpm_ = bpm;
@@ -209,15 +209,15 @@ float Engine::SetBPM(float bpm) {
   return bpm_;
 }
 
-float Engine::GetBPM() const {
+float Runtime::GetBPM() const {
   return bpm_;
 }
 
-MicroBeat Engine::GetCurrentBeat() const {
+MicroBeat Runtime::GetCurrentBeat() const {
   return current_beat_;
 }
 
-void Engine::Log(const std::string& message) {
+void Runtime::Log(const std::string& message) {
   proto::GetLogsResponse note;
 
   note.set_notification(message);
@@ -228,34 +228,34 @@ void Engine::Log(const std::string& message) {
   }
 }
 
-void Engine::Beat() {
+void Runtime::Beat() {
   LOG(INFO) << "Beat " << MicroBeatToBeat(current_beat_);
 
   Schedule(current_beat_ + kOneBeat, [this]() { Beat(); });
 }
 
-void Engine::MidiNoteOn(const std::string& track, uint8_t channel, uint8_t note,
+void Runtime::MidiNoteOn(const std::string& track, uint8_t channel, uint8_t note,
                         uint8_t velocity) {
   auto message = libremidi::channel_events::note_on(channel, note, velocity);
 
   dsp_->PushMidiEvent(MidiEventAt(track, message, current_time_));
 }
 
-void Engine::MidiNoteOff(const std::string& track, uint8_t channel,
+void Runtime::MidiNoteOff(const std::string& track, uint8_t channel,
                          uint8_t note, uint8_t velocity) {
   auto message = libremidi::channel_events::note_off(channel, note, velocity);
 
   dsp_->PushMidiEvent(MidiEventAt(track, message, current_time_));
 }
 
-void Engine::MidiCC(const std::string& track, uint8_t channel, uint8_t cc,
+void Runtime::MidiCC(const std::string& track, uint8_t channel, uint8_t cc,
                     uint8_t value) {
   auto message = libremidi::channel_events::control_change(channel, cc, value);
 
   dsp_->PushMidiEvent(MidiEventAt(track, message, current_time_));
 }
 
-void Engine::MidiSysex(const std::string& track,
+void Runtime::MidiSysex(const std::string& track,
                        proto::MidiSysexInstruction::InstructionType instruction,
                        const std::string& json_payload) {
   proto::MidiSysexInstruction inst;
@@ -275,11 +275,11 @@ void Engine::MidiSysex(const std::string& track,
       MidiEventAt(track, libremidi::message(bytes, 0), current_time_));
 }
 
-std::string Engine::GetCode() const {
+std::string Runtime::GetCode() const {
   return last_evaluated_code_;
 }
 
-void Engine::Schedule(MicroBeat at, const CbFunc& cb) {
+void Runtime::Schedule(MicroBeat at, const CbFunc& cb) {
   // This is stupid simple because we currently don't support
   // scheduling callbacks from multiple threads. So it is assumed here
   // we are running in the context of Run(). If we ever support
@@ -289,7 +289,7 @@ void Engine::Schedule(MicroBeat at, const CbFunc& cb) {
   schedule_.insert({at, cb, last_cb_id_++});
 }
 
-absl::Status Engine::PushCodeUpdate(const std::string& code) {
+absl::Status Runtime::PushCodeUpdate(const std::string& code) {
   {
     std::lock_guard<std::mutex> lock(loop_mutex_);
     code_ = code;
