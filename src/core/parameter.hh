@@ -10,10 +10,10 @@ namespace py = pybind11;
 
 namespace soir {
 
-namespace engine {
+
 class Controls;
 class Control;
-}  // namespace engine
+
 
 // This is meant to be used in Python bindings to map back the correct
 // Python type so that we can have idempotent get_tracks/setup_tracks
@@ -32,11 +32,11 @@ class Parameter {
 
   float GetValue(SampleTick tick);
   void SetConstant(float value);
-  void SetControl(engine::Controls* controls, const std::string& value);
+  void SetControl(Controls* controls, const std::string& value);
   ParameterRaw Raw() const;
 
-  static Parameter FromPyDict(engine::Controls* c, py::dict& p, const char* n);
-  static Parameter FromJSON(engine::Controls* c, rapidjson::Document& p,
+  static Parameter FromPyDict(Controls* c, py::dict& p, const char* n);
+  static Parameter FromJSON(Controls* c, rapidjson::Document& p,
                             const char* n);
 
  private:
@@ -51,9 +51,9 @@ class Parameter {
 
   float constant_ = 0.0f;
 
-  engine::Controls* controls_ = nullptr;
+  Controls* controls_ = nullptr;
   std::string controlName_;
-  std::shared_ptr<engine::Control> knob_ = nullptr;
+  std::shared_ptr<Control> knob_ = nullptr;
 };
 
 }  // namespace soir

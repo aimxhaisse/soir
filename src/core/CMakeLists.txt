@@ -9,26 +9,26 @@ add_library(
   soir.cc
   parameter.cc
 
-  engine/adsr.cc
-  engine/audio_buffer.cc
-  engine/audio_output.cc
-  engine/controls.cc
-  engine/engine.cc
-  engine/fx_chorus.cc
-  engine/fx_reverb.cc
-  engine/fx_stack.cc
-  engine/http.cc
-  engine/http_stream.cc
-  engine/lfo.cc
-  engine/midi_ext.cc
-  engine/sample.cc
-  engine/sampler.cc
-  engine/sample_manager.cc
-  engine/sample_pack.cc
-  engine/tools.cc
-  engine/track.cc
-  engine/midi_stack.cc
-  engine/vorbis_encoder.cc
+  adsr.cc
+  audio_buffer.cc
+  audio_output.cc
+  controls.cc
+  engine.cc
+  fx_chorus.cc
+  fx_reverb.cc
+  fx_stack.cc
+  http.cc
+  http_stream.cc
+  lfo.cc
+  midi_ext.cc
+  sample.cc
+  sampler.cc
+  sample_manager.cc
+  sample_pack.cc
+  tools.cc
+  track.cc
+  midi_stack.cc
+  vorbis_encoder.cc
 
   rt/bindings.cc
   rt/runtime.cc
