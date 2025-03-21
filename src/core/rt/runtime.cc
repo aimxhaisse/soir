@@ -18,7 +18,7 @@ Runtime::~Runtime() {
   bindings::ResetEngines();
 }
 
-absl::Status Runtime::Init(const utils::Config& config, engine::Engine* dsp,
+absl::Status Runtime::Init(const utils::Config& config, Engine* dsp,
                           Notifier* notifier) {
   LOG(INFO) << "Initializing runtime";
 

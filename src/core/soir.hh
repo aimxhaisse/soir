@@ -2,7 +2,7 @@
 
 #include <grpc++/grpc++.h>
 
-#include "core/engine/engine.hh"
+#include "core/engine.hh"
 #include "core/rt/runtime.hh"
 #include "core/rt/notifier.hh"
 #include "soir.grpc.pb.h"
@@ -32,7 +32,7 @@ class Soir : proto::Soir::Service {
       grpc::ServerWriter<proto::GetLogsResponse>* writer) override;
 
  private:
-  std::unique_ptr<engine::Engine> dsp_;
+  std::unique_ptr<Engine> dsp_;
   std::unique_ptr<rt::Runtime> rt_;
   std::unique_ptr<rt::Notifier> notifier_;
   std::unique_ptr<grpc::Server> grpc_;

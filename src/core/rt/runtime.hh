@@ -4,8 +4,8 @@
 #include <mutex>
 
 #include "core/common.hh"
-#include "core/engine/dsp.hh"
-#include "core/engine/engine.hh"
+#include "core/dsp.hh"
+#include "core/engine.hh"
 #include "core/rt/notifier.hh"
 #include "utils/config.hh"
 
@@ -52,7 +52,7 @@ class Runtime {
   Runtime();
   ~Runtime();
 
-  absl::Status Init(const utils::Config& config, engine::Engine* dsp,
+  absl::Status Init(const utils::Config& config, Engine* dsp,
                     Notifier* notifier);
   absl::Status Start();
   absl::Status Stop();
@@ -95,7 +95,7 @@ class Runtime {
   std::vector<std::string> python_paths_;
 
   Notifier* notifier_;
-  engine::Engine* dsp_;
+  Engine* dsp_;
 
   // Updated by the Python thread only.
   uint64_t last_cb_id_ = 0;

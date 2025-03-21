@@ -1,6 +1,6 @@
 #include <absl/log/log.h>
 
-#include "core/engine/controls.hh"
+#include "core/controls.hh"
 
 #include "core/parameter.hh"
 
@@ -47,7 +47,7 @@ void Parameter::SetConstant(float constant) {
   constant_ = constant;
 }
 
-void Parameter::SetControl(engine::Controls* controls, const std::string& name) {
+void Parameter::SetControl(Controls* controls, const std::string& name) {
   Reset();
 
   knob_ = controls->GetControl(name);
@@ -56,7 +56,7 @@ void Parameter::SetControl(engine::Controls* controls, const std::string& name) 
   controls_ = controls;
 }
 
-Parameter Parameter::FromPyDict(engine::Controls* c, py::dict& p, const char* n) {
+Parameter Parameter::FromPyDict(Controls* c, py::dict& p, const char* n) {
   Parameter param;
   py::object ref = p[n];
 
@@ -74,7 +74,7 @@ Parameter Parameter::FromPyDict(engine::Controls* c, py::dict& p, const char* n)
   return param;
 }
 
-Parameter Parameter::FromJSON(engine::Controls* c, rapidjson::Document& p,
+Parameter Parameter::FromJSON(Controls* c, rapidjson::Document& p,
                               const char* n) {
   Parameter param;
 

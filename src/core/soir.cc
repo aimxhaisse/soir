@@ -5,7 +5,7 @@
 namespace soir {
 
 Soir::Soir()
-    : dsp_(std::make_unique<engine::Engine>()),
+    : dsp_(std::make_unique<Engine>()),
       rt_(std::make_unique<rt::Runtime>()),
       notifier_(std::make_unique<rt::Notifier>()) {}
 
@@ -112,7 +112,7 @@ grpc::Status Soir::PushMidiEvents(grpc::ServerContext* context,
   // those events will be considered late and immediately scheduled on
   // tick 0 of the block.
   auto delay =
-      absl::Microseconds((soir::engine::kBlockSize * 1e6) / engine::kSampleRate);
+      absl::Microseconds((soir::kBlockSize * 1e6) / kSampleRate);
   dsp_->PushMidiEvent(MidiEventAt("*", msg, absl::Now()));
 
   return grpc::Status::OK;

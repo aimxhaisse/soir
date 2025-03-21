@@ -1,9 +1,9 @@
 #include <gtest/gtest.h>
 #include <pybind11/pybind11.h>
 
-#include "core/engine/controls.hh"
-#include "core/engine/dsp.hh"
-#include "core/engine/lfo.hh"
+#include "core/controls.hh"
+#include "core/dsp.hh"
+#include "core/lfo.hh"
 #include "core/parameter.hh"
 
 namespace py = pybind11;
