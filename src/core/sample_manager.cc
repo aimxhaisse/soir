@@ -6,7 +6,6 @@
 
 namespace soir {
 
-
 absl::Status SampleManager::Init(const utils::Config& config) {
   directory_ = config.Get<std::string>("soir.dsp.sample_directory");
   if (directory_.empty()) {
@@ -80,6 +79,5 @@ std::vector<std::string> SampleManager::GetPackNames() {
 
   return names;
 }
-
 
 }  // namespace soir

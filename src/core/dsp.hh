@@ -7,7 +7,6 @@
 
 namespace soir {
 
-
 static constexpr int kNumChannels = 2;
 static constexpr int kLeftChannel = 0;
 static constexpr int kRightChannel = 1;
@@ -59,6 +58,5 @@ static constexpr int kMidiControlReverb = 0x05;
 static constexpr bool kTrackDefaultMuted = false;
 static constexpr int kTrackDefaultVolume = 127;
 static constexpr int kTrackDefaultPan = 64;
-
 
 }  // namespace soir

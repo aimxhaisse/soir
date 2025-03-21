@@ -41,7 +41,6 @@ void printAudioDevices() {
 
 namespace soir {
 
-
 MidiExt::MidiExt() {
   printAudioDevices();
 }
@@ -268,6 +267,5 @@ void MidiExt::Render(SampleTick tick, const std::list<MidiEventAt>& events,
     buffers_.pop_front();
   }
 }
-
 
 }  // namespace soir

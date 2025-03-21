@@ -5,7 +5,6 @@
 
 namespace soir {
 
-
 namespace {
 
 void ListAudioDevices() {
@@ -84,6 +83,5 @@ absl::Status AudioOutput::PushAudioBuffer(AudioBuffer& buffer) {
 
   return absl::OkStatus();
 }
-
 
 }  // namespace soir

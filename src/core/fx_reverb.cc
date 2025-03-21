@@ -2,7 +2,6 @@
 
 namespace soir {
 
-
 FxReverb::FxReverb(Controls* controls) : controls_(controls) {}
 
 absl::Status FxReverb::Init(const Fx::Settings& settings) {
@@ -30,6 +29,5 @@ void FxReverb::FastUpdate(const Fx::Settings& settings) {
 void FxReverb::Render(SampleTick tick, AudioBuffer&) {
   std::lock_guard<std::mutex> lock(mutex_);
 }
-
 
 }  // namespace soir

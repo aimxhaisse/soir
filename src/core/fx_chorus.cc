@@ -4,7 +4,6 @@
 
 namespace soir {
 
-
 FxChorus::FxChorus(Controls* controls)
     : controls_(controls), time_(0.5f), depth_(0.0f), rate_(0.5f) {}
 
@@ -52,6 +51,5 @@ void FxChorus::ReloadParams() {
 void FxChorus::Render(SampleTick tick, AudioBuffer&) {
   std::lock_guard<std::mutex> lock(mutex_);
 }
-
 
 }  // namespace soir

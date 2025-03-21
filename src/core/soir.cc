@@ -111,8 +111,7 @@ grpc::Status Soir::PushMidiEvents(grpc::ServerContext* context,
   // in the nearest possible future but not in the past, otherwise
   // those events will be considered late and immediately scheduled on
   // tick 0 of the block.
-  auto delay =
-      absl::Microseconds((soir::kBlockSize * 1e6) / kSampleRate);
+  auto delay = absl::Microseconds((soir::kBlockSize * 1e6) / kSampleRate);
   dsp_->PushMidiEvent(MidiEventAt("*", msg, absl::Now()));
 
   return grpc::Status::OK;

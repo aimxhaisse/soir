@@ -4,7 +4,6 @@
 
 namespace soir {
 
-
 float LeftPan(float pan) {
   return pan > 0.0f ? (1.0f - pan) : 1.0f;
 }
@@ -30,6 +29,5 @@ float FastSin(float x) {
   // to go fast. No need to waste time on this for now.
   return sin(x);
 }
-
 
 }  // namespace soir

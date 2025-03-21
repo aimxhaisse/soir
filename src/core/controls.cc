@@ -6,7 +6,6 @@
 
 namespace soir {
 
-
 Control::Control() {}
 
 void Control::SetTargetValue(SampleTick tick, float target) {
@@ -107,6 +106,5 @@ void Controls::ProcessEvent(MidiEventAt& event_at) {
   // the DSP code to ack it doesn't use any legacy knob that we are
   // deleting.
 }
-
 
 }  // namespace soir
