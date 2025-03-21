@@ -7,7 +7,6 @@
 
 namespace soir {
 
-
 FxStack::FxStack(Controls* controls) : controls_(controls) {}
 
 absl::Status FxStack::Init(const std::list<Fx::Settings> fx_settings) {
@@ -89,6 +88,5 @@ void FxStack::Render(SampleTick tick, AudioBuffer& buffer) {
     fx->second->Render(tick, buffer);
   }
 }
-
 
 }  // namespace soir

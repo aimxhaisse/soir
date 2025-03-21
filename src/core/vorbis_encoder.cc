@@ -4,7 +4,6 @@
 
 namespace soir {
 
-
 VorbisEncoder::VorbisEncoder() {}
 
 VorbisEncoder::~VorbisEncoder() {}
@@ -82,6 +81,5 @@ absl::Status VorbisEncoder::Encode(AudioBuffer& ab, Writer& writer) {
 
   return absl::OkStatus();
 }
-
 
 }  // namespace soir

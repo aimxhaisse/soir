@@ -5,7 +5,6 @@
 
 namespace soir {
 
-
 absl::Status ADSR::Init(float a, float d, float r, float level) {
   if (a < 0.0) {
     return absl::InvalidArgumentError("Attack must be > 0");
@@ -127,6 +126,5 @@ float ADSR::GetNextEnvelope() {
 
   return envelope_;
 }
-
 
 }  // namespace soir

@@ -11,7 +11,6 @@
 
 namespace soir {
 
-
 absl::Status Sampler::Init(SampleManager* sample_manager, Controls* controls) {
   sample_manager_ = sample_manager;
   controls_ = controls;
@@ -300,6 +299,5 @@ void Sampler::Render(SampleTick tick, const std::list<MidiEventAt>& events,
         });
   }
 }
-
 
 }  // namespace soir

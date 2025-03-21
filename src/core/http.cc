@@ -4,7 +4,6 @@
 
 namespace soir {
 
-
 HttpServer::HttpServer() {}
 
 HttpServer::~HttpServer() {}
@@ -84,6 +83,5 @@ absl::Status HttpServer::Stop() {
 
   return absl::OkStatus();
 }
-
 
 }  // namespace soir

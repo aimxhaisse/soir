@@ -11,7 +11,6 @@
 
 namespace soir {
 
-
 absl::Status SamplePack::Init(const std::string& dir,
                               const std::string& pack_config) {
   auto config_or = utils::Config::LoadFromPath(pack_config);
@@ -90,6 +89,5 @@ std::vector<std::string> SamplePack::GetSampleNames() const {
   }
   return names;
 }
-
 
 }  // namespace soir

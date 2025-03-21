@@ -5,7 +5,6 @@
 
 namespace soir {
 
-
 Engine::Engine() {}
 
 Engine::~Engine() {}
@@ -332,6 +331,5 @@ absl::Status Engine::SetupTracks(const std::list<Track::Settings>& settings) {
 SampleManager& Engine::GetSampleManager() {
   return *sample_manager_;
 }
-
 
 }  // namespace soir

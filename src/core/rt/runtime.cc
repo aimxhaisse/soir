@@ -19,7 +19,7 @@ Runtime::~Runtime() {
 }
 
 absl::Status Runtime::Init(const utils::Config& config, Engine* dsp,
-                          Notifier* notifier) {
+                           Notifier* notifier) {
   LOG(INFO) << "Initializing runtime";
 
   python_paths_ = config.Get<std::vector<std::string>>("soir.rt.python_paths");
@@ -234,30 +234,31 @@ void Runtime::Beat() {
   Schedule(current_beat_ + kOneBeat, [this]() { Beat(); });
 }
 
-void Runtime::MidiNoteOn(const std::string& track, uint8_t channel, uint8_t note,
-                        uint8_t velocity) {
+void Runtime::MidiNoteOn(const std::string& track, uint8_t channel,
+                         uint8_t note, uint8_t velocity) {
   auto message = libremidi::channel_events::note_on(channel, note, velocity);
 
   dsp_->PushMidiEvent(MidiEventAt(track, message, current_time_));
 }
 
 void Runtime::MidiNoteOff(const std::string& track, uint8_t channel,
-                         uint8_t note, uint8_t velocity) {
+                          uint8_t note, uint8_t velocity) {
   auto message = libremidi::channel_events::note_off(channel, note, velocity);
 
   dsp_->PushMidiEvent(MidiEventAt(track, message, current_time_));
 }
 
 void Runtime::MidiCC(const std::string& track, uint8_t channel, uint8_t cc,
-                    uint8_t value) {
+                     uint8_t value) {
   auto message = libremidi::channel_events::control_change(channel, cc, value);
 
   dsp_->PushMidiEvent(MidiEventAt(track, message, current_time_));
 }
 
-void Runtime::MidiSysex(const std::string& track,
-                       proto::MidiSysexInstruction::InstructionType instruction,
-                       const std::string& json_payload) {
+void Runtime::MidiSysex(
+    const std::string& track,
+    proto::MidiSysexInstruction::InstructionType instruction,
+    const std::string& json_payload) {
   proto::MidiSysexInstruction inst;
 
   inst.set_type(instruction);

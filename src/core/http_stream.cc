@@ -5,7 +5,6 @@
 
 namespace soir {
 
-
 HttpStream::HttpStream() : initialized_(false) {}
 
 HttpStream::~HttpStream() {}
@@ -48,6 +47,5 @@ absl::Status HttpStream::Encode(httplib::DataSink& sink) {
 
   return absl::OkStatus();
 }
-
 
 }  // namespace soir

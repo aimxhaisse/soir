@@ -4,9 +4,9 @@
 
 #include "core/dsp.hh"
 #include "core/engine.hh"
-#include "core/track.hh"
 #include "core/rt/bindings.hh"
 #include "core/rt/runtime.hh"
+#include "core/track.hh"
 #include "soir.grpc.pb.h"
 
 namespace py = pybind11;

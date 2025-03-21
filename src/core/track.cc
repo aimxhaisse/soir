@@ -8,7 +8,6 @@
 
 namespace soir {
 
-
 Track::Track() {}
 
 absl::Status Track::Init(const Settings& settings,
@@ -166,6 +165,5 @@ void Track::Render(SampleTick tick, const std::list<MidiEventAt>& events,
     fx_stack_->Render(tick, buffer);
   }
 }
-
 
 }  // namespace soir

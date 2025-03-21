@@ -4,7 +4,6 @@
 
 namespace soir {
 
-
 MidiStack::MidiStack() {}
 
 void MidiStack::AddEvents(const std::list<MidiEventAt>& events) {
@@ -27,6 +26,5 @@ void MidiStack::EventsAtTick(SampleTick sample,
     it = sorted_events_.erase(it);
   }
 }
-
 
 }  // namespace soir

@@ -55,6 +55,12 @@ dev-sync-docs: dev-mk-docs
     #!/usr/bin/env bash
     rsync -avz --delete www/site/ soir.dev:srv/services/soir.dev/data
 
+# Lint the C++ code.
+[group('dev')]
+dev-lint:
+    #!/usr/bin/env bash
+    find src/ -name "*.cc" -o -name "*.h" | xargs clang-format -i --style=file
+
 # Build the package for Soir.
 [group('dev')]
 dev-mk-package: dev-build

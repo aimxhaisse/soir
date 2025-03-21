@@ -5,7 +5,6 @@
 
 namespace soir {
 
-
 LFO::LFO() {}
 
 absl::Status LFO::Init(const Settings& s) {
@@ -47,6 +46,5 @@ float LFO::Render() {
 
   return result;
 }
-
 
 }  // namespace soir
