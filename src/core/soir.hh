@@ -3,7 +3,7 @@
 #include <grpc++/grpc++.h>
 
 #include "core/engine/engine.hh"
-#include "core/rt/engine.hh"
+#include "core/rt/runtime.hh"
 #include "core/rt/notifier.hh"
 #include "soir.grpc.pb.h"
 #include "utils/config.hh"
@@ -33,7 +33,7 @@ class Soir : proto::Soir::Service {
 
  private:
   std::unique_ptr<engine::Engine> dsp_;
-  std::unique_ptr<rt::Engine> rt_;
+  std::unique_ptr<rt::Runtime> rt_;
   std::unique_ptr<rt::Notifier> notifier_;
   std::unique_ptr<grpc::Server> grpc_;
 };

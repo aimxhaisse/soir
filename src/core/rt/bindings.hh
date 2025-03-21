@@ -11,14 +11,14 @@ class Engine;
 
 namespace rt {
 
-class Engine;
+class Runtime;
 
 namespace bindings {
 
-absl::Status SetEngines(rt::Engine* rt, engine::Engine* dsp);
+absl::Status SetEngines(rt::Runtime* rt, engine::Engine* dsp);
 void ResetEngines();
 engine::Engine* GetDsp();
-rt::Engine* GetRt();
+rt::Runtime* GetRt();
 
 }  // namespace bindings
 }  // namespace rt

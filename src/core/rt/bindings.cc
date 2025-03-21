@@ -6,14 +6,14 @@
 #include "core/engine/engine.hh"
 #include "core/engine/track.hh"
 #include "core/rt/bindings.hh"
-#include "core/rt/engine.hh"
+#include "core/rt/runtime.hh"
 #include "soir.grpc.pb.h"
 
 namespace py = pybind11;
 
 namespace {
 
-soir::rt::Engine* gRt_ = nullptr;
+soir::rt::Runtime* gRt_ = nullptr;
 soir::engine::Engine* gDsp_ = nullptr;
 
 }  // namespace
@@ -23,7 +23,7 @@ namespace rt {
 
 using namespace pybind11::literals;
 
-absl::Status bindings::SetEngines(rt::Engine* rt, engine::Engine* dsp) {
+absl::Status bindings::SetEngines(rt::Runtime* rt, engine::Engine* dsp) {
   if (gRt_ != nullptr) {
     LOG(ERROR) << "Engines already initialized, unable to run multiple "
                   "instances at the same time";
@@ -44,7 +44,7 @@ engine::Engine* bindings::GetDsp() {
   return gDsp_;
 }
 
-rt::Engine* bindings::GetRt() {
+rt::Runtime* bindings::GetRt() {
   return gRt_;
 }
 
