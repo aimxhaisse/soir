@@ -35,13 +35,14 @@ class Fx:
         mix: The mix parameter of the effect. Defaults to None.
         extra: Extra parameters for the effect, JSON encoded. Defaults to None.
     """
-    name: str = 'unnamed'
-    type: str = 'unknown'
+
+    name: str = "unnamed"
+    type: str = "unknown"
     mix: float | None = None
     extra: str | None = None
 
     def __repr__(self):
-        return f'Fx(name={self.name}, type={self.type}, mix={self.mix}, extra={self.extra})'
+        return f"Fx(name={self.name}, type={self.type}, mix={self.mix}, extra={self.extra})"
 
 
 def mk(type: str, mix=None, extra=None) -> Fx:
@@ -61,7 +62,12 @@ def mk(type: str, mix=None, extra=None) -> Fx:
     return fx
 
 
-def mk_chorus(mix=None, time: float | Control = 0.5, depth: float | Control = 0.5, rate: float | Control = 0.5) -> Fx:
+def mk_chorus(
+    mix=None,
+    time: float | Control = 0.5,
+    depth: float | Control = 0.5,
+    rate: float | Control = 0.5,
+) -> Fx:
     """Creates a new Chorus FX.
 
     Args:
@@ -70,7 +76,7 @@ def mk_chorus(mix=None, time: float | Control = 0.5, depth: float | Control = 0.
         depth: The depth parameter of the chorus effect. Defaults to 0.5.
         rate: The rate parameter of the chorus effect. Defaults to 0.5.
     """
-    return mk('chorus', mix=mix, extra={'time': time, 'depth': depth, 'rate': rate})
+    return mk("chorus", mix=mix, extra={"time": time, "depth": depth, "rate": rate})
 
 
 def mk_reverb(mix=None) -> Fx:
@@ -79,4 +85,4 @@ def mk_reverb(mix=None) -> Fx:
     Args:
         mix: The mix parameter of the chorus effect. Defaults to None.
     """
-    return mk('reverb', mix=mix, extra=None)
+    return mk("reverb", mix=mix, extra=None)

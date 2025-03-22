@@ -5,8 +5,8 @@ signal errors at runtime.
 
 
 class SoirException(Exception):
-    """Base class for Soir exceptions.
-    """
+    """Base class for Soir exceptions."""
+
     pass
 
 
@@ -18,6 +18,7 @@ class NotInLoopException(SoirException):
     instructions. This exception is raised if such code is called from
     the global scope.
     """
+
     pass
 
 
@@ -28,6 +29,7 @@ class InLoopException(SoirException):
     scope as it affects everything, for example, setting the BPM. This
     exception is raised if such code is called from a loop.
     """
+
     pass
 
 
@@ -38,6 +40,7 @@ class NotInControlLoopException(SoirException):
     orchestrated by the engine. This exception is raised if a control
     is instrumented from outside of the Soir control loop.
     """
+
     pass
 
 
@@ -48,6 +51,7 @@ class UnknownMidiTrackException(SoirException):
     synthesizer. This exception is raised if an invalid MIDI track is
     used.
     """
+
     pass
 
 
@@ -58,4 +62,5 @@ class ControlNotFoundException(SoirException):
     orchestrated by the engine. This exception is raised if an undefined
     control is used.
     """
+
     pass

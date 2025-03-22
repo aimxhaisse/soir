@@ -60,6 +60,7 @@ dev-sync-docs: dev-mk-docs
 dev-lint:
     #!/usr/bin/env bash
     find src/ -name "*.cc" -o -name "*.h" | xargs clang-format -i --style=file
+    poetry -P ${SOIR_DIR} run black dist/py/soir/*.py
 
 # Build the package for Soir.
 [group('dev')]

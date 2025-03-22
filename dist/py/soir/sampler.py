@@ -63,7 +63,7 @@ from soir._helpers import (
 )
 
 
-def new(pack_name: str) -> 'Sampler':
+def new(pack_name: str) -> "Sampler":
     """Creates a new sampler with samples from the designated pack.
 
     Args:
@@ -74,10 +74,7 @@ def new(pack_name: str) -> 'Sampler':
 
 class Sampler:
 
-    def __init__(
-            self,
-            pack_name: str
-    ):
+    def __init__(self, pack_name: str):
         """Creates a new sampler with samples from the designated pack.
 
         ???+ note
@@ -90,18 +87,18 @@ class Sampler:
         self.pack_name_ = pack_name
 
     def play(
-            self,
-            name: str,
-            start: float = 0.0,
-            end: float = 1.0,
-            pan: float | Control = 0.0,
-            attack: float = 0.0,
-            decay: float = 0.0,
-            sustain: float | None = None,
-            level: float = 1.0,
-            release: float = 0.0,
-            rate: float = 1.0,
-            amp: float = 1.0,
+        self,
+        name: str,
+        start: float = 0.0,
+        end: float = 1.0,
+        pan: float | Control = 0.0,
+        attack: float = 0.0,
+        decay: float = 0.0,
+        sustain: float | None = None,
+        level: float = 1.0,
+        release: float = 0.0,
+        rate: float = 1.0,
+        amp: float = 1.0,
     ):
         """Plays a sample by its given name. If there is no exact
         match, attempts to find one that contains the name (for
@@ -125,30 +122,27 @@ class Sampler:
         assert_in_loop()
 
         params = {
-            'pack': self.pack_name_,
-            'name': name,
-            'start': start,
-            'end': end,
-            'pan': pan,
-            'attack': attack,
-            'decay': decay,
-            'level': level,
-            'release': release,
-            'rate': rate,
-            'amp': amp,
+            "pack": self.pack_name_,
+            "name": name,
+            "start": start,
+            "end": end,
+            "pan": pan,
+            "attack": attack,
+            "decay": decay,
+            "level": level,
+            "release": release,
+            "rate": rate,
+            "amp": amp,
         }
 
         track = current_loop().track
-        
+
         schedule_(
             current_loop().current_offset,
-            lambda: midi_sysex_sample_play_(track, serialize_parameters(params))
+            lambda: midi_sysex_sample_play_(track, serialize_parameters(params)),
         )
 
-    def stop(
-            self,
-            name: str
-    ):
+    def stop(self, name: str):
         """Stops playing the sample. If there is no exact match,
         attempts to find one that contains the name (for example,
         'kick' will match 'hard-kick'). If the same sample is
@@ -161,15 +155,16 @@ class Sampler:
         assert_in_loop()
 
         params = {
-            'pack': self.pack_name_,
-            'name': name,
+            "pack": self.pack_name_,
+            "name": name,
         }
 
         track = current_loop().track
 
         schedule_(
             current_loop().current_offset,
-            lambda: midi_sysex_sample_stop_(track, json.dumps(params)))
+            lambda: midi_sysex_sample_stop_(track, json.dumps(params)),
+        )
 
 
 @dataclass
@@ -187,12 +182,13 @@ class Sample:
         path: The location of the sample file.
         duration: The length of the sample in seconds.
     """
+
     name: str
     pack: str
     path: str
     duration: float
-        
-   
+
+
 def packs() -> list[str]:
     """Returns the list of available sample packs.
 
@@ -213,5 +209,5 @@ def samples(pack_name: str) -> list[Sample]:
     """
     result = []
     for s in get_samples_(pack_name):
-        result.append(Sample(name=s, pack=pack_name, path='', duration=0.0))
+        result.append(Sample(name=s, pack=pack_name, path="", duration=0.0))
     return result

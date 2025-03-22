@@ -36,6 +36,7 @@ class Control(soir._ctrls.Control_):
     `ctrl('name')` facility and can passed as a parameter to
     instrument calls or FXs.
     """
+
     def __init__(self) -> None:
         raise NotImplementedError()
 
@@ -62,7 +63,7 @@ class Control(soir._ctrls.Control_):
                 The current value of the control.
         """
         raise NotImplementedError()
-        
+
     def fwd(self):
         """Computes the next value of the control and advance the tick.
 
@@ -71,9 +72,8 @@ class Control(soir._ctrls.Control_):
         raise NotImplementedError()
 
     def __repr__(self) -> str:
-        """Get the string representation of the control.
-        """
-        return f'Control(name={self.name()})'
+        """Get the string representation of the control."""
+        return f"Control(name={self.name()})"
 
 
 def mk_lfo(name: str, rate: float, intensity: float = 1.0) -> None:
@@ -118,7 +118,7 @@ def mk_func(name: str, func: callable) -> None:
     """
     soir._ctrls.Func_(name, func)
 
-    
+
 def layout() -> list[Control]:
     """Get the list of all controls.
 

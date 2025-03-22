@@ -30,9 +30,11 @@ current_loop_ = None
 
 
 class Loop_:
-    """Helper class to manage a loop function.
-    """
-    def __init__(self, name: str, beats: int, track: str | None, align: bool, func: callable):
+    """Helper class to manage a loop function."""
+
+    def __init__(
+        self, name: str, beats: int, track: str | None, align: bool, func: callable
+    ):
         self.name = name
         self.beats = beats
         self.track = track
@@ -48,8 +50,7 @@ class Loop_:
         self.current_offset = 0
 
     def run(self):
-        """Temporal recursion scheduling of the loop.
-        """
+        """Temporal recursion scheduling of the loop."""
         now = get_beat_()
         at = 0
         if self.align:
@@ -151,7 +152,7 @@ def current_loop() -> Loop_:
     Returns:
         The current loop.
     """
-    return current_loop_    
+    return current_loop_
 
 
 def get_loop(name: str) -> Loop_:
@@ -201,12 +202,12 @@ def get_code_function_(func: callable) -> str:
             start_line = line
         if not end_line or end_line < line:
             end_line = line
-    return '\n'.join(get_code_().splitlines()[start_line:end_line])
-    
+    return "\n".join(get_code_().splitlines()[start_line:end_line])
+
 
 class Live_:
-    """Helper class to manage a live function.
-    """
+    """Helper class to manage a live function."""
+
     def __init__(self, name: str, func: callable, code: str):
         self.name = name
         self.func = func
@@ -215,8 +216,7 @@ class Live_:
         self.eval_at = None
 
     def run(self):
-        """Executes right away the live function.
-        """
+        """Executes right away the live function."""
         global current_live_
 
         err = None
@@ -269,7 +269,7 @@ def current_live() -> Live_:
     Returns:
         The current live.
     """
-    return current_live_    
+    return current_live_
 
 
 def get_live(name: str) -> Live_:
@@ -318,8 +318,7 @@ def post_eval_():
 
 
 def log(message: str) -> None:
-    """Log a message to the console.
-    """
+    """Log a message to the console."""
     loop = current_loop()
 
     if loop:
@@ -329,7 +328,5 @@ def log(message: str) -> None:
 
 
 def sleep(beats: float):
-    """Sleep for the duration of the current loop.
-    """
+    """Sleep for the duration of the current loop."""
     assert_in_loop().current_offset += beats
-
