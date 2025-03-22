@@ -49,7 +49,7 @@ absl::Status Track::Init(const Settings& settings,
       return absl::InvalidArgumentError("Unknown instrument");
   }
 
-  fx_stack_ = std::make_unique<FxStack>(controls_);
+  fx_stack_ = std::make_unique<fx::FxStack>(controls_);
 
   auto status = fx_stack_->Init(settings_.fxs_);
   if (!status.ok()) {

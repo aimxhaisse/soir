@@ -8,16 +8,15 @@
 
 #include "core/audio_buffer.hh"
 #include "core/controls.hh"
-#include "core/fx_stack.hh"
+#include "core/fx/fx_stack.hh"
 #include "core/midi_ext.hh"
 #include "core/midi_stack.hh"
+#include "core/parameter.hh"
 #include "core/sample_manager.hh"
 #include "core/sampler.hh"
-#include "core/parameter.hh"
 #include "utils/config.hh"
 
 namespace soir {
-
 
 class Sampler;
 
@@ -39,7 +38,7 @@ struct Track {
     Parameter volume_;
     Parameter pan_;
     std::string extra_;
-    std::list<Fx::Settings> fxs_;
+    std::list<fx::Fx::Settings> fxs_;
   };
 
   Track();
@@ -66,9 +65,8 @@ struct Track {
   Settings settings_;
   std::unique_ptr<Sampler> sampler_;
   std::unique_ptr<MidiExt> midi_ext_;
-  std::unique_ptr<FxStack> fx_stack_;
+  std::unique_ptr<fx::FxStack> fx_stack_;
   MidiStack midi_stack_;
 };
-
 
 }  // namespace soir
