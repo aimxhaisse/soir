@@ -67,8 +67,9 @@ class Track:
         fxs: The effects. Defaults to None.
         extra: Extra parameters, JSON encoded. Defaults to None.
     """
-    name: str = 'unnamed'
-    instrument: str = 'unknown'
+
+    name: str = "unnamed"
+    instrument: str = "unknown"
 
     muted: bool | None = None
     volume: float | Control = 1.0
@@ -77,7 +78,7 @@ class Track:
     extra: str | None = None
 
     def __repr__(self):
-        return f'Track(name={self.name}, instrument={self.instrument}, muted={self.muted}, volume={self.volume}, pan={self.pan}, fxs={self.fxs})'
+        return f"Track(name={self.name}, instrument={self.instrument}, muted={self.muted}, volume={self.volume}, pan={self.pan}, fxs={self.fxs})"
 
 
 def layout() -> dict[Track]:
@@ -101,11 +102,11 @@ def layout() -> dict[Track]:
             # Avoid parameters that need to be kept as a string, maybe
             # a better way via Track.__dict__ or something to check
             # the type.
-            if isinstance(v, str) and k not in ['name', 'instrument']:
+            if isinstance(v, str) and k not in ["name", "instrument"]:
                 params[k] = controls_registry_[v]
             else:
                 params[k] = v
-        tracks[params['name']] = Track(**params)
+        tracks[params["name"]] = Track(**params)
 
     return tracks
 
@@ -133,7 +134,7 @@ def setup(tracks: dict[str, Track]) -> bool:
                 fx.name = fx_name
                 fxs.append(asdict(fx))
         track_dict[name] = asdict(track)
-        track_dict[name]['fxs'] = fxs
+        track_dict[name]["fxs"] = fxs
 
     return setup_tracks_(track_dict)
 
@@ -169,7 +170,7 @@ def mk_sampler(muted=None, volume=1.0, pan=0.0, extra=None) -> Track:
         pan (float | Control): The pan in the [-1.0, 1.0] range. Defaults to 0.0.
         extra (dict, optional): Extra parameters. Defaults to None.
     """
-    return mk('sampler', muted, volume, pan, extra)
+    return mk("sampler", muted, volume, pan, extra)
 
 
 def mk_midi(muted=None, volume=1.0, pan=0.0, midi_device=0, audio_device=0) -> Track:
@@ -183,4 +184,10 @@ def mk_midi(muted=None, volume=1.0, pan=0.0, midi_device=0, audio_device=0) -> T
         midi_device (int, optional): The midi device. Defaults to -1.
         audio_device (int, optional): The audio device. Defaults to -1.
     """
-    return mk('midi_ext', muted, volume, pan, extra={'midi_device': midi_device, 'audio_device': audio_device})
+    return mk(
+        "midi_ext",
+        muted,
+        volume,
+        pan,
+        extra={"midi_device": midi_device, "audio_device": audio_device},
+    )

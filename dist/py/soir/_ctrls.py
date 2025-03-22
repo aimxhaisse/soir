@@ -32,8 +32,7 @@ tick_sec_ = 1 / frequency_
 
 
 def assert_in_update_loop():
-    """Assert that we are in the update loop.
-    """
+    """Assert that we are in the update loop."""
     if not in_update_loop_:
         raise errors.NotInControlUpdateLoopException()
 
@@ -43,13 +42,14 @@ class Control_:
 
     Publicly documented in ctrls.Control.
     """
+
     class Scope(enum.Enum):
-        """Scope of the control.
-        """
+        """Scope of the control."""
+
         GLOBAL = 0
         LIVE = 1
         LOOP = 2
-    
+
     def __init__(self, name):
         self.name_ = name
         self.tick_ = 0
@@ -84,7 +84,7 @@ class Control_:
         controls_registry_[name] = self
 
     def __repr__(self) -> str:
-        return f'[{self.name_}={self.get()}]'
+        return f"[{self.name_}={self.get()}]"
 
     def get(self) -> float:
         return self.value_
@@ -102,8 +102,8 @@ class Control_:
 
 
 class LFO_(Control_):
-    """A simple LFO parameter.
-    """
+    """A simple LFO parameter."""
+
     def __init__(self, name: str, rate: float, intensity: float):
         super().__init__(name)
 
@@ -118,8 +118,8 @@ class LFO_(Control_):
 
 
 class Linear_(Control_):
-    """A linear parameter.
-    """
+    """A linear parameter."""
+
     def __init__(self, name: str, start: float, end: float, duration: float):
         super().__init__(name)
 
@@ -132,13 +132,15 @@ class Linear_(Control_):
     def fwd(self) -> float:
         assert_in_update_loop()
 
-        self.value_ = self.start_ + (self.end_ - self.start_) * (self.tick_ / self.duration_)
+        self.value_ = self.start_ + (self.end_ - self.start_) * (
+            self.tick_ / self.duration_
+        )
         self.tick_ += tick_sec_
 
 
 class Val_(Control_):
-    """A value parameter.
-    """
+    """A value parameter."""
+
     def __init__(self, name: str, value: float):
         super().__init__(name)
 
@@ -152,8 +154,8 @@ class Val_(Control_):
 
 
 class Func_(Control_):
-    """A function parameter.
-    """
+    """A function parameter."""
+
     def __init__(self, name: str, func: callable):
         super().__init__(name)
 
@@ -177,13 +179,13 @@ def update_loop_():
     global in_update_loop_
     in_update_loop_ = True
 
-    payload = {'knobs': {}}
+    payload = {"knobs": {}}
 
     # We sort by alphabetical order to ensure that dependencies are
     # correctly resolved.
     for name, ctrl in dict(sorted(controls_registry_.items())).items():
         ctrl.fwd()
-        payload['knobs'][name] = ctrl.get()
+        payload["knobs"][name] = ctrl.get()
 
     midi_sysex_update_controls_(json.dumps(payload))
 

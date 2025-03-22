@@ -28,8 +28,7 @@ from soir.errors import (
 )
 
 
-
-class use_chan():
+class use_chan:
     """Context manager to set the MIDI channel to use.
 
     `use_chan` can be used to send MIDI events to a specific channel. It
@@ -52,19 +51,20 @@ class use_chan():
        midi.note_on(60)
     ```
     """
+
     def __init__(self, chan: int):
         self.loop = assert_in_loop()
-        self.previous_chan = self.loop.extra.get('midi_chan')
-        self.loop.extra['midi_chan'] = chan
+        self.previous_chan = self.loop.extra.get("midi_chan")
+        self.loop.extra["midi_chan"] = chan
 
     def __enter__(self):
         pass
 
     def __exit__(self, exc_type, exc_value, traceback):
-        self.loop.extra['midi_chan'] = self.previous_chan
+        self.loop.extra["midi_chan"] = self.previous_chan
 
 
-def _get_chan(chan = None) -> int:
+def _get_chan(chan=None) -> int:
     """Internal helper to get the MIDI chan to use.
 
     Args:
@@ -78,13 +78,13 @@ def _get_chan(chan = None) -> int:
     if chan is not None:
         return chan
 
-    if loop.extra.get('midi_chan'):
-        return loop.extra['midi_chan']
+    if loop.extra.get("midi_chan"):
+        return loop.extra["midi_chan"]
 
     raise UnknownMidiTrackException()
 
 
-def note_on(note: int, velocity: int = 127, chan = None) -> float:
+def note_on(note: int, velocity: int = 127, chan=None) -> float:
     """Send the MIDI note to the external synthesizer configured on the track.
     Args:
         note: The MIDI note to send.
@@ -101,12 +101,9 @@ def note_on(note: int, velocity: int = 127, chan = None) -> float:
     if not track:
         raise UnknownMidiTrackException()
 
-    schedule_(
-        loop.current_offset,
-        lambda: midi_note_on_(track, chan, note, velocity)
-    )
+    schedule_(loop.current_offset, lambda: midi_note_on_(track, chan, note, velocity))
 
-    
+
 def note_off(note: int, velocity: int = 127, chan: int | None = None) -> float:
     """Send the MIDI note off to the external synthesizer using the track id of the loop as MIDI channel.
 
@@ -125,13 +122,12 @@ def note_off(note: int, velocity: int = 127, chan: int | None = None) -> float:
     if not track:
         raise UnknownMidiTrackException()
 
-    schedule_(
-        loop.current_offset,
-        lambda: midi_note_off_(track, chan, note, velocity)
-    )
+    schedule_(loop.current_offset, lambda: midi_note_off_(track, chan, note, velocity))
 
 
-def note(note: int, duration: float, velocity: int = 127, chan: int | None = None) -> None:
+def note(
+    note: int, duration: float, velocity: int = 127, chan: int | None = None
+) -> None:
     """Send the MIDI note on and off to the external synthesizer using the track id of the loop as MIDI channel.
 
     Args:
@@ -150,12 +146,9 @@ def note(note: int, duration: float, velocity: int = 127, chan: int | None = Non
     if not track:
         raise UnknownMidiTrackException()
 
-    schedule_(
-        loop.current_offset,
-        lambda: midi_note_on_(track, chan, note, velocity)
-    )
+    schedule_(loop.current_offset, lambda: midi_note_on_(track, chan, note, velocity))
 
     schedule_(
         loop.current_offset + duration,
-        lambda: midi_note_off_(track, chan, note, velocity)
+        lambda: midi_note_off_(track, chan, note, velocity),
     )

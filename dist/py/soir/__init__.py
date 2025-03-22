@@ -70,7 +70,7 @@ import soir._internals
 import soir._ctrls
 
 
-def loop(track: str=None, beats: int=4, align: bool=True) -> callable:
+def loop(track: str = None, beats: int = 4, align: bool = True) -> callable:
     """Decorator to create a loop that is rescheduled every given number of beats.
 
     The concept of a loop is similar to [Sonic
@@ -122,7 +122,7 @@ def log(message: str) -> None:
 
     This function is used to log messages to the console. It is useful
     for debugging purposes.
-    
+
     ``` python
     log(f'We are at beat {bpm.beat()}')
     ```
@@ -138,7 +138,7 @@ def sleep(beats: float) -> None:
 
     In this example, we define a 4-beats loop that plays a kick sample
     every beats, and sleeps for 1 beat between each sample.
-        
+
     ``` python
     @loop
     def my_loop(beats=4, track=1):
@@ -166,7 +166,7 @@ import soir.ctrls as ctrls
 
 def ctrl(name: str) -> ctrls.Control:
     """Get a control by its name.
-        
+
     Args:
         name: The name of the control.
 
