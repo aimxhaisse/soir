@@ -3,11 +3,12 @@
 #include "fx_chorus.hh"
 
 namespace soir {
+namespace fx {
 
-FxChorus::FxChorus(Controls* controls)
+Chorus::Chorus(Controls* controls)
     : controls_(controls), time_(0.5f), depth_(0.0f), rate_(0.5f) {}
 
-absl::Status FxChorus::Init(const Fx::Settings& settings) {
+absl::Status Chorus::Init(const Fx::Settings& settings) {
   settings_ = settings;
 
   ReloadParams();
@@ -15,7 +16,7 @@ absl::Status FxChorus::Init(const Fx::Settings& settings) {
   return absl::OkStatus();
 }
 
-bool FxChorus::CanFastUpdate(const Fx::Settings& settings) {
+bool Chorus::CanFastUpdate(const Fx::Settings& settings) {
   std::lock_guard<std::mutex> lock(mutex_);
 
   if (settings_.type_ != settings.type_) {
@@ -25,7 +26,7 @@ bool FxChorus::CanFastUpdate(const Fx::Settings& settings) {
   return true;
 }
 
-void FxChorus::FastUpdate(const Fx::Settings& settings) {
+void Chorus::FastUpdate(const Fx::Settings& settings) {
   std::lock_guard<std::mutex> lock(mutex_);
 
   if (settings_.extra_ != settings.extra_) {
@@ -34,7 +35,7 @@ void FxChorus::FastUpdate(const Fx::Settings& settings) {
   }
 }
 
-void FxChorus::ReloadParams() {
+void Chorus::ReloadParams() {
   rapidjson::Document doc;
 
   doc.Parse(settings_.extra_.c_str());
@@ -48,8 +49,9 @@ void FxChorus::ReloadParams() {
   rate_ = Parameter::FromJSON(controls_, doc, "rate");
 }
 
-void FxChorus::Render(SampleTick tick, AudioBuffer&) {
+void Chorus::Render(SampleTick tick, AudioBuffer&) {
   std::lock_guard<std::mutex> lock(mutex_);
 }
 
+}  // namespace fx
 }  // namespace soir

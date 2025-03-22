@@ -5,11 +5,11 @@
 #include "fx.hh"
 
 namespace soir {
-
+namespace fx {
 
 // Reverb effect.
-struct FxReverb : public Fx {
-  FxReverb(Controls* controls);
+struct Reverb : public Fx {
+  Reverb(Controls* controls);
 
   absl::Status Init(const Fx::Settings& settings) override;
   bool CanFastUpdate(const Fx::Settings& settings) override;
@@ -23,5 +23,5 @@ struct FxReverb : public Fx {
   Fx::Settings settings_;
 };
 
-
+}  // namespace fx
 }  // namespace soir

@@ -14,9 +14,9 @@ add_library(
   audio_output.cc
   controls.cc
   engine.cc
-  fx_chorus.cc
-  fx_reverb.cc
-  fx_stack.cc
+  fx/fx_chorus.cc
+  fx/fx_reverb.cc
+  fx/fx_stack.cc
   http.cc
   http_stream.cc
   lfo.cc

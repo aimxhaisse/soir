@@ -5,11 +5,11 @@
 #include "fx.hh"
 
 namespace soir {
-
+namespace fx {
 
 // Chorus effect.
-struct FxChorus : public Fx {
-  FxChorus(Controls* controls);
+struct Chorus : public Fx {
+  Chorus(Controls* controls);
 
   absl::Status Init(const Fx::Settings& settings) override;
   bool CanFastUpdate(const Fx::Settings& settings) override;
@@ -29,5 +29,5 @@ struct FxChorus : public Fx {
   Parameter rate_;
 };
 
-
+}  // namespace fx
 }  // namespace soir

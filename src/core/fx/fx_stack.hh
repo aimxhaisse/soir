@@ -5,12 +5,12 @@
 #include <map>
 #include <mutex>
 
-#include "core/common.hh"
 #include "core/audio_buffer.hh"
-#include "core/fx.hh"
+#include "core/common.hh"
+#include "fx.hh"
 
 namespace soir {
-
+namespace fx {
 
 // Represents a stack of ordered DSP fx.
 class FxStack {
@@ -36,5 +36,5 @@ class FxStack {
   std::map<std::string, std::unique_ptr<Fx>> fxs_;
 };
 
-
+}  // namespace fx
 }  // namespace soir

@@ -6,6 +6,7 @@
 #include "fx_stack.hh"
 
 namespace soir {
+namespace fx {
 
 FxStack::FxStack(Controls* controls) : controls_(controls) {}
 
@@ -16,11 +17,11 @@ absl::Status FxStack::Init(const std::list<Fx::Settings> fx_settings) {
 
   for (auto& settings : fx_settings) {
     switch (settings.type_) {
-      case Fx::FxType::FX_CHORUS:
-        fx = std::make_unique<FxChorus>(controls_);
+      case Type::CHORUS:
+        fx = std::make_unique<Chorus>(controls_);
         break;
-      case Fx::FxType::FX_REVERB:
-        fx = std::make_unique<FxReverb>(controls_);
+      case Type::REVERB:
+        fx = std::make_unique<Reverb>(controls_);
         break;
       default:
         return absl::InvalidArgumentError("Unknown FX type");
@@ -89,4 +90,5 @@ void FxStack::Render(SampleTick tick, AudioBuffer& buffer) {
   }
 }
 
+}  // namespace fx
 }  // namespace soir
