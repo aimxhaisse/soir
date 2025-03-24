@@ -10,7 +10,7 @@
 namespace soir {
 namespace fx {
 
-enum class Type { CHORUS, REVERB, UNKNOWN };
+enum class Type { UNKNOWN, CHORUS, REVERB };
 
 struct Fx {
   struct Settings {

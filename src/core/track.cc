@@ -17,9 +17,9 @@ absl::Status Track::Init(const Settings& settings,
 
   switch (settings_.instrument_) {
 
-    case TRACK_SAMPLER: {
-      settings_.instrument_ = TRACK_SAMPLER;
-      sampler_ = std::make_unique<Sampler>();
+    case inst::Type::SAMPLER: {
+      settings_.instrument_ = inst::Type::SAMPLER;
+      sampler_ = std::make_unique<inst::Sampler>();
       auto status = sampler_->Init(sample_manager, controls);
       if (!status.ok()) {
         LOG(ERROR) << "Failed to init sampler: " << status.message();
@@ -27,9 +27,9 @@ absl::Status Track::Init(const Settings& settings,
       }
     } break;
 
-    case TRACK_MIDI_EXT: {
-      settings_.instrument_ = TRACK_MIDI_EXT;
-      midi_ext_ = std::make_unique<MidiExt>();
+    case inst::Type::MIDI_EXT: {
+      settings_.instrument_ = inst::Type::MIDI_EXT;
+      midi_ext_ = std::make_unique<inst::MidiExt>();
       auto status = midi_ext_->Init(settings_.extra_);
       if (!status.ok()) {
         LOG(ERROR) << "Failed to init midi ext: " << status.message();
@@ -62,7 +62,7 @@ absl::Status Track::Init(const Settings& settings,
 
 absl::Status Track::Stop() {
   switch (settings_.instrument_) {
-    case TRACK_MIDI_EXT:
+    case inst::Type::MIDI_EXT:
       return midi_ext_->Stop();
     default:
       return absl::OkStatus();
@@ -89,17 +89,17 @@ void Track::FastUpdate(const Settings& settings) {
   settings_ = settings;
 
   switch (settings_.instrument_) {
-    case TRACK_MIDI_EXT: {
+    case inst::Type::MIDI_EXT: {
       auto status = midi_ext_->Init(settings_.extra_);
       if (!status.ok()) {
         LOG(ERROR) << "Failed to update midi ext: " << status.message();
       }
     } break;
 
-    case TRACK_SAMPLER:
+    case inst::Type::SAMPLER:
       break;
 
-    case TRACK_UNKNOWN:
+    case inst::Type::UNKNOWN:
     defaults:
       LOG(WARNING) << "Unable to fast update due to unknown instrument";
       break;
@@ -125,15 +125,15 @@ void Track::Render(SampleTick tick, const std::list<MidiEventAt>& events,
   AudioBuffer track_buffer(buffer.Size());
 
   switch (settings_.instrument_) {
-    case TRACK_SAMPLER:
+    case inst::Type::SAMPLER:
       sampler_->Render(tick, events, track_buffer);
       break;
 
-    case TRACK_MIDI_EXT:
+    case inst::Type::MIDI_EXT:
       midi_ext_->Render(tick, events, track_buffer);
       break;
 
-    case TRACK_UNKNOWN:
+    case inst::Type::UNKNOWN:
     defaults:
       LOG(WARNING) << "Unknown instrument";
       break;

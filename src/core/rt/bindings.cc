@@ -77,11 +77,11 @@ PYBIND11_EMBEDDED_MODULE(bindings, m) {
       std::string instrument;
 
       switch (track.instrument_) {
-        case Track::TRACK_SAMPLER:
+        case inst::Type::SAMPLER:
           instrument = "sampler";
           break;
 
-        case Track::TRACK_MIDI_EXT:
+        case inst::Type::MIDI_EXT:
           instrument = "midi_ext";
           break;
 
@@ -133,9 +133,9 @@ PYBIND11_EMBEDDED_MODULE(bindings, m) {
       auto instr = track["instrument"].cast<std::string>();
 
       if (instr == "sampler") {
-        s.instrument_ = Track::TRACK_SAMPLER;
+        s.instrument_ = inst::Type::SAMPLER;
       } else if (instr == "midi_ext") {
-        s.instrument_ = Track::TRACK_MIDI_EXT;
+        s.instrument_ = inst::Type::MIDI_EXT;
       } else {
         LOG(ERROR) << "Unknown instrument: " << instr;
         return false;

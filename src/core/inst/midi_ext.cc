@@ -2,7 +2,7 @@
 #include <rapidjson/document.h>
 
 #include "core/dsp.hh"
-#include "core/midi_ext.hh"
+#include "core/inst/midi_ext.hh"
 
 namespace {
 
@@ -40,6 +40,7 @@ void printAudioDevices() {
 }  // namespace
 
 namespace soir {
+namespace inst {
 
 MidiExt::MidiExt() {
   printAudioDevices();
@@ -268,4 +269,5 @@ void MidiExt::Render(SampleTick tick, const std::list<MidiEventAt>& events,
   }
 }
 
+}  // namespace inst
 }  // namespace soir
