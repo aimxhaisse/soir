@@ -12,6 +12,7 @@
 #include "core/common.hh"
 #include "core/controls.hh"
 #include "core/dsp.hh"
+#include "core/inst/instrument.hh"
 #include "core/midi_stack.hh"
 #include "core/parameter.hh"
 #include "core/sample_manager.hh"
@@ -32,10 +33,12 @@ static constexpr int kSampleMinimalSmoothingSamples =
     kSampleMinimalDurationMs * kSampleRate / 1000;
 
 // This is the main class that will handle the rendering of the samples
-class Sampler {
+class Sampler : public Instrument {
  public:
-  absl::Status Init(SampleManager* sample_manager, Controls* controls);
+  absl::Status Init(const std::string& settings, SampleManager* sample_manager,
+                    Controls* controls);
   void Render(SampleTick tick, const std::list<MidiEventAt>&, AudioBuffer&);
+  Type GetType() const { return Type::SAMPLER; }
 
  private:
   void ProcessMidiEvents(SampleTick tick);

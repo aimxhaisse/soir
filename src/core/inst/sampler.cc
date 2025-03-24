@@ -12,7 +12,8 @@
 namespace soir {
 namespace inst {
 
-absl::Status Sampler::Init(SampleManager* sample_manager, Controls* controls) {
+absl::Status Sampler::Init(const std::string&, SampleManager* sample_manager,
+                           Controls* controls) {
   sample_manager_ = sample_manager;
   controls_ = controls;
 

@@ -9,18 +9,22 @@
 #include <thread>
 
 #include "core/audio_buffer.hh"
-#include "core/common.hh"
+#include "core/inst/instrument.hh"
 #include "core/midi_stack.hh"
 
 namespace soir {
 namespace inst {
 
-class MidiExt {
+class MidiExt : public Instrument {
  public:
   MidiExt();
   ~MidiExt();
 
-  absl::Status Init(const std::string& settings);
+  absl::Status Init(const std::string& settings, SampleManager* sample_manager,
+                    Controls* controls);
+
+  Type GetType() const { return Type::MIDI_EXT; }
+
   absl::Status Start();
   absl::Status Run();
   absl::Status Stop();

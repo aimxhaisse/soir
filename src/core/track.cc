@@ -14,34 +14,17 @@ absl::Status Track::Init(const Settings& settings,
                          SampleManager* sample_manager, Controls* controls) {
   settings_ = settings;
   controls_ = controls;
+  sample_manager_ = sample_manager;
 
   switch (settings_.instrument_) {
-
     case inst::Type::SAMPLER: {
       settings_.instrument_ = inst::Type::SAMPLER;
-      sampler_ = std::make_unique<inst::Sampler>();
-      auto status = sampler_->Init(sample_manager, controls);
-      if (!status.ok()) {
-        LOG(ERROR) << "Failed to init sampler: " << status.message();
-        return status;
-      }
+      inst_ = std::make_unique<inst::Sampler>();
     } break;
 
     case inst::Type::MIDI_EXT: {
       settings_.instrument_ = inst::Type::MIDI_EXT;
-      midi_ext_ = std::make_unique<inst::MidiExt>();
-      auto status = midi_ext_->Init(settings_.extra_);
-      if (!status.ok()) {
-        LOG(ERROR) << "Failed to init midi ext: " << status.message();
-        return status;
-      }
-
-      status = midi_ext_->Start();
-      if (!status.ok()) {
-        LOG(ERROR) << "Failed to start midi ext: " << status.message();
-        return status;
-      }
-
+      inst_ = std::make_unique<inst::MidiExt>();
       break;
     }
 
@@ -49,9 +32,20 @@ absl::Status Track::Init(const Settings& settings,
       return absl::InvalidArgumentError("Unknown instrument");
   }
 
+  auto status = inst_->Init(settings_.extra_, sample_manager_, controls_);
+  if (!status.ok()) {
+    LOG(ERROR) << "Failed to init instrument: " << status.message();
+    return status;
+  }
+  status = inst_->Start();
+  if (!status.ok()) {
+    LOG(ERROR) << "Failed to start instrument: " << status.message();
+    return status;
+  }
+
   fx_stack_ = std::make_unique<fx::FxStack>(controls_);
 
-  auto status = fx_stack_->Init(settings_.fxs_);
+  status = fx_stack_->Init(settings_.fxs_);
   if (!status.ok()) {
     LOG(ERROR) << "Failed to init fx stack: " << status.message();
     return status;
@@ -61,12 +55,7 @@ absl::Status Track::Init(const Settings& settings,
 }
 
 absl::Status Track::Stop() {
-  switch (settings_.instrument_) {
-    case inst::Type::MIDI_EXT:
-      return midi_ext_->Stop();
-    default:
-      return absl::OkStatus();
-  }
+  return inst_->Stop();
 }
 
 bool Track::CanFastUpdate(const Settings& settings) {
@@ -88,21 +77,9 @@ void Track::FastUpdate(const Settings& settings) {
 
   settings_ = settings;
 
-  switch (settings_.instrument_) {
-    case inst::Type::MIDI_EXT: {
-      auto status = midi_ext_->Init(settings_.extra_);
-      if (!status.ok()) {
-        LOG(ERROR) << "Failed to update midi ext: " << status.message();
-      }
-    } break;
-
-    case inst::Type::SAMPLER:
-      break;
-
-    case inst::Type::UNKNOWN:
-    defaults:
-      LOG(WARNING) << "Unable to fast update due to unknown instrument";
-      break;
+  auto status = inst_->Init(settings_.extra_, sample_manager_, controls_);
+  if (!status.ok()) {
+    LOG(WARNING) << "Failed to fast-update instrument: " << status.message();
   }
 
   fx_stack_->FastUpdate(settings_.fxs_);
@@ -124,20 +101,7 @@ void Track::Render(SampleTick tick, const std::list<MidiEventAt>& events,
                    AudioBuffer& buffer) {
   AudioBuffer track_buffer(buffer.Size());
 
-  switch (settings_.instrument_) {
-    case inst::Type::SAMPLER:
-      sampler_->Render(tick, events, track_buffer);
-      break;
-
-    case inst::Type::MIDI_EXT:
-      midi_ext_->Render(tick, events, track_buffer);
-      break;
-
-    case inst::Type::UNKNOWN:
-    defaults:
-      LOG(WARNING) << "Unknown instrument";
-      break;
-  }
+  inst_->Render(tick, events, track_buffer);
 
   auto ilch = track_buffer.GetChannel(kLeftChannel);
   auto irch = track_buffer.GetChannel(kRightChannel);
