@@ -5,11 +5,12 @@
 #include <absl/log/log.h>
 #include <filesystem>
 
-#include "core/sampler.hh"
+#include "core/inst/sampler.hh"
 #include "core/tools.hh"
 #include "utils/misc.hh"
 
 namespace soir {
+namespace inst {
 
 absl::Status Sampler::Init(SampleManager* sample_manager, Controls* controls) {
   sample_manager_ = sample_manager;
@@ -300,4 +301,5 @@ void Sampler::Render(SampleTick tick, const std::list<MidiEventAt>& events,
   }
 }
 
+}  // namespace inst
 }  // namespace soir

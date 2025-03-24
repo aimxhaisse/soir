@@ -19,10 +19,10 @@ add_library(
   fx/fx_stack.cc
   http.cc
   http_stream.cc
+  inst/midi_ext.cc
+  inst/sampler.cc
   lfo.cc
-  midi_ext.cc
   sample.cc
-  sampler.cc
   sample_manager.cc
   sample_pack.cc
   tools.cc

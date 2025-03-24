@@ -8,12 +8,12 @@
 #include <mutex>
 #include <thread>
 
-#include "core/common.hh"
 #include "core/audio_buffer.hh"
+#include "core/common.hh"
 #include "core/midi_stack.hh"
 
 namespace soir {
-
+namespace inst {
 
 class MidiExt {
  public:
@@ -54,5 +54,5 @@ class MidiExt {
   MidiStack midi_stack_;
 };
 
-
+}  // namespace inst
 }  // namespace soir

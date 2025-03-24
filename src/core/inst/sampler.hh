@@ -7,23 +7,20 @@
 #include <map>
 #include <memory>
 
-#include "core/common.hh"
 #include "core/adsr.hh"
 #include "core/audio_buffer.hh"
+#include "core/common.hh"
 #include "core/controls.hh"
 #include "core/dsp.hh"
 #include "core/midi_stack.hh"
+#include "core/parameter.hh"
 #include "core/sample_manager.hh"
 #include "core/sample_pack.hh"
-#include "core/track.hh"
-#include "core/parameter.hh"
 #include "soir.grpc.pb.h"
 #include "utils/config.hh"
 
 namespace soir {
-
-
-struct TrackSettings;
+namespace inst {
 
 // This is to prevent clipping when we play a sample that doesn't
 // start with an amp of 0 or that we need to suddenly cut without
@@ -98,5 +95,5 @@ class Sampler {
   MidiStack midi_stack_;
 };
 
-
+}  // namespace inst
 }  // namespace soir
