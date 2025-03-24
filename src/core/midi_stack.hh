@@ -6,7 +6,6 @@
 
 namespace soir {
 
-
 class MidiStack {
  public:
   MidiStack();
@@ -17,6 +16,5 @@ class MidiStack {
  private:
   std::list<MidiEventAt> sorted_events_;
 };
-
 
 }  // namespace soir

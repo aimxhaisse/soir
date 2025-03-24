@@ -3,7 +3,6 @@
 
 #include "core/controls.hh"
 #include "core/dsp.hh"
-#include "core/lfo.hh"
 #include "core/parameter.hh"
 
 namespace py = pybind11;

@@ -48,7 +48,8 @@ MidiExt::MidiExt() {
 
 MidiExt::~MidiExt() {}
 
-absl::Status MidiExt::Init(const std::string& settings) {
+absl::Status MidiExt::Init(const std::string& settings,
+                           SampleManager* sample_manager, Controls* controls) {
   std::lock_guard<std::mutex> lock(mutex_);
 
   if (settings == current_settings_) {

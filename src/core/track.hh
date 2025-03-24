@@ -9,7 +9,7 @@
 #include "core/audio_buffer.hh"
 #include "core/controls.hh"
 #include "core/fx/fx_stack.hh"
-#include "core/inst/inst.hh"
+#include "core/inst/instrument.hh"
 #include "core/inst/midi_ext.hh"
 #include "core/inst/sampler.hh"
 #include "core/midi_stack.hh"
@@ -51,11 +51,11 @@ struct Track {
 
  private:
   Controls* controls_;
+  SampleManager* sample_manager_;
 
   std::mutex mutex_;
   Settings settings_;
-  std::unique_ptr<inst::Sampler> sampler_;
-  std::unique_ptr<inst::MidiExt> midi_ext_;
+  std::unique_ptr<inst::Instrument> inst_;
   std::unique_ptr<fx::FxStack> fx_stack_;
   MidiStack midi_stack_;
 };

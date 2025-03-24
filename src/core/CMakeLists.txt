@@ -13,6 +13,11 @@ add_library(
   audio_buffer.cc
   audio_output.cc
   controls.cc
+  dsp/chorus.cc
+  dsp/delay.cc
+  dsp/lfo.cc
+  dsp/modulated_delay.cc
+  dsp/tools.cc
   engine.cc
   fx/fx_chorus.cc
   fx/fx_reverb.cc
@@ -21,7 +26,6 @@ add_library(
   http_stream.cc
   inst/midi_ext.cc
   inst/sampler.cc
-  lfo.cc
   sample.cc
   sample_manager.cc
   sample_pack.cc
@@ -64,7 +68,6 @@ add_executable(
   tests/test_basic_loop.cc
   tests/test_controls.cc
   tests/test_get_bpm.cc
-  tests/test_lfo.cc
   tests/test_setup_tracks.cc
   tests/test_exit.cc
   tests/test_parameter.cc
