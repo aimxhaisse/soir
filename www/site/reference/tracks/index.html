@@ -1274,7 +1274,7 @@ function, existing tracks are untouched.</p>
 
 
 <h3 id="soir.tracks.mk_midi" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">mk_midi</span><span class="p">(</span><span class="n">muted</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">volume</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">pan</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">midi_device</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">audio_device</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">mk_midi</span><span class="p">(</span><span class="n">muted</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">volume</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">pan</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">midi_device</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">audio_device</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">fxs</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
 
 </h3>
 
@@ -1379,6 +1379,20 @@ function, existing tracks are untouched.</p>
                   <code>0</code>
             </td>
           </tr>
+          <tr class="doc-section-item">
+            <td><code>fxs</code></td>
+            <td>
+                  <code>dict</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The effects to apply to the track. Defaults to None.</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
       </tbody>
     </table>
 
@@ -1390,7 +1404,7 @@ function, existing tracks are untouched.</p>
 
 
 <h3 id="soir.tracks.mk_sampler" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">mk_sampler</span><span class="p">(</span><span class="n">muted</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">volume</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">pan</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">mk_sampler</span><span class="p">(</span><span class="n">muted</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">volume</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">pan</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">fxs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
 
 </h3>
 
@@ -1451,6 +1465,20 @@ function, existing tracks are untouched.</p>
             </td>
             <td>
                   <code>0.0</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code>fxs</code></td>
+            <td>
+                  <code>dict</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The effects to apply to the track. Defaults to None.</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
             </td>
           </tr>
           <tr class="doc-section-item">
