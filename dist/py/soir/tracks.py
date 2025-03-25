@@ -161,19 +161,20 @@ def mk(instrument: str, muted=None, volume=1.0, pan=0.0, fxs=None, extra=None) -
     return t
 
 
-def mk_sampler(muted=None, volume=1.0, pan=0.0, extra=None) -> Track:
+def mk_sampler(muted=None, volume=1.0, pan=0.0, fxs=None, extra=None) -> Track:
     """Creates a new sampler track.
 
     Args:
         muted (bool, optional): The muted state. Defaults to None.
         volume (float | Control): The volume in the [0.0, 1.0] range. Defaults to 1.0.
         pan (float | Control): The pan in the [-1.0, 1.0] range. Defaults to 0.0.
+        fxs (dict, optional): The effects to apply to the track. Defaults to None.
         extra (dict, optional): Extra parameters. Defaults to None.
     """
-    return mk("sampler", muted, volume, pan, extra)
+    return mk("sampler", muted, volume, pan, fxs, extra)
 
 
-def mk_midi(muted=None, volume=1.0, pan=0.0, midi_device=0, audio_device=0) -> Track:
+def mk_midi(muted=None, volume=1.0, pan=0.0, midi_device=0, audio_device=0, fxs=None) -> Track:
     """Creates a new midi track.
 
     Args:
@@ -183,11 +184,13 @@ def mk_midi(muted=None, volume=1.0, pan=0.0, midi_device=0, audio_device=0) -> T
         pan (float | Control): The pan in the [-1.0, 1.0] range. Defaults to 0.0.
         midi_device (int, optional): The midi device. Defaults to -1.
         audio_device (int, optional): The audio device. Defaults to -1.
+        fxs (dict, optional): The effects to apply to the track. Defaults to None.
     """
     return mk(
         "midi_ext",
         muted,
         volume,
         pan,
+        fxs,
         extra={"midi_device": midi_device, "audio_device": audio_device},
     )

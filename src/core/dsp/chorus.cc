@@ -63,9 +63,9 @@ void Chorus::InitFromParameters() {
   center_params_.frequency_ = params_.rate_;
   right_params_.frequency_ = params_.rate_;
 
-  left_.Init(left_params_);
-  center_.Init(center_params_);
-  right_.Init(right_params_);
+  left_.Init(left_params_).IgnoreError();
+  center_.Init(center_params_).IgnoreError();
+  right_.Init(right_params_).IgnoreError();
 }
 
 std::pair<float, float> Chorus::Render(float lxn, float rxn) {

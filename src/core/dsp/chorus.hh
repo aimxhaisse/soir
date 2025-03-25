@@ -17,7 +17,6 @@ class Chorus {
     float depth_ = 0;    // coefficient in [0.0, 1.0]
     float rate_ = 0.5f;
   };
-
   Chorus();
 
   // Initialize with the given parameters

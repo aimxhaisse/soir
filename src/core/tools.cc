@@ -30,4 +30,8 @@ float FastSin(float x) {
   return sin(x);
 }
 
+float Clip(float value, float min, float max) {
+  return value < min ? min : (value > max ? max : value);
+}
+
 }  // namespace soir

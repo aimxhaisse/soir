@@ -1,5 +1,7 @@
 #include <absl/log/log.h>
 
+#include "core/tools.hh"
+
 #include "fx_chorus.hh"
 
 namespace soir {
@@ -49,8 +51,30 @@ void Chorus::ReloadParams() {
   rate_ = Parameter::FromJSON(controls_, doc, "rate");
 }
 
-void Chorus::Render(SampleTick tick, AudioBuffer&) {
+void Chorus::Render(SampleTick tick, AudioBuffer& buffer) {
   std::lock_guard<std::mutex> lock(mutex_);
+
+  auto lch = buffer.GetChannel(kLeftChannel);
+  auto rch = buffer.GetChannel(kRightChannel);
+
+  for (int i = 0; i < buffer.Size(); ++i) {
+    SampleTick current_tick = tick + i;
+
+    chorus_params_.time_ = Clip(time_.GetValue(current_tick), 0.0f, 1.0f);
+    chorus_params_.depth_ = Clip(depth_.GetValue(current_tick), 0.0f, 1.0f);
+    chorus_params_.rate_ = rate_.GetValue(current_tick);
+
+    if (!initialized_) {
+      chorus_.Init(chorus_params_).IgnoreError();
+      initialized_ = true;
+    } else {
+      chorus_.FastUpdate(chorus_params_).IgnoreError();
+    }
+
+    auto p = chorus_.Render(lch[i], rch[i]);
+    lch[i] = p.first;
+    rch[i] = p.second;
+  }
 }
 
 }  // namespace fx
