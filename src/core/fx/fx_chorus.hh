@@ -1,5 +1,6 @@
 #pragma once
 
+#include "core/dsp/chorus.hh"
 #include "core/parameter.hh"
 
 #include "fx.hh"
@@ -27,6 +28,10 @@ struct Chorus : public Fx {
   Parameter time_;
   Parameter depth_;
   Parameter rate_;
+
+  dsp::Chorus::Parameters chorus_params_;
+  dsp::Chorus chorus_;
+  bool initialized_ = false;
 };
 
 }  // namespace fx

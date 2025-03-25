@@ -20,9 +20,8 @@ tracks.setup({
 import json
 
 from dataclasses import dataclass
-from soir.ctrls import (
-    Control,
-)
+from soir._helpers import serialize_parameters
+from soir.ctrls import Control
 
 
 @dataclass
@@ -57,7 +56,7 @@ def mk(type: str, mix=None, extra=None) -> Fx:
 
     fx.type = type
     fx.mix = mix
-    fx.extra = json.dumps(extra)
+    fx.extra = serialize_parameters(extra)
 
     return fx
 
