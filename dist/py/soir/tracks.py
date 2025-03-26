@@ -63,7 +63,7 @@ class Track:
         instrument: The instrument type.
         muted: The muted state. Defaults to None.
         volume: The volume in the [0.0, 1.0] range. Defaults to 1.0.
-        pan: The pan in the [-1.0, 0.0] range. Defaults to 0.0.
+        pan: The pan in the [-1.0, 1.0] range. Defaults to 0.0.
         fxs: The effects. Defaults to None.
         extra: Extra parameters, JSON encoded. Defaults to None.
     """
@@ -174,7 +174,9 @@ def mk_sampler(muted=None, volume=1.0, pan=0.0, fxs=None, extra=None) -> Track:
     return mk("sampler", muted, volume, pan, fxs, extra)
 
 
-def mk_midi(muted=None, volume=1.0, pan=0.0, midi_device=0, audio_device=0, fxs=None) -> Track:
+def mk_midi(
+    muted=None, volume=1.0, pan=0.0, midi_device=0, audio_device=0, fxs=None
+) -> Track:
     """Creates a new midi track.
 
     Args:
