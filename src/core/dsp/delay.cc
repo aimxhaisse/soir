@@ -51,8 +51,8 @@ float Delay::Render(float xn) {
   return x;
 }
 
-float Delay::Read() const { 
-  return ReadAt(params_.size_); 
+float Delay::Read() const {
+  return ReadAt(params_.size_);
 }
 
 float Delay::ReadAt(float at) const {
@@ -127,7 +127,7 @@ float Delay::ReadAtLagrange(float at) const {
 
   float res = buffer_[idx1] * c1 +
               interpolation * (buffer_[idx2] * c2 + buffer_[idx3] * c3 +
-                              buffer_[idx4] * c4);
+                               buffer_[idx4] * c4);
 
   return res;
 }
@@ -140,8 +140,8 @@ void Delay::Update(float xn) {
   }
 }
 
-float Delay::size() const { 
-  return params_.size_; 
+float Delay::size() const {
+  return params_.size_;
 }
 
 }  // namespace dsp

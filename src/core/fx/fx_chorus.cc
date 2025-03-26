@@ -8,7 +8,10 @@ namespace soir {
 namespace fx {
 
 Chorus::Chorus(Controls* controls)
-    : controls_(controls), time_(0.5f), depth_(0.0f), rate_(0.5f) {}
+    : controls_(controls),
+      time_(0.5f, 0.0f, 1.0f),
+      depth_(0.0f, 0.0f, 1.0f),
+      rate_(0.5f) {}
 
 absl::Status Chorus::Init(const Fx::Settings& settings) {
   settings_ = settings;
@@ -60,8 +63,8 @@ void Chorus::Render(SampleTick tick, AudioBuffer& buffer) {
   for (int i = 0; i < buffer.Size(); ++i) {
     SampleTick current_tick = tick + i;
 
-    chorus_params_.time_ = Clip(time_.GetValue(current_tick), 0.0f, 1.0f);
-    chorus_params_.depth_ = Clip(depth_.GetValue(current_tick), 0.0f, 1.0f);
+    chorus_params_.time_ = time_.GetValue(current_tick);
+    chorus_params_.depth_ = depth_.GetValue(current_tick);
     chorus_params_.rate_ = rate_.GetValue(current_tick);
 
     if (!initialized_) {

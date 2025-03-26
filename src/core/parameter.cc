@@ -10,6 +10,13 @@ Parameter::Parameter() {
   Reset();
 }
 
+Parameter::Parameter(float constant, float min, float max) {
+  SetConstant(constant);
+
+  min_ = min;
+  max_ = max;
+}
+
 Parameter::Parameter(float constant) {
   SetConstant(constant);
 }
@@ -26,11 +33,25 @@ float Parameter::GetValue(SampleTick tick) {
       knob_ = controls_->GetControl(controlName_);
     }
     if (knob_) {
-      return knob_->GetValue(tick);
+      return Clip(knob_->GetValue(tick));
     }
   }
 
-  return constant_;
+  return Clip(constant_);
+}
+
+float Parameter::Clip(float v) const {
+  float ret = v;
+
+  if (min_.has_value()) {
+    ret = std::max(ret, min_.value());
+  }
+
+  if (max_.has_value()) {
+    ret = std::min(ret, max_.value());
+  }
+
+  return ret;
 }
 
 void Parameter::Reset() {
@@ -38,6 +59,11 @@ void Parameter::Reset() {
   constant_ = 0.0f;
   controlName_.clear();
   controls_ = nullptr;
+}
+
+void Parameter::SetRange(float min, float max) {
+  min_ = min;
+  max_ = max;
 }
 
 void Parameter::SetConstant(float constant) {
@@ -110,7 +136,7 @@ ParameterRaw Parameter::Raw() const {
       return controlName_;
 
     default:
-      return constant_;
+      return Clip(constant_);
   }
 }
 

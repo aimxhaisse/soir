@@ -12,9 +12,10 @@ def serialize_parameters(params: object) -> str:
     encoding. The controls are assumed to be strings.
     """
     result = {}
-    for k, v in params.items():
-        if isinstance(v, Control_):
-            result[k] = v.name_
-        else:
-            result[k] = v
+    if params:
+        for k, v in params.items():
+            if isinstance(v, Control_):
+                result[k] = v.name_
+            else:
+                result[k] = v
     return json.dumps(result)

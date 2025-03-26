@@ -2,6 +2,7 @@
 
 #include <pybind11/stl.h>
 #include <rapidjson/document.h>
+#include <optional>
 #include <variant>
 
 #include "core/common.hh"
@@ -10,10 +11,8 @@ namespace py = pybind11;
 
 namespace soir {
 
-
 class Controls;
 class Control;
-
 
 // This is meant to be used in Python bindings to map back the correct
 // Python type so that we can have idempotent get_tracks/setup_tracks
@@ -29,18 +28,20 @@ class Parameter {
  public:
   Parameter();
   Parameter(float v);
+  Parameter(float v, float min, float max);
 
   float GetValue(SampleTick tick);
   void SetConstant(float value);
   void SetControl(Controls* controls, const std::string& value);
+  void SetRange(float min, float max);
   ParameterRaw Raw() const;
 
   static Parameter FromPyDict(Controls* c, py::dict& p, const char* n);
-  static Parameter FromJSON(Controls* c, rapidjson::Document& p,
-                            const char* n);
+  static Parameter FromJSON(Controls* c, rapidjson::Document& p, const char* n);
 
  private:
   void Reset();
+  float Clip(float v) const;
 
   enum class Type {
     CONSTANT,
@@ -54,6 +55,9 @@ class Parameter {
   Controls* controls_ = nullptr;
   std::string controlName_;
   std::shared_ptr<Control> knob_ = nullptr;
+
+  std::optional<float> min_;
+  std::optional<float> max_;
 };
 
 }  // namespace soir

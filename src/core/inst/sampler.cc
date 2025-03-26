@@ -52,6 +52,8 @@ void Sampler::PlaySample(Sample* sample, const PlaySampleParameters& p) {
   ps->rate_ = p.rate_;
   ps->amp_ = p.amp_;
 
+  ps->pan_.SetRange(-1.0f, 1.0f);
+
   // This is for the envelope to prevent glitches.
 
   const float attackMs = kSampleMinimalSmoothingMs;
@@ -175,6 +177,9 @@ void Sampler::HandleSysex(const proto::MidiSysexInstruction& sysex) {
     case proto::MidiSysexInstruction::SAMPLER_PLAY: {
       PlaySampleParameters p;
       PlaySampleParameters::FromJson(controls_, params, &p);
+
+      p.pan_.SetRange(-1.0f, 1.0f);
+
       PlaySample(GetSample(pack, name), p);
       break;
     }

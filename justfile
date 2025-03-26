@@ -55,9 +55,9 @@ dev-sync-docs: dev-mk-docs
     #!/usr/bin/env bash
     rsync -avz --delete www/site/ soir.dev:srv/services/soir.dev/data
 
-# Lint the C++ code.
+# Format the C++/Python code.
 [group('dev')]
-dev-lint:
+dev-fmt:
     #!/usr/bin/env bash
     find src/ -name "*.cc" -o -name "*.h" | xargs clang-format -i --style=file
     poetry -P ${SOIR_DIR} run black dist/py/soir/*.py

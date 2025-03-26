@@ -147,6 +147,9 @@ PYBIND11_EMBEDDED_MODULE(bindings, m) {
       s.pan_ = Parameter::FromPyDict(ctrls, track, "pan");
       s.extra_ = track["extra"].cast<std::optional<std::string>>().value_or("");
 
+      s.volume_.SetRange(0.0f, 1.0f);
+      s.pan_.SetRange(-1.0f, 1.0f);
+
       auto fxs = track["fxs"].cast<std::list<py::dict>>();
       for (auto it : fxs) {
         fx::Fx::Settings fx_settings;
