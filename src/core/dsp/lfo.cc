@@ -13,12 +13,11 @@ LFO::LFO() {
   // Default construction, will be initialized with Init
 }
 
-absl::Status LFO::Init(const Parameters& p) {
+void LFO::Init(const Parameters& p) {
   if (p != params_) {
     params_ = p;
     InitFromParameters();
   }
-  return absl::OkStatus();
 }
 
 void LFO::SetPhase(float phase) {

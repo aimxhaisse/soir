@@ -7,23 +7,20 @@ Chorus::Chorus() {
   // Default construction, will be initialized with Init
 }
 
-absl::Status Chorus::Init(const Parameters& p) {
+void Chorus::Init(const Parameters& p) {
   params_ = p;
   InitFromParameters();
 
   left_.SetModPhase(0.25);
   center_.SetModPhase(0.0);
   right_.SetModPhase(0.75);
-
-  return absl::OkStatus();
 }
 
-absl::Status Chorus::FastUpdate(const Parameters& p) {
+void Chorus::FastUpdate(const Parameters& p) {
   if (p != params_) {
     params_ = p;
     InitFromParameters();
   }
-  return absl::OkStatus();
 }
 
 void Chorus::Reset() {
@@ -63,9 +60,9 @@ void Chorus::InitFromParameters() {
   center_params_.frequency_ = params_.rate_;
   right_params_.frequency_ = params_.rate_;
 
-  left_.Init(left_params_).IgnoreError();
-  center_.Init(center_params_).IgnoreError();
-  right_.Init(right_params_).IgnoreError();
+  left_.Init(left_params_);
+  center_.Init(center_params_);
+  right_.Init(right_params_);
 }
 
 std::pair<float, float> Chorus::Render(float lxn, float rxn) {

@@ -1,6 +1,5 @@
 #pragma once
 
-#include <absl/status/status.h>
 #include <tuple>
 
 #include "core/dsp.hh"
@@ -21,7 +20,7 @@ class LFO {
   LFO();
 
   // Initialize LFO with the given parameters
-  absl::Status Init(const Parameters& p);
+  void Init(const Parameters& p);
 
   // Set the phase of the LFO, must be in the range [0.0, 1.0f].
   void SetPhase(float phase);

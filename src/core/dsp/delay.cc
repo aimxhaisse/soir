@@ -16,20 +16,19 @@ Delay::Delay() {
   // Default construction, will be initialized with Init
 }
 
-absl::Status Delay::Init(const Parameters& p) {
+void Delay::Init(const Parameters& p) {
   params_ = p;
   InitFromParameters();
-  return absl::OkStatus();
 }
 
-absl::Status Delay::FastUpdate(const Parameters& p) {
+void Delay::FastUpdate(const Parameters& p) {
   // Only update if max_ doesn't change, otherwise we need a full Init
   if (p.max_ == params_.max_) {
     params_.size_ = p.size_;
     params_.interpolation_ = p.interpolation_;
-    return absl::OkStatus();
+    return;
   }
-  return Init(p);
+  Init(p);
 }
 
 void Delay::InitFromParameters() {
@@ -140,7 +139,7 @@ void Delay::Update(float xn) {
   }
 }
 
-float Delay::size() const {
+float Delay::Size() const {
   return params_.size_;
 }
 
