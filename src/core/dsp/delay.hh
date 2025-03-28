@@ -1,6 +1,5 @@
 #pragma once
 
-#include <absl/status/status.h>
 #include <tuple>
 #include <vector>
 
@@ -38,10 +37,10 @@ class Delay {
   Delay();
 
   // Initialize with the given parameters
-  absl::Status Init(const Parameters& p);
+  void Init(const Parameters& p);
 
   // Fast update to parameters that don't require full reinitialization
-  absl::Status FastUpdate(const Parameters& p);
+  void FastUpdate(const Parameters& p);
 
   // Retrieves a sample at position size and updates the state.
   float Render(float xn);
@@ -60,7 +59,7 @@ class Delay {
 
   // Size of the delay, can be set directly or via time with the
   // sample rate.
-  float size() const;
+  float Size() const;
 
   // Empty the delay, mainly used when changing position in DAW.
   void Reset();

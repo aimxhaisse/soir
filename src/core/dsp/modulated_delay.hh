@@ -1,6 +1,5 @@
 #pragma once
 
-#include <absl/status/status.h>
 #include <tuple>
 
 #include "core/dsp.hh"
@@ -33,10 +32,10 @@ class ModulatedDelay {
   ModulatedDelay();
 
   // Initialize with the given parameters
-  absl::Status Init(const Parameters& p);
+  void Init(const Parameters& p);
 
   // Fast update to parameters that don't require full reinitialization
-  absl::Status FastUpdate(const Parameters& p);
+  void FastUpdate(const Parameters& p);
 
   // Updates the modulation, reads the state before updating it.
   float Render(float xn);

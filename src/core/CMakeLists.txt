@@ -14,11 +14,15 @@ add_library(
   audio_output.cc
   controls.cc
   dsp/chorus.cc
+  dsp/comb_filter.cc
   dsp/delay.cc
+  dsp/delayed_apf.cc
   dsp/lfo.cc
+  dsp/lpf.cc
   dsp/modulated_delay.cc
   dsp/tools.cc
   engine.cc
+  fast_random.cc
   fx/fx_chorus.cc
   fx/fx_reverb.cc
   fx/fx_stack.cc

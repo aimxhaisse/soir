@@ -7,18 +7,16 @@ ModulatedDelay::ModulatedDelay() {
   // Default construction, will be initialized with Init
 }
 
-absl::Status ModulatedDelay::Init(const Parameters& p) {
+void ModulatedDelay::Init(const Parameters& p) {
   params_ = p;
   InitFromParameters();
-  return absl::OkStatus();
 }
 
-absl::Status ModulatedDelay::FastUpdate(const Parameters& p) {
+void ModulatedDelay::FastUpdate(const Parameters& p) {
   if (p != params_) {
     params_ = p;
     InitFromParameters();
   }
-  return absl::OkStatus();
 }
 
 void ModulatedDelay::InitFromParameters() {

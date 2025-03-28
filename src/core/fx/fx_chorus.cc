@@ -68,10 +68,10 @@ void Chorus::Render(SampleTick tick, AudioBuffer& buffer) {
     chorus_params_.rate_ = rate_.GetValue(current_tick);
 
     if (!initialized_) {
-      chorus_.Init(chorus_params_).IgnoreError();
+      chorus_.Init(chorus_params_);
       initialized_ = true;
     } else {
-      chorus_.FastUpdate(chorus_params_).IgnoreError();
+      chorus_.FastUpdate(chorus_params_);
     }
 
     auto p = chorus_.Render(lch[i], rch[i]);

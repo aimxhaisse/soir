@@ -1,6 +1,5 @@
 #pragma once
 
-#include <absl/status/status.h>
 #include <utility>
 
 #include "core/dsp.hh"
@@ -20,10 +19,10 @@ class Chorus {
   Chorus();
 
   // Initialize with the given parameters
-  absl::Status Init(const Parameters& p);
+  void Init(const Parameters& p);
 
   // Fast update to parameters that don't require full reinitialization
-  absl::Status FastUpdate(const Parameters& p);
+  void FastUpdate(const Parameters& p);
 
   // Process a stereo sample and return a stereo sample
   std::pair<float, float> Render(float lxn, float rxn);
