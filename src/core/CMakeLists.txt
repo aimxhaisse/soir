@@ -17,6 +17,8 @@ add_library(
   dsp/comb_filter.cc
   dsp/delay.cc
   dsp/delayed_apf.cc
+  dsp/early_reverb.cc
+  dsp/late_reverb.cc
   dsp/lfo.cc
   dsp/lpf.cc
   dsp/modulated_delay.cc
