@@ -66,9 +66,7 @@ void Reverb::Render(SampleTick tick, AudioBuffer& buffer) {
   for (int i = 0; i < buffer.Size(); ++i) {
     SampleTick current_tick = tick + i;
 
-    // Time is in seconds in the DSP code, we expand the indice to the
-    // [0, 30s] range.
-    auto time = time_.GetValue(current_tick) * 30.0f;
+    auto time = time_.GetValue(current_tick);
 
     early_params_.time_ = time;
     late_params_.time_ = time;
