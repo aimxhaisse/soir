@@ -1058,7 +1058,7 @@ corresponding parameters, which are typically defined using the
 
 
 <h3 id="soir.fx.mk_chorus" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">mk_chorus</span><span class="p">(</span><span class="n">mix</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">depth</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">rate</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">mk_chorus</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">depth</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">rate</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span></code>
 
 </h3>
 
@@ -1079,19 +1079,6 @@ corresponding parameters, which are typically defined using the
         </tr>
       </thead>
       <tbody>
-          <tr class="doc-section-item">
-            <td><code>mix</code></td>
-            <td>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>The mix parameter of the chorus effect. Defaults to None.</p>
-              </div>
-            </td>
-            <td>
-                  <code>None</code>
-            </td>
-          </tr>
           <tr class="doc-section-item">
             <td><code>time</code></td>
             <td>
@@ -1145,7 +1132,7 @@ corresponding parameters, which are typically defined using the
 
 
 <h3 id="soir.fx.mk_reverb" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">mk_reverb</span><span class="p">(</span><span class="n">mix</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">mk_reverb</span><span class="p">(</span><span class="n">mix</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">wet</span><span class="o">=</span><span class="mf">0.75</span><span class="p">,</span> <span class="n">dry</span><span class="o">=</span><span class="mf">0.25</span><span class="p">)</span></code>
 
 </h3>
 
@@ -1177,6 +1164,45 @@ corresponding parameters, which are typically defined using the
             </td>
             <td>
                   <code>None</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code>time</code></td>
+            <td>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The time parameter of the reverb effect in the [0.0, 1.0] range. Defaults to 0.01.</p>
+              </div>
+            </td>
+            <td>
+                  <code>0.01</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code>dry</code></td>
+            <td>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The dry parameter of the reverb effect in the [0.0, 1.0] range. Defaults to 0.25.</p>
+              </div>
+            </td>
+            <td>
+                  <code>0.25</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code>wet</code></td>
+            <td>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The wet parameter of the reverb effect in the [0.0, 1.0] range. Defaults to 0.75.</p>
+              </div>
+            </td>
+            <td>
+                  <code>0.75</code>
             </td>
           </tr>
       </tbody>

@@ -62,7 +62,6 @@ def mk(type: str, mix=None, extra=None) -> Fx:
 
 
 def mk_chorus(
-    mix=None,
     time: float | Control = 0.5,
     depth: float | Control = 0.5,
     rate: float | Control = 0.5,
@@ -70,18 +69,20 @@ def mk_chorus(
     """Creates a new Chorus FX.
 
     Args:
-        mix: The mix parameter of the chorus effect. Defaults to None.
         time: The time parameter of the chorus effect. Defaults to 0.5.
         depth: The depth parameter of the chorus effect. Defaults to 0.5.
         rate: The rate parameter of the chorus effect. Defaults to 0.5.
     """
-    return mk("chorus", mix=mix, extra={"time": time, "depth": depth, "rate": rate})
+    return mk("chorus", extra={"time": time, "depth": depth, "rate": rate})
 
 
-def mk_reverb(mix=None) -> Fx:
+def mk_reverb(mix=None, time=0.01, wet=0.75, dry=0.25) -> Fx:
     """Creates a new Reverb FX.
 
     Args:
         mix: The mix parameter of the chorus effect. Defaults to None.
+        time: The time parameter of the reverb effect in the [0.0, 1.0] range. Defaults to 0.01.
+        dry: The dry parameter of the reverb effect in the [0.0, 1.0] range. Defaults to 0.25.
+        wet: The wet parameter of the reverb effect in the [0.0, 1.0] range. Defaults to 0.75.
     """
-    return mk("reverb", mix=mix, extra=None)
+    return mk("reverb", mix=mix, extra={'time': time, 'dry': dry, 'wet': wet})
