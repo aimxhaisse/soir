@@ -52,6 +52,9 @@ void Chorus::ReloadParams() {
   time_ = Parameter::FromJSON(controls_, doc, "time");
   depth_ = Parameter::FromJSON(controls_, doc, "depth");
   rate_ = Parameter::FromJSON(controls_, doc, "rate");
+
+  time_.SetRange(0.0f, 1.0f);
+  depth_.SetRange(0.0f, 1.0f);
 }
 
 void Chorus::Render(SampleTick tick, AudioBuffer& buffer) {
