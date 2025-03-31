@@ -32,7 +32,7 @@ class LateReverb {
     // tweaked until it sounds good. This corresponds somehow to an
     // absorbtion coefficient, similar to air. The higher, the more
     // absorption. 0.2818f corresponds to air?
-    float absorbency_ = 0.207f;
+    float absorbency_ = 0.2818f;
   };
 
   LateReverb(MatrixFlavor flavor);
