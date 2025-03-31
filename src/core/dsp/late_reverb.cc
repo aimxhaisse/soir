@@ -1,3 +1,7 @@
+#include <algorithm>
+
+#include <absl/log/log.h>
+
 #include "core/dsp/late_reverb.hh"
 
 namespace soir {
@@ -87,82 +91,84 @@ void LateReverb::Reset() {
 
 void LateReverb::UpdateParameters(const Parameters& p) {
   if (p != params_) {
-    // Important to set this here as some methods used below depend on
-    // the internal sample rate to be up-to-date.
-    params_ = p;
+    Init(p);
+  }
+}
 
-    // DelayInSamples are based on prime numbers, this is to reduce
-    // the resonnance effect which happens when a signal with a lower
-    // frequency than the delay is repeatedly delayed. This doesn't
-    // happen if the delays are all primes. As we modulate delay, it
-    // still happens, but the likelyhood is slightly decreased.
-    struct Config {
-      float delay_ = 0.0f;
-      float modDepth_ = 0.0f;
-      float modRate_ = 0.0f;
-    };
+void LateReverb::Init(const Parameters& p) {
+  params_ = p;
 
-    static const Config kConfig4x4[] = {
-        Config{2053.0f, 8.30, 0.27},   //@
-        Config{2437.0f, 12.50, 0.39},  //@
-        Config{2719.0f, 13.80, 0.43},  //@
-        Config{3169.0f, 24.90, 0.23},  //@
-    };
+  // DelayInSamples are based on prime numbers, this is to reduce
+  // the resonnance effect which happens when a signal with a lower
+  // frequency than the delay is repeatedly delayed. This doesn't
+  // happen if the delays are all primes. As we modulate delay, it
+  // still happens, but the likelyhood is slightly decreased.
+  struct Config {
+    float delay_ = 0.0f;
+    float modDepth_ = 0.0f;
+    float modRate_ = 0.0f;
+  };
 
-    static const Config kConfig16x16[] = {
-        Config{2053.0f, 8.30, 0.27},   //@
-        Config{2111.0f, 9.30, 0.30},   //@
-        Config{2213.0f, 10.30, 0.25},  //@
-        Config{2333.0f, 11.30, 0.21},  //@
+  static const Config kConfig4x4[] = {
+      Config{2053.0f, 8.30, 0.27},   //@
+      Config{2437.0f, 12.50, 0.39},  //@
+      Config{2719.0f, 13.80, 0.43},  //@
+      Config{3169.0f, 24.90, 0.23},  //@
+  };
 
-        Config{2437.0f, 12.50, 0.37},  //@
-        Config{2521.0f, 13.50, 0.32},  //@
-        Config{2579.0f, 14.50, 0.35},  //@
-        Config{2621.0f, 15.50, 0.41},  //@
+  static const Config kConfig16x16[] = {
+      Config{2053.0f, 8.30, 0.27},   //@
+      Config{2111.0f, 9.30, 0.30},   //@
+      Config{2213.0f, 10.30, 0.25},  //@
+      Config{2333.0f, 11.30, 0.21},  //@
 
-        Config{2719.0f, 14.80, 0.40},  //@
-        Config{2767.0f, 15.80, 0.43},  //@
-        Config{2801.0f, 16.80, 0.47},  //@
-        Config{2903.0f, 17.80, 0.38},  //@
+      Config{2437.0f, 12.50, 0.37},  //@
+      Config{2521.0f, 13.50, 0.32},  //@
+      Config{2579.0f, 14.50, 0.35},  //@
+      Config{2621.0f, 15.50, 0.41},  //@
 
-        Config{3169.0f, 25.90, 0.20},  //@
-        Config{3221.0f, 26.90, 0.22},  //@
-        Config{3313.0f, 27.90, 0.23},  //@
-        Config{3413.0f, 28.90, 0.29},  //@
-    };
+      Config{2719.0f, 14.80, 0.40},  //@
+      Config{2767.0f, 15.80, 0.43},  //@
+      Config{2801.0f, 16.80, 0.47},  //@
+      Config{2903.0f, 17.80, 0.38},  //@
 
-    const Config* config = (flavor_ == M4x4) ? kConfig4x4 : kConfig16x16;
+      Config{3169.0f, 25.90, 0.20},  //@
+      Config{3221.0f, 26.90, 0.22},  //@
+      Config{3313.0f, 27.90, 0.23},  //@
+      Config{3413.0f, 28.90, 0.29},  //@
+  };
 
-    // Scaling factors for delay times. This is linearly scaled by the
-    // time factor. We need to experiment with these values so they
-    // fit well with the early reverberations.
-    static constexpr float kDelayScaleMin = 0.85f;
-    static constexpr float kDelayScaleMax = 1.30f;
+  const Config* config = (flavor_ == M4x4) ? kConfig4x4 : kConfig16x16;
 
-    const float scale_time =
-        kDelayScaleMin + params_.time_ * (kDelayScaleMax - kDelayScaleMin);
+  // Scaling factors for delay times. This is linearly scaled by the
+  // time factor. We need to experiment with these values so they
+  // fit well with the early reverberations.
+  static constexpr float kDelayScaleMin = 0.85f;
+  static constexpr float kDelayScaleMax = 1.30f;
 
-    for (int i = 0; i < size_; ++i) {
-      ModulatedDelay::Parameters& p = lineParams_[i];
-      const Config& c = config[i];
+  const float scale_time =
+      kDelayScaleMin + params_.time_ * (kDelayScaleMax - kDelayScaleMin);
 
-      p.max_ = kDelayScaleMax * c.delay_ + c.modDepth_ + 1;
-      p.size_ = scale_time * c.delay_;
-      p.frequency_ = c.modRate_;
-      p.depth_ = c.modDepth_;
+  for (int i = 0; i < size_; ++i) {
+    ModulatedDelay::Parameters& p = lineParams_[i];
+    const Config& c = config[i];
 
-      // We use the same parameters for both channels, maybe we could
-      // investigate how it sounds if we use slightly different delay
-      // times. One difference though is that we randomly assign the
-      // modulation phase.
-      lLines_[i].FastUpdate(p);
-      rLines_[i].FastUpdate(p);
+    p.max_ = kDelayScaleMax * c.delay_ + c.modDepth_ + 1;
+    p.size_ = std::max(1.0f, scale_time * c.delay_);
+    p.frequency_ = c.modRate_;
+    p.depth_ = c.modDepth_;
 
-      LPFParams_[i].coefficient_ = params_.absorbency_;
+    // We use the same parameters for both channels, maybe we could
+    // investigate how it sounds if we use slightly different delay
+    // times. One difference though is that we randomly assign the
+    // modulation phase.
+    lLines_[i].FastUpdate(p);
+    rLines_[i].FastUpdate(p);
 
-      lLPFs_[i].UpdateParameters(LPFParams_[i]);
-      rLPFs_[i].UpdateParameters(LPFParams_[i]);
-    }
+    LPFParams_[i].coefficient_ = params_.absorbency_;
+
+    lLPFs_[i].UpdateParameters(LPFParams_[i]);
+    rLPFs_[i].UpdateParameters(LPFParams_[i]);
   }
 }
 

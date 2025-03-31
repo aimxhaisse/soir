@@ -21,16 +21,20 @@ EarlyReverb::EarlyReverb() {
   }
 }
 
+void EarlyReverb::Init(const Parameters& p) {
+  params_ = p;
+
+  // Order is important here, as the configuration of the APF line
+  // depends on the delay times computed in the comb filter.
+  UpdateCombFilters();
+  UpdateAPFs();
+
+  UpdateLPFs();
+}
+
 void EarlyReverb::UpdateParameters(const Parameters& p) {
   if (p != params_) {
-    params_ = p;
-
-    // Order is important here, as the configuration of the APF line
-    // depends on the delay times computed in the comb filter.
-    UpdateCombFilters();
-    UpdateAPFs();
-
-    UpdateLPFs();
+    Init(p);
   }
 }
 
