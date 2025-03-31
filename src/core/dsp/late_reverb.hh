@@ -37,6 +37,7 @@ class LateReverb {
 
   LateReverb(MatrixFlavor flavor);
 
+  void Init(const Parameters& p);
   void UpdateParameters(const Parameters& p);
   void Reset();
 

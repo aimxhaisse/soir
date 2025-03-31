@@ -41,6 +41,7 @@ class EarlyReverb {
 
   EarlyReverb();
 
+  void Init(const Parameters& p);
   void UpdateParameters(const Parameters& p);
   void Reset();
 

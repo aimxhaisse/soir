@@ -1,3 +1,5 @@
+#include <absl/log/log.h>
+
 #include "delay.hh"
 
 #include <algorithm>

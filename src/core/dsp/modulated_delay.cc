@@ -1,3 +1,5 @@
+#include <absl/log/log.h>
+
 #include "modulated_delay.hh"
 
 namespace soir {

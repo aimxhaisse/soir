@@ -17,6 +17,9 @@ absl::Status Reverb::Init(const Fx::Settings& settings) {
 
   ReloadParams();
 
+  early_reverb_.Reset();
+  late_reverb_.Reset();
+
   return absl::OkStatus();
 }
 
@@ -71,8 +74,14 @@ void Reverb::Render(SampleTick tick, AudioBuffer& buffer) {
     early_params_.time_ = time;
     late_params_.time_ = time;
 
-    early_reverb_.UpdateParameters(early_params_);
-    late_reverb_.UpdateParameters(late_params_);
+    if (!initialized_) {
+      early_reverb_.Init(early_params_);
+      late_reverb_.Init(late_params_);
+      initialized_ = true;
+    } else {
+      early_reverb_.UpdateParameters(early_params_);
+      late_reverb_.UpdateParameters(late_params_);
+    }
 
     auto p1 = early_reverb_.Process(lch[i], rch[i]);
     auto p2 = late_reverb_.Process(p1.first, p1.second);
