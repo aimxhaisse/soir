@@ -12,6 +12,7 @@ static constexpr int kLeftChannel = 0;
 static constexpr int kRightChannel = 1;
 static constexpr int kSampleRate = 48000;
 static constexpr float kVorbisQuality = 1.0f;
+static constexpr float kPI = 3.14159265358979323846;
 
 // This is static for now and mostly based on my local setup, we might
 // want to make this configurable in the future though it implies careful

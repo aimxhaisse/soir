@@ -102,6 +102,10 @@ PYBIND11_EMBEDDED_MODULE(bindings, m) {
           case fx::Type::REVERB:
             type = "reverb";
             break;
+            
+          case fx::Type::LPF:
+            type = "lpf";
+            break;
 
           default:
             type = "unknown";
@@ -163,6 +167,8 @@ PYBIND11_EMBEDDED_MODULE(bindings, m) {
           fx_settings.type_ = fx::Type::CHORUS;
         } else if (it["type"].cast<std::string>() == "reverb") {
           fx_settings.type_ = fx::Type::REVERB;
+        } else if (it["type"].cast<std::string>() == "lpf") {
+          fx_settings.type_ = fx::Type::LPF;
         } else {
           fx_settings.type_ = fx::Type::UNKNOWN;
         }

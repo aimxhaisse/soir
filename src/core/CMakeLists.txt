@@ -26,6 +26,7 @@ add_library(
   engine.cc
   fast_random.cc
   fx/fx_chorus.cc
+  fx/fx_lpf.cc
   fx/fx_reverb.cc
   fx/fx_stack.cc
   http.cc
