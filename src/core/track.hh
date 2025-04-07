@@ -7,6 +7,7 @@
 #include <optional>
 
 #include "core/audio_buffer.hh"
+#include "core/common.hh"
 #include "core/controls.hh"
 #include "core/fx/fx_stack.hh"
 #include "core/inst/instrument.hh"

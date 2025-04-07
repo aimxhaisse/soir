@@ -11,7 +11,6 @@
 
 namespace soir {
 
-
 // A control that is interpolated over time.
 class Control {
  public:
@@ -59,6 +58,5 @@ class Controls {
   std::map<std::string, std::shared_ptr<Control>> controls_;
   MidiStack midi_stack_;
 };
-
 
 }  // namespace soir

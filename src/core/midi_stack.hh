@@ -3,6 +3,7 @@
 #include <list>
 
 #include "core/common.hh"
+#include "core/midi_event.hh"
 
 namespace soir {
 

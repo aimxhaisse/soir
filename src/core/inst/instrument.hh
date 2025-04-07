@@ -4,6 +4,7 @@
 #include <list>
 
 #include "core/common.hh"
+#include "core/midi_event.hh"
 
 namespace soir {
 
@@ -26,6 +27,7 @@ class Instrument {
   virtual void Render(SampleTick, const std::list<MidiEventAt>&,
                       AudioBuffer&) = 0;
   virtual Type GetType() const = 0;
+  virtual std::string GetName() const = 0;
 
   // Only needed if the instrument requires a thread, thus a default
   // empty implementation is provided.

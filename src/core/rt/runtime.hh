@@ -13,6 +13,7 @@ namespace soir {
 namespace rt {
 
 using CbFunc = std::function<void()>;
+using MicroBeat = uint64_t;
 
 // Scheduled callback at a given beat.
 struct Cb {

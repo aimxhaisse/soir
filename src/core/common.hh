@@ -1,47 +1,43 @@
 #pragma once
 
-#include <absl/time/clock.h>
-#include <libremidi/libremidi.hpp>
+#include <string_view>
+
+// Used for debugging mainly (Tracy colors)
+#define SOIR_BLUE 0x00A5E3
+#define SOIR_GREEN 0x8DD7BF
+#define SOIR_RED 0xFF5768
+#define SOIR_PINK 0xFF96C5
+#define SOIR_ORANGE 0xFFBF65
+
+// Enable Tracy for profiling
+#ifdef SOIR_ENABLE_TRACING
+#include "tracy/Tracy.hpp"
+#define SOIR_TRACING_ZONE(name) ZoneScopedN(name)
+#define SOIR_TRACING_ZONE_STR(name) \
+  ZoneScopedN;                      \
+  ZoneName(name.c_str(), name.size())
+#define SOIR_TRACING_ZONE_COLOR(name, color) ZoneScopedNC(name, color)
+#define SOIR_TRACING_ZONE_COLOR_STR(name, color) \
+  ZoneScoped;                                    \
+  ZoneName(name.c_str(), name.size());           \
+  ZoneColor(color)
+#define SOIR_TRACING_FRAME(name) FrameMarkNamed(name)
+#else
+#define SOIR_TRACING_ZONE(name)
+#define SOIR_TRACING_ZONE_COLOR(name, color)
+#define SOIR_TRACING_FRAME(name)
+#endif  // SOIR_ENABLE_TRACY
 
 namespace soir {
 
+// Type of a sample in the audio engine, there are ~48000 ticks per
+// second so we need to use a 64 bits to prevent near overflows.
 using SampleTick = uint64_t;
-using MicroBeat = uint64_t;
-static constexpr uint64_t kOneBeat = 1000000;
+
+// This is the name of the track used by the RT engine to communicate
+// with the DSP engine for MIDI events that update the controls via
+// interpolation. Both side have to agree on this name so it is
+// defined here.
 static constexpr std::string_view kInternalControls = "soir_internal_controls";
-
-// Goal of this class is to store a midi event with a timestamp and
-// map it to a tick on the rendering side.
-class MidiEventAt {
- public:
-  MidiEventAt(const std::string& track, const libremidi::message& msg,
-              absl::Time at)
-      : track_(track), msg_(msg), at_(at), tick_(0) {}
-
-  const std::string& Track() const { return track_; }
-  const libremidi::message& Msg() const { return msg_; }
-  const absl::Time At() const { return at_; }
-  void SetTick(SampleTick tick) { tick_ = tick; }
-  SampleTick Tick() const { return tick_; }
-
- private:
-  // Track name of the event, this is used to route the event to the
-  // correct track in the DSP. A track can control multiple MIDI
-  // channels and is independent.
-  std::string track_;
-
-  libremidi::message msg_;
-
-  // This is set in a first time at the creation of the event, the
-  // goal is to have something as close as possible as the live coding
-  // side. We add a small delay to it so that the processing/context
-  // switchs with locking on the DSP side are negated.
-  absl::Time at_;
-
-  // This is set in a second time after the event is scheduled, goal
-  // is to be as close as possible to the actual time the event is
-  // played. We set this via SetTick in the DSP rendering loop.
-  SampleTick tick_;
-};
 
 }  // namespace soir

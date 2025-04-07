@@ -28,8 +28,18 @@ find_package(yaml-cpp CONFIG REQUIRED)
 find_package(vorbis CONFIG REQUIRED)
 find_package(absl CONFIG REQUIRED)
 find_package(GTest REQUIRED)
+find_package(tracy CONFIG REQUIRED)
 
 set(_GRPC_GRPCPP_UNSECURE gRPC::grpc++_unsecure)
+
+# Tracy profiling configuration
+option(SOIR_ENABLE_TRACY "Enable Tracy profiler" ON)
+if(SOIR_ENABLE_TRACY)
+  add_compile_definitions(SOIR_ENABLE_TRACING)
+  set(TRACY_LIBRARIES Tracy::TracyClient)
+else()
+  set(TRACY_LIBRARIES "")
+endif()
 
 find_program(_gRPC_CPP_PLUGIN_EXECUTABLE grpc_cpp_plugin)
 

@@ -39,6 +39,7 @@ class Sampler : public Instrument {
                     Controls* controls);
   void Render(SampleTick tick, const std::list<MidiEventAt>&, AudioBuffer&);
   Type GetType() const { return Type::SAMPLER; }
+  std::string GetName() const { return "Sampler"; }
 
  private:
   void ProcessMidiEvents(SampleTick tick);

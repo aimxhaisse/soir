@@ -6,8 +6,8 @@
 #include <mutex>
 #include <thread>
 
-#include "core/common.hh"
 #include "core/audio_output.hh"
+#include "core/common.hh"
 #include "core/controls.hh"
 #include "core/http.hh"
 #include "core/sample_manager.hh"
@@ -16,7 +16,6 @@
 #include "utils/misc.hh"
 
 namespace soir {
-
 
 class HttpServer;
 
@@ -52,7 +51,7 @@ class Engine {
   void Stats(const absl::Time& next_block_at,
              const absl::Duration& block_duration) const;
 
-  MicroBeat current_tick_;
+  SampleTick current_tick_;
 
   // The main thread of the DSP engine, processes blocks of audio
   // samples in an infinite loop.
@@ -83,6 +82,5 @@ class Engine {
 
   std::unique_ptr<SampleManager> sample_manager_;
 };
-
 
 }  // namespace soir

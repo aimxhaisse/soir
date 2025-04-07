@@ -143,19 +143,6 @@ void Engine::RemoveConsumer(SampleConsumer* consumer) {
   consumers_.remove(consumer);
 }
 
-void Engine::Stats(const absl::Time& next_block_at,
-                   const absl::Duration& block_duration) const {
-  // Stupid simple implementation, only print some blocks time,
-  // nothing about average or distributions for now. We might later
-  // move to a more accurate implementation.
-  auto now = absl::Now();
-  auto lag = block_duration - (next_block_at - now);
-  auto cpu_usage = (lag / block_duration) * 100.0;
-
-  LOG_EVERY_N_SEC(INFO, 10)
-      << "\e[1;104mS O I R\e[0m CPU usage: " << cpu_usage << "%";
-}
-
 void Engine::SetTicks(std::list<MidiEventAt>& events) {
   auto now = absl::Now();
 
@@ -181,6 +168,8 @@ void Engine::PushMidiEvent(const MidiEventAt& e) {
 }
 
 absl::Status Engine::Run() {
+  SOIR_TRACING_ZONE_COLOR("dsp::run", SOIR_BLUE);
+
   LOG(INFO) << "Engine running";
 
   AudioBuffer buffer(kBlockSize);
@@ -192,6 +181,8 @@ absl::Status Engine::Run() {
 
   while (true) {
     {
+      SOIR_TRACING_ZONE_COLOR("dsp::wait", SOIR_BLUE);
+
       std::unique_lock<std::mutex> lock(mutex_);
       cv_.wait_until(lock, absl::ToChronoTime(next_block_at),
                      [this]() { return stop_; });
@@ -202,6 +193,8 @@ absl::Status Engine::Run() {
 
     std::map<std::string, std::list<MidiEventAt>> events;
     {
+      SOIR_TRACING_ZONE_COLOR("dsp:swap-midi", SOIR_BLUE);
+
       std::lock_guard<std::mutex> lock(msgs_mutex_);
       events.swap(msgs_by_track_);
     }
@@ -211,14 +204,18 @@ absl::Status Engine::Run() {
     // This is important as some of the DSP code can be bound to the
     // knob values which aren't yet created.
     {
+      SOIR_TRACING_ZONE_COLOR("dsp::controls-update", SOIR_BLUE);
+
       auto evlist = events[std::string(kInternalControls)];
       SetTicks(evlist);
       controls_->AddEvents(evlist);
       controls_->Update(current_tick_);
     }
 
-    buffer.Reset();
     {
+      SOIR_TRACING_ZONE_COLOR("dsp::tracks-render", SOIR_BLUE);
+
+      buffer.Reset();
       std::scoped_lock<std::mutex> lock(tracks_mutex_);
       for (auto& it : tracks_) {
         auto track = it.second.get();
@@ -231,6 +228,7 @@ absl::Status Engine::Run() {
     current_tick_ += kBlockSize;
 
     {
+      SOIR_TRACING_ZONE_COLOR("dsp::output", SOIR_BLUE);
       std::lock_guard<std::mutex> lock(consumers_mutex_);
       for (auto consumer : consumers_) {
         auto status = consumer->PushAudioBuffer(buffer);
@@ -242,7 +240,8 @@ absl::Status Engine::Run() {
 
     block_count++;
     next_block_at = initial_time + block_count * block_duration;
-    Stats(next_block_at, block_duration);
+
+    SOIR_TRACING_FRAME("dsp::frame");
   }
 
   return absl::OkStatus();
