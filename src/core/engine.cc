@@ -60,6 +60,10 @@ Controls* Engine::GetControls() {
 absl::Status Engine::Start() {
   LOG(INFO) << "Starting engine";
 
+  // We do not start tracks here as there is no track at the init of
+  // the engine: tracks are added through the SetupTracks method from
+  // Python.
+
   thread_ = std::thread([this]() {
     auto status = Run();
     if (!status.ok()) {
@@ -117,11 +121,15 @@ absl::Status Engine::Stop() {
 
   thread_.join();
 
-  for (auto& it : tracks_) {
-    auto status = it.second->Stop();
-    if (!status.ok()) {
-      LOG(ERROR) << "Failed to stop track: " << status;
+  {
+    std::scoped_lock<std::mutex> lock(tracks_mutex_);
+    for (auto& it : tracks_) {
+      auto status = it.second->Stop();
+      if (!status.ok()) {
+        LOG(ERROR) << "Failed to stop track thread: " << status;
+      }
     }
+    tracks_.clear();
   }
 
   LOG(INFO) << "Engine stopped";
@@ -213,15 +221,32 @@ absl::Status Engine::Run() {
     }
 
     {
-      SOIR_TRACING_ZONE_COLOR("dsp::tracks-render", SOIR_BLUE);
+      SOIR_TRACING_ZONE_COLOR("dsp::tracks-async-render", SOIR_BLUE);
 
+      // Kick off all track rendering operations in parallel
+      {
+        std::scoped_lock<std::mutex> lock(tracks_mutex_);
+        for (auto& it : tracks_) {
+          auto track = it.second.get();
+          auto evlist = events[track->GetTrackName()];
+          SetTicks(evlist);
+          track->RenderAsync(current_tick_, evlist);
+        }
+      }
+
+      // Reset the output buffer before collecting results
       buffer.Reset();
-      std::scoped_lock<std::mutex> lock(tracks_mutex_);
-      for (auto& it : tracks_) {
-        auto track = it.second.get();
-        auto evlist = events[track->GetTrackName()];
-        SetTicks(evlist);
-        track->Render(current_tick_, evlist, buffer);
+
+      // Join all track rendering operations, order is not important
+      // as it's just an addition (TRACK(A) + TRACK(B) = TRACK(B) +
+      // TRACK(A)).
+      {
+        SOIR_TRACING_ZONE_COLOR("dsp::tracks-join", SOIR_BLUE);
+        std::scoped_lock<std::mutex> lock(tracks_mutex_);
+        for (auto& it : tracks_) {
+          auto track = it.second.get();
+          track->Join(buffer);
+        }
       }
     }
 
@@ -283,7 +308,6 @@ absl::Status Engine::SetupTracks(const std::list<Track::Settings>& settings) {
       auto name = track_settings.name_;
       auto it = tracks_.find(name);
 
-      // Tracks.
       if (it == tracks_.end() || !it->second->CanFastUpdate(track_settings)) {
         tracks_to_add[name] = track_settings;
       } else {
@@ -301,6 +325,13 @@ absl::Status Engine::SetupTracks(const std::list<Track::Settings>& settings) {
         new_track->Init(track.second, sample_manager_.get(), controls_.get());
     if (!status.ok()) {
       LOG(ERROR) << "Failed to initialize track: " << status;
+      return status;
+    }
+
+    // Start the track's processing thread
+    status = new_track->Start();
+    if (!status.ok()) {
+      LOG(ERROR) << "Failed to start new track thread: " << status;
       return status;
     }
 

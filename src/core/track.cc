@@ -2,13 +2,18 @@
 #include <absl/status/status.h>
 #include <filesystem>
 
+#include "core/dsp.hh"
 #include "core/tools.hh"
 #include "core/track.hh"
 #include "utils/misc.hh"
 
 namespace soir {
 
-Track::Track() {}
+Track::Track() : track_buffer_(kBlockSize) {}
+
+Track::~Track() {
+  Stop().IgnoreError();
+}
 
 absl::Status Track::Init(const Settings& settings,
                          SampleManager* sample_manager, Controls* controls) {
@@ -54,7 +59,37 @@ absl::Status Track::Init(const Settings& settings,
   return absl::OkStatus();
 }
 
+absl::Status Track::Start() {
+  LOG(INFO) << "Starting track thread for: " << settings_.name_;
+
+  // Initialize thread state
+  stop_thread_ = false;
+  has_work_ = false;
+  work_done_ = true;
+
+  // Start the processing thread
+  thread_ = std::thread([this]() {
+    auto status = ProcessLoop();
+    if (!status.ok()) {
+      LOG(ERROR) << "Track processing thread failed: " << status;
+    }
+  });
+
+  return absl::OkStatus();
+}
+
 absl::Status Track::Stop() {
+  LOG(INFO) << "Stopping track thread for: " << settings_.name_;
+
+  if (thread_.joinable()) {
+    {
+      std::lock_guard<std::mutex> lock(work_mutex_);
+      stop_thread_ = true;
+      work_cv_.notify_one();
+    }
+    thread_.join();
+  }
+
   return inst_->Stop();
 }
 
@@ -97,32 +132,40 @@ const std::string& Track::GetTrackName() {
   return settings_.name_;
 }
 
-void Track::Render(SampleTick tick, const std::list<MidiEventAt>& events,
-                   AudioBuffer& buffer) {
-  SOIR_TRACING_ZONE("track::render");
+void Track::RenderAsync(SampleTick tick, const std::list<MidiEventAt>& events) {
+  std::lock_guard<std::mutex> lock(work_mutex_);
 
-  AudioBuffer track_buffer(buffer.Size());
+  current_tick_ = tick;
+  current_events_ = events;
 
+  has_work_ = true;
+  work_done_ = false;
+
+  work_cv_.notify_one();
+}
+
+void Track::Join(AudioBuffer& output_buffer) {
   {
-    std::string trace_name = "track::render::" + inst_->GetName();
-    SOIR_TRACING_ZONE_COLOR_STR(trace_name, SOIR_PINK);
+    std::unique_lock<std::mutex> lock(work_mutex_);
+    done_cv_.wait(lock, [this]() { return work_done_ || stop_thread_; });
 
-    inst_->Render(tick, events, track_buffer);
+    if (stop_thread_) {
+      return;
+    }
   }
 
-  auto ilch = track_buffer.GetChannel(kLeftChannel);
-  auto irch = track_buffer.GetChannel(kRightChannel);
-  auto olch = buffer.GetChannel(kLeftChannel);
-  auto orch = buffer.GetChannel(kRightChannel);
+  // Now mix the processed audio into the output buffer
+  auto ilch = track_buffer_.GetChannel(kLeftChannel);
+  auto irch = track_buffer_.GetChannel(kRightChannel);
+  auto olch = output_buffer.GetChannel(kLeftChannel);
+  auto orch = output_buffer.GetChannel(kRightChannel);
 
   {
     std::scoped_lock<std::mutex> lock(mutex_);
 
     {
-      SOIR_TRACING_ZONE("track::mix");
-
-      for (int i = 0; i < track_buffer.Size(); ++i) {
-        SampleTick current_tick = tick + i;
+      for (int i = 0; i < track_buffer_.Size(); ++i) {
+        SampleTick current_tick = current_tick_ + i;
 
         if (!settings_.muted_) {
           const float vol = settings_.volume_.GetValue(current_tick);
@@ -136,13 +179,51 @@ void Track::Render(SampleTick tick, const std::list<MidiEventAt>& events,
         }
       }
     }
+  }
+}
+
+absl::Status Track::ProcessLoop() {
+  SOIR_TRACING_ZONE_COLOR("track::process_loop", SOIR_PINK);
+
+  LOG(INFO) << "Track processing thread started for: " << settings_.name_;
+
+  while (true) {
+    {
+      std::unique_lock<std::mutex> lock(work_mutex_);
+      work_cv_.wait(lock, [this]() { return has_work_ || stop_thread_; });
+
+      if (stop_thread_) {
+        break;
+      }
+
+      has_work_ = false;
+    }
 
     {
-      SOIR_TRACING_ZONE("track::fx::render");
+      track_buffer_.Reset();
 
-      fx_stack_->Render(tick, buffer);
+      {
+        std::string trace_name = "track::render::" + inst_->GetName();
+        SOIR_TRACING_ZONE_COLOR_STR(trace_name, SOIR_PINK);
+        inst_->Render(current_tick_, current_events_, track_buffer_);
+      }
+
+      {
+        SOIR_TRACING_ZONE_COLOR("track::render::fx-stack", SOIR_PINK);
+        fx_stack_->Render(current_tick_, track_buffer_);
+      }
+    }
+
+    {
+      std::lock_guard<std::mutex> lock(work_mutex_);
+      work_done_ = true;
+      done_cv_.notify_one();
     }
   }
+
+  LOG(INFO) << "Track processing thread stopped for: " << settings_.name_;
+
+  return absl::OkStatus();
 }
 
 }  // namespace soir
