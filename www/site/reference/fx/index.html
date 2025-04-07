@@ -590,6 +590,15 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#soir.fx.mk_lpf" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;mk_lpf
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#soir.fx.mk_reverb" class="md-nav__link">
     <span class="md-ellipsis">
       <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;mk_reverb
@@ -805,6 +814,15 @@
   <a href="#soir.fx.mk_chorus" class="md-nav__link">
     <span class="md-ellipsis">
       <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;mk_chorus
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#soir.fx.mk_lpf" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;mk_lpf
     </span>
   </a>
   
@@ -1115,6 +1133,65 @@ corresponding parameters, which are typically defined using the
             <td>
               <div class="doc-md-description">
                 <p>The rate parameter of the chorus effect. Defaults to 0.5.</p>
+              </div>
+            </td>
+            <td>
+                  <code>0.5</code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="soir.fx.mk_lpf" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">mk_lpf</span><span class="p">(</span><span class="n">mix</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cutoff</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span></code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+      <p>Creates a new Low Pass Filter FX.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td><code>mix</code></td>
+            <td>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The mix parameter of the low pass filter effect. Defaults to None.</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code>cutoff</code></td>
+            <td>
+                  <code>float | <a class="autorefs autorefs-internal" title="soir.ctrls.Control" href="../ctrls/#soir.ctrls.Control">Control</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The cutoff frequency of the low pass filter in the [0.0, 1.0] range. Defaults to 0.5.</p>
               </div>
             </td>
             <td>

@@ -54,7 +54,7 @@ void LPF::ReloadParams() {
 namespace {
 
 float CutoffToCoefficient(float cutoff) {
-  return 1.0 - std::exp(-2.0 * kPI * cutoff / kSampleRate);
+  return std::exp(-2.0 * kPI * cutoff / kSampleRate);
 }
 
 }  // namespace
