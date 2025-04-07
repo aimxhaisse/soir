@@ -5,6 +5,9 @@
 #include <map>
 #include <mutex>
 #include <optional>
+#include <thread>
+#include <condition_variable>
+#include <atomic>
 
 #include "core/audio_buffer.hh"
 #include "core/common.hh"
@@ -35,9 +38,11 @@ struct Track {
   };
 
   Track();
+  ~Track();
 
   absl::Status Init(const Settings& settings, SampleManager* sample_manager,
                     Controls* controls);
+  absl::Status Start();
   absl::Status Stop();
 
   // If MaybeFastUpdate returns false, it means the track can't update
@@ -47,10 +52,17 @@ struct Track {
 
   Settings GetSettings();
   const std::string& GetTrackName();
-
-  void Render(SampleTick tick, const std::list<MidiEventAt>&, AudioBuffer&);
+  
+  // Schedule an async render operation
+  void RenderAsync(SampleTick tick, const std::list<MidiEventAt>& events);
+  
+  // Wait for rendering to complete and mix the result into the output buffer
+  void Join(AudioBuffer& output_buffer);
 
  private:
+  // Thread function for processing audio
+  absl::Status ProcessLoop();
+  
   Controls* controls_;
   SampleManager* sample_manager_;
 
@@ -59,6 +71,20 @@ struct Track {
   std::unique_ptr<inst::Instrument> inst_;
   std::unique_ptr<fx::FxStack> fx_stack_;
   MidiStack midi_stack_;
+  
+  // Thread management
+  std::thread thread_;
+  std::mutex work_mutex_;
+  std::condition_variable work_cv_;
+  std::condition_variable done_cv_;
+  std::atomic<bool> stop_thread_ = false;
+  std::atomic<bool> has_work_ = false;
+  std::atomic<bool> work_done_ = false;
+  
+  // Work parameters
+  SampleTick current_tick_;
+  std::list<MidiEventAt> current_events_;
+  AudioBuffer track_buffer_;
 };
 
 }  // namespace soir
