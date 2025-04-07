@@ -24,6 +24,7 @@ class MidiExt : public Instrument {
                     Controls* controls);
 
   Type GetType() const { return Type::MIDI_EXT; }
+  std::string GetName() const { return "MidiExt"; }
 
   absl::Status Start();
   absl::Status Run();

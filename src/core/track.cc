@@ -99,9 +99,16 @@ const std::string& Track::GetTrackName() {
 
 void Track::Render(SampleTick tick, const std::list<MidiEventAt>& events,
                    AudioBuffer& buffer) {
+  SOIR_TRACING_ZONE("track::render");
+
   AudioBuffer track_buffer(buffer.Size());
 
-  inst_->Render(tick, events, track_buffer);
+  {
+    std::string trace_name = "track::render::" + inst_->GetName();
+    SOIR_TRACING_ZONE_COLOR_STR(trace_name, SOIR_PINK);
+
+    inst_->Render(tick, events, track_buffer);
+  }
 
   auto ilch = track_buffer.GetChannel(kLeftChannel);
   auto irch = track_buffer.GetChannel(kRightChannel);
@@ -111,22 +118,30 @@ void Track::Render(SampleTick tick, const std::list<MidiEventAt>& events,
   {
     std::scoped_lock<std::mutex> lock(mutex_);
 
-    for (int i = 0; i < track_buffer.Size(); ++i) {
-      SampleTick current_tick = tick + i;
+    {
+      SOIR_TRACING_ZONE("track::mix");
 
-      if (!settings_.muted_) {
-        const float vol = settings_.volume_.GetValue(current_tick);
-        const float pan = settings_.pan_.GetValue(current_tick);
+      for (int i = 0; i < track_buffer.Size(); ++i) {
+        SampleTick current_tick = tick + i;
 
-        auto lgain = vol * LeftPan(pan);
-        auto rgain = vol * RightPan(pan);
+        if (!settings_.muted_) {
+          const float vol = settings_.volume_.GetValue(current_tick);
+          const float pan = settings_.pan_.GetValue(current_tick);
 
-        olch[i] += ilch[i] * lgain;
-        orch[i] += irch[i] * rgain;
+          auto lgain = vol * LeftPan(pan);
+          auto rgain = vol * RightPan(pan);
+
+          olch[i] += ilch[i] * lgain;
+          orch[i] += irch[i] * rgain;
+        }
       }
     }
 
-    fx_stack_->Render(tick, buffer);
+    {
+      SOIR_TRACING_ZONE("track::fx::render");
+
+      fx_stack_->Render(tick, buffer);
+    }
   }
 }
 

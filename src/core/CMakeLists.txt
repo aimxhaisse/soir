@@ -58,7 +58,9 @@ target_link_libraries(
   pybind11::embed
   pybind11::headers
   rapidjson
-  
+
+  ${TRACY_LIBRARIES}
+
   soir_proto
   soir_utils
 )

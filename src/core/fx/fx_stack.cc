@@ -86,7 +86,14 @@ void FxStack::Render(SampleTick tick, AudioBuffer& buffer) {
     if (fx == fxs_.end()) {
       continue;
     }
-    fx->second->Render(tick, buffer);
+
+    {
+      const std::string trace_name = "fx::" + name;
+      SOIR_TRACING_ZONE_COLOR_STR(trace_name, SOIR_ORANGE);
+      fx->second->Render(tick, buffer);
+    }
+
+    SOIR_TRACING_FRAME("fx::stack");
   }
 }
 

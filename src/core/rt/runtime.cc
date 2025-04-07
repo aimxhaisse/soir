@@ -3,11 +3,18 @@
 #include <pybind11/embed.h>
 #include <libremidi/libremidi.hpp>
 
+#include "core/midi_event.hh"
 #include "core/rt/bindings.hh"
 #include "core/rt/runtime.hh"
 #include "utils/signal.hh"
 
 namespace py = pybind11;
+
+namespace {
+
+static constexpr uint64_t kOneBeat = 1000000;
+
+}
 
 namespace soir {
 namespace rt {
@@ -92,6 +99,8 @@ uint64_t Runtime::MicroBeatToBeat(MicroBeat beat) const {
 }
 
 absl::Status Runtime::Run() {
+  SOIR_TRACING_ZONE_COLOR("rt::run", SOIR_GREEN);
+
   py::scoped_interpreter guard{};
 
   // Import soir module using the Python path provided in the config.
@@ -116,6 +125,7 @@ absl::Status Runtime::Run() {
 
     std::string code;
     {
+      SOIR_TRACING_ZONE_COLOR("rt::wait", SOIR_GREEN);
       std::unique_lock<std::mutex> lock(loop_mutex_);
 
       loop_cv_.wait_until(
@@ -135,6 +145,8 @@ absl::Status Runtime::Run() {
 
     // Process next callback if time has passed.
     if (at_time <= absl::Now()) {
+      SOIR_TRACING_ZONE_COLOR("rt::callback", SOIR_GREEN);
+
       // This is set before the callback is executed so that it can
       // retrieve accurate timing information.
       current_time_ = at_time;
@@ -159,6 +171,8 @@ absl::Status Runtime::Run() {
     // code update takes 10ms to be applied, but not OK if it's a kick
     // event for example.
     if (!code.empty()) {
+      SOIR_TRACING_ZONE_COLOR("rt:code", SOIR_GREEN);
+
       auto now = absl::Now();
 
       // We do not update current_time_ here: this would delay all
@@ -175,12 +189,20 @@ absl::Status Runtime::Run() {
         // inspection of code can be done only when it is actually
         // executed.
         last_evaluated_code_ = code;
-        py::exec(code.c_str(), soir_mod.attr("__dict__"));
+
+        {
+          SOIR_TRACING_ZONE_COLOR("rt::code::exec", SOIR_GREEN);
+          py::exec(code.c_str(), soir_mod.attr("__dict__"));
+        }
 
         // Maybe here we can have some sort of post-execution hook
         // that can be used to do some cleanup or other operations.
-        py::exec("soir._internals.post_eval_()", soir_mod.attr("__dict__"));
-        py::exec("soir._ctrls.post_eval_()", soir_mod.attr("__dict__"));
+        {
+          SOIR_TRACING_ZONE_COLOR("rt::code::hook", SOIR_GREEN);
+          py::exec("soir._internals.post_eval_()", soir_mod.attr("__dict__"));
+          py::exec("soir._ctrls.post_eval_()", soir_mod.attr("__dict__"));
+        }
+
       } catch (py::error_already_set& e) {
         if (e.matches(PyExc_SystemExit)) {
           LOG(INFO) << "Received SystemExit, stopping runtime";
@@ -189,6 +211,8 @@ absl::Status Runtime::Run() {
         }
         LOG(ERROR) << "Python error: " << e.what();
       }
+
+      SOIR_TRACING_FRAME("rt::frame");
     }
   }
 
