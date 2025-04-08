@@ -1303,7 +1303,7 @@ instrument calls or FXs.</p>
 
 
 <h3 id="soir.ctrls.mk_lfo" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">mk_lfo</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">rate</span><span class="p">,</span> <span class="n">intensity</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">mk_lfo</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">rate</span><span class="p">,</span> <span class="n">intensity</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">low</span><span class="o">=-</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span></code>
 
 </h3>
 
@@ -1360,6 +1360,34 @@ instrument calls or FXs.</p>
             <td>
               <div class="doc-md-description">
                 <p>The intensity of the LFO.</p>
+              </div>
+            </td>
+            <td>
+                  <code>1.0</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code>low</code></td>
+            <td>
+                  <code>float</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The minimum value of the LFO (defaults to -1.0).</p>
+              </div>
+            </td>
+            <td>
+                  <code>-1.0</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code>high</code></td>
+            <td>
+                  <code>float</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The maximum value of the LFO (defaults to 1.0).</p>
               </div>
             </td>
             <td>
