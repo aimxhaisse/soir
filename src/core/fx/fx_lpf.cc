@@ -53,8 +53,18 @@ void LPF::ReloadParams() {
 
 namespace {
 
-float CutoffToCoefficient(float cutoff) {
-  return std::exp(-2.0 * kPI * cutoff / kSampleRate);
+// The user-provided coefficient is between 0.0 (20Hz) and 1.0
+// (20kHz), we need to scale it so that it sounds linear to the human
+// ear (if we just used the coefficient, it would sound
+// logarithmic). We use the MEL scale to do this.
+float scaleCoefficient(float coefficient) {
+  static const float min = 2595.0 * std::log10(1.0 + kMinFreq / 700.0);
+  static const float max = 2595.0 * std::log10(1.0 + kMaxFreq / 700.0);
+
+  float mel = min + coefficient * (max - min);
+  float scaledFreq = 700.0 * (std::pow(10.0, mel / 2595.0) - 1.0);
+
+  return 1.0 - std::exp(-2.0 * kPI * scaledFreq / kSampleRate);
 }
 
 }  // namespace
@@ -68,12 +78,7 @@ void LPF::Render(SampleTick tick, AudioBuffer& buffer) {
   for (int i = 0; i < buffer.Size(); ++i) {
     SampleTick current_tick = tick + i;
 
-    static constexpr float kMinFreq = 20.0f;
-    static constexpr float kMaxFreq = 20000.0f;
-
-    const float cutoffFreq =
-        kMinFreq + (kMaxFreq - kMinFreq) * cutoff_.GetValue(current_tick);
-    lpf_params_.coefficient_ = CutoffToCoefficient(cutoffFreq);
+    lpf_params_.coefficient_ = scaleCoefficient(cutoff_.GetValue(current_tick));
 
     lpf_left_.UpdateParameters(lpf_params_);
     lpf_right_.UpdateParameters(lpf_params_);

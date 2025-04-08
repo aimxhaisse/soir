@@ -104,16 +104,20 @@ class Control_:
 class LFO_(Control_):
     """A simple LFO parameter."""
 
-    def __init__(self, name: str, rate: float, intensity: float):
+    def __init__(self, name: str, rate: float, intensity: float, low: float, high: float):
         super().__init__(name)
 
         self.rate_ = rate
         self.intensity_ = intensity
+        self.low_ = low
+        self.high_ = high
 
     def fwd(self) -> float:
         assert_in_update_loop()
 
-        self.value_ = self.intensity_ * math.sin(self.tick_ * 2 * math.pi * self.rate_)
+        v = (math.sin(self.tick_ * 2 * math.pi * self.rate_) * self.intensity_ + 1.0) / 2.0
+
+        self.value_ = self.low_ + (self.high_ - self.low_) * v
         self.tick_ += tick_sec_
 
 

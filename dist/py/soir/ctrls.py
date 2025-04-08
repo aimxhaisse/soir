@@ -76,15 +76,17 @@ class Control(soir._ctrls.Control_):
         return f"Control(name={self.name()})"
 
 
-def mk_lfo(name: str, rate: float, intensity: float = 1.0) -> None:
+def mk_lfo(name: str, rate: float, intensity: float = 1.0, low: float = -1.0, high: float = 1.0) -> None:
     """Create a new LFO parameter.
 
     Args:
         name: The name of the parameter.
         rate: The rate of the LFO in seconds.
         intensity: The intensity of the LFO.
+        low: The minimum value of the LFO (defaults to -1.0).
+        high: The maximum value of the LFO (defaults to 1.0).
     """
-    soir._ctrls.LFO_(name, rate, intensity)
+    soir._ctrls.LFO_(name, rate, intensity, low, high)
 
 
 def mk_linear(name: str, start: float, end: float, duration: float) -> None:
