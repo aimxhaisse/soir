@@ -13,16 +13,21 @@ add_library(
   audio_buffer.cc
   audio_output.cc
   controls.cc
+  dsp/band_pass_filter.cc
+  dsp/biquad_filter.cc
   dsp/chorus.cc
   dsp/comb_filter.cc
   dsp/delay.cc
   dsp/delayed_apf.cc
   dsp/early_reverb.cc
+  dsp/high_shelving_filter.cc
   dsp/late_reverb.cc
   dsp/lfo.cc
+  dsp/low_shelving_filter.cc
   dsp/lpf.cc
   dsp/modulated_delay.cc
   dsp/tools.cc
+  dsp/two_band_shelving_filter.cc
   engine.cc
   fast_random.cc
   fx/fx_chorus.cc
