@@ -1175,7 +1175,7 @@ corresponding parameters, which are typically defined using the
 
     <div class="doc doc-contents ">
 
-      <p>Creates a new Low Pass Filter FX.</p>
+      <p>Creates a new High Pass Filter FX.</p>
 
 
 <p><span class="doc-section-title">Parameters:</span></p>
@@ -1192,10 +1192,11 @@ corresponding parameters, which are typically defined using the
           <tr class="doc-section-item">
             <td><code>mix</code></td>
             <td>
+                  <code>float | <a class="autorefs autorefs-internal" title="soir.ctrls.Control" href="../ctrls/#soir.ctrls.Control">Control</a> | None</code>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>The mix parameter of the low pass filter effect. Defaults to None.</p>
+                <p>The mix parameter of the high pass filter effect. Defaults to None.</p>
               </div>
             </td>
             <td>
@@ -1209,7 +1210,21 @@ corresponding parameters, which are typically defined using the
             </td>
             <td>
               <div class="doc-md-description">
-                <p>The cutoff frequency of the low pass filter in the [0.0, 1.0] range. Defaults to 0.5.</p>
+                <p>The cutoff frequency of the high pass filter in the [0.0, 1.0] range. Defaults to 0.5.</p>
+              </div>
+            </td>
+            <td>
+                  <code>0.5</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code>resonance</code></td>
+            <td>
+                  <code>float | <a class="autorefs autorefs-internal" title="soir.ctrls.Control" href="../ctrls/#soir.ctrls.Control">Control</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The resonance of the high pass filter in the [0.0, 1.0] range. Defaults to 0.5.</p>
               </div>
             </td>
             <td>
@@ -1251,6 +1266,7 @@ corresponding parameters, which are typically defined using the
           <tr class="doc-section-item">
             <td><code>mix</code></td>
             <td>
+                  <code>float | <a class="autorefs autorefs-internal" title="soir.ctrls.Control" href="../ctrls/#soir.ctrls.Control">Control</a> | None</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -1269,6 +1285,20 @@ corresponding parameters, which are typically defined using the
             <td>
               <div class="doc-md-description">
                 <p>The cutoff frequency of the low pass filter in the [0.0, 1.0] range. Defaults to 0.5.</p>
+              </div>
+            </td>
+            <td>
+                  <code>0.5</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code>resonance</code></td>
+            <td>
+                  <code>float | <a class="autorefs autorefs-internal" title="soir.ctrls.Control" href="../ctrls/#soir.ctrls.Control">Control</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The resonance of the low pass filter in the [0.0, 1.0] range. Defaults to 0.5.</p>
               </div>
             </td>
             <td>
@@ -1310,6 +1340,7 @@ corresponding parameters, which are typically defined using the
           <tr class="doc-section-item">
             <td><code>mix</code></td>
             <td>
+                  <code>float | <a class="autorefs autorefs-internal" title="soir.ctrls.Control" href="../ctrls/#soir.ctrls.Control">Control</a> | None</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -1323,6 +1354,7 @@ corresponding parameters, which are typically defined using the
           <tr class="doc-section-item">
             <td><code>time</code></td>
             <td>
+                  <code>float | <a class="autorefs autorefs-internal" title="soir.ctrls.Control" href="../ctrls/#soir.ctrls.Control">Control</a></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -1336,6 +1368,7 @@ corresponding parameters, which are typically defined using the
           <tr class="doc-section-item">
             <td><code>dry</code></td>
             <td>
+                  <code>float | <a class="autorefs autorefs-internal" title="soir.ctrls.Control" href="../ctrls/#soir.ctrls.Control">Control</a></code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -1349,6 +1382,7 @@ corresponding parameters, which are typically defined using the
           <tr class="doc-section-item">
             <td><code>wet</code></td>
             <td>
+                  <code>float | <a class="autorefs autorefs-internal" title="soir.ctrls.Control" href="../ctrls/#soir.ctrls.Control">Control</a></code>
             </td>
             <td>
               <div class="doc-md-description">
