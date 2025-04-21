@@ -1,6 +1,7 @@
 #include <absl/log/log.h>
 
 #include "fx_chorus.hh"
+#include "fx_hpf.hh"
 #include "fx_lpf.hh"
 #include "fx_reverb.hh"
 
@@ -26,6 +27,9 @@ absl::Status FxStack::Init(const std::list<Fx::Settings> fx_settings) {
         break;
       case Type::LPF:
         fx = std::make_unique<LPF>(controls_);
+        break;
+      case Type::HPF:
+        fx = std::make_unique<HPF>(controls_);
         break;
       default:
         return absl::InvalidArgumentError("Unknown FX type");
