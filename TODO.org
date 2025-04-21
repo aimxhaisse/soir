@@ -1,5 +1,5 @@
-* TODO LPF
-* TODO HPF
+* DONE LPF
+* DONE HPF
 * TODO Simpler / more efficient reverb
 * TODO Better packaging
 * TODO Switch to uv
