@@ -88,11 +88,22 @@ def mk_reverb(mix=None, time=0.01, wet=0.75, dry=0.25) -> Fx:
     return mk("reverb", mix=mix, extra={'time': time, 'dry': dry, 'wet': wet})
 
 
-def mk_lpf(mix=None, cutoff: float | Control=0.5) -> Fx:
+def mk_lpf(mix=None, cutoff: float | Control=0.5, resonance: float | Control=0.5) -> Fx:
     """Creates a new Low Pass Filter FX.
 
     Args:
         mix: The mix parameter of the low pass filter effect. Defaults to None.
         cutoff: The cutoff frequency of the low pass filter in the [0.0, 1.0] range. Defaults to 0.5.
     """
-    return mk("lpf", mix=mix, extra={'cutoff': cutoff})
+    return mk("lpf", mix=mix, extra={'cutoff': cutoff, 'resonance': resonance})
+
+
+def mk_hpf(mix=None, cutoff: float | Control=0.5, resonance: float | Control=0.5) -> Fx:
+    """Creates a new Low Pass Filter FX.
+
+    Args:
+        mix: The mix parameter of the low pass filter effect. Defaults to None.
+        cutoff: The cutoff frequency of the low pass filter in the [0.0, 1.0] range. Defaults to 0.5.
+    """
+    return mk("hpf", mix=mix, extra={'cutoff': cutoff, 'resonance': resonance})
+
