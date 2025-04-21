@@ -20,9 +20,11 @@ add_library(
   dsp/delay.cc
   dsp/delayed_apf.cc
   dsp/early_reverb.cc
+  dsp/high_pass_filter.cc
   dsp/high_shelving_filter.cc
   dsp/late_reverb.cc
   dsp/lfo.cc
+  dsp/low_pass_filter.cc
   dsp/low_shelving_filter.cc
   dsp/lpf.cc
   dsp/modulated_delay.cc
