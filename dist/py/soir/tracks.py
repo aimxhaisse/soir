@@ -180,12 +180,11 @@ def mk_midi(
     """Creates a new midi track.
 
     Args:
-        track (int): The track id.
         muted (bool, optional): The muted state. Defaults to None.
         volume (float | Control): The volume in the [0.0, 1.0] range. Defaults to 1.0.
         pan (float | Control): The pan in the [-1.0, 1.0] range. Defaults to 0.0.
-        midi_device (int, optional): The midi device. Defaults to -1.
-        audio_device (int, optional): The audio device. Defaults to -1.
+        midi_device (int, optional): The midi device. Defaults to 0.
+        audio_device (int, optional): The audio device. Defaults to 0.
         fxs (dict, optional): The effects to apply to the track. Defaults to None.
     """
     return mk(

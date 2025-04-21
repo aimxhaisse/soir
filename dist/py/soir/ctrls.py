@@ -48,7 +48,7 @@ class Control(soir._ctrls.Control_):
         """
         raise NotImplementedError()
 
-    def set(self, **params) -> None:
+    def set(self, **params: float) -> None:
         """Set the control parameters.
 
         Args:
