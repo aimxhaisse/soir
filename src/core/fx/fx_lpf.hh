@@ -1,6 +1,6 @@
 #pragma once
 
-#include "core/dsp/lpf.hh"
+#include "core/dsp/low_pass_filter.hh"
 #include "core/parameter.hh"
 
 #include "fx.hh"
@@ -26,10 +26,11 @@ struct LPF : public Fx {
   Fx::Settings settings_;
 
   Parameter cutoff_;
+  Parameter resonance_;
 
-  dsp::LPF1P::Parameters lpf_params_;
-  dsp::LPF1P lpf_left_;
-  dsp::LPF1P lpf_right_;
+  dsp::LowPassFilter::Parameters lpf_params_;
+  dsp::LowPassFilter lpf_left_;
+  dsp::LowPassFilter lpf_right_;
 };
 
 }  // namespace fx
