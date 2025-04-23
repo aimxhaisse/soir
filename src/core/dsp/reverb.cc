@@ -1,15 +1,14 @@
-#include "core/dsp/early_reverb.hh"
+#include "core/dsp/reverb.hh"
 
 namespace soir {
 namespace dsp {
 
-bool operator!=(const EarlyReverb::Parameters& lhs,
-                const EarlyReverb::Parameters& rhs) {
+bool operator!=(const Reverb::Parameters& lhs, const Reverb::Parameters& rhs) {
   return std::tie(lhs.time_, lhs.absorbency_) !=
          std::tie(rhs.time_, rhs.absorbency_);
 }
 
-EarlyReverb::EarlyReverb() {
+Reverb::Reverb() {
   random_.Seed(0xBBAADDEE);
 
   // We initialize the mod phase randomly to increase the spaceness of
@@ -21,7 +20,7 @@ EarlyReverb::EarlyReverb() {
   }
 }
 
-void EarlyReverb::Init(const Parameters& p) {
+void Reverb::Init(const Parameters& p) {
   params_ = p;
 
   // Order is important here, as the configuration of the APF line
@@ -32,13 +31,13 @@ void EarlyReverb::Init(const Parameters& p) {
   UpdateLPFs();
 }
 
-void EarlyReverb::UpdateParameters(const Parameters& p) {
+void Reverb::UpdateParameters(const Parameters& p) {
   if (p != params_) {
     Init(p);
   }
 }
 
-void EarlyReverb::UpdateLPFs() {
+void Reverb::UpdateLPFs() {
   LPFParams_.coefficient_ = params_.absorbency_;
 
   lLPF_.UpdateParameters(LPFParams_);
@@ -81,7 +80,7 @@ float APFFeedback(float time_factor) {
 
 }  // namespace
 
-void EarlyReverb::UpdateCombFilters() {
+void Reverb::UpdateCombFilters() {
 
   // Comb filter delay times.
   //
@@ -145,7 +144,7 @@ void EarlyReverb::UpdateCombFilters() {
   }
 }
 
-void EarlyReverb::UpdateAPFs() {
+void Reverb::UpdateAPFs() {
 
   // There is no strong theory behind those values, we got them by
   // hearing.  Pirkle recommands the APF modulations to be between 1
@@ -200,7 +199,7 @@ void EarlyReverb::UpdateAPFs() {
     // Note here: we don't scale the size of modulated APF with the
     // time, for some reason I didn't get, this results in
     // interpolation glitches (even though we actually do it in the
-    // comb filters without issue). We were doing it marginally in the
+    // comb filters without issue). I was doing it marginally in the
     // original implementation so this is not actually a big change,
     // just a reminder in case we are wondering why we don't do this
     // here.
@@ -222,7 +221,7 @@ void EarlyReverb::UpdateAPFs() {
   }
 }
 
-void EarlyReverb::Reset() {
+void Reverb::Reset() {
   for (int i = 0; i < kCombFilters; ++i) {
     lCombs_[i].Reset();
     rCombs_[i].Reset();
@@ -234,13 +233,13 @@ void EarlyReverb::Reset() {
   }
 }
 
-std::pair<float, float> EarlyReverb::Process(float left, float right) {
+std::pair<float, float> Reverb::Process(float left, float right) {
   std::pair<float, float> r = {0.0, 0.0};
 
   // Note here: in Darroto's algorithm, there is a weird trick here,
   // half of the filters are substracted instead of summed. This
   // results in a somewhat smoother output, because the dense parts of
-  // the reverberated signal tend to be flattened. We don't do this
+  // the reverberated signal tend to be flattened. I don't do this
   // here but if we ever want to get a reverb with a super-slow ramp
   // up, this may be worth investigating.
   float l_comb = 0.0;
