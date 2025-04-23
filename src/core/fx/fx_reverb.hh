@@ -1,7 +1,6 @@
 #pragma once
 
-#include "core/dsp/early_reverb.hh"
-#include "core/dsp/late_reverb.hh"
+#include "core/dsp/reverb.hh"
 #include "core/parameter.hh"
 
 #include "fx.hh"
@@ -32,11 +31,8 @@ struct Reverb : public Fx {
 
   bool initialized_ = false;
 
-  dsp::EarlyReverb::Parameters early_params_;
-  dsp::EarlyReverb early_reverb_;
-
-  dsp::LateReverb::Parameters late_params_;
-  dsp::LateReverb late_reverb_;
+  dsp::Reverb::Parameters params_;
+  dsp::Reverb reverb_;
 };
 
 }  // namespace fx

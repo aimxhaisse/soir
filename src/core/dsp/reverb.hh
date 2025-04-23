@@ -9,7 +9,7 @@
 namespace soir {
 namespace dsp {
 
-// Reverb engine for early reverberations.
+// Simple reverb engine.
 //
 // Parallel comb filter are chained with a line of modulated APF
 // filters. The output sound is slightly metallic, despite a lot of
@@ -20,7 +20,7 @@ namespace dsp {
 // tuning around it. Multiple attempts were made, following research
 // papers etc, not often producing good results, before having this
 // sort of compromise.
-class EarlyReverb {
+class Reverb {
  public:
   static constexpr int kCombFilters = 8;
   static constexpr int kDelayedAPFs = 4;
@@ -39,7 +39,7 @@ class EarlyReverb {
     float absorbency_ = 0.18f;
   };
 
-  EarlyReverb();
+  Reverb();
 
   void Init(const Parameters& p);
   void UpdateParameters(const Parameters& p);
@@ -69,7 +69,7 @@ class EarlyReverb {
   DelayedAPF::Parameters lAPFParams_[kDelayedAPFs];
   DelayedAPF::Parameters rAPFParams_[kDelayedAPFs];
 
-  // This is a post-hack, we added this at the very end of the
+  // This is a post-hack, added this at the very end of the
   // implementation, as it sounded a bit too bright, and sometimes
   // resonnance would appear in high frequencies.
   LPF1P::Parameters LPFParams_;

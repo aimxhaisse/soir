@@ -9,16 +9,14 @@ Reverb::Reverb(Controls* controls)
     : controls_(controls),
       time_(0.01f, 0.0f, 1.0f),
       dry_(0.5f, 0.0f, 1.0f),
-      wet_(0.5f, 0.0f, 1.0f),
-      late_reverb_(dsp::LateReverb::MatrixFlavor::M16x16) {}
+      wet_(0.5f, 0.0f, 1.0f) {}
 
 absl::Status Reverb::Init(const Fx::Settings& settings) {
   settings_ = settings;
 
   ReloadParams();
 
-  early_reverb_.Reset();
-  late_reverb_.Reset();
+  reverb_.Reset();
 
   return absl::OkStatus();
 }
@@ -71,26 +69,22 @@ void Reverb::Render(SampleTick tick, AudioBuffer& buffer) {
 
     auto time = time_.GetValue(current_tick);
 
-    early_params_.time_ = time;
-    late_params_.time_ = time;
+    params_.time_ = time;
 
     if (!initialized_) {
-      early_reverb_.Init(early_params_);
-      late_reverb_.Init(late_params_);
+      reverb_.Init(params_);
       initialized_ = true;
     } else {
-      early_reverb_.UpdateParameters(early_params_);
-      late_reverb_.UpdateParameters(late_params_);
+      reverb_.UpdateParameters(params_);
     }
 
-    auto p1 = early_reverb_.Process(lch[i], rch[i]);
-    auto p2 = late_reverb_.Process(p1.first, p1.second);
+    auto p = reverb_.Process(lch[i], rch[i]);
 
     auto wet = wet_.GetValue(current_tick);
     auto dry = dry_.GetValue(current_tick);
 
-    lch[i] = lch[i] * dry + p2.first * wet;
-    rch[i] = rch[i] * dry + p2.second * wet;
+    lch[i] = lch[i] * dry + p.first * wet;
+    rch[i] = rch[i] * dry + p.second * wet;
   }
 }
 
