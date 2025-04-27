@@ -33,7 +33,7 @@ namespace {
 const std::string kModeStandalone = "standalone";
 const std::string kModeScript = "script";
 const std::string kVersion = "v0.9.0";
-const size_t kMaxLogFiles = 10;
+const size_t kMaxLogFiles = 25;
 
 class FileSink : public absl::LogSink {
  public:
