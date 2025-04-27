@@ -2,6 +2,7 @@
 #include <pybind11/embed.h>
 #include <pybind11/stl.h>
 
+#include "core/audio_output.hh"
 #include "core/dsp.hh"
 #include "core/engine.hh"
 #include "core/rt/bindings.hh"
@@ -102,7 +103,7 @@ PYBIND11_EMBEDDED_MODULE(bindings, m) {
           case fx::Type::REVERB:
             type = "reverb";
             break;
-            
+
           case fx::Type::LPF:
             type = "lpf";
             break;
@@ -229,6 +230,16 @@ PYBIND11_EMBEDDED_MODULE(bindings, m) {
   });
 
   m.def("get_code_", []() { return gRt_->GetCode(); });
+
+  m.def("get_audio_devices_", []() {
+    std::vector<std::pair<int, std::string>> devices;
+    auto status = AudioOutput::GetAudioDevices(&devices);
+    if (!status.ok()) {
+      LOG(ERROR) << "Unable to get audio devices: " << status;
+      return std::vector<std::pair<int, std::string>>();
+    }
+    return devices;
+  });
 }
 
 }  // namespace rt
