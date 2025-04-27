@@ -67,8 +67,12 @@ absl::Status Subscriber::Run() {
     auto entries = absl::StrSplit(response.notification(), '\n');
 
     for (const auto& entry : entries) {
-      LOG(INFO) << "\e[1;42mN E O N \e[0m\e[1;32m "
+      LOG(INFO) << "\e[1;42mS O I R \e[0m\e[1;32m "
                 << ">\e[0m " << entry;
+
+      std::cout << "\e[1;43mS O I R \e[0m\e[1;33m "
+                << ">\e[0m " << entry << std::endl;
+      std::cout.flush();
     }
   }
 
