@@ -12,3 +12,4 @@ CMakeUserPresets.json
 *.tar.gz
 .aider*
 exp/ramblings
+    

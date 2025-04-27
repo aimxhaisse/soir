@@ -4,7 +4,18 @@
 #include <absl/log/globals.h>
 #include <absl/log/initialize.h>
 #include <absl/log/log.h>
+#include <absl/log/log_sink.h>
+#include <absl/log/log_sink_registry.h>
 #include <absl/status/status.h>
+#include <absl/time/time.h>
+#include <algorithm>
+#include <chrono>
+#include <cstdlib>
+#include <filesystem>
+#include <fstream>
+#include <iomanip>
+#include <sstream>
+#include <vector>
 
 #include "utils/config.hh"
 #include "utils/signal.hh"
@@ -22,6 +33,100 @@ namespace {
 const std::string kModeStandalone = "standalone";
 const std::string kModeScript = "script";
 const std::string kVersion = "v0.9.0";
+const size_t kMaxLogFiles = 10;
+
+class FileSink : public absl::LogSink {
+ public:
+  explicit FileSink(const std::string& filename) {
+    log_file_.open(filename, std::ios::out | std::ios::app);
+    if (!log_file_.is_open()) {
+      std::cerr << "Failed to open log file: " << filename << std::endl;
+    }
+  }
+
+  ~FileSink() override {
+    if (log_file_.is_open()) {
+      log_file_.close();
+    }
+  }
+
+  void Send(const absl::LogEntry& entry) override {
+    if (!log_file_.is_open())
+      return;
+
+    std::string formatted_log = std::string(entry.text_message());
+    std::string timestamp = absl::FormatTime(
+        "%Y-%m-%d %H:%M:%S", entry.timestamp(), absl::LocalTimeZone());
+    std::string severity = absl::LogSeverityName(entry.log_severity());
+
+    log_file_ << timestamp << " " << severity << " [" << entry.source_filename()
+              << ":" << entry.source_line() << "] " << formatted_log
+              << std::endl;
+    log_file_.flush();
+  }
+
+ private:
+  std::ofstream log_file_;
+};
+
+std::unique_ptr<FileSink> file_sink;
+
+absl::Status SetupLogDirectory() {
+  char* soir_dir_env = std::getenv("SOIR_DIR");
+  if (soir_dir_env == nullptr) {
+    return absl::FailedPreconditionError(
+        "SOIR_DIR environment variable not set");
+  }
+
+  std::filesystem::path soir_dir(soir_dir_env);
+  std::filesystem::path log_dir = soir_dir / "logs";
+
+  // Create log directory if it doesn't exist
+  if (!std::filesystem::exists(log_dir)) {
+    if (!std::filesystem::create_directories(log_dir)) {
+      return absl::InternalError("Failed to create log directory: " +
+                                 log_dir.string());
+    }
+  }
+
+  // Get current time for log filename
+  auto now = std::chrono::system_clock::now();
+  auto time_t_now = std::chrono::system_clock::to_time_t(now);
+  std::stringstream date_ss;
+  date_ss << std::put_time(std::localtime(&time_t_now), "%Y%m%d-%H%M%S");
+  std::string date_str = date_ss.str();
+
+  std::filesystem::path log_file = log_dir / ("soir." + date_str + ".log");
+
+  // Cleanup old log files if needed
+  std::vector<std::filesystem::path> log_files;
+  for (const auto& entry : std::filesystem::directory_iterator(log_dir)) {
+    if (entry.is_regular_file() &&
+        entry.path().filename().string().starts_with("soir.") &&
+        entry.path().extension() == ".log") {
+      log_files.push_back(entry.path());
+    }
+  }
+
+  // Sort by modification time (oldest first)
+  std::sort(log_files.begin(), log_files.end(),
+            [](const std::filesystem::path& a, const std::filesystem::path& b) {
+              return std::filesystem::last_write_time(a) <
+                     std::filesystem::last_write_time(b);
+            });
+
+  // Remove oldest files if we have more than kMaxLogFiles
+  while (log_files.size() >= kMaxLogFiles) {
+    std::filesystem::remove(log_files.front());
+    log_files.erase(log_files.begin());
+  }
+
+  // Set up log file sink
+  file_sink = std::make_unique<FileSink>(log_file.string());
+  absl::AddLogSink(file_sink.get());
+
+  return absl::OkStatus();
+}
 
 }  // namespace
 
@@ -156,13 +261,19 @@ absl::Status ScriptMode(const utils::Config& config,
 
 int main(int argc, char* argv[]) {
   absl::SetMinLogLevel(absl::LogSeverityAtLeast::kInfo);
-  absl::SetStderrThreshold(absl::LogSeverityAtLeast::kInfo);
+  absl::SetStderrThreshold(absl::LogSeverityAtLeast::kFatal);
   absl::EnableLogPrefix(true);
   absl::InitializeLog();
-  absl::SetProgramUsageMessage("Maethstro L I V E");
+  absl::SetProgramUsageMessage("soir L I V E");
   absl::ParseCommandLine(argc, argv);
 
-  absl::Status status = soir::Preamble();
+  absl::Status status = SetupLogDirectory();
+  if (!status.ok()) {
+    std::cerr << "Failed to set up log directory: " << status << std::endl;
+    return status.raw_code();
+  }
+
+  status = soir::Preamble();
   if (!status.ok()) {
     LOG(ERROR) << "Failed to run soir preamble: " << status;
     return status.raw_code();
