@@ -16,6 +16,15 @@ void ListAudioDevices() {
 
 }  // namespace
 
+absl::Status AudioOutput::GetAudioDevices(
+    std::vector<std::pair<int, std::string>>* out) {
+  const int num = SDL_GetNumAudioDevices(0);
+  for (int i = 0; i < num; i++) {
+    out->push_back({i, SDL_GetAudioDeviceName(i, 0)});
+  }
+  return absl::OkStatus();
+}
+
 AudioOutput::AudioOutput() {
   SDL_Init(SDL_INIT_AUDIO);
 
