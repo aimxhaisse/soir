@@ -71,7 +71,13 @@ class FileSink : public absl::LogSink {
 
 std::unique_ptr<FileSink> file_sink;
 
-absl::Status SetupLogDirectory() {
+absl::Status SetupLogs(const std::string& mode) {
+  if (mode != kModeStandalone) {
+    absl::SetMinLogLevel(absl::LogSeverityAtLeast::kInfo);
+    absl::InitializeLog();
+    return absl::OkStatus();
+  }
+
   char* soir_dir_env = std::getenv("SOIR_DIR");
   if (soir_dir_env == nullptr) {
     return absl::FailedPreconditionError(
@@ -124,6 +130,8 @@ absl::Status SetupLogDirectory() {
   // Set up log file sink
   file_sink = std::make_unique<FileSink>(log_file.string());
   absl::AddLogSink(file_sink.get());
+
+  absl::InitializeLog();
 
   return absl::OkStatus();
 }
@@ -263,11 +271,12 @@ int main(int argc, char* argv[]) {
   absl::SetMinLogLevel(absl::LogSeverityAtLeast::kInfo);
   absl::SetStderrThreshold(absl::LogSeverityAtLeast::kFatal);
   absl::EnableLogPrefix(true);
-  absl::InitializeLog();
   absl::SetProgramUsageMessage("soir L I V E");
   absl::ParseCommandLine(argc, argv);
 
-  absl::Status status = SetupLogDirectory();
+  const std::string mode = absl::GetFlag(FLAGS_mode);
+
+  absl::Status status = SetupLogs(mode);
   if (!status.ok()) {
     std::cerr << "Failed to set up log directory: " << status << std::endl;
     return status.raw_code();
@@ -286,7 +295,6 @@ int main(int argc, char* argv[]) {
     return config.status().raw_code();
   }
 
-  std::string mode = absl::GetFlag(FLAGS_mode);
   if (mode == kModeStandalone) {
     status = soir::StandaloneMode(**config);
   } else if (mode == kModeScript) {
