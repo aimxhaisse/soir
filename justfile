@@ -42,6 +42,13 @@ dev-mk-docs:
     poetry -P ${SOIR_DIR} run ${SOIR_BIN_DIR}/soir-engine --config dist/etc/config.yaml --mode script --script scripts/mk-docs.py
     cp install.sh www/site/
 
+# Runs the CLI script.
+[group('dev')]
+dev-run-cli:
+    #!/usr/bin/env bash
+    just --justfile {{ justfile() }} prepare-config dist "scripts.yaml.template"
+    poetry -P ${SOIR_DIR} run ${SOIR_BIN_DIR}/soir-engine --config dist/etc/config.yaml --mode script --script 'dist/scripts/cli.py'
+
 # Run the Soir engine in audio mode.
 [group('dev')]
 dev-run:
