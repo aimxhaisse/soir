@@ -20,6 +20,8 @@ regex = "^2024.11.6"
 jinja2 = "^3.1.4"
 prettytable = "^3.12.0"
 black = "^25.1.0"
+rich = "^14.0.0"
+textual = "^3.1.1"
 
 [build-system]
 requires = ["poetry-core"]
