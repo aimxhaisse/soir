@@ -1,3 +1,5 @@
+import yaml
+
 from textual import events
 from textual.app import (
     App,
@@ -13,14 +15,15 @@ from textual.widgets import (
     Button,
     Header,
     Label,
-    ListItem,
-    ListView,
     Markdown,
+    Select,
     Static,
     TabbedContent,
     TabPane,
 )
 from textual.widget import Widget
+
+from soir._internals import get_audio_devices
 
 
 HAIKU = """
@@ -57,6 +60,12 @@ class SoirApp(App):
         self.sub_title = " https://soir.dev"
         self.theme = "nord"
 
+        self.load()
+
+    def load(self):
+        """Load configuration's file and set up the app."""
+        pass
+
     def compose(self) -> ComposeResult:
         """Create child widgets for the app."""
 
@@ -70,11 +79,7 @@ class SoirApp(App):
                     yield Button("Run", variant="primary", id="run-button")
 
             with TabPane("Audio", id="audio"):
-                yield ListView(
-                    ListItem(Label("One")),
-                    ListItem(Label("Two")),
-                    ListItem(Label("Three"))
-                )
+                pass
 
 
 app = SoirApp()
