@@ -1,18 +1,16 @@
-# --- Builder/development part
-#
-# Goal is to get rid of the makefile at some point and only rely on
-# this justfile.
+# --- This file is the main entrypoint for anything related to development. ---
 
 set allow-duplicate-recipes := true
 set allow-duplicate-variables := true
 
 export SOIR_DIR := "./dist"
 
-import 'dist/bin/soir'
-import 'pkg/justfile'
-
 _default:
     @just --list --unsorted --justfile {{ justfile() }}
+
+# Setup the virtualenv for Soir.
+_venv:
+    $SOIR_DIR/bin/soir --setup-virtualenv-only
 
 # Build Soir.
 [group('dev')]
@@ -28,11 +26,11 @@ dev-build:
 
 # Runs the Soir unit test suites.
 [group('dev')]
-dev-test filter='*': dev-build
+dev-test filter='*': dev-build _venv
     #!/usr/bin/env bash
-    just --justfile {{ justfile() }} prepare-config dist "scripts.yaml.template"
-    poetry -P ${SOIR_DIR} run build/src/core/soir_core_test --gtest_filter='{{filter}}'
-    poetry -P ${SOIR_DIR} run build/src/utils/soir_utils_test --gtest_filter='{{filter}}'
+    source ${SOIR_DIR}/venv/bin/activate
+    build/src/core/soir_core_test --gtest_filter='{{filter}}'
+    build/src/utils/soir_utils_test --gtest_filter='{{filter}}'
 
 # Build and push documentation to soir.dev.
 [group('dev')]
