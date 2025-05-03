@@ -81,7 +81,8 @@ class SoirApp(App):
             with TabPane("Audio", id="audio"):
                 pass
 
+print('ook')
+
 
 app = SoirApp()
 app.run()
-                

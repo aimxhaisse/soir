@@ -8,18 +8,16 @@ agent:
 soir:
   rt:
     python_paths:
-      - {{ site_packages }}
-      - {{ soir_dir }}/py
+      - venv/lib/python3.13/site-packages
+      - py
     initial_bpm: 130
   grpc:
     host: localhost
     port: 9000
   dsp:
-    sample_directory: {{ soir_dir }}/samples
+    sample_directory: samples
     output:
       audio:
-        # Disable audio so that we can generate documentation without
-        # cutting our spotify playlist.
         enable: false
     engine:
       block_size: 4096

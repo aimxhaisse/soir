@@ -73,13 +73,16 @@ std::unique_ptr<FileSink> file_sink;
 
 absl::Status SetupLogs(const std::string& mode) {
   if (mode != kModeStandalone) {
-    absl::SetMinLogLevel(absl::LogSeverityAtLeast::kInfo);
+    absl::SetStderrThreshold(absl::LogSeverityAtLeast::kInfo);
     absl::InitializeLog();
     return absl::OkStatus();
   }
 
+  absl::SetStderrThreshold(absl::LogSeverityAtLeast::kFatal);
+
   char* soir_dir_env = std::getenv("SOIR_DIR");
   if (soir_dir_env == nullptr) {
+    LOG(ERROR) << "SOIR_DIR environment variable not set";
     return absl::FailedPreconditionError(
         "SOIR_DIR environment variable not set");
   }
@@ -209,7 +212,7 @@ absl::Status StandaloneMode(const utils::Config& config) {
 
 absl::Status ScriptMode(const utils::Config& config,
                         const std::string& script_path) {
-  LOG(INFO) << "Running in standalone mode";
+  LOG(INFO) << "Running in script mode";
 
   std::unique_ptr<Soir> soir = std::make_unique<Soir>();
 
@@ -269,9 +272,8 @@ absl::Status ScriptMode(const utils::Config& config,
 
 int main(int argc, char* argv[]) {
   absl::SetMinLogLevel(absl::LogSeverityAtLeast::kInfo);
-  absl::SetStderrThreshold(absl::LogSeverityAtLeast::kFatal);
   absl::EnableLogPrefix(true);
-  absl::SetProgramUsageMessage("soir L I V E");
+  absl::SetProgramUsageMessage("soir");
   absl::ParseCommandLine(argc, argv);
 
   const std::string mode = absl::GetFlag(FLAGS_mode);
@@ -299,7 +301,6 @@ int main(int argc, char* argv[]) {
     status = soir::StandaloneMode(**config);
   } else if (mode == kModeScript) {
     status = soir::ScriptMode(**config, absl::GetFlag(FLAGS_script));
-
   } else {
     LOG(ERROR) << "Unknown mode: " << mode;
     return static_cast<int>(absl::StatusCode::kInvalidArgument);
