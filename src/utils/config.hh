@@ -29,6 +29,12 @@ class Config {
     return Get(location, T());
   }
 
+  template <>
+  std::string Get(const std::string& location, const std::string& def) const;
+
+  template <>
+  std::string Get(const std::string& location) const;
+
   std::unique_ptr<Config> GetConfig(const std::string& location) const;
 
   std::vector<std::unique_ptr<Config>> GetConfigs(
@@ -36,6 +42,7 @@ class Config {
 
  private:
   YAML::Node GetChildNode(const std::string& location) const;
+  std::string ExpandEnvironmentVariables(const std::string& input) const;
 
   YAML::Node node_;
 };
