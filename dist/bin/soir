@@ -27,7 +27,7 @@ else
     LOG_TO_FILE="true"
 fi
 
-$SOIR_DIR/bin/soir-engine               \
+$SOIR_DIR/bin/soir-core                 \
     --log_to_file=$LOG_TO_FILE          \
     --mode script                       \
     --script $SOIR_DIR/py/cli.py        \

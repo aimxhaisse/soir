@@ -37,7 +37,11 @@ from textual.widgets import (
 )
 from textual.widget import Widget
 
-from soir.system import get_audio_devices
+from soir.system import (
+    exec_session,
+    get_audio_devices,
+)
+      
 
 
 SOIR_DIR = os.getenv("SOIR_DIR")
@@ -151,7 +155,7 @@ class SessionApp(App):
         """Handle button presses."""
         if event.button.id == "run-button":
             self.save()
-            pass
+            self.exit()
 
 
 app = typer.Typer(
@@ -169,6 +173,7 @@ def init_session(
     session_app.new()
     session_app.load()
     session_app.run()
+    exec_session(name)
 
 
 @app.command("run")
@@ -179,6 +184,7 @@ def run_session(
     session_app = SessionApp(name)
     session_app.load()
     session_app.run()
+    exec_session(name)
 
 
 @app.command("rm")
