@@ -9,8 +9,8 @@
 namespace soir {
 namespace fx {
 
-LPF::LPF(Controls* controls) 
-    : controls_(controls), 
+LPF::LPF(Controls* controls)
+    : controls_(controls),
       cutoff_(0.5f, 0.0f, 1.0f),
       resonance_(0.5f, 0.0f, 1.0f) {}
 
@@ -52,7 +52,7 @@ void LPF::ReloadParams() {
 
   cutoff_ = Parameter::FromJSON(controls_, doc, "cutoff");
   cutoff_.SetRange(0.0f, 1.0f);
-  
+
   resonance_ = Parameter::FromJSON(controls_, doc, "resonance");
   resonance_.SetRange(0.0f, 1.0f);
 }

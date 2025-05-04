@@ -212,7 +212,8 @@ absl::Status StandaloneMode(const utils::Config& config) {
 }
 
 absl::Status ScriptMode(const utils::Config& config,
-                        const std::string& script_path) {
+                        const std::string& script_path,
+                        const std::vector<std::string>& script_args) {
   LOG(INFO) << "Running in script mode";
 
   std::unique_ptr<Soir> soir = std::make_unique<Soir>();
@@ -238,9 +239,21 @@ absl::Status ScriptMode(const utils::Config& config,
     return script_or.status();
   }
 
+  // Prepare Python code to set sys.argv with script path and arguments
+  std::stringstream sys_args_setup;
+  sys_args_setup << "import sys\n"
+                 << "sys.argv = ['" << script_path << "'";
+
+  for (const auto& arg : script_args) {
+    sys_args_setup << ", '" << arg << "'";
+  }
+  sys_args_setup << "]\n"
+                 << "sys.argc = " << script_args.size() + 1 << "\n\n";
+
   // Have the script exit after running, this will trigger a graceful
   // shutdown via WaitForExitSignal.
-  auto script = script_or.value() + "\nraise SystemExit()\n";
+  auto script =
+      sys_args_setup.str() + script_or.value() + "\nraise SystemExit()\n";
 
   proto::PushCodeUpdateRequest request;
   request.set_code(script);
@@ -275,7 +288,9 @@ int main(int argc, char* argv[]) {
   absl::SetMinLogLevel(absl::LogSeverityAtLeast::kInfo);
   absl::EnableLogPrefix(true);
   absl::SetProgramUsageMessage("soir");
-  absl::ParseCommandLine(argc, argv);
+
+  // Parse command line but keep track of remaining arguments
+  std::vector<char*> remaining = absl::ParseCommandLine(argc, argv);
 
   const std::string mode = absl::GetFlag(FLAGS_mode);
   const bool log_to_file = absl::GetFlag(FLAGS_log_to_file);
@@ -299,10 +314,18 @@ int main(int argc, char* argv[]) {
     return config.status().raw_code();
   }
 
+  // Collect arguments that weren't consumed by absl::ParseCommandLine
+  std::vector<std::string> script_args;
+  // Skip the program name (first argument in remaining)
+  for (size_t i = 1; i < remaining.size(); ++i) {
+    script_args.push_back(remaining[i]);
+  }
+
   if (mode == kModeStandalone) {
     status = soir::StandaloneMode(**config);
   } else if (mode == kModeScript) {
-    status = soir::ScriptMode(**config, absl::GetFlag(FLAGS_script));
+    status =
+        soir::ScriptMode(**config, absl::GetFlag(FLAGS_script), script_args);
   } else {
     LOG(ERROR) << "Unknown mode: " << mode;
     return static_cast<int>(absl::StatusCode::kInvalidArgument);

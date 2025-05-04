@@ -76,7 +76,9 @@ class Control(soir._ctrls.Control_):
         return f"Control(name={self.name()})"
 
 
-def mk_lfo(name: str, rate: float, intensity: float = 1.0, low: float = -1.0, high: float = 1.0) -> None:
+def mk_lfo(
+    name: str, rate: float, intensity: float = 1.0, low: float = -1.0, high: float = 1.0
+) -> None:
     """Create a new LFO parameter.
 
     Args:

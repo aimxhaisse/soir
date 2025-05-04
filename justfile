@@ -62,10 +62,10 @@ dev-sync-docs: dev-mk-docs
 
 # Format the C++/Python code.
 [group('dev')]
-dev-fmt:
+dev-fmt: _venv
     #!/usr/bin/env bash
     find src/ -name "*.cc" -o -name "*.h" | xargs clang-format -i --style=file
-    poetry -P ${SOIR_DIR} run black dist/py/soir/*.py
+    uv --project $SOIR_DIR/py run black $SOIR_DIR/py
 
 # Build the package for Soir.
 [group('dev')]
