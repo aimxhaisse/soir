@@ -11,13 +11,14 @@ from typing import Optional
 from soir.cli import session
 
 
-app = typer.Typer(help="Soir: Python Sings Alive", add_completion=False)
+app = typer.Typer(
+    help="Soir: Python Sings Alive",
+    add_completion=False,
+    no_args_is_help=True,
+)
 
 
 app.add_typer(session.app, name="session", help="Manage Soir sessions")
 
 
-if len(sys.argv) == 1:
-    app(["--help"])
-else:
-    app()
+app()
