@@ -65,6 +65,7 @@ class Engine {
   // with audio samples from the DSP engine.
   std::mutex consumers_mutex_;
   std::unique_ptr<HttpServer> http_server_;
+  bool audio_output_enabled_ = false;
   std::unique_ptr<AudioOutput> audio_output_;
   std::list<SampleConsumer*> consumers_;
 
