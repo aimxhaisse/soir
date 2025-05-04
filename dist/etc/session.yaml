@@ -1,0 +1,23 @@
+agent:
+  directory: ./live
+  soir:
+    grpc:
+      host: localhost
+      port: 9000
+soir:
+  rt:
+    python_paths:
+      - $SOIR_DIR/venv/lib/python3.13/site-packages
+      - $SOIR_DIR/py
+    initial_bpm: 130
+  grpc:
+    host: localhost
+    port: 9000
+  dsp:
+    sample_directory: $SOIR_DIR/samples
+    output:
+      audio:
+        enable: true
+        device_id: 0
+    engine:
+      block_size: 4096
