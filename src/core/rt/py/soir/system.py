@@ -14,7 +14,8 @@ devices = system.get_audio_devices()
 # Reference
 """
 
-from soir._internals import (
+from bindings import (
+    exec_session_,
     get_audio_devices_,
 )
 
@@ -26,3 +27,12 @@ def get_audio_devices() -> list[tuple[int, str]]:
         A list of audio devices.
     """
     return get_audio_devices_()
+
+
+def exec_session(name: str) -> None:
+    """Executes the current session.
+
+    Returns:
+        None
+    """
+    exec_session_(name)

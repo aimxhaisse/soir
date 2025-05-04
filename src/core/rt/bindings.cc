@@ -1,6 +1,7 @@
 #include <absl/log/log.h>
 #include <pybind11/embed.h>
 #include <pybind11/stl.h>
+#include <unistd.h>
 
 #include "core/audio_output.hh"
 #include "core/dsp.hh"
@@ -239,6 +240,28 @@ PYBIND11_EMBEDDED_MODULE(bindings, m) {
       return std::vector<std::pair<int, std::string>>();
     }
     return devices;
+  });
+
+  m.def("exec_session_", [](const std::string& session_name) {
+    LOG(INFO) << "Executing session: " << session_name;
+
+    if (::chdir(session_name.c_str()) != 0) {
+      LOG(ERROR) << "Unable to chdir into session directory: "
+                 << strerror(errno);
+      return false;
+    }
+
+    char* const args[4] = {
+        "soir-core",
+        "--mode=standalone",
+        "--config=etc/config.yaml",
+        nullptr,
+    };
+
+    ::execvp("soir-core", args);
+
+    LOG(ERROR) << "Failed to exec session: " << strerror(errno);
+    return false;
   });
 }
 

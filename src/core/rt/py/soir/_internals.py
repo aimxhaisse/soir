@@ -5,7 +5,6 @@ from enum import Enum
 
 from bindings import (
     schedule_,
-    get_audio_devices_,
     get_beat_,
     get_tracks_,
     log_,

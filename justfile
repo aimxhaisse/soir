@@ -22,7 +22,7 @@ dev-build:
        cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake -B build -G Ninja
     fi
     cmake --build build --parallel 16
-    cp build/soir dist/bin/soir-engine
+    cp build/soir dist/bin/soir-core
 
 # Runs the Soir unit test suites.
 [group('dev')]
@@ -37,7 +37,7 @@ dev-test filter='*': dev-build _venv
 dev-mk-docs:
     #!/usr/bin/env bash
     just --justfile {{ justfile() }} prepare-config dist "scripts.yaml.template"
-    poetry -P ${SOIR_DIR} run ${SOIR_BIN_DIR}/soir-engine --config dist/etc/config.yaml --mode script --script scripts/mk-docs.py
+    poetry -P ${SOIR_DIR} run ${SOIR_BIN_DIR}/soir-core --config dist/etc/config.yaml --mode script --script scripts/mk-docs.py
     cp install.sh www/site/
 
 # Runs the CLI script.
@@ -45,14 +45,14 @@ dev-mk-docs:
 dev-run-cli:
     #!/usr/bin/env bash
     just --justfile {{ justfile() }} prepare-config dist "scripts.yaml.template"
-    poetry -P ${SOIR_DIR} run ${SOIR_BIN_DIR}/soir-engine --config dist/etc/config.yaml --mode script --script 'dist/scripts/cli.py'
+    poetry -P ${SOIR_DIR} run ${SOIR_BIN_DIR}/soir-core --config dist/etc/config.yaml --mode script --script 'dist/scripts/cli.py'
 
 # Run the Soir engine in audio mode.
 [group('dev')]
 dev-run:
     #!/usr/bin/env bash
     just --justfile {{ justfile() }} prepare-config dist "config.yaml.template"
-    poetry -P ${SOIR_DIR} run ${SOIR_BIN_DIR}/soir-engine --config dist/etc/config.yaml --mode standalone
+    poetry -P ${SOIR_DIR} run ${SOIR_BIN_DIR}/soir-core --config dist/etc/config.yaml --mode standalone
 
 # Push the documentation to soir.sh.
 [group('dev')]
@@ -74,7 +74,7 @@ dev-mk-package: dev-build
     git fetch --tags
     TAG=$(git describe --tags `git rev-list --tags --max-count=1`)
     RELEASE="soir-${TAG}-{{ arch() }}-{{ os() }}"
-    cp build/soir dist/bin/soir-engine
+    cp build/soir dist/bin/soir-core
 
     # Here we are explicit so that we can be sure we don't embed assets
     # or other files that are not needed.
