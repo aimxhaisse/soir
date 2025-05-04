@@ -37,7 +37,8 @@ absl::StatusOr<std::unique_ptr<Config>> Config::LoadFromString(
 }
 
 template <>
-std::string Config::Get(const std::string& location, const std::string& def) const {
+std::string Config::Get(const std::string& location,
+                        const std::string& def) const {
   std::string value = GetChildNode(location).as<std::string>(def);
   return ExpandEnvironmentVariables(value);
 }
@@ -47,23 +48,24 @@ std::string Config::Get(const std::string& location) const {
   return Get<std::string>(location, std::string());
 }
 
-std::string Config::ExpandEnvironmentVariables(const std::string& input) const {
+std::string Config::ExpandEnvironmentVariables(const std::string& input) {
   std::regex env_var_pattern("\\$(\\w+(_\\w+)*)");
   std::string result = input;
-  
+
   std::smatch match;
   std::string::const_iterator search_start(result.cbegin());
-  
-  while (std::regex_search(search_start, result.cend(), match, env_var_pattern)) {
+
+  while (
+      std::regex_search(search_start, result.cend(), match, env_var_pattern)) {
     const std::string var_name = match[1].str();
     const char* env_value = std::getenv(var_name.c_str());
-    
+
     if (env_value) {
       // Replace the environment variable reference with its value
       const size_t pos = match.position(0) + (search_start - result.cbegin());
       const size_t length = match[0].length();
       result.replace(pos, length, env_value);
-      
+
       // Update search start position accounting for the replacement
       search_start = result.cbegin() + pos + strlen(env_value);
     } else {
@@ -71,7 +73,7 @@ std::string Config::ExpandEnvironmentVariables(const std::string& input) const {
       search_start = result.cbegin() + match.position(0) + match[0].length();
     }
   }
-  
+
   return result;
 }
 

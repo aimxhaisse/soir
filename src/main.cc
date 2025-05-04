@@ -27,6 +27,7 @@ ABSL_FLAG(std::string, config, "etc/config.yaml", "Path to config file");
 ABSL_FLAG(std::string, mode, "standalone",
           "Mode to run in (standalone, script)");
 ABSL_FLAG(std::string, script, "", "Script to run in script mode");
+ABSL_FLAG(bool, log_to_file, true, "Whether to log to a file");
 
 namespace {
 
@@ -71,8 +72,8 @@ class FileSink : public absl::LogSink {
 
 std::unique_ptr<FileSink> file_sink;
 
-absl::Status SetupLogs(const std::string& mode) {
-  if (mode != kModeStandalone) {
+absl::Status SetupLogs(bool log_to_file) {
+  if (!log_to_file) {
     absl::SetStderrThreshold(absl::LogSeverityAtLeast::kInfo);
     absl::InitializeLog();
     return absl::OkStatus();
@@ -277,8 +278,9 @@ int main(int argc, char* argv[]) {
   absl::ParseCommandLine(argc, argv);
 
   const std::string mode = absl::GetFlag(FLAGS_mode);
+  const bool log_to_file = absl::GetFlag(FLAGS_log_to_file);
 
-  absl::Status status = SetupLogs(mode);
+  absl::Status status = SetupLogs(log_to_file);
   if (!status.ok()) {
     std::cerr << "Failed to set up log directory: " << status << std::endl;
     return status.raw_code();

@@ -34,6 +34,9 @@ absl::Status Runtime::Init(const utils::Config& config, Engine* dsp,
     LOG(ERROR) << "Python paths is empty";
     return absl::InvalidArgumentError("Python paths is empty");
   }
+  for (auto& path : python_paths_) {
+    path = utils::Config::ExpandEnvironmentVariables(path);
+  }
   notifier_ = notifier;
   dsp_ = dsp;
   current_time_ = absl::Now();
