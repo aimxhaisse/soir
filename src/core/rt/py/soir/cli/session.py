@@ -6,6 +6,7 @@ This module provides utilities for creating and managing Soir sessions.
 
 import os
 import shutil
+import textwrap
 import typer
 from typing import Optional
 import yaml
@@ -26,6 +27,9 @@ from textual.widgets import (
     Header,
     Label,
     Markdown,
+    RadioSet,
+    RadioButton,
+    Rule,
     Select,
     Static,
     TabbedContent,
@@ -38,12 +42,6 @@ from soir.system import get_audio_devices
 
 SOIR_DIR = os.getenv("SOIR_DIR")
 
-HAIKU = """
-Code flows like music
-Algorithms dance through sound
-Python sings alive
-"""
-
 
 class SessionApp(App):
     """Control Center for Soir."""
@@ -53,7 +51,7 @@ class SessionApp(App):
         padding: 2;
     }
 
-    #haiku {
+    #overview-content {
         text-align: left;
         align: center middle;
     }
@@ -106,6 +104,14 @@ class SessionApp(App):
         if not self.config:
             raise typer.BadParameter(f"Invalid config file in session {self.session_name}.")
 
+        self.current_device_id = self.config['soir']['dsp']['output']['audio']['device_id']
+
+    def save(self):
+        """Saves the config."""
+        self.config['soir']['dsp']['output']['audio']['device_id'] = self.current_device_id
+        with open(self.config_path, "w") as f:
+            yaml.safe_dump(self.config, f)
+
     def compose(self) -> ComposeResult:
         """Create child widgets for the app."""
 
@@ -114,12 +120,37 @@ class SessionApp(App):
         with TabbedContent(initial="overview"):
 
             with TabPane("Overview", id="overview"):
-                yield Static(HAIKU, id="haiku")
+                overview = textwrap.dedent(
+                    f"""
+                    # Session **{self.session_name.upper()}**
+
+                    ```
+                    Code flows like music
+                    Algorithms dance through sound
+                    Python sings alive
+                    ```
+                    """
+                )
+                yield Markdown(overview, id="overview-content")
                 with Container(id="run-button-container"):
                     yield Button("Run", variant="primary", id="run-button")
 
             with TabPane("Audio", id="audio"):
-                pass
+                audio_devices = get_audio_devices()
+                with RadioSet(id="audio_devices"):
+                    for device_id, name in audio_devices:
+                        yield RadioButton(name, value=(self.current_device_id == device_id))
+
+    def on_radio_set_changed(self, event: RadioSet.Changed) -> None:
+        """Handle radio button changes."""
+        if event.radio_set.id == "audio_devices":
+            self.current_device_id = event.index
+
+    def on_button_pressed(self, event: Button.Pressed) -> None:
+        """Handle button presses."""
+        if event.button.id == "run-button":
+            self.save()
+            pass
 
 
 app = typer.Typer(

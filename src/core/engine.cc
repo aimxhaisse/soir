@@ -25,10 +25,10 @@ absl::Status Engine::Init(const utils::Config& config) {
     }
   }
 
-  auto audio_output_enabled = config.Get<bool>("soir.dsp.output.audio.enable");
+  audio_output_enabled_ = config.Get<bool>("soir.dsp.output.audio.enable");
 
-  if (audio_output_enabled) {
-    audio_output_ = std::make_unique<AudioOutput>();
+  audio_output_ = std::make_unique<AudioOutput>();
+  if (audio_output_enabled_) {
     auto status = audio_output_->Init(config);
     if (!status.ok()) {
       LOG(ERROR) << "Failed to initialize audio output: " << status;
@@ -71,7 +71,7 @@ absl::Status Engine::Start() {
     }
   });
 
-  if (audio_output_.get() != nullptr) {
+  if (audio_output_.get() != nullptr && audio_output_enabled_) {
     RegisterConsumer(audio_output_.get());
 
     auto status = audio_output_->Start();
@@ -103,7 +103,7 @@ absl::Status Engine::Stop() {
     }
   }
 
-  if (audio_output_.get() != nullptr) {
+  if (audio_output_.get() != nullptr && audio_output_enabled_) {
     auto status = audio_output_->Stop();
     if (!status.ok()) {
       LOG(ERROR) << "Failed to stop audio output: " << status;
