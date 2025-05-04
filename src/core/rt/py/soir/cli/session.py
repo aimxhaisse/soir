@@ -58,7 +58,7 @@ class SessionApp(App):
     }
     """
 
-    def __init__(self):
+    def __init__(self, name: str):
         super().__init__()
 
         self.title = "soir"
@@ -87,24 +87,25 @@ class SessionApp(App):
                 pass
 
 
-app = typer.Typer(help="Session management commands")
+app = typer.Typer(
+    help="Session management commands",
+    no_args_is_help=True
+)
 
 
 @app.command("init")
 def init_session(
-    name: Optional[str] = typer.Option(None, "--name", "-n", help="Session name"),
+    name: str = typer.Option(..., "--name", "-n", help="Session name"),
 ):
     """Initialize a new Soir session."""
-    # For now, just run the TUI
-    session_app = SessionApp()
+    session_app = SessionApp(name)
     session_app.run()
 
 
 @app.command("run")
 def run_session(
-    name: Optional[str] = typer.Option(None, "--name", "-n", help="Session name"),
+    name: str = typer.Option(..., "--name", "-n", help="Session name")
 ):
     """Run an existing Soir session."""
-    # For now, just run the TUI
-    session_app = SessionApp()
+    session_app = SessionApp(name)
     session_app.run()
