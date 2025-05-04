@@ -40,9 +40,10 @@ class Config {
   std::vector<std::unique_ptr<Config>> GetConfigs(
       const std::string& location) const;
 
+  static std::string ExpandEnvironmentVariables(const std::string& input);
+
  private:
   YAML::Node GetChildNode(const std::string& location) const;
-  std::string ExpandEnvironmentVariables(const std::string& input) const;
 
   YAML::Node node_;
 };

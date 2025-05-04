@@ -23,7 +23,7 @@ from textual.widgets import (
 )
 from textual.widget import Widget
 
-from soir._internals import get_audio_devices
+from soir.system import get_audio_devices_
 
 
 HAIKU = """

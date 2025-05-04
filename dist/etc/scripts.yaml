@@ -4,18 +4,16 @@ agent:
     grpc:
       host: localhost
       port: 9000
-
 soir:
   rt:
     python_paths:
-      - venv/lib/python3.13/site-packages
-      - py
+      - $SOIR_DIR/venv/lib/python3.13/site-packages
+      - $SOIR_DIR/py
     initial_bpm: 130
   grpc:
     host: localhost
     port: 9000
   dsp:
-    sample_directory: samples
     output:
       audio:
         enable: false
