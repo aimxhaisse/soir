@@ -137,6 +137,7 @@ class SessionApp(App):
 
             with TabPane("Audio", id="audio"):
                 audio_devices = get_audio_devices()
+                yield Markdown("# Audio Output", id="audio-header")
                 with RadioSet(id="audio_devices"):
                     for device_id, name in audio_devices:
                         yield RadioButton(name, value=(self.current_device_id == device_id))
