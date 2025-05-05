@@ -251,8 +251,9 @@ PYBIND11_EMBEDDED_MODULE(bindings, m) {
       return false;
     }
 
-    char* const args[4] = {
+    char* const args[5] = {
         "soir-core",
+        "--log_to_file=false",
         "--mode=standalone",
         "--config=etc/config.yaml",
         nullptr,

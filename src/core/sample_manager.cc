@@ -18,17 +18,12 @@ absl::Status SampleManager::Init(const utils::Config& config) {
                                " does not exists");
   }
 
-  for (const auto& entry : std::filesystem::directory_iterator(directory_)) {
-    if (!entry.is_directory()) {
-      auto candidate_pack = entry.path().filename().string();
+  auto packs = config.Get<std::vector<std::string>>("soir.dsp.sample_packs");
 
-      if (absl::EndsWith(candidate_pack, ".pack.yaml")) {
-        auto pack = candidate_pack.substr(0, candidate_pack.size() - 10);
-        auto status = LoadPack(pack);
-        if (!status.ok()) {
-          return status;
-        }
-      }
+  for (const auto& pack : packs) {
+    auto status = LoadPack(pack);
+    if (!status.ok()) {
+      return status;
     }
   }
 
