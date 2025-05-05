@@ -27,6 +27,10 @@ else
     LOG_TO_FILE="true"
 fi
 
+if [[ "$1" == "--setup-only" ]]; then
+    exit 0
+fi
+
 uv run --python "$SOIR_VENV_DIR/bin/python"     \
    $SOIR_DIR/bin/soir-core                      \
     --log_to_file=$LOG_TO_FILE                  \

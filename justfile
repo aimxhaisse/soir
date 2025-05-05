@@ -10,7 +10,7 @@ _default:
 
 # Setup the virtualenv for Soir.
 _venv:
-    $SOIR_DIR/bin/soir --setup-virtualenv-only
+    $SOIR_DIR/bin/soir --setup-only
 
 # Build Soir.
 [group('dev')]
@@ -65,7 +65,7 @@ dev-sync-docs: dev-mk-docs
 dev-fmt: _venv
     #!/usr/bin/env bash
     find src/ -name "*.cc" -o -name "*.h" | xargs clang-format -i --style=file
-    uv --project $SOIR_DIR/py run black $SOIR_DIR/py
+    uv run --python $SOIR_DIR/venv black $SOIR_DIR/py
 
 # Build the package for Soir.
 [group('dev')]
