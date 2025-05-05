@@ -108,7 +108,7 @@ class SessionApp(App[bool]):
     def on_mount(self) -> None:
         """Called when the app is mounted."""
         self.screen.styles.border = ("heavy", "white")
-        
+
     def new(self):
         """Creates a new session."""
         if os.path.exists(self.session_name):
@@ -122,7 +122,7 @@ class SessionApp(App[bool]):
         )
         shutil.copy(
             os.path.join(SOIR_DIR, "templates", "default.py"),
-            os.path.join(self.session_name, "live.py")
+            os.path.join(self.session_name, "live.py"),
         )
 
     def load(self):
@@ -136,39 +136,47 @@ class SessionApp(App[bool]):
         if not os.path.exists(self.session_name):
             raise typer.BadParameter(f"Session {self.session_name} does not exist.")
         if not os.path.exists(self.config_path):
-            raise typer.BadParameter(f"No config file found in session {self.session_name}.")
+            raise typer.BadParameter(
+                f"No config file found in session {self.session_name}."
+            )
         with open(self.config_path, "r") as f:
             self.config = yaml.safe_load(f)
         if not self.config:
-            raise typer.BadParameter(f"Invalid config file in session {self.session_name}.")
+            raise typer.BadParameter(
+                f"Invalid config file in session {self.session_name}."
+            )
 
     def load_sample_packs(self):
         """Loads sample packs from SOIR_DIR & config."""
-        self.current_sample_packs = self.config['soir']['dsp'].get('sample_packs', [])
+        self.current_sample_packs = self.config["soir"]["dsp"].get("sample_packs", [])
         self.available_sample_packs = {}
-        sample_dir = expand_env_vars(self.config['soir']['dsp']['sample_directory'])
+        sample_dir = expand_env_vars(self.config["soir"]["dsp"]["sample_directory"])
         pack_files = glob.glob(os.path.join(sample_dir, "*.pack.yaml"))
         for pack_file in pack_files:
             try:
                 with open(pack_file, "r") as f:
                     pack = yaml.safe_load(f)
-                if pack and 'name' in pack:
-                    self.available_sample_packs[pack['name']] = pack
+                if pack and "name" in pack:
+                    self.available_sample_packs[pack["name"]] = pack
             except Exception:
                 pass
-            
+
     def load_devices(self):
         """Loads audio devices from the system & config."""
-        self.current_device_id = self.config['soir']['dsp']['output']['audio']['device_id']
+        self.current_device_id = self.config["soir"]["dsp"]["output"]["audio"][
+            "device_id"
+        ]
         self.available_devices = get_audio_devices()
 
     def save(self):
         """Saves the config."""
-        self.config['soir']['dsp']['output']['audio']['device_id'] = self.current_device_id
-        
-        if 'sample_packs' not in self.config['soir']['dsp']:
-            self.config['soir']['dsp']['sample_packs'] = []
-        self.config['soir']['dsp']['sample_packs'] = self.current_sample_packs
+        self.config["soir"]["dsp"]["output"]["audio"][
+            "device_id"
+        ] = self.current_device_id
+
+        if "sample_packs" not in self.config["soir"]["dsp"]:
+            self.config["soir"]["dsp"]["sample_packs"] = []
+        self.config["soir"]["dsp"]["sample_packs"] = self.current_sample_packs
 
         with open(self.config_path, "w") as f:
             yaml.safe_dump(self.config, f)
@@ -197,26 +205,38 @@ class SessionApp(App[bool]):
                         yield Button("Run", variant="primary", id="run-button")
 
             with TabPane("Audio", id="audio"):
-                audio_header = textwrap.dedent(f"""
+                audio_header = textwrap.dedent(
+                    f"""
                 [b][u]Select Output Device[/u][/b]
-                """)
+                """
+                )
                 yield Static(audio_header)
 
                 with RadioSet(id="audio-devices"):
                     for device_id, name in self.available_devices:
-                        yield RadioButton(name, value=(self.current_device_id == device_id))
-                        
+                        yield RadioButton(
+                            name, value=(self.current_device_id == device_id)
+                        )
+
             with TabPane("Samples", id="samples"):
-                sample_header = textwrap.dedent(f"""
+                sample_header = textwrap.dedent(
+                    f"""
                 [b][u]Select Sample Packs[/u][/b]
-                """)
+                """
+                )
                 yield Static(sample_header)
 
                 packs = []
                 for pack_name, pack in self.available_sample_packs.items():
-                    sample_count = len(pack.get('samples', []))
+                    sample_count = len(pack.get("samples", []))
                     is_selected = pack_name in self.current_sample_packs
-                    packs.append((f"{pack_name} ({sample_count} samples)", pack_name, is_selected))
+                    packs.append(
+                        (
+                            f"{pack_name} ({sample_count} samples)",
+                            pack_name,
+                            is_selected,
+                        )
+                    )
 
                 yield SelectionList[str](*packs, id="samples")
 
@@ -225,7 +245,9 @@ class SessionApp(App[bool]):
         if event.radio_set.id == "audio-devices":
             self.current_device_id = event.index
 
-    def on_selection_list_selected_changed(self, event: SelectionList.SelectedChanged) -> None:
+    def on_selection_list_selected_changed(
+        self, event: SelectionList.SelectedChanged
+    ) -> None:
         """Handle selection list changes."""
         if event.selection_list.id == "samples":
             self.current_sample_packs = event.selection_list.selected
@@ -239,10 +261,7 @@ class SessionApp(App[bool]):
             self.exit(False)
 
 
-app = typer.Typer(
-    help="Session management commands",
-    no_args_is_help=True
-)
+app = typer.Typer(help="Session management commands", no_args_is_help=True)
 
 
 @app.command("new")
@@ -260,7 +279,7 @@ def init_session(
 
 @app.command("run")
 def run_session(
-        name: str = typer.Argument(help="Session name"),
+    name: str = typer.Argument(help="Session name"),
 ):
     """Run an existing Soir session."""
     session_app = SessionApp(name)
@@ -272,7 +291,7 @@ def run_session(
 
 @app.command("rm")
 def rm_session(
-        name: str = typer.Argument(help="Session name"),
+    name: str = typer.Argument(help="Session name"),
 ):
     """Remove a Soir session."""
     session_app = SessionApp(name)
