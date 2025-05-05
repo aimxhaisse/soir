@@ -16,5 +16,15 @@
         "yaml-cpp",
         "python3",
         "tracy"
+    ],
+    "overrides": [
+        {
+            "name": "libffi",
+            "version": "3.4.8"
+        },
+        {
+            "name": "python3",
+            "version": "3.12.9"
+        }
     ]
 }
