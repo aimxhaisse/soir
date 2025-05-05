@@ -6,6 +6,7 @@ cmake_minimum_required(VERSION 3.28.1)
 
 set(PYBIND11_FINDPYTHON True)
 set(BUILD_SHARED_LIBS OFF)
+set(PYBIND11_PYTHON_VERSION 3.12.9)
 
 project(
   soir
