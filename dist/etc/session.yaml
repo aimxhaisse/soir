@@ -1,5 +1,5 @@
 agent:
-  directory: ./live
+  directory: .
   soir:
     grpc:
       host: localhost
@@ -15,6 +15,7 @@ soir:
     port: 9000
   dsp:
     sample_directory: $SOIR_DIR/samples
+    sample_packs: []
     output:
       audio:
         enable: true
