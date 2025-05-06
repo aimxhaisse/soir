@@ -7,7 +7,7 @@ agent:
 soir:
   rt:
     python_paths:
-      - $SOIR_DIR/venv/lib/python3.13/site-packages
+      - $SOIR_DIR/venv/lib/python3.12/site-packages
       - $SOIR_DIR/py
     initial_bpm: 130
   grpc:
