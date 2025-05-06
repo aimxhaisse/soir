@@ -37,8 +37,8 @@ theme:
   language: en
   palette:
     scheme: slate
-    primary: amber
-    accent: amber
+    primary: deep purple
+    accent: deep purple
   icon:
     repo: fontawesome/brands/github-alt
   custom_dir: overrides
