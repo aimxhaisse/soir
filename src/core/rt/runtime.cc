@@ -1,5 +1,6 @@
 #include <absl/log/log.h>
 #include <absl/time/clock.h>
+#include <pthread.h>
 #include <pybind11/embed.h>
 #include <libremidi/libremidi.hpp>
 
@@ -70,6 +71,11 @@ absl::Status Runtime::Start() {
 
 absl::Status Runtime::Stop() {
   LOG(INFO) << "Stopping runtime";
+
+  // This is non-portable, we need to send a kill signal to the python
+  // thread here in case it is stuck is some blocking Python
+  // operation, like when serving documentation.
+  ::pthread_kill(thread_.native_handle(), SIGKILL);
 
   {
     std::lock_guard<std::mutex> lock(loop_mutex_);

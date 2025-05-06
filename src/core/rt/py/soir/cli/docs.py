@@ -27,7 +27,7 @@ def serve_docs():
         'serve',
         '--verbose',
         '--config-file', expand_env_vars('$SOIR_DIR/www/mkdocs.yml'),
-        '--dev-addr', 'localhost:8000'
+        '--dev-addr', 'localhost:8192'
     ])
 
 
