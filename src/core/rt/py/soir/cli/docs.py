@@ -41,5 +41,5 @@ def build_docs():
     mkdocs_cli([
         'build',
         '--site-dir', 'site/',
-        '--config-file', 'www/mkdocs.yml'
+        '--config-file', expand_env_vars('$SOIR_DIR/www/mkdocs.yml'),
     ])
