@@ -10,6 +10,10 @@
   display: none;
 }
 
+.md-footer {
+  display: block;
+}
+
 @media screen and (min-width: 60em) {
   .md-sidebar--secondary {
     display: none;

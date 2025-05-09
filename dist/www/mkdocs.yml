@@ -41,6 +41,7 @@ theme:
     accent: deep purple
   icon:
     repo: fontawesome/brands/github-alt
+    logo: material/weather-sunset
   custom_dir: overrides
 
 
