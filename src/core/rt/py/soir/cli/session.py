@@ -93,7 +93,7 @@ class SessionApp(App[bool]):
         self.session_name = name
         self.title = "soir"
         self.sub_title = " https://soir.dev"
-        self.theme = "nord"
+        self.theme = "tokyo-night"
 
         self.config_path = os.path.join(name, "etc", "config.yaml")
         self.live_path = os.path.join(name, "live.py")
