@@ -5,9 +5,9 @@
 Soir is an environment for audio live-coding.
 
 ```
-    Code flows like music
-    Algorithms dance through sound
-    Python sings alive
+    Night wraps around code
+    Loops and arrays take their shape
+    Keyboard's gentle song
 ```
      
     
