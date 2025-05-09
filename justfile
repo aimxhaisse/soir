@@ -56,9 +56,9 @@ dev-run:
 
 # Push the documentation to soir.sh.
 [group('dev')]
-dev-sync-docs: dev-mk-docs
+dev-sync-docs:
     #!/usr/bin/env bash
-    rsync -avz --delete www/site/ soir.dev:srv/services/soir.dev/data
+    rsync -avz --delete dist/www/site/ soir.dev:srv/services/soir.dev/data
 
 # Format the C++/Python code.
 [group('dev')]
