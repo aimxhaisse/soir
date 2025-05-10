@@ -9,31 +9,5 @@ Soir is an environment for audio live-coding.
     Loops and arrays take their shape
     Keyboard's gentle song
 ```
-     
-    
-```python
-bpm.set(110)
 
-@live
-def setup():
-    tracks.setup({
-        'drums': tracks.mk_sampler(muted=False, volume=100),
-    })
-
-s = sampler.new('passage')
-
-@loop(track='drums', beats=4)
-def beats():
-    for i in range(4):
-        s.play('kick')
-        if i  % 2 == 0:
-            s.play('snare')
-        sleep(1)
-```
-
-## Features
-
-- loops
-- multi-track
-- sampler
-- external MIDI device
+![logo](./dist/www/docs/assets/images/landing.png)
