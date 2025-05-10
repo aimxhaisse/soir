@@ -2,50 +2,35 @@
 
 ## Installation
 
-Run this command to install soir on your system:
+!!! note "Time to Get Your Hands Dirty!"
+    The `soir` installation process is currently manual and requires a
+    bit of hands-on configuration. This is intentional - we believe in
+    transparency and want you to understand how everything works under
+    the hood. Consider this an opportunity to explore, tinker, and
+    truly make `soir` your own.
 
-```
-curl -sL https://soir.dev/install.sh | bash
-```
+Go to the [release page of
+soir](https://github.com/aimxhaisse/soir/releases) and download the
+archive that corresponds to your platform, then create the `soir` directory
+and extract the archive in it. 
 
-Then add the following to your shell configuration:
-
-```
-export SOIR_DIR="$HOME/.soir"
-export PATH="${SOIR_DIR}/bin:$PATH"
-```
-
-For now, only Mac OS with M processors are supported.
-            
-## Your First Session
-
-Let's start by installing the `hazardous` sample pack:
-
-```sh
-soir sample-install-pack hazardous
+```bash
+mkdir -p ~/.soir
+tar -zcvf soir-version-arch-os.tar.gz -C ~/.soir
 ```
 
-Now we can create a new soir session and run it:
-    
-```sh
-soir session-new session-0x01
-soir session-run session-0x01
+Add the soir bin path to your environment, you can consider adding it
+to your shell RC configuration file as well:
+
+```bash
+export PATH="~/.soir/bin:$PATH"
 ```
 
-Then in another terminal, open the `session-0x01/live.py` file and paste the following:
+Now you can run `soir` for the first time, it will create a Python
+virtual environment with all required dependencies on the first run,
+then your setup is ready!
 
-```python
-@live()
-def setup():
-    bpm.set(120)
+## Download Sample Packs
 
-    tracks.setup({
-        'exp': tracks.mk_sampler(),
-    })
 
-sp = sampler.new('hazardous')
-
-@loop(track='exp', beats=8)
-def hazardous():
-    sp.play('synth-filter2', pan=rnd.between(-1.0, 1.0))
-```
+## Create your First Session
