@@ -59,15 +59,13 @@ dev-mk-package: dev-build
     git fetch --tags
     TAG=$(git describe --tags `git rev-list --tags --max-count=1`)
     RELEASE="soir-${TAG}-{{ arch() }}-{{ os() }}"
-    cp build/soir dist/bin/soir-core
 
     # Here we are explicit so that we can be sure we don't embed assets
     # or other files that are not needed.
     tar -czf ${RELEASE}.tar.gz \
         dist/bin \
         dist/etc \
-        dist/py/__init__.py \
-        dist/py/soir/*.py \
+        dist/py \
         dist/samples/registry.json \
-        dist/pyproject.toml \
-        dist/live.py.example
+        dist/templates \
+        dist/www
