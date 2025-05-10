@@ -36,23 +36,8 @@ dev-test filter='*': dev-build _venv
 [group('dev')]
 dev-mk-docs:
     #!/usr/bin/env bash
-    just --justfile {{ justfile() }} prepare-config dist "scripts.yaml.template"
-    poetry -P ${SOIR_DIR} run ${SOIR_BIN_DIR}/soir-core --config dist/etc/config.yaml --mode script --script scripts/mk-docs.py
+    source ${SOIR_DIR}/venv/bin/activate
     cp install.sh www/site/
-
-# Runs the CLI script.
-[group('dev')]
-dev-run-cli:
-    #!/usr/bin/env bash
-    just --justfile {{ justfile() }} prepare-config dist "scripts.yaml.template"
-    poetry -P ${SOIR_DIR} run ${SOIR_BIN_DIR}/soir-core --config dist/etc/config.yaml --mode script --script 'dist/scripts/cli.py'
-
-# Run the Soir engine in audio mode.
-[group('dev')]
-dev-run:
-    #!/usr/bin/env bash
-    just --justfile {{ justfile() }} prepare-config dist "config.yaml.template"
-    poetry -P ${SOIR_DIR} run ${SOIR_BIN_DIR}/soir-core --config dist/etc/config.yaml --mode standalone
 
 # Push the documentation to soir.sh.
 [group('dev')]
