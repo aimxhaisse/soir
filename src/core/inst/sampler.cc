@@ -53,6 +53,7 @@ void Sampler::PlaySample(Sample* sample, const PlaySampleParameters& p) {
   ps->amp_ = p.amp_;
 
   ps->pan_.SetRange(-1.0f, 1.0f);
+  ps->amp_.SetRange(0.0f, 1.0f);
 
   // This is for the envelope to prevent glitches.
 
@@ -161,7 +162,12 @@ void Sampler::PlaySampleParameters::FromJson(Controls* controls,
 
   // Amplitude
   if (json.HasMember("amp")) {
-    p->amp_ = json["amp"].GetDouble();
+    if (json["amp"].IsString()) {
+      const std::string amp = json["amp"].GetString();
+      p->amp_.SetControl(controls, amp);
+    } else {
+      p->amp_.SetConstant(json["amp"].GetDouble());
+    }
   }
 }
 
@@ -179,6 +185,7 @@ void Sampler::HandleSysex(const proto::MidiSysexInstruction& sysex) {
       PlaySampleParameters::FromJson(controls_, params, &p);
 
       p.pan_.SetRange(-1.0f, 1.0f);
+      p.amp_.SetRange(0.0f, 1.0f);
 
       PlaySample(GetSample(pack, name), p);
       break;
@@ -277,7 +284,8 @@ void Sampler::Render(SampleTick tick, const std::list<MidiEventAt>& events,
 
         const float wrapper_env = ps->wrapper_.GetNextEnvelope();
         const float user_env = ps->env_.GetNextEnvelope();
-        const float env = wrapper_env * user_env * ps->amp_;
+        const float amp = ps->amp_.GetValue(current_tick);
+        const float env = wrapper_env * user_env * amp;
         const float pan = ps->pan_.GetValue(current_tick);
 
         left += Interpolate(ps->sample_->lb_, ps->pos_) * env * LeftPan(pan);
