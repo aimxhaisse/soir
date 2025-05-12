@@ -109,6 +109,10 @@ PYBIND11_EMBEDDED_MODULE(bindings, m) {
             type = "lpf";
             break;
 
+          case fx::Type::HPF:
+            type = "hpf";
+            break;
+
           default:
             type = "unknown";
             break;
@@ -171,6 +175,8 @@ PYBIND11_EMBEDDED_MODULE(bindings, m) {
           fx_settings.type_ = fx::Type::REVERB;
         } else if (it["type"].cast<std::string>() == "lpf") {
           fx_settings.type_ = fx::Type::LPF;
+        } else if (it["type"].cast<std::string>() == "hpf") {
+          fx_settings.type_ = fx::Type::HPF;
         } else {
           fx_settings.type_ = fx::Type::UNKNOWN;
         }
