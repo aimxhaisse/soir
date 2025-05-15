@@ -264,7 +264,7 @@ class SessionApp(App[bool]):
 app = typer.Typer(help="Session management commands", no_args_is_help=True)
 
 
-@app.command("new")
+@app.command("mk")
 def init_session(
     name: str = typer.Argument(help="Session name"),
 ):

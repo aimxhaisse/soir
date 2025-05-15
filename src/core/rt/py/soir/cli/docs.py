@@ -31,7 +31,7 @@ def serve_docs():
     ])
 
 
-@app.command("build")
+@app.command("mk")
 def build_docs():
     """
     Build the Soir documentation.

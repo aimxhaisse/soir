@@ -60,7 +60,7 @@ def get_installed_packs() -> dict[str, Pack]:
     return result
 
 
-@app.command("list")
+@app.command("ls")
 def list_packs():
     """
     List all available sample packs.
