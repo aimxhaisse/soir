@@ -84,7 +84,7 @@ def list_packs():
     
     for pack_name in sorted(all_pack_names):
         is_installed = pack_name in installed_packs
-        is_local = pack_name in available_packs
+        is_local = pack_name not in available_packs
         status = "✓ Installed" if is_installed else "✗ Not installed"
         location = "Local" if is_local else "Remote"
         typer.echo(f"{pack_name:<30} {status:<15} {location:<10}")
