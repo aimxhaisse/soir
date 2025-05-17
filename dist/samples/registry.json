@@ -6,21 +6,21 @@
       "author": "berklee for OLPC",
       "license": "https://creativecommons.org/licenses/by/3.0/",
       "uploader": "s. rannou <mxs@sbrk.org>",
-      "url": "https://data.mxs.sbrk.org/hazardous.tar.gz"
+      "url": "https://data.mxs.sbrk.org/soir/packs/hazardous.tar.gz"
     },
     {
       "name": "drumnibus",
       "description": "electro drums from Legowelt",
       "author": "Legowelt",
       "uploader": "s. rannou <mxs@sbrk.org>",
-      "url": "https://data.mxs.sbrk.org/drumnibus.tar.gz"
+      "url": "https://data.mxs.sbrk.org/soir/packs/drumnibus.tar.gz"
     },
     {
       "name": "oberheim",
       "description": "oberheim fiddlings from Legowelt",
       "author": "Legowelt",
       "uploader": "s. rannou <mxs@sbrk.org>",
-      "url": "https://data.mxs.sbrk.org/oberheim.tar.gz"
+      "url": "https://data.mxs.sbrk.org/soir/packs/oberheim.tar.gz"
     }
   ]
 }
