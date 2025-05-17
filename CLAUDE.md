@@ -22,6 +22,7 @@
 - Use snake_case for functions and variables
 - Use CamelCase for classes
 - Type hints required for function parameters and return values
+- Use native type hints, never import things from the typing package
 - Docstrings in Google style with Args/Returns/Raises sections
 - 80 character line limit
 - Import order: standard lib, then third-party, then project-specific
