@@ -13,6 +13,8 @@ import yaml
 import shutil
 import subprocess
 import tarfile
+import tempfile
+import urllib.request
 
 from .utils import (
     expand_env_vars,
@@ -346,4 +348,91 @@ def create_pack(
         
     except Exception as e:
         typer.echo(f"Error creating sample pack: {str(e)}")
+        raise typer.Exit(1)
+
+
+@app.command("install")
+def install_pack(
+    pack_name: str = typer.Argument(..., help="Name of the sample pack to install"),
+    force: bool = typer.Option(False, "--force", "-f", help="Force reinstallation if already installed")
+):
+    """
+    Install a sample pack from the registry.
+    
+    Checks if the pack is already installed, downloads it from the registry URL if not,
+    and extracts it into the SOIR_DIR/samples directory.
+    
+    Args:
+        pack_name: Name of the sample pack to install
+        force: Force reinstallation even if already installed
+    """
+    if not SOIR_DIR:
+        typer.echo("SOIR_DIR environment variable not set.")
+        raise typer.Exit(1)
+        
+    samples_dir = os.path.join(SOIR_DIR, "samples")
+    if not os.path.exists(samples_dir):
+        os.makedirs(samples_dir)
+    
+    # Check if pack is already installed
+    installed_packs = get_installed_packs()
+    if pack_name in installed_packs and not force:
+        typer.echo(f"Sample pack '{pack_name}' is already installed. Use --force to reinstall.")
+        return
+    
+    # Get pack info from registry
+    available_packs = load_available_packs()
+    if pack_name not in available_packs:
+        typer.echo(f"Error: Sample pack '{pack_name}' not found in registry.")
+        raise typer.Exit(1)
+    
+    # Get the URL from registry.json
+    registry_path = os.path.join(SOIR_DIR, "samples", "registry.json")
+    try:
+        with open(registry_path, "r") as f:
+            registry = json.load(f)
+            pack_url = None
+            for pack in registry.get('packs', []):
+                if pack['name'] == pack_name:
+                    pack_url = pack.get('url')
+                    break
+            
+            if not pack_url:
+                typer.echo(f"Error: URL for sample pack '{pack_name}' not found in registry.")
+                raise typer.Exit(1)
+    except Exception as e:
+        typer.echo(f"Error reading registry file: {str(e)}")
+        raise typer.Exit(1)
+    
+    # Remove existing pack if force reinstall
+    if pack_name in installed_packs:
+        typer.echo(f"Removing existing installation of '{pack_name}'...")
+        pack_dir = os.path.join(samples_dir, pack_name)
+        pack_yaml = os.path.join(samples_dir, f"{pack_name}.pack.yaml")
+        
+        if os.path.exists(pack_dir):
+            shutil.rmtree(pack_dir)
+        if os.path.exists(pack_yaml):
+            os.remove(pack_yaml)
+    
+    # Download and extract the pack
+    try:
+        typer.echo(f"Downloading sample pack '{pack_name}'...")
+        with tempfile.NamedTemporaryFile(suffix=".tar.gz", delete=False) as temp_file:
+            temp_path = temp_file.name
+            
+        # Download the file
+        urllib.request.urlretrieve(pack_url, temp_path)
+        
+        typer.echo(f"Extracting sample pack '{pack_name}'...")
+        with tarfile.open(temp_path, "r:gz") as tar:
+            # Extract files to the samples directory
+            tar.extractall(path=samples_dir)
+        
+        # Clean up temp file
+        os.remove(temp_path)
+        
+        typer.echo(f"Sample pack '{pack_name}' has been installed successfully.")
+    except Exception as e:
+        typer.echo(f"Error installing sample pack: {str(e)}")
         raise typer.Exit(1)
