@@ -1,26 +1,18 @@
 {
   "packs": [
     {
-      "name": "hazardous",
-      "description": "hazardous audio materials",
-      "author": "berklee for OLPC",
-      "license": "https://creativecommons.org/licenses/by/3.0/",
-      "uploader": "s. rannou <mxs@sbrk.org>",
-      "url": "https://data.mxs.sbrk.org/soir/packs/hazardous.tar.gz"
-    },
-    {
-      "name": "drumnibus",
+      "name": "legowelt-drumnibus",
       "description": "electro drums from Legowelt",
       "author": "Legowelt",
       "uploader": "s. rannou <mxs@sbrk.org>",
-      "url": "https://data.mxs.sbrk.org/soir/packs/drumnibus.tar.gz"
+      "url": "https://data.mxs.sbrk.org/soir/packs/legowelt-drumnibus.tar.gz"
     },
     {
-      "name": "oberheim",
+      "name": "legowelt-oberheim",
       "description": "oberheim fiddlings from Legowelt",
       "author": "Legowelt",
       "uploader": "s. rannou <mxs@sbrk.org>",
-      "url": "https://data.mxs.sbrk.org/soir/packs/oberheim.tar.gz"
+      "url": "https://data.mxs.sbrk.org/soir/packs/legowelt-oberheim.tar.gz"
     }
   ]
 }

@@ -40,8 +40,8 @@ class MidiExt : public Instrument {
 
   // Current configuration as set from live coding.
   std::string current_settings_ = "";
-  int current_midi_port_ = -1;
-  int current_audio_device_ = -1;
+  std::string current_midi_out_ = "";
+  std::string current_audio_in_ = "";
 
   std::mutex mutex_;
   std::condition_variable cv_;
@@ -51,10 +51,9 @@ class MidiExt : public Instrument {
   std::list<AudioBuffer> buffers_;
   SampleTick current_tick_ = 0;
 
-  // Underlying devices, use current_* to know if they are valid and
-  // can be accessed or not.
-  libremidi::midi_out midiout_;
-  SDL_AudioDeviceID audio_device_id_ = 0;
+  // Underlying devices to which we are connected to.
+  libremidi::midi_out active_midi_out_;
+  SDL_AudioDeviceID active_audio_out_ = -1;
 
   MidiStack midi_stack_;
 };
