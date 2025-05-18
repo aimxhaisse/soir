@@ -6,34 +6,36 @@
 
 namespace {
 
-bool useMidiPort(int port, libremidi::midi_out& libremidi) {
+bool useMidiPort(const std::string midi_out, libremidi::midi_out& libremidi) {
   auto ports =
       libremidi::observer{
           {}, observer_configuration_for(libremidi.get_current_api())}
           .get_output_ports();
 
-  if (port >= ports.size()) {
-    LOG(ERROR) << "MIDI port number out of range!";
-    return false;
+  for (auto& port : ports) {
+    if (port.display_name != midi_out) {
+      continue;
+    }
+    LOG(INFO) << "Found MIDI out port " << port.display_name;
+    libremidi.open_port(port);
+    if (!libremidi.is_port_open()) {
+      LOG(ERROR) << "Failed to open MIDI out port " << port.display_name;
+      return false;
+    }
+    return true;
   }
 
-  LOG(INFO) << "Opening port " << port << ": " << ports[port].display_name;
+  LOG(ERROR) << "MIDI out port " << midi_out << " not found";
 
-  libremidi.open_port(ports[port]);
-
-  if (!libremidi.is_port_open()) {
-    LOG(ERROR) << "Failed to open MIDI port " << port;
-    return false;
-  }
-
-  return true;
+  return false;
 }
 
 void printAudioDevices() {
-  LOG(INFO) << "Available audio devices:";
+  LOG(INFO) << "Available audio input devices:";
   const int count = SDL_GetNumAudioDevices(1);
   for (int i = 0; i < count; ++i) {
-    LOG(INFO) << "Audio device " << i << ": " << SDL_GetAudioDeviceName(i, 1);
+    LOG(INFO) << "Audio input device " << i << ": "
+              << SDL_GetAudioDeviceName(i, 1);
   }
 }
 
@@ -59,24 +61,25 @@ absl::Status MidiExt::Init(const std::string& settings,
   rapidjson::Document params;
   params.Parse(settings.c_str());
 
-  auto midi_port = params["midi_device"].GetInt();
-  if (midi_port != current_midi_port_ && midi_port >= 0) {
-    midiout_.close_port();
-    LOG(INFO) << "Trying to open MIDI port " << midi_port << "...";
+  auto midi_out = params["midi_out"].GetString();
+  if (midi_out != current_midi_out_) {
+    active_midi_out_.close_port();
+    LOG(INFO) << "Trying to open MIDI port " << midi_out << "...";
 
-    if (!useMidiPort(midi_port, midiout_)) {
+    if (!useMidiPort(midi_out, active_midi_out_)) {
       return absl::InternalError("Failed to use MIDI port");
     }
-    current_midi_port_ = midi_port;
+    current_midi_out_ = midi_out;
   }
 
-  auto audio_device = params["audio_device"].GetInt();
-  if (audio_device != current_audio_device_) {
-    if (current_audio_device_ != -1) {
-      SDL_CloseAudioDevice(audio_device_id_);
+  auto audio_in = params["audio_in"].GetString();
+  if (audio_in != current_audio_in_) {
+    if (active_audio_out_ != -1) {
+      SDL_CloseAudioDevice(active_audio_out_);
     }
 
-    LOG(INFO) << "Trying to open audio device " << audio_device << "...";
+    LOG(INFO) << "Trying to open audio device " << audio_in << "...";
+
     SDL_AudioSpec want, have;
     SDL_zero(want);
 
@@ -91,19 +94,17 @@ absl::Status MidiExt::Init(const std::string& settings,
       midi->FillAudioBuffer(stream, len);
     };
 
-    const char* device_name = SDL_GetAudioDeviceName(audio_device, 1);
+    LOG(INFO) << "Opening audio device " << audio_in << "...";
 
-    LOG(INFO) << "Opening audio device " << device_name;
-
-    audio_device_id_ = SDL_OpenAudioDevice(device_name, 1, &want, &have, 0);
-    if (!(audio_device_id_ > 0)) {
+    active_audio_out_ = SDL_OpenAudioDevice(audio_in, 1, &want, &have, 0);
+    if (!(active_audio_out_ > 0)) {
       LOG(ERROR) << "Failed to open audio device: " << SDL_GetError();
       return absl::InternalError("Failed to open audio device");
     }
 
-    current_audio_device_ = audio_device;
+    current_audio_in_ = audio_in;
 
-    SDL_PauseAudioDevice(audio_device_id_, 0);
+    SDL_PauseAudioDevice(active_audio_out_, 0);
   }
 
   current_settings_ = settings;
@@ -166,9 +167,9 @@ void MidiExt::ScheduleMidiEvents(const absl::Time& block_at) {
     events.EventsAtTick(current_tick + (1 + chunk) * nsamples, events_at);
     {
       std::lock_guard<std::mutex> lock(mutex_);
-      if (current_midi_port_ != -1) {
+      if (!current_midi_out_.empty()) {
         for (auto& ev : events_at) {
-          midiout_.send_message(ev.Msg());
+          active_midi_out_.send_message(ev.Msg());
         }
       }
     }
@@ -244,11 +245,11 @@ absl::Status MidiExt::Stop() {
 
   LOG(INFO) << "MIDI thread stopped";
 
-  if (audio_device_id_ != -1) {
-    SDL_CloseAudioDevice(audio_device_id_);
+  if (active_audio_out_ != -1) {
+    SDL_CloseAudioDevice(active_audio_out_);
   }
-  if (midiout_.is_port_open()) {
-    midiout_.close_port();
+  if (active_midi_out_.is_port_open()) {
+    active_midi_out_.close_port();
   }
 
   return absl::OkStatus();
