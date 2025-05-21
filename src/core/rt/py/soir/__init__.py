@@ -162,6 +162,7 @@ import soir.tracks as tracks
 import soir.midi as midi
 import soir.rnd as rnd
 import soir.ctrls as ctrls
+import soir.system as sys
 
 
 def ctrl(name: str) -> ctrls.Control:
