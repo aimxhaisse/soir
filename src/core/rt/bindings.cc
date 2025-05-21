@@ -6,6 +6,7 @@
 #include "core/audio_output.hh"
 #include "core/dsp.hh"
 #include "core/engine.hh"
+#include "core/inst/midi_ext.hh"
 #include "core/rt/bindings.hh"
 #include "core/rt/runtime.hh"
 #include "core/track.hh"
@@ -238,11 +239,31 @@ PYBIND11_EMBEDDED_MODULE(bindings, m) {
 
   m.def("get_code_", []() { return gRt_->GetCode(); });
 
-  m.def("get_audio_devices_", []() {
+  m.def("get_audio_out_devices_", []() {
     std::vector<std::pair<int, std::string>> devices;
     auto status = AudioOutput::GetAudioDevices(&devices);
     if (!status.ok()) {
-      LOG(ERROR) << "Unable to get audio devices: " << status;
+      LOG(ERROR) << "Unable to get audio output devices: " << status;
+      return std::vector<std::pair<int, std::string>>();
+    }
+    return devices;
+  });
+
+  m.def("get_audio_in_devices_", []() {
+    std::vector<std::pair<int, std::string>> devices;
+    auto status = inst::MidiExt::GetAudioDevices(&devices);
+    if (!status.ok()) {
+      LOG(ERROR) << "Unable to get audio input devices: " << status;
+      return std::vector<std::pair<int, std::string>>();
+    }
+    return devices;
+  });
+
+  m.def("get_midi_out_devices_", []() {
+    std::vector<std::pair<int, std::string>> devices;
+    auto status = inst::MidiExt::GetMidiDevices(&devices);
+    if (!status.ok()) {
+      LOG(ERROR) << "Unable to get midi output devices: " << status;
       return std::vector<std::pair<int, std::string>>();
     }
     return devices;

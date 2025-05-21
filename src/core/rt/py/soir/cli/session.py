@@ -47,7 +47,7 @@ from .utils import (
 )
 from soir.system import (
     exec_session,
-    get_audio_devices,
+    get_audio_out_devices,
 )
 
 
@@ -166,7 +166,7 @@ class SessionApp(App[bool]):
         self.current_device_id = self.config["soir"]["dsp"]["output"]["audio"][
             "device_id"
         ]
-        self.available_devices = get_audio_devices()
+        self.available_devices = get_audio_out_devices()
 
     def save(self):
         """Saves the config."""

@@ -50,6 +50,44 @@ MidiExt::MidiExt() {
 
 MidiExt::~MidiExt() {}
 
+absl::Status MidiExt::GetAudioDevices(
+    std::vector<std::pair<int, std::string>>* out) {
+  int count = SDL_GetNumAudioDevices(1);
+  for (int i = 0; i < count; ++i) {
+    const char* name = SDL_GetAudioDeviceName(i, 1);
+    if (name) {
+      out->emplace_back(i, name);
+    }
+
+    SDL_AudioSpec spec;
+    if (SDL_GetAudioDeviceSpec(i, 1, &spec) == 0) {
+      LOG(INFO) << "Audio device " << i << ": " << name
+                << ", freq: " << spec.freq << ", format: " << spec.format
+                << ", channels: " << static_cast<int>(spec.channels)
+                << ", samples: " << spec.samples;
+    } else {
+      LOG(WARNING) << "Failed to get audio device spec for device " << i;
+    }
+  }
+
+  return absl::OkStatus();
+}
+
+absl::Status MidiExt::GetMidiDevices(
+    std::vector<std::pair<int, std::string>>* out) {
+  libremidi::midi_out midi_out;
+  auto ports =
+      libremidi::observer{
+          {}, observer_configuration_for(midi_out.get_current_api())}
+          .get_output_ports();
+  int i = 0;
+  for (auto& port : ports) {
+    out->emplace_back(i, port.display_name);
+    i++;
+  }
+  return absl::OkStatus();
+}
+
 absl::Status MidiExt::Init(const std::string& settings,
                            SampleManager* sample_manager, Controls* controls) {
   std::lock_guard<std::mutex> lock(mutex_);
@@ -67,9 +105,16 @@ absl::Status MidiExt::Init(const std::string& settings,
     LOG(INFO) << "Trying to open MIDI port " << midi_out << "...";
 
     if (!useMidiPort(midi_out, active_midi_out_)) {
-      return absl::InternalError("Failed to use MIDI port");
+      LOG(WARNING) << "Failed to open MIDI port " << midi_out;
+      return absl::OkStatus();
     }
     current_midi_out_ = midi_out;
+  }
+
+  std::vector<int> channels;
+  auto audio_channels = params["audio_channels"].GetArray();
+  for (int i = 0; i < audio_channels.Size(); ++i) {
+    channels.push_back(channel.GetInt());
   }
 
   auto audio_in = params["audio_in"].GetString();
@@ -98,8 +143,8 @@ absl::Status MidiExt::Init(const std::string& settings,
 
     active_audio_out_ = SDL_OpenAudioDevice(audio_in, 1, &want, &have, 0);
     if (!(active_audio_out_ > 0)) {
-      LOG(ERROR) << "Failed to open audio device: " << SDL_GetError();
-      return absl::InternalError("Failed to open audio device");
+      LOG(WARNING) << "Failed to open audio device: " << SDL_GetError();
+      return absl::OkStatus();
     }
 
     current_audio_in_ = audio_in;

@@ -33,6 +33,14 @@ class MidiExt : public Instrument {
   void Render(SampleTick tick, const std::list<MidiEventAt>& events,
               AudioBuffer& buffer);
 
+  // Get the list of available audio input devices (device number and associated name).
+  static absl::Status GetAudioDevices(
+      std::vector<std::pair<int, std::string>>* out);
+
+  // Get the list of available MIDI output devices (device number and associated name).
+  static absl::Status GetMidiDevices(
+      std::vector<std::pair<int, std::string>>* out);
+
  private:
   void ScheduleMidiEvents(const absl::Time& next_block_at);
   void FillAudioBuffer(Uint8* stream, int len);
@@ -42,6 +50,8 @@ class MidiExt : public Instrument {
   std::string current_settings_ = "";
   std::string current_midi_out_ = "";
   std::string current_audio_in_ = "";
+  std::vector current_audio_channels_ = {0, 1};
+  int current_max_audio_channel_ = 1;
 
   std::mutex mutex_;
   std::condition_variable cv_;

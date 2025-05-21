@@ -16,7 +16,7 @@ class AudioOutput : public SampleConsumer {
   AudioOutput();
   virtual ~AudioOutput();
 
-  // Get the list of available audio devices (device number and associated name).
+  // Get the list of available audio output devices (device number and associated name).
   static absl::Status GetAudioDevices(
       std::vector<std::pair<int, std::string>>* out);
 

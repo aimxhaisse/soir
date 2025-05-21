@@ -262,8 +262,6 @@ void Runtime::Log(const std::string& message) {
 }
 
 void Runtime::Beat() {
-  LOG(INFO) << "Beat " << MicroBeatToBeat(current_beat_);
-
   Schedule(current_beat_ + kOneBeat, [this]() { Beat(); });
 }
 
