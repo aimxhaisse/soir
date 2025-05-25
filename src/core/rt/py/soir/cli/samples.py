@@ -315,7 +315,7 @@ def create_pack(
             
             processed_samples.append({
                 'name': sample['name'],
-                'path': dest_filename
+                'path': os.path.join(pack_name, dest_filename)
             })
         
         # Create pack YAML file
