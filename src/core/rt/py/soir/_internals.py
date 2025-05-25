@@ -330,3 +330,4 @@ def log(message: str) -> None:
 def sleep(beats: float):
     """Sleep for the duration of the current loop."""
     assert_in_loop().current_offset += beats
+

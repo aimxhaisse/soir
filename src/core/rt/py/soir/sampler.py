@@ -88,7 +88,7 @@ class Sampler:
 
     def play(
         self,
-        name: str,
+        name: str = '',
         start: float = 0.0,
         end: float = 1.0,
         pan: float | Control = 0.0,

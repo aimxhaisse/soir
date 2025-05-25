@@ -156,6 +156,15 @@ def sleep(beats: float) -> None:
     return soir._internals.sleep(beats)
 
 
+def current_loop() -> object:
+    """Get the current loop.
+
+    Raises:
+        errors.NotInLiveLoopException: If we are not in a loop.
+    """
+    return soir._internals.assert_in_loop()
+
+
 import soir.bpm as bpm
 import soir.sampler as sampler
 import soir.tracks as tracks
