@@ -181,7 +181,7 @@ def mk_sampler(muted=None, volume=1.0, pan=0.0, fxs=None) -> Track:
 
 
 def mk_midi(
-        muted=None, volume=1.0, pan=0.0, midi_out=0, audio_in=0, audio_channels=0, fxs=None
+        muted=None, volume=1.0, pan=0.0, midi_out: str = "", audio_in: str = "", audio_chans=None, fxs=None
 ) -> Track:
     """Creates a new midi track.
 
@@ -191,16 +191,16 @@ def mk_midi(
         pan (float | Control): The pan in the [-1.0, 1.0] range. Defaults to 0.0.
         midi_out (int, optional): The output midi device. Defaults to 0.
         audio_in (int, optional): The input audio device. Defaults to 0.
-        audio_channels (list[int], optional): The audio channels. Defaults to [0, 1].
+        audio_chans (list[int], optional): The audio channels. Defaults to [0, 1].
         fxs (dict, optional): The effects to apply to the track. Defaults to None.
     """
-    channels = audio_channels if audio_channels else [0, 1]
-    
+    chans = audio_chans if audio_chans else [0, 1]
+
     return mk(
         "midi_ext",
         muted,
         volume,
         pan,
         fxs,
-        extra={"midi_out": midi_out, "audio_in": audio_in, 'audio_channels': channels},
+        extra={"midi_out": midi_out, "audio_in": audio_in, 'audio_channels': chans},
     )
