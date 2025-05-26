@@ -240,7 +240,7 @@ class Kit:
 
         This will play a basic kick and snare pattern using the defined samples.
     """
-    def __init__(self, sp: sampler.Sampler):
+    def __init__(self, sp: Sampler):
         """Initialize the Kit with a sampler instance.
 
         Args:

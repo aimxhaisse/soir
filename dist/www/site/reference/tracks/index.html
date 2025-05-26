@@ -1049,7 +1049,7 @@ function, existing tracks are untouched.</p>
               </td>
             </tr>
             <tr class="doc-section-item">
-              <td><code><a class="autorefs autorefs-internal" title="            mk_midi(muted=None, volume=1.0, pan=0.0, midi_device=0, audio_device=0, fxs=None) (soir.tracks.mk_midi)" href="#soir.tracks.mk_midi">mk_midi</a></code></td>
+              <td><code><a class="autorefs autorefs-internal" title="            mk_midi(muted=None, volume=1.0, pan=0.0, midi_out='', audio_in='', audio_chans=None, fxs=None) (soir.tracks.mk_midi)" href="#soir.tracks.mk_midi">mk_midi</a></code></td>
               <td>
                 <div class="doc-md-description">
                   <p>Creates a new midi track.</p>
@@ -1057,7 +1057,7 @@ function, existing tracks are untouched.</p>
               </td>
             </tr>
             <tr class="doc-section-item">
-              <td><code><a class="autorefs autorefs-internal" title="            mk_sampler(muted=None, volume=1.0, pan=0.0, fxs=None, extra=None) (soir.tracks.mk_sampler)" href="#soir.tracks.mk_sampler">mk_sampler</a></code></td>
+              <td><code><a class="autorefs autorefs-internal" title="            mk_sampler(muted=None, volume=1.0, pan=0.0, fxs=None) (soir.tracks.mk_sampler)" href="#soir.tracks.mk_sampler">mk_sampler</a></code></td>
               <td>
                 <div class="doc-md-description">
                   <p>Creates a new sampler track.</p>
@@ -1431,7 +1431,7 @@ function, existing tracks are untouched.</p>
 
 
 <h3 id="soir.tracks.mk_midi" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">mk_midi</span><span class="p">(</span><span class="n">muted</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">volume</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">pan</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">midi_device</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">audio_device</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">fxs</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">mk_midi</span><span class="p">(</span><span class="n">muted</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">volume</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">pan</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">midi_out</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">audio_in</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">audio_chans</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fxs</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
 
 </h3>
 
@@ -1502,34 +1502,50 @@ function, existing tracks are untouched.</p>
           </tr>
           <tr class="doc-section-item">
             <td>
-                <code>midi_device</code>
+                <code>midi_out</code>
             </td>
             <td>
                   <code><span title="int">int</span></code>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>The midi device. Defaults to 0.</p>
+                <p>The output midi device. Defaults to 0.</p>
               </div>
             </td>
             <td>
-                  <code>0</code>
+                  <code>&#39;&#39;</code>
             </td>
           </tr>
           <tr class="doc-section-item">
             <td>
-                <code>audio_device</code>
+                <code>audio_in</code>
             </td>
             <td>
                   <code><span title="int">int</span></code>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>The audio device. Defaults to 0.</p>
+                <p>The input audio device. Defaults to 0.</p>
               </div>
             </td>
             <td>
-                  <code>0</code>
+                  <code>&#39;&#39;</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>audio_chans</code>
+            </td>
+            <td>
+                  <code><span title="list">list</span>[<span title="int">int</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The audio channels. Defaults to [0, 1].</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
             </td>
           </tr>
           <tr class="doc-section-item">
@@ -1560,7 +1576,7 @@ function, existing tracks are untouched.</p>
 
 
 <h3 id="soir.tracks.mk_sampler" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">mk_sampler</span><span class="p">(</span><span class="n">muted</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">volume</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">pan</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">fxs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">extra</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">mk_sampler</span><span class="p">(</span><span class="n">muted</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">volume</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">pan</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">fxs</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
 
 </h3>
 
@@ -1639,22 +1655,6 @@ function, existing tracks are untouched.</p>
             <td>
               <div class="doc-md-description">
                 <p>The effects to apply to the track. Defaults to None.</p>
-              </div>
-            </td>
-            <td>
-                  <code>None</code>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td>
-                <code>extra</code>
-            </td>
-            <td>
-                  <code><span title="dict">dict</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>Extra parameters. Defaults to None.</p>
               </div>
             </td>
             <td>
