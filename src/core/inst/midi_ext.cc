@@ -92,45 +92,52 @@ absl::Status MidiExt::Init(const std::string& settings,
                            SampleManager* sample_manager, Controls* controls) {
   std::lock_guard<std::mutex> lock(mutex_);
 
-  if (settings == current_settings_) {
+  if (settings == settings_) {
     return absl::OkStatus();
   }
 
   rapidjson::Document params;
   params.Parse(settings.c_str());
 
-  auto midi_out = params["midi_out"].GetString();
-  if (midi_out != current_midi_out_) {
-    active_midi_out_.close_port();
-    LOG(INFO) << "Trying to open MIDI port " << midi_out << "...";
+  auto settings_midi_out = params["midi_out"].GetString();
+  if (settings_midi_out != settings_midi_out_) {
+    midi_out_.close_port();
+    LOG(INFO) << "Trying to open MIDI port " << settings_midi_out << "...";
 
-    if (!useMidiPort(midi_out, active_midi_out_)) {
-      LOG(WARNING) << "Failed to open MIDI port " << midi_out;
+    if (!useMidiPort(settings_midi_out, midi_out_)) {
+      LOG(WARNING) << "Failed to open MIDI port " << settings_midi_out;
       return absl::OkStatus();
     }
-    current_midi_out_ = midi_out;
+    settings_midi_out_ = settings_midi_out;
   }
 
-  std::vector<int> channels;
-  auto audio_channels = params["audio_channels"].GetArray();
-  for (int i = 0; i < audio_channels.Size(); ++i) {
-    channels.push_back(channel.GetInt());
+  std::vector<int> chans;
+  auto audio_chans = params["audio_channels"].GetArray();
+  for (int i = 0; i < audio_chans.Size(); ++i) {
+    chans.push_back(audio_chans[i].GetInt());
   }
+  if (chans.size() != 2) {
+    LOG(WARNING) << "Audio channels must be an array of two integers";
+    return absl::OkStatus();
+  }
+  const bool chans_changed = (settings_chans_ != chans);
 
-  auto audio_in = params["audio_in"].GetString();
-  if (audio_in != current_audio_in_) {
-    if (active_audio_out_ != -1) {
-      SDL_CloseAudioDevice(active_audio_out_);
+  auto settings_audio_in = params["audio_in"].GetString();
+  if (settings_audio_in != settings_audio_in_ || chans_changed) {
+    if (audio_out_ != -1) {
+      SDL_CloseAudioDevice(audio_out_);
     }
 
-    LOG(INFO) << "Trying to open audio device " << audio_in << "...";
+    LOG(INFO) << "Trying to open audio device " << settings_audio_in << "...";
 
     SDL_AudioSpec want, have;
     SDL_zero(want);
 
+    const int highest_desired_chan = std::max(chans[0], chans[1]);
+
     want.freq = kSampleRate;
     want.format = AUDIO_F32SYS;
-    want.channels = 2;
+    want.channels = highest_desired_chan;
     want.samples = kBlockSize;
     want.userdata = this;
 
@@ -139,20 +146,27 @@ absl::Status MidiExt::Init(const std::string& settings,
       midi->FillAudioBuffer(stream, len);
     };
 
-    LOG(INFO) << "Opening audio device " << audio_in << "...";
+    LOG(INFO) << "Opening audio device " << settings_audio_in << "...";
 
-    active_audio_out_ = SDL_OpenAudioDevice(audio_in, 1, &want, &have, 0);
-    if (!(active_audio_out_ > 0)) {
+    audio_out_ = SDL_OpenAudioDevice(settings_audio_in, 1, &want, &have, 0);
+    if (!(audio_out_ > 0)) {
       LOG(WARNING) << "Failed to open audio device: " << SDL_GetError();
       return absl::OkStatus();
     }
 
-    current_audio_in_ = audio_in;
+    if (have.channels < highest_desired_chan) {
+      LOG(WARNING) << "Unable to open desired channels";
+      return absl::OkStatus();
+    }
+    audio_out_chans_ = have.channels;
 
-    SDL_PauseAudioDevice(active_audio_out_, 0);
+    settings_audio_in_ = settings_audio_in;
+    settings_chans_ = chans;
+
+    SDL_PauseAudioDevice(audio_out_, 0);
   }
 
-  current_settings_ = settings;
+  settings_ = settings;
 
   return absl::OkStatus();
 }
@@ -162,7 +176,7 @@ void MidiExt::FillAudioBuffer(Uint8* stream, int len) {
   memcpy(consumed_.data() + consumed_.size() - len, stream, len);
 
   // We expect two channels of float samples interleaved.
-  const uint32_t want = 2 * kBlockSize * sizeof(float);
+  const uint32_t want = audio_out_chans_ * kBlockSize * sizeof(float);
   if (consumed_.size() < want) {
     return;
   }
@@ -172,8 +186,8 @@ void MidiExt::FillAudioBuffer(Uint8* stream, int len) {
   float* left = out.GetChannel(kLeftChannel);
   float* right = out.GetChannel(kRightChannel);
   for (int i = 0; i < kBlockSize; i++) {
-    left[i] = audio[2 * i];
-    right[i] = audio[2 * i + 1];
+    left[i] = audio[audio_out_chans_ * i + settings_chans_[0]];
+    right[i] = audio[audio_out_chans_ * i + settings_chans_[1]];
   }
 
   {
@@ -212,9 +226,9 @@ void MidiExt::ScheduleMidiEvents(const absl::Time& block_at) {
     events.EventsAtTick(current_tick + (1 + chunk) * nsamples, events_at);
     {
       std::lock_guard<std::mutex> lock(mutex_);
-      if (!current_midi_out_.empty()) {
+      if (!settings_midi_out_.empty()) {
         for (auto& ev : events_at) {
-          active_midi_out_.send_message(ev.Msg());
+          midi_out_.send_message(ev.Msg());
         }
       }
     }
@@ -290,11 +304,11 @@ absl::Status MidiExt::Stop() {
 
   LOG(INFO) << "MIDI thread stopped";
 
-  if (active_audio_out_ != -1) {
-    SDL_CloseAudioDevice(active_audio_out_);
+  if (audio_out_ != -1) {
+    SDL_CloseAudioDevice(audio_out_);
   }
-  if (active_midi_out_.is_port_open()) {
-    active_midi_out_.close_port();
+  if (midi_out_.is_port_open()) {
+    midi_out_.close_port();
   }
 
   return absl::OkStatus();

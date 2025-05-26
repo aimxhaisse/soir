@@ -46,12 +46,13 @@ class MidiExt : public Instrument {
   void FillAudioBuffer(Uint8* stream, int len);
   void WaitForInitialTick();
 
-  // Current configuration as set from live coding.
-  std::string current_settings_ = "";
-  std::string current_midi_out_ = "";
-  std::string current_audio_in_ = "";
-  std::vector current_audio_channels_ = {0, 1};
-  int current_max_audio_channel_ = 1;
+  // Current configuration as set from live coding. This is a cache
+  // used to know upon update if we need to re-initialize the
+  // device/chans, etc.
+  std::string settings_ = "";
+  std::string settings_midi_out_ = "";
+  std::string settings_audio_in_ = "";
+  std::vector<int> settings_chans_ = {0, 1};
 
   std::mutex mutex_;
   std::condition_variable cv_;
@@ -62,8 +63,9 @@ class MidiExt : public Instrument {
   SampleTick current_tick_ = 0;
 
   // Underlying devices to which we are connected to.
-  libremidi::midi_out active_midi_out_;
-  SDL_AudioDeviceID active_audio_out_ = -1;
+  libremidi::midi_out midi_out_;
+  SDL_AudioDeviceID audio_out_ = -1;
+  int audio_out_chans_ = -1;
 
   MidiStack midi_stack_;
 };
