@@ -519,6 +519,15 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#soir.current_loop" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;current_loop
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#soir.live" class="md-nav__link">
     <span class="md-ellipsis">
       <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;live
@@ -860,6 +869,15 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#soir.current_loop" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;current_loop
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#soir.live" class="md-nav__link">
     <span class="md-ellipsis">
       <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;live
@@ -1115,6 +1133,14 @@ module. The available modules are:</p>
               </td>
             </tr>
             <tr class="doc-section-item">
+              <td><code><a class="autorefs autorefs-internal" title="            current_loop() (soir.current_loop)" href="#soir.current_loop">current_loop</a></code></td>
+              <td>
+                <div class="doc-md-description">
+                  <p>Get the current loop.</p>
+                </div>
+              </td>
+            </tr>
+            <tr class="doc-section-item">
               <td><code><a class="autorefs autorefs-internal" title="            live() (soir.live)" href="#soir.live">live</a></code></td>
               <td>
                 <div class="doc-md-description">
@@ -1224,6 +1250,47 @@ module. The available modules are:</p>
             <td>
               <div class="doc-md-description">
                 <p>The control.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="soir.current_loop" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <code class="highlight language-python"><span class="n">current_loop</span><span class="p">()</span></code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Get the current loop.</p>
+
+
+<p><span class="doc-section-title">Raises:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="soir.errors.NotInLiveLoopException">NotInLiveLoopException</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>If we are not in a loop.</p>
               </div>
             </td>
           </tr>

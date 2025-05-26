@@ -689,6 +689,48 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#soir.sampler.Kit" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;Kit
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label=" Kit">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#soir.sampler.Kit.play" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;play
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#soir.sampler.Kit.seq" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;seq
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#soir.sampler.Kit.set" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;set
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#soir.sampler.Sample" class="md-nav__link">
     <span class="md-ellipsis">
       <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;Sample
@@ -911,6 +953,48 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#soir.sampler.Kit" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;Kit
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label=" Kit">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#soir.sampler.Kit.play" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;play
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#soir.sampler.Kit.seq" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;seq
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#soir.sampler.Kit.set" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;set
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#soir.sampler.Sample" class="md-nav__link">
     <span class="md-ellipsis">
       <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;Sample
@@ -1064,6 +1148,14 @@ fine to have a lot of instances at once.</p>
       </thead>
       <tbody>
           <tr class="doc-section-item">
+            <td><code><a class="autorefs autorefs-internal" title="              Kit(sp) (soir.sampler.Kit)" href="#soir.sampler.Kit">Kit</a></code></td>
+            <td>
+              <div class="doc-md-description">
+                <p>A simple kit for playing patterns of samples.</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
             <td><code><a class="autorefs autorefs-internal" title="              Sample(name, pack, path, duration)
 
   
@@ -1137,6 +1229,324 @@ fine to have a lot of instances at once.</p>
 
 
 
+
+<div class="doc doc-object doc-class">
+
+
+
+<h3 id="soir.sampler.Kit" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>              <code class="highlight language-python"><span class="n">Kit</span><span class="p">(</span><span class="n">sp</span><span class="p">)</span></code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+
+        <p>A simple kit for playing patterns of samples.</p>
+<p>This class allows you to define a set of samples (or "plays") that can be
+triggered by characters, and then create sequences of these characters to
+play patterns.</p>
+<p>Example usage:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">sp</span> <span class="o">=</span> <span class="n">sampler</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s1">&#39;my-sample-pack&#39;</span><span class="p">)</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">kit</span> <span class="o">=</span> <span class="n">sampler</span><span class="o">.</span><span class="n">Kit</span><span class="p">(</span><span class="n">sp</span><span class="p">)</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="n">kit</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;bd-808&#39;</span><span class="p">})</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="n">kit</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;s&#39;</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;sd-808&#39;</span><span class="p">})</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="n">kit</span><span class="o">.</span><span class="n">seq</span><span class="p">(</span><span class="s1">&#39;basic&#39;</span><span class="p">,</span> <span class="p">[</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    <span class="s1">&#39;k-------k-------&#39;</span><span class="p">,</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>    <span class="s1">&#39;--------s-------&#39;</span><span class="p">,</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="p">])</span>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="n">kit</span><span class="o">.</span><span class="n">play</span><span class="p">(</span><span class="s1">&#39;basic&#39;</span><span class="p">)</span>
+</code></pre></div>
+<p>This will play a basic kick and snare pattern using the defined samples.</p>
+
+        <p>Initialize the Kit with a sampler instance.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>sp</code>
+            </td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="              Sampler(pack_name) (soir.sampler.Sampler)" href="#soir.sampler.Sampler">Sampler</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The sampler instance to use for playing samples.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+
+
+
+
+
+
+
+
+<p><span class="doc-section-title">Methods:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+            <tr class="doc-section-item">
+              <td><code><a class="autorefs autorefs-internal" title="            play(flavor) (soir.sampler.Kit.play)" href="#soir.sampler.Kit.play">play</a></code></td>
+              <td>
+                <div class="doc-md-description">
+                  <p>Play a sequence of samples defined by the flavor.</p>
+                </div>
+              </td>
+            </tr>
+            <tr class="doc-section-item">
+              <td><code><a class="autorefs autorefs-internal" title="            seq(flavor, sequences) (soir.sampler.Kit.seq)" href="#soir.sampler.Kit.seq">seq</a></code></td>
+              <td>
+                <div class="doc-md-description">
+                  <p>Define a sequence of samples for a given flavor.</p>
+                </div>
+              </td>
+            </tr>
+            <tr class="doc-section-item">
+              <td><code><a class="autorefs autorefs-internal" title="            set(char, mkplay) (soir.sampler.Kit.set)" href="#soir.sampler.Kit.set">set</a></code></td>
+              <td>
+                <div class="doc-md-description">
+                  <p>Set a character to a sample play function.</p>
+                </div>
+              </td>
+            </tr>
+      </tbody>
+    </table>
+
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="soir.sampler.Kit.play" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">play</span><span class="p">(</span><span class="n">flavor</span><span class="p">)</span></code>
+
+</h4>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Play a sequence of samples defined by the flavor.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>flavor</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The name of the sequence flavor to play.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+        <p>Raises:
+        ValueError: If the flavor does not exist in the patterns.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="soir.sampler.Kit.seq" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">seq</span><span class="p">(</span><span class="n">flavor</span><span class="p">,</span> <span class="n">sequences</span><span class="p">)</span></code>
+
+</h4>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Define a sequence of samples for a given flavor.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>flavor</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The name of the sequence flavor.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>sequences</code>
+            </td>
+            <td>
+                  <code><span title="list">list</span>[<span title="str">str</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>A list of strings, each representing a sequence of characters.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+        <p>Raises:
+    ValueError: If the sequences are not of the same length.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="soir.sampler.Kit.set" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="nb">set</span><span class="p">(</span><span class="n">char</span><span class="p">,</span> <span class="n">mkplay</span><span class="p">)</span></code>
+
+</h4>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Set a character to a sample play function.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>char</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The character that will trigger the sample.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>mkplay</code>
+            </td>
+            <td>
+                  <code><span title="callable">callable</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>A function that returns a dictionary of sample parameters.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
 
 <div class="doc doc-object doc-class">
 
@@ -1319,7 +1729,7 @@ the duration is the length of the sample in seconds.</p>
       </thead>
       <tbody>
             <tr class="doc-section-item">
-              <td><code><a class="autorefs autorefs-internal" title="            play(name, start=0.0, end=1.0, pan=0.0, attack=0.0, decay=0.0, sustain=None, level=1.0, release=0.0, rate=1.0, amp=1.0) (soir.sampler.Sampler.play)" href="#soir.sampler.Sampler.play">play</a></code></td>
+              <td><code><a class="autorefs autorefs-internal" title="            play(name='', start=0.0, end=1.0, pan=0.0, attack=0.0, decay=0.0, sustain=None, level=1.0, release=0.0, rate=1.0, amp=1.0) (soir.sampler.Sampler.play)" href="#soir.sampler.Sampler.play">play</a></code></td>
               <td>
                 <div class="doc-md-description">
                   <p>Plays a sample by its given name. If there is no exact</p>
@@ -1356,7 +1766,7 @@ the duration is the length of the sample in seconds.</p>
 
 
 <h4 id="soir.sampler.Sampler.play" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">play</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">pan</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">attack</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">sustain</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">release</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">rate</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">amp</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span></code>
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">play</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">pan</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">attack</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">decay</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">sustain</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">release</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">rate</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">amp</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span></code>
 
 </h4>
 
@@ -1394,7 +1804,7 @@ to play simultaneously multiple times the same sample.</p>
               </div>
             </td>
             <td>
-                <em>required</em>
+                  <code>&#39;&#39;</code>
             </td>
           </tr>
           <tr class="doc-section-item">
