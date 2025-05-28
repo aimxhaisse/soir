@@ -23,6 +23,11 @@ audio_in = system.get_audio_in_devices()
 midi_out = system.get_midi_out_devices()
 ```
 
+## Sets the force kill at exit
+``` python
+system.set_force_kill_at_shutdown(true)
+```
+
 # Reference
 """
 
@@ -31,6 +36,7 @@ from bindings import (
     get_audio_in_devices_,
     get_audio_out_devices_,
     get_midi_out_devices_,
+    set_force_kill_at_shutdown_,
 )
 
 
@@ -64,7 +70,25 @@ def get_midi_out_devices() -> list[tuple[int, str]]:
 def exec_session(name: str) -> None:
     """Executes the current session.
 
+    Args:
+        name: str, the name of the session to execute.
+
     Returns:
         None
     """
     exec_session_(name)
+
+    
+def set_force_kill_at_shutdown(flag: bool) -> None:
+    """Sends a kill signal to the Python thread at exit.
+
+    This is required under rare circumstances where the Python thread
+    is blocked (like when serving documentation).
+
+    Args:
+        flag: bool, whether to set the force kill flag at shutdown or not.
+
+    Returns:
+        None
+    """
+    set_force_kill_at_shutdown_(flag)

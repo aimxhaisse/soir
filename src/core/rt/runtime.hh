@@ -91,6 +91,8 @@ class Runtime {
 
   std::string GetCode() const;
 
+  void SetForceKillAtShutdown(bool force);
+
  private:
   std::thread thread_;
   std::vector<std::string> python_paths_;
@@ -107,6 +109,7 @@ class Runtime {
   std::condition_variable loop_cv_;
   std::string code_;
   std::string last_evaluated_code_;
+  bool force_kill_at_shutdown_ = false;
   bool running_ = false;
 
   // Lockless as only accessed from the Python thread.

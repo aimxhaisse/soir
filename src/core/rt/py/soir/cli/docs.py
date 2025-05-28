@@ -11,7 +11,9 @@ from mkdocs.__main__ import cli as mkdocs_cli
 from .utils import (
     expand_env_vars,
 )
-
+from soir.system import (
+    set_force_kill_at_shutdown_,
+)
 
 app = typer.Typer(help="Documentation management commands", no_args_is_help=True)
 
@@ -23,6 +25,10 @@ def serve_docs():
     
     This builds the documentation and starts a local server to view it.
     """
+    # This is required to kill the serve command upon ctrl+c,
+    # otherwise it would hang indefinitely.
+    set_force_kill_at_shutdown_(True)
+
     mkdocs_cli([
         'serve',
         '--verbose',
