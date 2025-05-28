@@ -1,6 +1,6 @@
 #pragma once
 
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 #include <absl/status/status.h>
 
 #include "core/dsp.hh"
@@ -28,6 +28,7 @@ class AudioOutput : public SampleConsumer {
 
  private:
   SDL_AudioDeviceID device_id_ = 0;
+  SDL_AudioStream* audio_stream_ = nullptr;
 };
 
 }  // namespace soir
