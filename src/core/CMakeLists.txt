@@ -61,7 +61,7 @@ target_link_libraries(
   libremidi
   Ogg::ogg
   protobuf::libprotobuf
-  SDL2::SDL2
+  SDL3::SDL3
   Vorbis::vorbis
   Vorbis::vorbisenc
   pybind11::embed
@@ -88,6 +88,7 @@ add_executable(
   tests/test_setup_tracks.cc
   tests/test_exit.cc
   tests/test_parameter.cc
+  tests/test_system.cc
   tests/test_tools.cc
 )
 

@@ -12,7 +12,7 @@
         "protobuf",
         "pybind11",
         "rapidjson",
-        "sdl2",
+        "sdl3",
         "yaml-cpp",
         "python3",
         "tracy"
