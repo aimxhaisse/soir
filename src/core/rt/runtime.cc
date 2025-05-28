@@ -72,10 +72,13 @@ absl::Status Runtime::Start() {
 absl::Status Runtime::Stop() {
   LOG(INFO) << "Stopping runtime";
 
-  // This is non-portable, we need to send a kill signal to the python
-  // thread here in case it is stuck is some blocking Python
-  // operation, like when serving documentation.
-  ::pthread_kill(thread_.native_handle(), SIGKILL);
+  if (force_kill_at_shutdown_) {
+    LOG(WARNING) << "Force killing Python thread at shutdown";
+    // This is non-portable, we need to send a kill signal to the python
+    // thread here in case it is stuck is some blocking Python
+    // operation, like when serving documentation.
+    ::pthread_kill(thread_.native_handle(), SIGKILL);
+  }
 
   {
     std::lock_guard<std::mutex> lock(loop_mutex_);
@@ -331,6 +334,10 @@ absl::Status Runtime::PushCodeUpdate(const std::string& code) {
   LOG(INFO) << "Code update queued";
 
   return absl::OkStatus();
+}
+
+void Runtime::SetForceKillAtShutdown(bool force) {
+  force_kill_at_shutdown_ = force;
 }
 
 }  // namespace rt

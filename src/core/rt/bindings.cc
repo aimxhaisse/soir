@@ -291,6 +291,9 @@ PYBIND11_EMBEDDED_MODULE(bindings, m) {
     LOG(ERROR) << "Failed to exec session: " << strerror(errno);
     return false;
   });
+
+  m.def("set_force_kill_at_shutdown_",
+        [](bool force) { gRt_->SetForceKillAtShutdown(force); });
 }
 
 }  // namespace rt
