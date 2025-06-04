@@ -41,9 +41,6 @@ class MidiExt : public Instrument {
   void Render(SampleTick tick, const std::list<MidiEventAt>& events,
               AudioBuffer& buffer);
 
-  // Get the list of available audio input devices (device number and associated name).
-  static absl::Status GetAudioDevices(
-      std::vector<std::pair<int, std::string>>* out);
 
   // Get the list of available MIDI output devices (device number and associated name).
   static absl::Status GetMidiDevices(

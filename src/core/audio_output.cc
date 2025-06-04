@@ -2,38 +2,15 @@
 #include <algorithm>
 
 #include "audio_output.hh"
+#include "sdl.hh"
 
 namespace soir {
 
-namespace {
-
-void ListAudioDevices() {
-  int num_devices = 0;
-  SDL_AudioDeviceID* devices = SDL_GetAudioPlaybackDevices(&num_devices);
-  for (int i = 0; i < num_devices; i++) {
-    LOG(INFO) << "Audio device [" << i
-              << "]: " << SDL_GetAudioDeviceName(devices[i]);
-  }
-  SDL_free(devices);
-}
-
-}  // namespace
-
-absl::Status AudioOutput::GetAudioDevices(
-    std::vector<std::pair<int, std::string>>* out) {
-  int num = 0;
-  SDL_AudioDeviceID* devices = SDL_GetAudioPlaybackDevices(&num);
-  for (int i = 0; i < num; i++) {
-    out->push_back({i, SDL_GetAudioDeviceName(devices[i])});
-  }
-  SDL_free(devices);
-  return absl::OkStatus();
-}
 
 AudioOutput::AudioOutput() {
   SDL_Init(SDL_INIT_AUDIO);
 
-  ListAudioDevices();
+  sdl::ListAudioOutDevices();
 }
 
 AudioOutput::~AudioOutput() {
