@@ -19,6 +19,8 @@
 - Use absl::Status for error handling and propagation
 - Use std::unique_ptr for ownership semantics
 - Namespaces: soir::{component} (e.g., soir::dsp)
+- Use separate lines for nested namespace declarations
+- Files in CMakeLists.txt should be ordered alphabetically
 
 ### Python
 
