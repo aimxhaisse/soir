@@ -6,9 +6,6 @@
 add_library(
   soir_core
 
-  soir.cc
-  parameter.cc
-
   adsr.cc
   audio_buffer.cc
   audio_output.cc
@@ -41,17 +38,19 @@ add_library(
   http_stream.cc
   inst/midi_ext.cc
   inst/sampler.cc
+  midi_stack.cc
+  parameter.cc
+  rt/bindings.cc
+  rt/notifier.cc
+  rt/runtime.cc
   sample.cc
   sample_manager.cc
   sample_pack.cc
+  sdl.cc
+  soir.cc
   tools.cc
   track.cc
-  midi_stack.cc
   vorbis_encoder.cc
-
-  rt/bindings.cc
-  rt/runtime.cc
-  rt/notifier.cc
 )
 
 target_link_libraries(
