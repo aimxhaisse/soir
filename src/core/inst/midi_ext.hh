@@ -1,6 +1,6 @@
 #pragma once
 
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 #include <absl/status/status.h>
 #include <condition_variable>
 #include <libremidi/libremidi.hpp>
@@ -14,6 +14,14 @@
 
 namespace soir {
 namespace inst {
+
+// Forward declaration for callback data
+class MidiExt;
+
+// Structure to hold callback data for SDL3 audio stream
+struct AudioStreamCallbackData {
+  MidiExt* midi_ext;
+};
 
 class MidiExt : public Instrument {
  public:
@@ -64,7 +72,8 @@ class MidiExt : public Instrument {
 
   // Underlying devices to which we are connected to.
   libremidi::midi_out midi_out_;
-  SDL_AudioDeviceID audio_out_ = -1;
+  SDL_AudioDeviceID audio_out_ = 0;
+  SDL_AudioStream* audio_stream_ = nullptr;
   int audio_out_chans_ = -1;
 
   MidiStack midi_stack_;

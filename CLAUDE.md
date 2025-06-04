@@ -1,6 +1,7 @@
 # Soir Development Guide
 
 ## Build Commands
+
 - Build: `just dev-build`
 - Test all: `just dev-test`
 - Run single test: `just dev-test "TestName*"` (e.g., `just dev-test "LFOTest*"`)
@@ -10,6 +11,7 @@
 ## Code Style Guidelines
 
 ### C++
+
 - Follow Google C++ style guide (see .clang-format)
 - Use snake_case for variables and functions
 - Use CamelCase for class names
@@ -19,6 +21,7 @@
 - Namespaces: soir::{component} (e.g., soir::dsp)
 
 ### Python
+
 - Use snake_case for functions and variables
 - Use CamelCase for classes
 - Type hints required for function parameters and return values
