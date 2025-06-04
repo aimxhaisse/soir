@@ -3,6 +3,7 @@
 
 #include "core/dsp.hh"
 #include "core/inst/midi_ext.hh"
+#include "core/sdl.hh"
 
 namespace {
 
@@ -30,24 +31,13 @@ bool useMidiPort(const std::string midi_out, libremidi::midi_out& libremidi) {
   return false;
 }
 
-void printAudioDevices() {
-  LOG(INFO) << "Available audio input devices:";
-  int count = 0;
-  SDL_AudioDeviceID *devices = SDL_GetAudioRecordingDevices(&count);
-  for (int i = 0; i < count; ++i) {
-    LOG(INFO) << "Audio input device " << i << ": "
-              << SDL_GetAudioDeviceName(devices[i]);
-  }
-  SDL_free(devices);
-}
-
 }  // namespace
 
 namespace soir {
 namespace inst {
 
 MidiExt::MidiExt() {
-  printAudioDevices();
+  sdl::ListAudioInDevices();
 }
 
 MidiExt::~MidiExt() {
@@ -57,29 +47,6 @@ MidiExt::~MidiExt() {
   }
 }
 
-absl::Status MidiExt::GetAudioDevices(
-    std::vector<std::pair<int, std::string>>* out) {
-  int count = 0;
-  SDL_AudioDeviceID *devices = SDL_GetAudioRecordingDevices(&count);
-  for (int i = 0; i < count; ++i) {
-    const char* name = SDL_GetAudioDeviceName(devices[i]);
-    if (name) {
-      out->emplace_back(i, name);
-    }
-
-    SDL_AudioSpec spec;
-    if (SDL_GetAudioDeviceFormat(devices[i], &spec, nullptr) == 0) {
-      LOG(INFO) << "Audio device " << i << ": " << name
-                << ", freq: " << spec.freq << ", format: " << spec.format
-                << ", channels: " << static_cast<int>(spec.channels);
-    } else {
-      LOG(WARNING) << "Failed to get audio device format for device " << i;
-    }
-  }
-  SDL_free(devices);
-
-  return absl::OkStatus();
-}
 
 absl::Status MidiExt::GetMidiDevices(
     std::vector<std::pair<int, std::string>>* out) {
