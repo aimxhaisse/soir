@@ -1,12 +1,14 @@
 #pragma once
 
-#include <SDL3/SDL.h>
 #include <absl/status/status.h>
 #include <condition_variable>
 #include <libremidi/libremidi.hpp>
 #include <list>
+#include <memory>
 #include <mutex>
+#include <portaudio.h>
 #include <thread>
+#include <vector>
 
 #include "core/audio_buffer.hh"
 #include "core/inst/instrument.hh"
@@ -14,14 +16,6 @@
 
 namespace soir {
 namespace inst {
-
-// Forward declaration for callback data
-class MidiExt;
-
-// Structure to hold callback data for SDL3 audio stream
-struct AudioStreamCallbackData {
-  MidiExt* that_;
-};
 
 class MidiExt : public Instrument {
  public:
@@ -47,7 +41,7 @@ class MidiExt : public Instrument {
 
  private:
   void ScheduleMidiEvents(const absl::Time& next_block_at);
-  void FillAudioBuffer(Uint8* stream, int len);
+  void FillAudioBuffer(const float* stream, size_t frames);
   void WaitForInitialTick();
 
   // Helper methods for Init function
@@ -58,6 +52,16 @@ class MidiExt : public Instrument {
   absl::Status ConfigureMidiPort(const std::string& midi_out_device);
   absl::Status ConfigureAudioDevice(const std::string& audio_in_device,
                                    const std::vector<int>& channels);
+
+  static int AudioInputCallback(const void* in, void* out,
+                               unsigned long frames,
+                               const PaStreamCallbackTimeInfo* time,
+                               PaStreamCallbackFlags flags,
+                               void* user_data);
+
+  struct PaStreamDeleter {
+    void operator()(PaStream* stream);
+  };
 
   // Current configuration as set from live coding. This is a cache
   // used to know upon update if we need to re-initialize the
@@ -71,16 +75,14 @@ class MidiExt : public Instrument {
   std::condition_variable cv_;
   std::thread thread_;
   bool stop_ = false;
-  std::vector<Uint8> consumed_;
+  std::vector<float> consumed_;
   std::list<AudioBuffer> buffers_;
   SampleTick current_tick_ = 0;
 
   // Underlying devices to which we are connected to.
   libremidi::midi_out midi_out_;
-  SDL_AudioDeviceID audio_out_ = 0;
-  SDL_AudioStream* audio_stream_ = nullptr;
-  AudioStreamCallbackData cb_data_;
-  int audio_out_chans_ = -1;
+  std::unique_ptr<PaStream, PaStreamDeleter> audio_stream_;
+  int audio_in_chans_ = -1;
 
   MidiStack midi_stack_;
 };
