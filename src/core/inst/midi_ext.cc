@@ -1,4 +1,5 @@
 #include <absl/log/log.h>
+#include <absl/status/status.h>
 #include <rapidjson/document.h>
 
 #include "core/dsp.hh"
@@ -47,7 +48,6 @@ MidiExt::~MidiExt() {
   }
 }
 
-
 absl::Status MidiExt::GetMidiDevices(
     std::vector<std::pair<int, std::string>>* out) {
   libremidi::midi_out midi_out;
@@ -63,130 +63,190 @@ absl::Status MidiExt::GetMidiDevices(
   return absl::OkStatus();
 }
 
+absl::Status MidiExt::ParseAndValidateSettings(const std::string& settings,
+                                               std::string* midi_out_device,
+                                               std::string* audio_in_device,
+                                               std::vector<int>* channels) {
+  rapidjson::Document params;
+  params.Parse(settings.c_str());
+
+  if (!params.HasMember("midi_out") || !params["midi_out"].IsString()) {
+    return absl::InvalidArgumentError("Missing or invalid 'midi_out' field");
+  }
+  *midi_out_device = params["midi_out"].GetString();
+
+  if (!params.HasMember("audio_in") || !params["audio_in"].IsString()) {
+    return absl::InvalidArgumentError("Missing or invalid 'audio_in' field");
+  }
+  *audio_in_device = params["audio_in"].GetString();
+
+  if (!params.HasMember("audio_channels") ||
+      !params["audio_channels"].IsArray()) {
+    return absl::InvalidArgumentError(
+        "Missing or invalid 'audio_channels' field");
+  }
+
+  auto audio_chans = params["audio_channels"].GetArray();
+  channels->clear();
+  for (int i = 0; i < audio_chans.Size(); ++i) {
+    if (!audio_chans[i].IsInt()) {
+      return absl::InvalidArgumentError("Audio channels must be integers");
+    }
+    channels->push_back(audio_chans[i].GetInt());
+  }
+
+  if (channels->size() != 2) {
+    return absl::InvalidArgumentError(
+        "Audio channels must be an array of two integers");
+  }
+
+  return absl::OkStatus();
+}
+
+absl::Status MidiExt::ConfigureMidiPort(const std::string& midi_out_device) {
+  if (midi_out_device == settings_midi_out_) {
+    return absl::OkStatus();
+  }
+
+  midi_out_.close_port();
+  LOG(INFO) << "Trying to open MIDI port " << midi_out_device << "...";
+
+  if (!useMidiPort(midi_out_device, midi_out_)) {
+    LOG(WARNING) << "Failed to open MIDI port " << midi_out_device;
+    return absl::OkStatus();
+  }
+
+  settings_midi_out_ = midi_out_device;
+  return absl::OkStatus();
+}
+
+absl::Status MidiExt::ConfigureAudioDevice(const std::string& audio_in_device,
+                                           const std::vector<int>& channels) {
+  const bool chans_changed = (settings_chans_ != channels);
+  const bool device_changed = (audio_in_device != settings_audio_in_);
+
+  if (!device_changed && !chans_changed) {
+    return absl::OkStatus();
+  }
+
+  // Clean up existing audio stream if necessary
+  if (audio_stream_) {
+    SDL_DestroyAudioStream(audio_stream_);
+    audio_stream_ = nullptr;
+  }
+
+  LOG(INFO) << "Trying to open audio device " << audio_in_device << "...";
+
+  // Get the list of recording devices
+  int num_devices = 0;
+  SDL_AudioDeviceID* devices = SDL_GetAudioRecordingDevices(&num_devices);
+
+  if (num_devices <= 0) {
+    SDL_free(devices);
+    LOG(WARNING) << "No audio recording devices available";
+    return absl::OkStatus();
+  }
+
+  // Find the device by name
+  int device_index = -1;
+  for (int i = 0; i < num_devices; i++) {
+    const char* name = SDL_GetAudioDeviceName(devices[i]);
+    if (name && audio_in_device == std::string(name)) {
+      device_index = i;
+      break;
+    }
+  }
+
+  if (device_index == -1) {
+    SDL_free(devices);
+    LOG(WARNING) << "Audio device not found: " << audio_in_device;
+    return absl::OkStatus();
+  }
+
+  SDL_AudioDeviceID device_id = devices[device_index];
+  SDL_free(devices);
+
+  // Configure audio specification
+  SDL_AudioSpec spec;
+  SDL_zero(spec);
+
+  const int highest_desired_chan = std::max(channels[0], channels[1]) + 1;
+  spec.freq = kSampleRate;
+  spec.format = SDL_AUDIO_F32;
+  spec.channels = highest_desired_chan;
+
+  LOG(INFO) << "Opening audio device " << audio_in_device << " with "
+            << spec.channels << " channels at " << spec.freq
+            << " Hz, format: SDL_AUDIO_F32";
+
+  // Set up callback
+  cb_data_.that_ = this;
+  SDL_AudioStreamCallback cb = [](void* data, SDL_AudioStream* s, int amount,
+                                  int total) {
+    std::unique_ptr<Uint8> buffer(new Uint8[total]);
+    const int read = SDL_GetAudioStreamData(s, buffer.get(), total);
+
+    if (read < 0) {
+      LOG(WARNING) << "Failed to get audio stream: " << SDL_GetError();
+      return;
+    }
+
+    auto d = static_cast<AudioStreamCallbackData*>(data);
+    d->that_->FillAudioBuffer(buffer.get(), read);
+  };
+
+  // Open the audio stream
+  audio_stream_ = SDL_OpenAudioDeviceStream(device_id, &spec, cb, &cb_data_);
+  if (!audio_stream_) {
+    LOG(WARNING) << "Failed to open audio device stream: " << SDL_GetError();
+    return absl::OkStatus();
+  }
+
+  // Update state
+  audio_out_ = device_id;
+  audio_out_chans_ = spec.channels;
+  settings_audio_in_ = audio_in_device;
+  settings_chans_ = channels;
+
+  SDL_ResumeAudioDevice(device_id);
+  return absl::OkStatus();
+}
+
 absl::Status MidiExt::Init(const std::string& settings,
                            SampleManager* sample_manager, Controls* controls) {
   std::lock_guard<std::mutex> lock(mutex_);
 
+  // Early return if settings haven't changed
   if (settings == settings_) {
     return absl::OkStatus();
   }
 
-  rapidjson::Document params;
-  params.Parse(settings.c_str());
+  // Parse and validate settings
+  std::string midi_out_device;
+  std::string audio_in_device;
+  std::vector<int> channels;
 
-  auto settings_midi_out = params["midi_out"].GetString();
-  if (settings_midi_out != settings_midi_out_) {
-    midi_out_.close_port();
-    LOG(INFO) << "Trying to open MIDI port " << settings_midi_out << "...";
-
-    if (!useMidiPort(settings_midi_out, midi_out_)) {
-      LOG(WARNING) << "Failed to open MIDI port " << settings_midi_out;
-      return absl::OkStatus();
-    }
-    settings_midi_out_ = settings_midi_out;
-  }
-
-  std::vector<int> chans;
-  auto audio_chans = params["audio_channels"].GetArray();
-  for (int i = 0; i < audio_chans.Size(); ++i) {
-    chans.push_back(audio_chans[i].GetInt());
-  }
-  if (chans.size() != 2) {
-    LOG(WARNING) << "Audio channels must be an array of two integers";
+  auto status = ParseAndValidateSettings(settings, &midi_out_device,
+                                         &audio_in_device, &channels);
+  if (!status.ok()) {
+    LOG(WARNING) << "Invalid settings: " << status.message();
     return absl::OkStatus();
   }
-  const bool chans_changed = (settings_chans_ != chans);
 
-  auto settings_audio_in = params["audio_in"].GetString();
-  if (settings_audio_in != settings_audio_in_ || chans_changed) {
-    if (audio_out_ != 0) {
-      if (audio_stream_) {
-        SDL_DestroyAudioStream(audio_stream_);
-        audio_stream_ = nullptr;
-      }
-    }
-
-    LOG(INFO) << "Trying to open audio device " << settings_audio_in << "...";
-
-    // Get the list of recording devices
-    int num_devices = 0;
-    SDL_AudioDeviceID *devices = SDL_GetAudioRecordingDevices(&num_devices);
-    
-    if (num_devices <= 0) {
-      SDL_free(devices);
-      LOG(WARNING) << "No audio recording devices available";
-      return absl::OkStatus();
-    }
-    
-    // Find the device by name
-    int device_index = -1;
-    for (int i = 0; i < num_devices; i++) {
-      const char* name = SDL_GetAudioDeviceName(devices[i]);
-      if (name && settings_audio_in == name) {
-        device_index = i;
-        break;
-      }
-    }
-    
-    if (device_index == -1) {
-      SDL_free(devices);
-      LOG(WARNING) << "Audio device not found: " << settings_audio_in;
-      return absl::OkStatus();
-    }
-    
-    SDL_AudioDeviceID device_id = devices[device_index];
-    SDL_free(devices);
-
-    SDL_AudioSpec spec;
-    SDL_zero(spec);
-
-    const int highest_desired_chan = std::max(chans[0], chans[1]);
-
-    spec.freq = kSampleRate;
-    spec.format = SDL_AUDIO_F32;
-    spec.channels = highest_desired_chan;
-
-    // Custom callback data structure for SDL3
-    AudioStreamCallbackData* callback_data = new AudioStreamCallbackData;
-    callback_data->midi_ext = this;
-    
-    LOG(INFO) << "Opening audio device " << settings_audio_in << "...";
-
-    SDL_AudioStreamCallback callback = [](void* userdata, SDL_AudioStream* stream,
-                                         int additional_amount, int total_amount) {
-      AudioStreamCallbackData* data = static_cast<AudioStreamCallbackData*>(userdata);
-      MidiExt* midi = data->midi_ext;
-      
-      // In SDL3, we handle audio data differently with the callback
-      // Instead of filling the buffer directly, we'll respond to the stream's needs
-      if (additional_amount > 0) {
-        // Allocate a temporary buffer for the requested audio data
-        std::vector<Uint8> buffer(additional_amount);
-        midi->FillAudioBuffer(buffer.data(), additional_amount);
-        
-        // Put the data into the stream
-        SDL_PutAudioStreamData(stream, buffer.data(), additional_amount);
-      }
-    };
-
-    audio_stream_ = SDL_OpenAudioDeviceStream(device_id, &spec, callback, callback_data);
-    if (!audio_stream_) {
-      delete callback_data;
-      LOG(WARNING) << "Failed to open audio device stream: " << SDL_GetError();
-      return absl::OkStatus();
-    }
-
-    audio_out_ = device_id;
-    audio_out_chans_ = spec.channels;
-
-    settings_audio_in_ = settings_audio_in;
-    settings_chans_ = chans;
-
-    SDL_ResumeAudioDevice(device_id);
+  // Configure MIDI port
+  status = ConfigureMidiPort(midi_out_device);
+  if (!status.ok()) {
+    return status;
   }
 
-  settings_ = settings;
+  // Configure audio device
+  status = ConfigureAudioDevice(audio_in_device, channels);
+  if (!status.ok()) {
+    return status;
+  }
 
+  // Update settings cache
+  settings_ = settings;
   return absl::OkStatus();
 }
 

@@ -20,7 +20,7 @@ class MidiExt;
 
 // Structure to hold callback data for SDL3 audio stream
 struct AudioStreamCallbackData {
-  MidiExt* midi_ext;
+  MidiExt* that_;
 };
 
 class MidiExt : public Instrument {
@@ -41,7 +41,6 @@ class MidiExt : public Instrument {
   void Render(SampleTick tick, const std::list<MidiEventAt>& events,
               AudioBuffer& buffer);
 
-
   // Get the list of available MIDI output devices (device number and associated name).
   static absl::Status GetMidiDevices(
       std::vector<std::pair<int, std::string>>* out);
@@ -50,6 +49,15 @@ class MidiExt : public Instrument {
   void ScheduleMidiEvents(const absl::Time& next_block_at);
   void FillAudioBuffer(Uint8* stream, int len);
   void WaitForInitialTick();
+
+  // Helper methods for Init function
+  absl::Status ParseAndValidateSettings(const std::string& settings,
+                                        std::string* midi_out_device,
+                                        std::string* audio_in_device,
+                                        std::vector<int>* channels);
+  absl::Status ConfigureMidiPort(const std::string& midi_out_device);
+  absl::Status ConfigureAudioDevice(const std::string& audio_in_device,
+                                   const std::vector<int>& channels);
 
   // Current configuration as set from live coding. This is a cache
   // used to know upon update if we need to re-initialize the
@@ -71,6 +79,7 @@ class MidiExt : public Instrument {
   libremidi::midi_out midi_out_;
   SDL_AudioDeviceID audio_out_ = 0;
   SDL_AudioStream* audio_stream_ = nullptr;
+  AudioStreamCallbackData cb_data_;
   int audio_out_chans_ = -1;
 
   MidiStack midi_stack_;
