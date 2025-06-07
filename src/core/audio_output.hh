@@ -1,7 +1,10 @@
 #pragma once
 
-#include <SDL3/SDL.h>
 #include <absl/status/status.h>
+#include <memory>
+#include <mutex>
+#include <portaudio.h>
+#include <vector>
 
 #include "core/dsp.hh"
 #include "utils/config.hh"
@@ -16,7 +19,6 @@ class AudioOutput : public SampleConsumer {
   AudioOutput();
   virtual ~AudioOutput();
 
-
   absl::Status Init(const utils::Config& config);
   absl::Status Start();
   absl::Status Stop();
@@ -24,8 +26,22 @@ class AudioOutput : public SampleConsumer {
   absl::Status PushAudioBuffer(AudioBuffer& buffer) override;
 
  private:
-  SDL_AudioDeviceID device_id_ = 0;
-  SDL_AudioStream* audio_stream_ = nullptr;
+  static int AudioCallback(const void* inputBuffer, void* outputBuffer,
+                          unsigned long framesPerBuffer,
+                          const PaStreamCallbackTimeInfo* timeInfo,
+                          PaStreamCallbackFlags statusFlags,
+                          void* userData);
+
+  struct PaStreamDeleter {
+    void operator()(PaStream* stream);
+  };
+
+  std::unique_ptr<PaStream, PaStreamDeleter> stream_;
+  std::vector<float> ring_buffer_;
+  size_t ring_buffer_write_pos_ = 0;
+  size_t ring_buffer_read_pos_ = 0;
+  size_t ring_buffer_size_ = 0;
+  std::mutex buffer_mutex_;
 };
 
 }  // namespace soir

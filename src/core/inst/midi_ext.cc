@@ -4,7 +4,7 @@
 
 #include "core/dsp.hh"
 #include "core/inst/midi_ext.hh"
-#include "core/sdl.hh"
+#include "core/portaudio.hh"
 
 namespace {
 
@@ -37,15 +37,18 @@ bool useMidiPort(const std::string midi_out, libremidi::midi_out& libremidi) {
 namespace soir {
 namespace inst {
 
+void MidiExt::PaStreamDeleter::operator()(PaStream* stream) {
+  if (stream) {
+    Pa_CloseStream(stream);
+  }
+}
+
 MidiExt::MidiExt() {
-  sdl::ListAudioInDevices();
+  portaudio::ListAudioInDevices();
 }
 
 MidiExt::~MidiExt() {
-  if (audio_stream_) {
-    SDL_DestroyAudioStream(audio_stream_);
-    audio_stream_ = nullptr;
-  }
+  audio_stream_.reset();
 }
 
 absl::Status MidiExt::GetMidiDevices(
@@ -130,85 +133,78 @@ absl::Status MidiExt::ConfigureAudioDevice(const std::string& audio_in_device,
   }
 
   // Clean up existing audio stream if necessary
-  if (audio_stream_) {
-    SDL_DestroyAudioStream(audio_stream_);
-    audio_stream_ = nullptr;
-  }
+  audio_stream_.reset();
 
   LOG(INFO) << "Trying to open audio device " << audio_in_device << "...";
 
   // Get the list of recording devices
-  int num_devices = 0;
-  SDL_AudioDeviceID* devices = SDL_GetAudioRecordingDevices(&num_devices);
+  std::vector<portaudio::Device> devices;
+  auto status = portaudio::GetAudioInDevices(&devices);
+  if (!status.ok()) {
+    LOG(WARNING) << "Failed to get audio input devices: " << status;
+    return absl::OkStatus();
+  }
 
-  if (num_devices <= 0) {
-    SDL_free(devices);
+  if (devices.empty()) {
     LOG(WARNING) << "No audio recording devices available";
     return absl::OkStatus();
   }
 
   // Find the device by name
   int device_index = -1;
-  for (int i = 0; i < num_devices; i++) {
-    const char* name = SDL_GetAudioDeviceName(devices[i]);
-    if (name && audio_in_device == std::string(name)) {
-      device_index = i;
+  for (size_t i = 0; i < devices.size(); i++) {
+    if (devices[i].name == audio_in_device) {
+      device_index = devices[i].id;
       break;
     }
   }
 
   if (device_index == -1) {
-    SDL_free(devices);
     LOG(WARNING) << "Audio device not found: " << audio_in_device;
     return absl::OkStatus();
   }
 
-  SDL_AudioDeviceID device_id = devices[device_index];
-  SDL_free(devices);
-
-  // Configure audio specification
-  SDL_AudioSpec spec;
-  SDL_zero(spec);
-
   const int highest_desired_chan = std::max(channels[0], channels[1]) + 1;
-  spec.freq = kSampleRate;
-  spec.format = SDL_AUDIO_F32;
-  spec.channels = highest_desired_chan;
 
   LOG(INFO) << "Opening audio device " << audio_in_device << " with "
-            << spec.channels << " channels at " << spec.freq
-            << " Hz, format: SDL_AUDIO_F32";
+            << highest_desired_chan << " channels at " << kSampleRate
+            << " Hz, format: float32";
 
-  // Set up callback
-  cb_data_.that_ = this;
-  SDL_AudioStreamCallback cb = [](void* data, SDL_AudioStream* s, int amount,
-                                  int total) {
-    std::unique_ptr<Uint8> buffer(new Uint8[total]);
-    const int read = SDL_GetAudioStreamData(s, buffer.get(), total);
+  PaStreamParameters inputParameters;
+  inputParameters.device = device_index;
+  inputParameters.channelCount = highest_desired_chan;
+  inputParameters.sampleFormat = paFloat32;
+  inputParameters.suggestedLatency = Pa_GetDeviceInfo(device_index)->defaultLowInputLatency;
+  inputParameters.hostApiSpecificStreamInfo = nullptr;
 
-    if (read < 0) {
-      LOG(WARNING) << "Failed to get audio stream: " << SDL_GetError();
-      return;
-    }
+  PaStream* raw_stream = nullptr;
+  PaError err = Pa_OpenStream(&raw_stream,
+                             &inputParameters,
+                             nullptr,  // no output
+                             kSampleRate,
+                             kBlockSize,
+                             paNoFlag,
+                             AudioInputCallback,
+                             this);
 
-    auto d = static_cast<AudioStreamCallbackData*>(data);
-    d->that_->FillAudioBuffer(buffer.get(), read);
-  };
+  if (err != paNoError) {
+    LOG(WARNING) << "Failed to open audio input stream: " << Pa_GetErrorText(err);
+    return absl::OkStatus();
+  }
 
-  // Open the audio stream
-  audio_stream_ = SDL_OpenAudioDeviceStream(device_id, &spec, cb, &cb_data_);
-  if (!audio_stream_) {
-    LOG(WARNING) << "Failed to open audio device stream: " << SDL_GetError();
+  err = Pa_StartStream(raw_stream);
+  if (err != paNoError) {
+    Pa_CloseStream(raw_stream);
+    LOG(WARNING) << "Failed to start audio input stream: " << Pa_GetErrorText(err);
     return absl::OkStatus();
   }
 
   // Update state
-  audio_out_ = device_id;
-  audio_out_chans_ = spec.channels;
+  audio_stream_.reset(raw_stream);
+  audio_in_chans_ = highest_desired_chan;
   settings_audio_in_ = audio_in_device;
   settings_chans_ = channels;
 
-  SDL_ResumeAudioDevice(device_id);
   return absl::OkStatus();
 }
 
@@ -250,23 +246,39 @@ absl::Status MidiExt::Init(const std::string& settings,
   return absl::OkStatus();
 }
 
-void MidiExt::FillAudioBuffer(Uint8* stream, int len) {
-  consumed_.resize(consumed_.size() + len);
-  memcpy(consumed_.data() + consumed_.size() - len, stream, len);
+int MidiExt::AudioInputCallback(const void* in, void* out,
+                               unsigned long frames,
+                               const PaStreamCallbackTimeInfo* time,
+                               PaStreamCallbackFlags flags,
+                               void* user_data) {
+  auto* midi_ext = static_cast<MidiExt*>(user_data);
+  auto* input = static_cast<const float*>(in);
+  
+  midi_ext->FillAudioBuffer(input, frames);
+  return paContinue;
+}
 
-  // We expect two channels of float samples interleaved.
-  const uint32_t want = audio_out_chans_ * kBlockSize * sizeof(float);
+void MidiExt::FillAudioBuffer(const float* stream, size_t frames) {
+  size_t samples_to_add = frames * audio_in_chans_;
+  size_t current_size = consumed_.size();
+  consumed_.resize(current_size + samples_to_add);
+  
+  // Copy the interleaved float data
+  std::memcpy(consumed_.data() + current_size, stream, samples_to_add * sizeof(float));
+
+  // We expect float samples interleaved.
+  const size_t want = audio_in_chans_ * kBlockSize;
   if (consumed_.size() < want) {
     return;
   }
 
-  float* audio = reinterpret_cast<float*>(consumed_.data());
   AudioBuffer out(kBlockSize);
   float* left = out.GetChannel(kLeftChannel);
   float* right = out.GetChannel(kRightChannel);
-  for (int i = 0; i < kBlockSize; i++) {
-    left[i] = audio[audio_out_chans_ * i + settings_chans_[0]];
-    right[i] = audio[audio_out_chans_ * i + settings_chans_[1]];
+  
+  for (size_t i = 0; i < kBlockSize; i++) {
+    left[i] = consumed_[audio_in_chans_ * i + settings_chans_[0]];
+    right[i] = consumed_[audio_in_chans_ * i + settings_chans_[1]];
   }
 
   {
@@ -383,10 +395,7 @@ absl::Status MidiExt::Stop() {
 
   LOG(INFO) << "MIDI thread stopped";
 
-  if (audio_stream_) {
-    SDL_DestroyAudioStream(audio_stream_);
-    audio_stream_ = nullptr;
-  }
+  audio_stream_.reset();
   if (midi_out_.is_port_open()) {
     midi_out_.close_port();
   }

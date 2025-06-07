@@ -9,6 +9,7 @@
         "libogg",
         "libremidi",
         "libvorbis",
+        "portaudio",
         "protobuf",
         "pybind11",
         "rapidjson",

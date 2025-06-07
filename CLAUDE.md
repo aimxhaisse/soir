@@ -21,6 +21,7 @@
 - Namespaces: soir::{component} (e.g., soir::dsp)
 - Use separate lines for nested namespace declarations
 - Files in CMakeLists.txt should be ordered alphabetically
+- No inline code implementation in header files - keep headers clean with declarations only
 
 ### Python
 
