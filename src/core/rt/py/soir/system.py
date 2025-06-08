@@ -28,6 +28,11 @@ midi_out = system.get_midi_out_devices()
 system.set_force_kill_at_shutdown(true)
 ```
 
+## Prints the current informations about the system
+``` python
+system.info()
+```
+
 # Reference
 """
 
@@ -37,6 +42,9 @@ from bindings import (
     get_audio_out_devices_,
     get_midi_out_devices_,
     set_force_kill_at_shutdown_,
+)
+from soir._internals import (
+    log,
 )
 
 
@@ -92,3 +100,20 @@ def set_force_kill_at_shutdown(flag: bool) -> None:
         None
     """
     set_force_kill_at_shutdown_(flag)
+
+
+def info() -> None:
+    """Prints the current layout of the system.
+    """
+    log("=== Audio output devices ===")
+    audio_out = get_audio_out_devices()
+    for idx, name in audio_out:
+        log(f"  {idx}: {name}")
+    log("=== Audio input devices ===")
+    audio_in = get_audio_in_devices()
+    for idx, name in audio_in:
+        log(f"  {idx}: {name}")
+    log("=== MIDI output devices ===")
+    midi_out = get_midi_out_devices()
+    for idx, name in midi_out:
+        log(f"  {idx}: {name}")
