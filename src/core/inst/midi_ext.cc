@@ -2,6 +2,10 @@
 #include <absl/status/status.h>
 #include <rapidjson/document.h>
 
+#ifdef __APPLE__
+#include <pa_mac_core.h>
+#endif
+
 #include "core/dsp.hh"
 #include "core/inst/midi_ext.hh"
 #include "core/portaudio.hh"
@@ -98,11 +102,6 @@ absl::Status MidiExt::ParseAndValidateSettings(const std::string& settings,
     channels->push_back(audio_chans[i].GetInt());
   }
 
-  if (channels->size() != 2) {
-    return absl::InvalidArgumentError(
-        "Audio channels must be an array of two integers");
-  }
-
   return absl::OkStatus();
 }
 
@@ -164,44 +163,70 @@ absl::Status MidiExt::ConfigureAudioDevice(const std::string& audio_in_device,
     return absl::OkStatus();
   }
 
-  const int highest_desired_chan = std::max(channels[0], channels[1]) + 1;
+  // Configure CoreAudio-specific channel selection
+  PaMacCoreStreamInfo mac_core_info;
+  PaMacCore_SetupStreamInfo(&mac_core_info, paMacCorePlayNice);
 
-  LOG(INFO) << "Opening audio device " << audio_in_device << " with "
-            << highest_desired_chan << " channels at " << kSampleRate
-            << " Hz, format: float32";
+  bool is_mono = (channels.size() == 1 || channels[0] == channels[1]);
+  int actual_channel_count = is_mono ? 1 : 2;
 
-  PaStreamParameters inputParameters;
-  inputParameters.device = device_index;
-  inputParameters.channelCount = highest_desired_chan;
-  inputParameters.sampleFormat = paFloat32;
-  inputParameters.suggestedLatency = Pa_GetDeviceInfo(device_index)->defaultLowInputLatency;
-  inputParameters.hostApiSpecificStreamInfo = nullptr;
+  if (is_mono) {
+    LOG(INFO) << "Opening CoreAudio device " << audio_in_device
+              << " with mono channel " << channels[0]
+              << " (will be expanded to stereo)"
+              << " at " << kSampleRate << " Hz, format: float32";
+
+    SInt32 channel_map[1];
+    channel_map[0] = channels[0];
+    PaMacCore_SetupChannelMap(&mac_core_info, channel_map, 1);
+
+    LOG(INFO) << "Using CoreAudio mono channel map: " << channels[0]
+              << " -> stereo";
+  } else {
+    LOG(INFO) << "Opening CoreAudio device " << audio_in_device
+              << " with stereo channels " << channels[0] << " and "
+              << channels[1] << " at " << kSampleRate << " Hz, format: float32";
+
+    SInt32 channel_map[kNumChannels];
+    channel_map[0] = channels[0];
+    channel_map[1] = channels[1];
+    PaMacCore_SetupChannelMap(&mac_core_info, channel_map, kNumChannels);
+
+    LOG(INFO) << "Using CoreAudio stereo channel map: " << channels[0]
+              << " (left), " << channels[1] << " (right)";
+  }
+
+  PaStreamParameters input_parameters;
+  input_parameters.device = device_index;
+  input_parameters.channelCount = actual_channel_count;
+  input_parameters.sampleFormat = paFloat32;
+  input_parameters.suggestedLatency =
+      Pa_GetDeviceInfo(device_index)->defaultLowInputLatency;
+  input_parameters.hostApiSpecificStreamInfo = &mac_core_info;
 
   PaStream* raw_stream = nullptr;
-  PaError err = Pa_OpenStream(&raw_stream,
-                             &inputParameters,
-                             nullptr,  // no output
-                             kSampleRate,
-                             kBlockSize,
-                             paNoFlag,
-                             AudioInputCallback,
-                             this);
+  PaError err = Pa_OpenStream(&raw_stream, &input_parameters,
+                              nullptr,  // no output
+                              kSampleRate, kBlockSize, paNoFlag,
+                              AudioInputCallback, this);
 
   if (err != paNoError) {
-    LOG(WARNING) << "Failed to open audio input stream: " << Pa_GetErrorText(err);
+    LOG(WARNING) << "Failed to open audio input stream: "
+                 << Pa_GetErrorText(err);
     return absl::OkStatus();
   }
 
   err = Pa_StartStream(raw_stream);
   if (err != paNoError) {
     Pa_CloseStream(raw_stream);
-    LOG(WARNING) << "Failed to start audio input stream: " << Pa_GetErrorText(err);
+    LOG(WARNING) << "Failed to start audio input stream: "
+                 << Pa_GetErrorText(err);
     return absl::OkStatus();
   }
 
   // Update state
   audio_stream_.reset(raw_stream);
-  audio_in_chans_ = highest_desired_chan;
+  audio_in_chans_ = actual_channel_count;  // 1 for mono, 2 for stereo
   settings_audio_in_ = audio_in_device;
   settings_chans_ = channels;
 
@@ -246,14 +271,12 @@ absl::Status MidiExt::Init(const std::string& settings,
   return absl::OkStatus();
 }
 
-int MidiExt::AudioInputCallback(const void* in, void* out,
-                               unsigned long frames,
-                               const PaStreamCallbackTimeInfo* time,
-                               PaStreamCallbackFlags flags,
-                               void* user_data) {
+int MidiExt::AudioInputCallback(const void* in, void* out, unsigned long frames,
+                                const PaStreamCallbackTimeInfo* time,
+                                PaStreamCallbackFlags flags, void* user_data) {
   auto* midi_ext = static_cast<MidiExt*>(user_data);
   auto* input = static_cast<const float*>(in);
-  
+
   midi_ext->FillAudioBuffer(input, frames);
   return paContinue;
 }
@@ -262,11 +285,12 @@ void MidiExt::FillAudioBuffer(const float* stream, size_t frames) {
   size_t samples_to_add = frames * audio_in_chans_;
   size_t current_size = consumed_.size();
   consumed_.resize(current_size + samples_to_add);
-  
-  // Copy the interleaved float data
-  std::memcpy(consumed_.data() + current_size, stream, samples_to_add * sizeof(float));
 
-  // We expect float samples interleaved.
+  // Copy the interleaved float data
+  std::memcpy(consumed_.data() + current_size, stream,
+              samples_to_add * sizeof(float));
+
+  // We expect float samples interleaved
   const size_t want = audio_in_chans_ * kBlockSize;
   if (consumed_.size() < want) {
     return;
@@ -275,10 +299,20 @@ void MidiExt::FillAudioBuffer(const float* stream, size_t frames) {
   AudioBuffer out(kBlockSize);
   float* left = out.GetChannel(kLeftChannel);
   float* right = out.GetChannel(kRightChannel);
-  
-  for (size_t i = 0; i < kBlockSize; i++) {
-    left[i] = consumed_[audio_in_chans_ * i + settings_chans_[0]];
-    right[i] = consumed_[audio_in_chans_ * i + settings_chans_[1]];
+
+  if (audio_in_chans_ == 1) {
+    // Mono input: duplicate single channel to both left and right
+    for (size_t i = 0; i < kBlockSize; i++) {
+      float sample = consumed_[i];
+      left[i] = sample;
+      right[i] = sample;
+    }
+  } else {
+    // Stereo input: direct mapping from CoreAudio channel map
+    for (size_t i = 0; i < kBlockSize; i++) {
+      left[i] = consumed_[i * kNumChannels + 0];
+      right[i] = consumed_[i * kNumChannels + 1];
+    }
   }
 
   {
