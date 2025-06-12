@@ -305,6 +305,24 @@ PYBIND11_EMBEDDED_MODULE(bindings, m) {
 
   m.def("set_force_kill_at_shutdown_",
         [](bool force) { gRt_->SetForceKillAtShutdown(force); });
+
+  m.def("start_recording_", [](const std::string& file_path) {
+    auto status = gDsp_->StartRecording(file_path);
+    if (!status.ok()) {
+      LOG(ERROR) << "Failed to start recording: " << status;
+      return false;
+    }
+    return true;
+  });
+
+  m.def("stop_recording_", []() {
+    auto status = gDsp_->StopRecording();
+    if (!status.ok()) {
+      LOG(ERROR) << "Failed to stop recording: " << status;
+      return false;
+    }
+    return true;
+  });
 }
 
 }  // namespace rt

@@ -213,6 +213,7 @@ absl::Status Runtime::Run() {
           SOIR_TRACING_ZONE_COLOR("rt::code::hook", SOIR_GREEN);
           py::exec("soir._internals.post_eval_()", soir_mod.attr("__dict__"));
           py::exec("soir._ctrls.post_eval_()", soir_mod.attr("__dict__"));
+          py::exec("soir._system.post_eval_()", soir_mod.attr("__dict__"));
         }
 
       } catch (py::error_already_set& e) {
