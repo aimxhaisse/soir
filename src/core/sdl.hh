@@ -1,12 +1,12 @@
 #pragma once
 
+#include <SDL3/SDL.h>
 #include <absl/status/status.h>
-#include <portaudio.h>
 #include <string>
 #include <vector>
 
 namespace soir {
-namespace portaudio {
+namespace sdl {
 
 struct Device {
   int id;
@@ -22,5 +22,5 @@ absl::Status GetAudioInDevices(std::vector<Device>* out);
 absl::Status Initialize();
 absl::Status Terminate();
 
-}  // namespace portaudio
+}  // namespace sdl
 }  // namespace soir

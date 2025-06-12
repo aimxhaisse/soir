@@ -1,57 +1,56 @@
 #include <absl/log/log.h>
 
-#include "portaudio.hh"
+#include "sdl.hh"
 
 namespace soir {
-namespace portaudio {
+namespace sdl {
 
 absl::Status Initialize() {
-  PaError err = Pa_Initialize();
-  if (err != paNoError) {
+  if (!SDL_Init(SDL_INIT_AUDIO)) {
     return absl::InternalError(
-        std::string("Failed to initialize PortAudio: ") + Pa_GetErrorText(err));
+        std::string("Failed to initialize SDL: ") + SDL_GetError());
   }
   return absl::OkStatus();
 }
 
 absl::Status Terminate() {
-  PaError err = Pa_Terminate();
-  if (err != paNoError) {
-    return absl::InternalError(
-        std::string("Failed to terminate PortAudio: ") + Pa_GetErrorText(err));
-  }
+  SDL_Quit();
   return absl::OkStatus();
 }
 
 absl::Status GetAudioOutDevices(std::vector<Device>* out) {
-  int numDevices = Pa_GetDeviceCount();
-  if (numDevices < 0) {
+  int num = 0;
+  SDL_AudioDeviceID* devices = SDL_GetAudioPlaybackDevices(&num);
+  if (!devices) {
     return absl::InternalError(
-        std::string("Failed to get device count: ") + Pa_GetErrorText(numDevices));
+        std::string("Failed to get playback devices: ") + SDL_GetError());
   }
-
-  for (int i = 0; i < numDevices; i++) {
-    const PaDeviceInfo* deviceInfo = Pa_GetDeviceInfo(i);
-    if (deviceInfo && deviceInfo->maxOutputChannels > 0) {
-      out->push_back({i, deviceInfo->name});
+  
+  for (int i = 0; i < num; i++) {
+    const char* name = SDL_GetAudioDeviceName(devices[i]);
+    if (name) {
+      out->push_back({i, name});
     }
   }
+  SDL_free(devices);
   return absl::OkStatus();
 }
 
 absl::Status GetAudioInDevices(std::vector<Device>* out) {
-  int numDevices = Pa_GetDeviceCount();
-  if (numDevices < 0) {
+  int num = 0;
+  SDL_AudioDeviceID* devices = SDL_GetAudioRecordingDevices(&num);
+  if (!devices) {
     return absl::InternalError(
-        std::string("Failed to get device count: ") + Pa_GetErrorText(numDevices));
+        std::string("Failed to get recording devices: ") + SDL_GetError());
   }
-
-  for (int i = 0; i < numDevices; i++) {
-    const PaDeviceInfo* deviceInfo = Pa_GetDeviceInfo(i);
-    if (deviceInfo && deviceInfo->maxInputChannels > 0) {
-      out->push_back({i, deviceInfo->name});
+  
+  for (int i = 0; i < num; i++) {
+    const char* name = SDL_GetAudioDeviceName(devices[i]);
+    if (name) {
+      out->push_back({i, name});
     }
   }
+  SDL_free(devices);
   return absl::OkStatus();
 }
 
@@ -81,5 +80,5 @@ void ListAudioInDevices() {
   }
 }
 
-}  // namespace portaudio
+}  // namespace sdl
 }  // namespace soir
