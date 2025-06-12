@@ -1,12 +1,12 @@
 #pragma once
 
+#include <SDL3/SDL.h>
 #include <absl/status/status.h>
 #include <condition_variable>
 #include <libremidi/libremidi.hpp>
 #include <list>
 #include <memory>
 #include <mutex>
-#include <portaudio.h>
 #include <thread>
 #include <vector>
 
@@ -41,7 +41,6 @@ class MidiExt : public Instrument {
 
  private:
   void ScheduleMidiEvents(const absl::Time& next_block_at);
-  void FillAudioBuffer(const float* stream, size_t frames);
   void WaitForInitialTick();
 
   // Helper methods for Init function
@@ -53,15 +52,6 @@ class MidiExt : public Instrument {
   absl::Status ConfigureAudioDevice(const std::string& audio_in_device,
                                    const std::vector<int>& channels);
 
-  static int AudioInputCallback(const void* in, void* out,
-                               unsigned long frames,
-                               const PaStreamCallbackTimeInfo* time,
-                               PaStreamCallbackFlags flags,
-                               void* user_data);
-
-  struct PaStreamDeleter {
-    void operator()(PaStream* stream);
-  };
 
   // Current configuration as set from live coding. This is a cache
   // used to know upon update if we need to re-initialize the
@@ -81,8 +71,13 @@ class MidiExt : public Instrument {
 
   // Underlying devices to which we are connected to.
   libremidi::midi_out midi_out_;
-  std::unique_ptr<PaStream, PaStreamDeleter> audio_stream_;
   int audio_in_chans_ = -1;
+  SDL_AudioDeviceID audio_in_device_id_ = 0;
+  SDL_AudioStream* audio_stream_ = nullptr;
+  std::vector<int> channel_map_;
+
+  // Audio processing methods
+  void ProcessAudioInput();
 
   MidiStack midi_stack_;
 };

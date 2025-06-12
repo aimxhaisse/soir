@@ -46,7 +46,7 @@ add_library(
   sample.cc
   sample_manager.cc
   sample_pack.cc
-  portaudio.cc
+  sdl.cc
   soir.cc
   tools.cc
   track.cc
@@ -59,7 +59,6 @@ target_link_libraries(
   AudioFile
   libremidi
   Ogg::ogg
-  portaudio_static
   protobuf::libprotobuf
   SDL3::SDL3
   Vorbis::vorbis

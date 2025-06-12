@@ -2,13 +2,9 @@
 #include <absl/status/status.h>
 #include <rapidjson/document.h>
 
-#ifdef __APPLE__
-#include <pa_mac_core.h>
-#endif
-
 #include "core/dsp.hh"
 #include "core/inst/midi_ext.hh"
-#include "core/portaudio.hh"
+#include "core/sdl.hh"
 
 namespace {
 
@@ -41,18 +37,76 @@ bool useMidiPort(const std::string midi_out, libremidi::midi_out& libremidi) {
 namespace soir {
 namespace inst {
 
-void MidiExt::PaStreamDeleter::operator()(PaStream* stream) {
-  if (stream) {
-    Pa_CloseStream(stream);
+void MidiExt::ProcessAudioInput() {
+  if (!audio_stream_) {
+    return;
+  }
+
+  // Check how much audio data is available
+  int available = SDL_GetAudioStreamAvailable(audio_stream_);
+  if (available < kBlockSize * audio_in_chans_ * sizeof(float)) {
+    return;  // Not enough data for a full block
+  }
+
+  // Read interleaved audio data from the stream
+  std::vector<float> input_buffer(kBlockSize * audio_in_chans_);
+  int bytes_read =
+      SDL_GetAudioStreamData(audio_stream_, input_buffer.data(),
+                             kBlockSize * audio_in_chans_ * sizeof(float));
+  if (bytes_read <= 0) {
+    return;
+  }
+
+  int samples_read = bytes_read / sizeof(float) / audio_in_chans_;
+  if (samples_read < kBlockSize) {
+    return;
+  }
+
+  AudioBuffer output_buffer(kBlockSize);
+
+  if (channel_map_.size() == 1) {
+    // Mono input - duplicate to both channels
+    int source_channel = channel_map_[0];
+    float* left = output_buffer.GetChannel(kLeftChannel);
+    float* right = output_buffer.GetChannel(kRightChannel);
+
+    for (int i = 0; i < kBlockSize; ++i) {
+      float sample = input_buffer[i * audio_in_chans_ + source_channel];
+      left[i] = sample;
+      right[i] = sample;
+    }
+  } else if (channel_map_.size() >= 2) {
+    // Stereo input
+    int left_channel = channel_map_[0];
+    int right_channel = channel_map_[1];
+    float* left = output_buffer.GetChannel(kLeftChannel);
+    float* right = output_buffer.GetChannel(kRightChannel);
+
+    for (int i = 0; i < kBlockSize; ++i) {
+      left[i] = input_buffer[i * audio_in_chans_ + left_channel];
+      right[i] = input_buffer[i * audio_in_chans_ + right_channel];
+    }
+  }
+
+  {
+    std::lock_guard<std::mutex> lock(mutex_);
+    buffers_.push_back(output_buffer);
   }
 }
 
 MidiExt::MidiExt() {
-  portaudio::ListAudioInDevices();
+  sdl::ListAudioInDevices();
 }
 
 MidiExt::~MidiExt() {
-  audio_stream_.reset();
+  if (audio_stream_) {
+    SDL_DestroyAudioStream(audio_stream_);
+    audio_stream_ = nullptr;
+  }
+  if (audio_in_device_id_ != 0) {
+    SDL_CloseAudioDevice(audio_in_device_id_);
+    audio_in_device_id_ = 0;
+  }
 }
 
 absl::Status MidiExt::GetMidiDevices(
@@ -131,14 +185,21 @@ absl::Status MidiExt::ConfigureAudioDevice(const std::string& audio_in_device,
     return absl::OkStatus();
   }
 
-  // Clean up existing audio stream if necessary
-  audio_stream_.reset();
+  // Clean up existing audio stream
+  if (audio_stream_) {
+    SDL_DestroyAudioStream(audio_stream_);
+    audio_stream_ = nullptr;
+  }
+  if (audio_in_device_id_ != 0) {
+    SDL_CloseAudioDevice(audio_in_device_id_);
+    audio_in_device_id_ = 0;
+  }
 
   LOG(INFO) << "Trying to open audio device " << audio_in_device << "...";
 
   // Get the list of recording devices
-  std::vector<portaudio::Device> devices;
-  auto status = portaudio::GetAudioInDevices(&devices);
+  std::vector<sdl::Device> devices;
+  auto status = sdl::GetAudioInDevices(&devices);
   if (!status.ok()) {
     LOG(WARNING) << "Failed to get audio input devices: " << status;
     return absl::OkStatus();
@@ -150,85 +211,74 @@ absl::Status MidiExt::ConfigureAudioDevice(const std::string& audio_in_device,
   }
 
   // Find the device by name
-  int device_index = -1;
-  for (size_t i = 0; i < devices.size(); i++) {
-    if (devices[i].name == audio_in_device) {
-      device_index = devices[i].id;
+  SDL_AudioDeviceID device_id = 0;
+  for (const auto& device : devices) {
+    if (device.name == audio_in_device) {
+      device_id = device.id;
       break;
     }
   }
 
-  if (device_index == -1) {
+  if (device_id == 0) {
     LOG(WARNING) << "Audio device not found: " << audio_in_device;
     return absl::OkStatus();
   }
 
-  // Configure CoreAudio-specific channel selection
-  PaMacCoreStreamInfo mac_core_info;
-  PaMacCore_SetupStreamInfo(&mac_core_info, paMacCorePlayNice);
-
-  bool is_mono = (channels.size() == 1 || channels[0] == channels[1]);
-  int actual_channel_count = is_mono ? 1 : 2;
-
-  if (is_mono) {
-    LOG(INFO) << "Opening CoreAudio device " << audio_in_device
-              << " with mono channel " << channels[0]
-              << " (will be expanded to stereo)"
-              << " at " << kSampleRate << " Hz, format: float32";
-
-    SInt32 channel_map[1];
-    channel_map[0] = channels[0];
-    PaMacCore_SetupChannelMap(&mac_core_info, channel_map, 1);
-
-    LOG(INFO) << "Using CoreAudio mono channel map: " << channels[0]
-              << " -> stereo";
-  } else {
-    LOG(INFO) << "Opening CoreAudio device " << audio_in_device
-              << " with stereo channels " << channels[0] << " and "
-              << channels[1] << " at " << kSampleRate << " Hz, format: float32";
-
-    SInt32 channel_map[kNumChannels];
-    channel_map[0] = channels[0];
-    channel_map[1] = channels[1];
-    PaMacCore_SetupChannelMap(&mac_core_info, channel_map, kNumChannels);
-
-    LOG(INFO) << "Using CoreAudio stereo channel map: " << channels[0]
-              << " (left), " << channels[1] << " (right)";
+  // Validate channel indices
+  for (int channel : channels) {
+    if (channel < 0) {
+      LOG(WARNING) << "Invalid channel index: " << channel;
+      return absl::OkStatus();
+    }
   }
 
-  PaStreamParameters input_parameters;
-  input_parameters.device = device_index;
-  input_parameters.channelCount = actual_channel_count;
-  input_parameters.sampleFormat = paFloat32;
-  input_parameters.suggestedLatency =
-      Pa_GetDeviceInfo(device_index)->defaultLowInputLatency;
-  input_parameters.hostApiSpecificStreamInfo = &mac_core_info;
+  // Determine the number of input channels needed
+  int max_channel = *std::max_element(channels.begin(), channels.end());
+  int required_channels = max_channel + 1;
 
-  PaStream* raw_stream = nullptr;
-  PaError err = Pa_OpenStream(&raw_stream, &input_parameters,
-                              nullptr,  // no output
-                              kSampleRate, kBlockSize, paNoFlag,
-                              AudioInputCallback, this);
+  // Set up SDL audio specification
+  SDL_AudioSpec spec;
+  spec.freq = kSampleRate;
+  spec.format = SDL_AUDIO_F32;
+  spec.channels = required_channels;
 
-  if (err != paNoError) {
-    LOG(WARNING) << "Failed to open audio input stream: "
-                 << Pa_GetErrorText(err);
+  // Open the audio input device
+  audio_in_device_id_ = SDL_OpenAudioDevice(device_id, &spec);
+  if (audio_in_device_id_ == 0) {
+    LOG(WARNING) << "Failed to open audio device: " << SDL_GetError();
     return absl::OkStatus();
   }
 
-  err = Pa_StartStream(raw_stream);
-  if (err != paNoError) {
-    Pa_CloseStream(raw_stream);
-    LOG(WARNING) << "Failed to start audio input stream: "
-                 << Pa_GetErrorText(err);
+  // Create audio stream for processing
+  audio_stream_ = SDL_CreateAudioStream(&spec, &spec);
+  if (!audio_stream_) {
+    LOG(WARNING) << "Failed to create audio stream: " << SDL_GetError();
+    SDL_CloseAudioDevice(audio_in_device_id_);
+    audio_in_device_id_ = 0;
     return absl::OkStatus();
   }
 
-  // Update state
-  audio_stream_.reset(raw_stream);
-  audio_in_chans_ = actual_channel_count;  // 1 for mono, 2 for stereo
+  // Bind the stream to the device
+  SDL_BindAudioStream(audio_in_device_id_, audio_stream_);
+
+  // Resume the device to start capturing
+  SDL_ResumeAudioDevice(audio_in_device_id_);
+
+  // Update internal state
+  audio_in_chans_ = required_channels;
+  channel_map_ = channels;
   settings_audio_in_ = audio_in_device;
   settings_chans_ = channels;
+
+  LOG(INFO) << "Audio input device " << audio_in_device << " configured with "
+            << required_channels << " channels at " << kSampleRate << " Hz, "
+            << "using channel map: [";
+  for (size_t i = 0; i < channels.size(); ++i) {
+    if (i > 0)
+      LOG(INFO) << ", ";
+    LOG(INFO) << channels[i];
+  }
+  LOG(INFO) << "]";
 
   return absl::OkStatus();
 }
@@ -269,58 +319,6 @@ absl::Status MidiExt::Init(const std::string& settings,
   // Update settings cache
   settings_ = settings;
   return absl::OkStatus();
-}
-
-int MidiExt::AudioInputCallback(const void* in, void* out, unsigned long frames,
-                                const PaStreamCallbackTimeInfo* time,
-                                PaStreamCallbackFlags flags, void* user_data) {
-  auto* midi_ext = static_cast<MidiExt*>(user_data);
-  auto* input = static_cast<const float*>(in);
-
-  midi_ext->FillAudioBuffer(input, frames);
-  return paContinue;
-}
-
-void MidiExt::FillAudioBuffer(const float* stream, size_t frames) {
-  size_t samples_to_add = frames * audio_in_chans_;
-  size_t current_size = consumed_.size();
-  consumed_.resize(current_size + samples_to_add);
-
-  // Copy the interleaved float data
-  std::memcpy(consumed_.data() + current_size, stream,
-              samples_to_add * sizeof(float));
-
-  // We expect float samples interleaved
-  const size_t want = audio_in_chans_ * kBlockSize;
-  if (consumed_.size() < want) {
-    return;
-  }
-
-  AudioBuffer out(kBlockSize);
-  float* left = out.GetChannel(kLeftChannel);
-  float* right = out.GetChannel(kRightChannel);
-
-  if (audio_in_chans_ == 1) {
-    // Mono input: duplicate single channel to both left and right
-    for (size_t i = 0; i < kBlockSize; i++) {
-      float sample = consumed_[i];
-      left[i] = sample;
-      right[i] = sample;
-    }
-  } else {
-    // Stereo input: direct mapping from CoreAudio channel map
-    for (size_t i = 0; i < kBlockSize; i++) {
-      left[i] = consumed_[i * kNumChannels + 0];
-      right[i] = consumed_[i * kNumChannels + 1];
-    }
-  }
-
-  {
-    std::lock_guard<std::mutex> lock(mutex_);
-    buffers_.push_back(out);
-  }
-
-  consumed_.erase(consumed_.begin(), consumed_.begin() + want);
 }
 
 void MidiExt::ScheduleMidiEvents(const absl::Time& block_at) {
@@ -408,6 +406,9 @@ absl::Status MidiExt::Run() {
 
     ScheduleMidiEvents(next_block_at);
 
+    // Process audio input if configured
+    ProcessAudioInput();
+
     block_count += 1;
     next_block_at = initial_time + (block_count * block_duration);
     current_tick_ += kBlockSize;
@@ -429,7 +430,17 @@ absl::Status MidiExt::Stop() {
 
   LOG(INFO) << "MIDI thread stopped";
 
-  audio_stream_.reset();
+  // Clean up audio resources
+  if (audio_stream_) {
+    SDL_DestroyAudioStream(audio_stream_);
+    audio_stream_ = nullptr;
+  }
+  if (audio_in_device_id_ != 0) {
+    SDL_CloseAudioDevice(audio_in_device_id_);
+    audio_in_device_id_ = 0;
+  }
+
+  // Clean up MIDI resources
   if (midi_out_.is_port_open()) {
     midi_out_.close_port();
   }

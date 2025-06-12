@@ -1,9 +1,9 @@
 #pragma once
 
+#include <SDL3/SDL.h>
 #include <absl/status/status.h>
 #include <memory>
 #include <mutex>
-#include <portaudio.h>
 #include <vector>
 
 #include "core/dsp.hh"
@@ -26,21 +26,11 @@ class AudioOutput : public SampleConsumer {
   absl::Status PushAudioBuffer(AudioBuffer& buffer) override;
 
  private:
-  static int AudioCallback(const void* inputBuffer, void* outputBuffer,
-                          unsigned long framesPerBuffer,
-                          const PaStreamCallbackTimeInfo* timeInfo,
-                          PaStreamCallbackFlags statusFlags,
-                          void* userData);
+  static void AudioCallback(void* userdata, SDL_AudioStream* stream, int additional_amount, int total_amount);
 
-  struct PaStreamDeleter {
-    void operator()(PaStream* stream);
-  };
-
-  std::unique_ptr<PaStream, PaStreamDeleter> stream_;
-  std::vector<float> ring_buffer_;
-  size_t ring_buffer_write_pos_ = 0;
-  size_t ring_buffer_read_pos_ = 0;
-  size_t ring_buffer_size_ = 0;
+  SDL_AudioDeviceID device_id_ = 0;
+  SDL_AudioStream* audio_stream_ = nullptr;
+  std::vector<float> buffer_;
   std::mutex buffer_mutex_;
 };
 

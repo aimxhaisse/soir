@@ -3,73 +3,47 @@
 #include <cstring>
 
 #include "audio_output.hh"
-#include "portaudio.hh"
+#include "sdl.hh"
 
 namespace soir {
 
-void AudioOutput::PaStreamDeleter::operator()(PaStream* stream) {
-  if (stream) {
-    Pa_CloseStream(stream);
-  }
-}
-
 AudioOutput::AudioOutput() {
-  auto status = portaudio::Initialize();
+  auto status = sdl::Initialize();
   if (!status.ok()) {
-    LOG(ERROR) << "Failed to initialize PortAudio: " << status;
+    LOG(ERROR) << "Failed to initialize SDL: " << status;
     return;
   }
 
-  portaudio::ListAudioOutDevices();
-  
-  // Initialize ring buffer (4x block size for buffering)
-  ring_buffer_size_ = kBlockSize * kNumChannels * 4;
-  ring_buffer_.resize(ring_buffer_size_);
+  sdl::ListAudioOutDevices();
 }
 
 AudioOutput::~AudioOutput() {
   Stop();
-  stream_.reset();
-  portaudio::Terminate();
+  if (audio_stream_) {
+    SDL_DestroyAudioStream(audio_stream_);
+    audio_stream_ = nullptr;
+  }
+  sdl::Terminate();
 }
 
-int AudioOutput::AudioCallback(const void* in, void* out,
-                              unsigned long frames,
-                              const PaStreamCallbackTimeInfo* time,
-                              PaStreamCallbackFlags flags,
-                              void* user_data) {
-  auto* audio_output = static_cast<AudioOutput*>(user_data);
-  auto* output = static_cast<float*>(out);
-  
+void AudioOutput::AudioCallback(void* userdata, SDL_AudioStream* stream,
+                                int additional_amount, int total_amount) {
+  auto* audio_output = static_cast<AudioOutput*>(userdata);
+
   std::lock_guard<std::mutex> lock(audio_output->buffer_mutex_);
-  
-  size_t samples_needed = frames * kNumChannels;
-  size_t samples_available = 0;
-  
-  if (audio_output->ring_buffer_write_pos_ >= audio_output->ring_buffer_read_pos_) {
-    samples_available = audio_output->ring_buffer_write_pos_ - audio_output->ring_buffer_read_pos_;
-  } else {
-    samples_available = audio_output->ring_buffer_size_ - audio_output->ring_buffer_read_pos_ + audio_output->ring_buffer_write_pos_;
+
+  if (!audio_output->buffer_.empty()) {
+    SDL_PutAudioStreamData(stream, audio_output->buffer_.data(),
+                           audio_output->buffer_.size() * sizeof(float));
+    audio_output->buffer_.clear();
   }
-  
-  if (samples_available >= samples_needed) {
-    for (size_t i = 0; i < samples_needed; ++i) {
-      output[i] = audio_output->ring_buffer_[audio_output->ring_buffer_read_pos_];
-      audio_output->ring_buffer_read_pos_ = (audio_output->ring_buffer_read_pos_ + 1) % audio_output->ring_buffer_size_;
-    }
-  } else {
-    // Not enough data, output silence
-    std::memset(output, 0, samples_needed * sizeof(float));
-  }
-  
-  return paContinue;
 }
 
 absl::Status AudioOutput::Init(const utils::Config& config) {
   LOG(INFO) << "Initializing audio output";
 
-  std::vector<portaudio::Device> devices;
-  auto status = portaudio::GetAudioOutDevices(&devices);
+  std::vector<sdl::Device> devices;
+  auto status = sdl::GetAudioOutDevices(&devices);
   if (!status.ok()) {
     LOG(ERROR) << "Failed to get audio devices: " << status;
     return status;
@@ -86,49 +60,53 @@ absl::Status AudioOutput::Init(const utils::Config& config) {
     return absl::InternalError("Invalid audio device index");
   }
 
-  const auto& device = devices[device_index];
+  // Get actual device IDs from SDL
+  int num_devices = 0;
+  SDL_AudioDeviceID* device_ids = SDL_GetAudioPlaybackDevices(&num_devices);
+  if (!device_ids || device_index >= num_devices) {
+    LOG(ERROR) << "Failed to get SDL audio devices";
+    if (device_ids)
+      SDL_free(device_ids);
+    return absl::InternalError("Failed to get SDL audio devices");
+  }
 
-  LOG(INFO) << "Opening audio device: " << device.name << " (ID: " << device.id
+  SDL_AudioDeviceID device_id = device_ids[device_index];
+  const char* device_name = SDL_GetAudioDeviceName(device_id);
+  SDL_free(device_ids);
+
+  LOG(INFO) << "Opening audio device: "
+            << (device_name ? device_name : "Unknown") << " (ID: " << device_id
             << ") with sample rate: " << kSampleRate
             << ", channels: " << kNumChannels;
 
-  PaStreamParameters outputParameters;
-  outputParameters.device = device.id;
-  outputParameters.channelCount = kNumChannels;
-  outputParameters.sampleFormat = paFloat32;
-  outputParameters.suggestedLatency = Pa_GetDeviceInfo(device.id)->defaultLowOutputLatency;
-  outputParameters.hostApiSpecificStreamInfo = nullptr;
+  SDL_AudioSpec spec;
+  SDL_zero(spec);
+  spec.freq = kSampleRate;
+  spec.format = SDL_AUDIO_F32LE;
+  spec.channels = kNumChannels;
 
-  PaStream* raw_stream = nullptr;
-  PaError err = Pa_OpenStream(&raw_stream,
-                             nullptr,  // no input
-                             &outputParameters,
-                             kSampleRate,
-                             kBlockSize,
-                             paNoFlag,
-                             AudioCallback,
-                             this);
-
-  if (err != paNoError) {
-    LOG(ERROR) << "Failed to open audio stream: " << Pa_GetErrorText(err);
-    return absl::InternalError("Failed to open audio stream");
+  audio_stream_ =
+      SDL_OpenAudioDeviceStream(device_id, &spec, AudioCallback, this);
+  if (!audio_stream_) {
+    LOG(ERROR) << "Failed to open audio device stream: " << SDL_GetError();
+    return absl::InternalError("Failed to open audio device stream");
   }
 
-  stream_.reset(raw_stream);
+  device_id_ = SDL_GetAudioStreamDevice(audio_stream_);
+
   return absl::OkStatus();
 }
 
 absl::Status AudioOutput::Start() {
   LOG(INFO) << "Starting audio output";
 
-  if (!stream_) {
+  if (!audio_stream_) {
     return absl::InternalError("Audio stream not initialized");
   }
 
-  PaError err = Pa_StartStream(stream_.get());
-  if (err != paNoError) {
-    LOG(ERROR) << "Failed to start audio stream: " << Pa_GetErrorText(err);
-    return absl::InternalError("Failed to start audio stream");
+  if (!SDL_ResumeAudioDevice(device_id_)) {
+    LOG(ERROR) << "Failed to resume audio device: " << SDL_GetError();
+    return absl::InternalError("Failed to resume audio device");
   }
 
   return absl::OkStatus();
@@ -137,14 +115,13 @@ absl::Status AudioOutput::Start() {
 absl::Status AudioOutput::Stop() {
   LOG(INFO) << "Stopping audio output";
 
-  if (!stream_) {
+  if (!audio_stream_) {
     return absl::OkStatus();
   }
 
-  PaError err = Pa_StopStream(stream_.get());
-  if (err != paNoError) {
-    LOG(ERROR) << "Failed to stop audio stream: " << Pa_GetErrorText(err);
-    return absl::InternalError("Failed to stop audio stream");
+  if (!SDL_PauseAudioDevice(device_id_)) {
+    LOG(ERROR) << "Failed to pause audio device: " << SDL_GetError();
+    return absl::InternalError("Failed to pause audio device");
   }
 
   return absl::OkStatus();
@@ -159,11 +136,10 @@ absl::Status AudioOutput::PushAudioBuffer(AudioBuffer& buffer) {
 
   std::lock_guard<std::mutex> lock(buffer_mutex_);
 
-  // Interleave the audio data
+  // Interleave the audio data and append to buffer
   for (size_t i = 0; i < size; i++) {
     for (size_t j = 0; j < kNumChannels; j++) {
-      ring_buffer_[ring_buffer_write_pos_] = buffer.GetChannel(j)[i];
-      ring_buffer_write_pos_ = (ring_buffer_write_pos_ + 1) % ring_buffer_size_;
+      buffer_.push_back(buffer.GetChannel(j)[i]);
     }
   }
 

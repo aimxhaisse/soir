@@ -8,7 +8,7 @@
 #include "core/engine.hh"
 #include "core/inst/midi_ext.hh"
 #include "core/rt/bindings.hh"
-#include "core/portaudio.hh"
+#include "core/sdl.hh"
 #include "core/rt/runtime.hh"
 #include "core/track.hh"
 #include "soir.grpc.pb.h"
@@ -241,8 +241,8 @@ PYBIND11_EMBEDDED_MODULE(bindings, m) {
   m.def("get_code_", []() { return gRt_->GetCode(); });
 
   m.def("get_audio_out_devices_", []() {
-    std::vector<portaudio::Device> pa_devices;
-    auto status = portaudio::GetAudioOutDevices(&pa_devices);
+    std::vector<sdl::Device> pa_devices;
+    auto status = sdl::GetAudioOutDevices(&pa_devices);
     if (!status.ok()) {
       LOG(ERROR) << "Unable to get audio output devices: " << status;
       return std::vector<std::pair<int, std::string>>();
@@ -256,8 +256,8 @@ PYBIND11_EMBEDDED_MODULE(bindings, m) {
   });
 
   m.def("get_audio_in_devices_", []() {
-    std::vector<portaudio::Device> pa_devices;
-    auto status = portaudio::GetAudioInDevices(&pa_devices);
+    std::vector<sdl::Device> pa_devices;
+    auto status = sdl::GetAudioInDevices(&pa_devices);
     if (!status.ok()) {
       LOG(ERROR) << "Unable to get audio input devices: " << status;
       return std::vector<std::pair<int, std::string>>();
