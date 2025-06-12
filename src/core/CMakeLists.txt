@@ -9,6 +9,7 @@ add_library(
   adsr.cc
   audio_buffer.cc
   audio_output.cc
+  audio_recorder.cc
   controls.cc
   dsp/band_pass_filter.cc
   dsp/biquad_filter.cc
@@ -79,6 +80,7 @@ add_executable(
   tests/base.cc
   tests/notification_recorder.cc
 
+  tests/test_audio_recording.cc
   tests/test_basic_live.cc
   tests/test_basic_log.cc
   tests/test_basic_loop.cc

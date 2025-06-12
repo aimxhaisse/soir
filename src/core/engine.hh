@@ -7,6 +7,7 @@
 #include <thread>
 
 #include "core/audio_output.hh"
+#include "core/audio_recorder.hh"
 #include "core/common.hh"
 #include "core/controls.hh"
 #include "core/http.hh"
@@ -43,6 +44,9 @@ class Engine {
 
   SampleManager& GetSampleManager();
 
+  absl::Status StartRecording(const std::string& file_path);
+  absl::Status StopRecording();
+
  private:
   absl::Status Run();
   void SetTicks(std::list<MidiEventAt>& events);
@@ -67,6 +71,7 @@ class Engine {
   std::unique_ptr<HttpServer> http_server_;
   bool audio_output_enabled_ = false;
   std::unique_ptr<AudioOutput> audio_output_;
+  std::unique_ptr<AudioRecorder> audio_recorder_;
   std::list<SampleConsumer*> consumers_;
 
   // Tracks are created/updated by the Runtime engine, and locked

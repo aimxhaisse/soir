@@ -1,6 +1,7 @@
 #include <absl/log/log.h>
 
 #include "core/engine.hh"
+#include "core/audio_recorder.hh"
 #include "soir.grpc.pb.h"
 
 namespace soir {
@@ -49,6 +50,8 @@ absl::Status Engine::Init(const utils::Config& config) {
     LOG(ERROR) << "Failed to initialize controls: " << status;
     return status;
   }
+
+  audio_recorder_ = std::make_unique<AudioRecorder>();
 
   return absl::OkStatus();
 }
@@ -360,6 +363,38 @@ absl::Status Engine::SetupTracks(const std::list<Track::Settings>& settings) {
 
 SampleManager& Engine::GetSampleManager() {
   return *sample_manager_;
+}
+
+absl::Status Engine::StartRecording(const std::string& file_path) {
+  if (!audio_recorder_) {
+    return absl::InternalError("AudioRecorder not initialized");
+  }
+  
+  auto status = audio_recorder_->Init(file_path);
+  if (!status.ok()) {
+    return status;
+  }
+  
+  RegisterConsumer(audio_recorder_.get());
+  
+  LOG(INFO) << "Started recording to: " << file_path;
+  return absl::OkStatus();
+}
+
+absl::Status Engine::StopRecording() {
+  if (!audio_recorder_) {
+    return absl::InternalError("AudioRecorder not initialized");
+  }
+  
+  RemoveConsumer(audio_recorder_.get());
+  
+  auto status = audio_recorder_->MaybeStop();
+  if (!status.ok()) {
+    return status;
+  }
+  
+  LOG(INFO) << "Stopped recording";
+  return absl::OkStatus();
 }
 
 }  // namespace soir

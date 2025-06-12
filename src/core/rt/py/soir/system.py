@@ -44,8 +44,36 @@ from bindings import (
     set_force_kill_at_shutdown_,
 )
 from soir._internals import (
+    assert_not_in_loop,
     log,
 )
+from soir._system import (
+    record_,
+)
+
+
+def record(file_path: str) -> bool:
+    """Record audio to a WAV file.
+    
+    This function starts recording all audio output to the specified WAV file.
+    Recording will automatically stop if this function is not called in a
+    subsequent evaluation cycle (similar to how controls work). This enables
+    automatic cleanup when code is changed or removed.
+    
+    Args:
+        file_path: Path to the WAV file where audio will be recorded.
+                   The file will be created or overwritten if it exists.
+                   Parent directories will be created automatically if needed.
+    
+    Returns:
+        True if recording started/continued successfully, False otherwise.
+        
+    Raises:
+        InLoopException: If called from within a loop context. Recording
+                        must be initiated from the global scope only.
+    """
+    assert_not_in_loop()
+    return record_(file_path)
 
 
 def get_audio_out_devices() -> list[tuple[int, str]]:
