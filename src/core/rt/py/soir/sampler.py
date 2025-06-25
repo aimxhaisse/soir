@@ -54,6 +54,7 @@ from bindings import (
 from soir._internals import (
     assert_in_loop,
     current_loop,
+    sleep,
 )
 from soir.ctrls import (
     Control,
@@ -293,5 +294,5 @@ class Kit:
             for p in pattern:
                 what = self.kit.get(p[i])
                 if what:
-                    sp.play(**what())
+                    self.sp.play(**what())
             sleep(dur)
