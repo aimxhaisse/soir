@@ -1,0 +1,26 @@
+default:
+    @just --list
+
+sync:
+    uv sync --all-extras
+
+fmt:
+    uv run black .
+    clang-format -i src/*.cc src/*.hh
+
+lint:
+    uv run ruff check .
+    uv run mypy soir
+
+build:
+    uv pip install -e .
+
+test:
+    uv run pytest
+
+package:
+    uv run pyinstaller --onefile --name soir --hidden-import=soir._core -c soir/cli.py
+
+clean:
+    rm -rf build dist *.egg-info .pytest_cache .mypy_cache .ruff_cache .venv
+    find . -type d -name __pycache__ -exec rm -rf {} +
