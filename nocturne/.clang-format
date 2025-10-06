@@ -1,0 +1,4 @@
+BasedOnStyle: Google
+Language: Cpp
+# Using c++20 as clang-format doesn't support c++23 yet (project compiles with c++23)
+Standard: c++20
