@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+set -e
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+VENV_DIR="${SCRIPT_DIR}/../.venv"
+
+if [ ! -d "${VENV_DIR}" ]; then
+    echo "Error: Virtual environment not found at ${VENV_DIR}" >&2
+    exit 1
+fi
+
+exec "${VENV_DIR}/bin/python" -m soir.cli "$@"
