@@ -1,26 +1,39 @@
-default:
+_default:
     @just --list
 
-sync:
+# Install or update dependencies
+setup:
     uv sync --all-extras
 
-fmt:
+# Format code & check code
+check:
     uv run black .
     clang-format -i src/*.cc src/*.hh
-
-lint:
     uv run ruff check .
     uv run mypy soir
 
+# Run all checks
 build:
     uv pip install -e .
 
+# Run tests
 test:
     uv run pytest
 
+# Create a distributable package
 package:
-    uv run pyinstaller --onefile --name soir --hidden-import=soir._core -c soir/cli.py
+    #!/usr/bin/env bash
+    version=$(grep '^version =' pyproject.toml | awk '// { print $3; }' | tr -d '"')
+    virtualenv=dist/.venv
 
-clean:
-    rm -rf build dist *.egg-info .pytest_cache .mypy_cache .ruff_cache .venv
-    find . -type d -name __pycache__ -exec rm -rf {} +
+    rm -rf dist
+    mkdir -p dist/{etc,bin}
+
+    uv python install 3.13
+    py=$(uv python find 3.13)
+    $py -m venv --copies ${virtualenv}
+    UV_PROJECT_ENVIRONMENT=${virtualenv} uv sync --no-editable
+
+    cp bin/soir dist/bin/soir
+
+    tar -czf dist/soir-${version}-{{arch()}}_{{os()}}.tar.gz -C dist bin etc .venv
