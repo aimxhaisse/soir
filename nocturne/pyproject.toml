@@ -9,11 +9,22 @@ description = "Live Coding Environment for Music Creation"
 requires-python = ">=3.13"
 dependencies = [
     "typer>=0.19.2",
+    "flask>=3.1.2",
+    "mistune>=3.1.4",
+    "pygments>=2.19.2",
+    "pdoc>=15.0.4",
 ]
 
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["soir*"]
+
+[tool.setuptools.package-data]
+"soir.www" = [
+    "content/*.md",
+    "static/**/*",
+    "templates/*.html",
+]
 
 [project.optional-dependencies]
 dev = [

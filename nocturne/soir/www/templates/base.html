@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ title }} - Soir{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/pygments.css') }}">
+</head>
+<body>
+    <nav class="navigation">
+        <div class="nav-container">
+            <a href="{{ url_for('home') }}" class="nav-link">Home</a>
+            <a href="{{ url_for('quickstart') }}" class="nav-link">Quickstart</a>
+            <a href="{{ url_for('examples') }}" class="nav-link">Examples</a>
+            <a href="{{ url_for('reference') }}" class="nav-link">Reference</a>
+            <a href="{{ url_for('about') }}" class="nav-link">About</a>
+        </div>
+    </nav>
+
+    <main class="content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer">
+        <div class="footer-container">
+            <p>Soir &copy; 2025</p>
+        </div>
+    </footer>
+</body>
+</html>

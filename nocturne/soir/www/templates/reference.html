@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block content %}
+<article class="reference-content">
+    <h1>API Reference</h1>
+    {% if modules %}
+        <ul class="module-list">
+        {% for module in modules %}
+            <li><a href="{{ url_for('reference_module', module_path=module) }}">{{ module }}</a></li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>API documentation coming soon.</p>
+    {% endif %}
+</article>
+{% endblock %}
