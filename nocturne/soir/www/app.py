@@ -2,7 +2,6 @@
 
 import threading
 import time
-import webbrowser
 from pathlib import Path
 
 import mistune
@@ -133,7 +132,6 @@ def start_server(port: int = 5000, dev: bool = False, open_browser: bool = True)
     if open_browser:
         def open_in_browser() -> None:
             time.sleep(0.5)
-            webbrowser.open(url)
 
         threading.Thread(target=open_in_browser, daemon=True).start()
 
