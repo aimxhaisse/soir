@@ -19,42 +19,21 @@
   --nav-padding: .75vmax;
   --nav-item-space: 1.4vmax;
 
-  /* Colors - HSL system */
-  --text-h: 318;
-  --text-s: 30%;
-  --text-l: 10%;
-  --text-hsl: var(--text-h), var(--text-s), var(--text-l);
+  /* Colors - Midnight Slate */
+  --text-color: hsl(215, 12%, 75%);
+  --text-color-3: hsla(215, 12%, 75%, .03);
+  --text-color-5: hsla(215, 12%, 75%, .05);
+  --text-color-10: hsla(215, 12%, 75%, .1);
+  --text-color-20: hsla(215, 12%, 75%, .2);
+  --text-color-30: hsla(215, 12%, 75%, .3);
+  --text-color-40: hsla(215, 12%, 75%, .4);
+  --text-color-50: hsla(215, 12%, 75%, .5);
+  --text-color-60: hsla(215, 12%, 75%, .6);
 
-  --link-h: 318;
-  --link-s: 100%;
-  --link-l: 50%;
-  --link-hsl: var(--link-h), var(--link-s), var(--link-l);
-
-  --bg-h: 318;
-  --bg-s: 30%;
-  --bg-l: 100%;
-  --bg-hsl: var(--bg-h), var(--bg-s), var(--bg-l);
-
-  --code-h: calc(var(--link-h) + 30);
-  --code-s: calc(var(--link-s) * .2 + 30%);
-  --code-l: var(--link-l);
-  --code-hsl: var(--code-h), var(--code-s), var(--code-l);
-
-  /* Color variations */
-  --text-color: hsl(var(--text-hsl));
-  --text-color-3: hsla(var(--text-hsl), .03);
-  --text-color-5: hsla(var(--text-hsl), .05);
-  --text-color-10: hsla(var(--text-hsl), .1);
-  --text-color-20: hsla(var(--text-hsl), .2);
-  --text-color-30: hsla(var(--text-hsl), .3);
-  --text-color-40: hsla(var(--text-hsl), .4);
-  --text-color-50: hsla(var(--text-hsl), .5);
-  --text-color-60: hsla(var(--text-hsl), .6);
-
-  --link-color: hsl(var(--link-hsl));
-  --bg-color: hsl(var(--bg-hsl));
-  --code-color: hsl(var(--code-hsl));
-  --code-color-5: hsla(var(--code-hsl), .05);
+  --link-color: hsl(215, 45%, 65%);
+  --bg-color: hsl(215, 20%, 9%);
+  --code-color: hsl(245, 50%, 70%);
+  --code-color-5: hsla(245, 50%, 70%, .05);
 
   /* Borders */
   --border-sm: 1px;
@@ -356,7 +335,8 @@ hr::before {
   flex-wrap: wrap;
 }
 
-.footer-container a {
+.footer-container a,
+.footer-container p {
   display: inline-block;
   padding: .5em var(--nav-item-space);
   line-height: 1.8;
