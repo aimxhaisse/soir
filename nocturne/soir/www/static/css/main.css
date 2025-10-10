@@ -112,13 +112,19 @@ h1 {
   justify-content: center;
   min-height: calc(100vh - (var(--nav-padding) * 4) - (var(--nav-item-space) * 4) - (1ex * .9 * 2));
   padding-top: 10vmin;
-  padding-bottom: 10vmin;
+  padding-bottom: 16vmin;
   padding-left: var(--space-lg);
   padding-right: var(--space-lg);
+  margin-top: 0;
   margin-left: calc(var(--space-lg) * -1);
   margin-right: calc(var(--space-lg) * -1);
-  margin-bottom: 16vmin;
+  margin-bottom: 0;
   background: var(--text-color-3);
+}
+
+.content h1:first-child + *,
+.content > h1:first-of-type + * {
+  margin-top: 16vmin;
 }
 
 h2, h3, h4, h5, h6 {
@@ -368,7 +374,7 @@ hr::before {
   .content > h1:first-of-type {
     min-height: 70vh;
     padding-top: 16vmin;
-    padding-bottom: 16vmin;
+    padding-bottom: 20vmin;
     padding-left: var(--space-md);
     padding-right: var(--space-md);
     margin-left: calc(var(--space-md) * -1);
@@ -412,6 +418,7 @@ hr::before {
 
   .content h1:first-child,
   .content > h1:first-of-type {
+    padding-bottom: 20vmin;
     padding-left: var(--space-sm);
     padding-right: var(--space-sm);
     margin-left: calc(var(--space-sm) * -1);
