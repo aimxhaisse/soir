@@ -4,12 +4,9 @@ import threading
 import time
 from pathlib import Path
 
-import mistune
+import markdown
 import pdoc.doc
 from flask import Flask, render_template, abort
-from pygments import highlight
-from pygments.formatters import HtmlFormatter
-from pygments.lexers import get_lexer_by_name
 
 
 def create_app() -> Flask:
@@ -23,20 +20,7 @@ def create_app() -> Flask:
     # Store pdoc data in app context
     app.pdoc_modules = {}
 
-    # Configure mistune with Pygments highlighting
-    class HighlightRenderer(mistune.HTMLRenderer):
-        def block_code(self, code: str, info: str | None = None) -> str:
-            if info:
-                try:
-                    lexer = get_lexer_by_name(info, stripall=True)
-                    formatter = HtmlFormatter()
-                    return highlight(code, lexer, formatter)
-                except Exception:
-                    pass
-            return f'<pre><code>{mistune.escape(code)}</code></pre>'
-
-    markdown = mistune.create_markdown(renderer=HighlightRenderer())
-    app.markdown = markdown
+    app.markdown = markdown.Markdown(extensions=['codehilite'])
 
     @app.route('/')
     def home() -> str:
@@ -112,7 +96,7 @@ def create_app() -> Flask:
         with open(file_path, 'r', encoding='utf-8') as f:
             markdown_text = f.read()
 
-        return app.markdown(markdown_text)
+        return app.markdown.convert(markdown_text)
 
     return app
 
