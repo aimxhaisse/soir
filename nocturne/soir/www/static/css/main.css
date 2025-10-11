@@ -89,9 +89,9 @@ h1 {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  height: calc(100vh - var(--nav-padding));
-  padding-top: 10vmin;
-  padding-bottom: 16vmin;
+  height: 60vh;
+  padding-top: 6vmin;
+  padding-bottom: 8vmin;
   padding-left: var(--space-lg);
   padding-right: var(--space-lg);
   margin-top: 0;
@@ -352,9 +352,9 @@ hr::before {
 
   .content h1:first-child,
   .content > h1:first-of-type {
-    height: calc(100vh - var(--nav-padding));
-    padding-top: 16vmin;
-    padding-bottom: 20vmin;
+    height: 60vh;
+    padding-top: 8vmin;
+    padding-bottom: 10vmin;
     padding-left: var(--space-md);
     padding-right: var(--space-md);
     margin-left: calc(var(--space-md) * -1);
@@ -398,7 +398,9 @@ hr::before {
 
   .content h1:first-child,
   .content > h1:first-of-type {
-    padding-bottom: 20vmin;
+    height: 55vh;
+    padding-top: 6vmin;
+    padding-bottom: 8vmin;
     padding-left: var(--space-sm);
     padding-right: var(--space-sm);
     margin-left: calc(var(--space-sm) * -1);
