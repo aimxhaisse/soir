@@ -59,8 +59,7 @@ html {
 }
 
 body {
-  padding-left: var(--space-lg);
-  padding-right: var(--space-lg);
+  padding-inline: var(--space-lg);
   margin: 0 auto;
   font-family: var(--fontstack);
   font-size: var(--font-size);
@@ -92,11 +91,9 @@ h1 {
   height: 60vh;
   padding-top: 6vmin;
   padding-bottom: 8vmin;
-  padding-left: var(--space-lg);
-  padding-right: var(--space-lg);
+  padding-inline: var(--space-lg);
   margin-top: 0;
-  margin-left: calc(var(--space-lg) * -1);
-  margin-right: calc(var(--space-lg) * -1);
+  margin-inline: calc(var(--space-lg) * -1);
   margin-bottom: 0;
   background: var(--text-color-3);
 }
@@ -106,11 +103,39 @@ h1 {
   margin-top: 16vmin;
 }
 
-h2, h3, h4, h5, h6 {
-  font-size: 72%;
+h2 {
+  font-size: 240%;
+  font-weight: normal;
+  opacity: .7;
+  margin: 8vmin 0 1rem;
+}
+
+h3 {
+  font-size: 180%;
+  font-weight: normal;
+  opacity: .6;
+  margin: 6vmin 0 1rem;
+}
+
+h4 {
+  font-size: 140%;
+  font-weight: normal;
+  opacity: .6;
+  margin: 4vmin 0 1rem;
+}
+
+h5 {
+  font-size: 120%;
   font-weight: normal;
   opacity: .5;
-  margin: 10vmin 0 1rem;
+  margin: 3vmin 0 1rem;
+}
+
+h6 {
+  font-size: 110%;
+  font-weight: normal;
+  opacity: .5;
+  margin: 2vmin 0 1rem;
 }
 
 p {
@@ -237,10 +262,7 @@ code {
 
 pre {
   padding: var(--space-xs);
-  padding-left: var(--space-xs);
-  padding-right: var(--space-xs);
-  margin-left: calc(var(--space-xs) * -1);
-  margin-right: calc(var(--space-xs) * -1);
+  margin-inline: calc(var(--space-xs) * -1);
   margin-bottom: 1.8rem;
   overflow-x: auto;
   font-size: 80%;
@@ -256,8 +278,7 @@ pre code {
 /* Tables */
 table {
   width: calc(100% + var(--space-xs) * 2);
-  margin-left: calc(var(--space-xs) * -1);
-  margin-right: calc(var(--space-xs) * -1);
+  margin-inline: calc(var(--space-xs) * -1);
   margin-bottom: 1.8rem;
   border-collapse: collapse;
   border-spacing: 0;
@@ -292,7 +313,7 @@ td {
 blockquote {
   position: relative;
   margin-bottom: 2.8rem;
-  margin-left: calc(var(--space-xs) * -1);
+  margin-inline-start: calc(var(--space-xs) * -1);
   font-size: 90%;
 }
 
@@ -309,16 +330,12 @@ blockquote > p:last-of-type {
   margin-bottom: .4em;
 }
 
-/* Horizontal rule - three-dot separator */
-hr::before {
-  display: block;
-  content: '';
-  width: 3px;
-  height: 3px;
-  margin: 2em auto;
-  border-radius: 50%;
-  background: var(--text-color);
-  box-shadow: 24px 0 0 0 var(--text-color), -24px 0 0 0 var(--text-color);
+/* Haiku integration in H1 */
+.haiku-container {
+  margin-top: 3rem;
+  font-size: 18%;
+  font-weight: normal;
+  letter-spacing: normal;
 }
 
 /* Footer */
@@ -345,8 +362,7 @@ hr::before {
 /* Responsive */
 @media (max-width: 1080px) {
   body {
-    padding-left: var(--space-md);
-    padding-right: var(--space-md);
+    padding-inline: var(--space-md);
     font-size: calc(var(--font-size) * 1.4);
   }
 
@@ -355,23 +371,18 @@ hr::before {
     height: 60vh;
     padding-top: 8vmin;
     padding-bottom: 10vmin;
-    padding-left: var(--space-md);
-    padding-right: var(--space-md);
-    margin-left: calc(var(--space-md) * -1);
-    margin-right: calc(var(--space-md) * -1);
+    padding-inline: var(--space-md);
+    margin-inline: calc(var(--space-md) * -1);
   }
 
   pre {
-    padding-left: var(--space-md);
-    padding-right: var(--space-md);
-    margin-left: calc(var(--space-md) * -1);
-    margin-right: calc(var(--space-md) * -1);
+    padding-inline: var(--space-md);
+    margin-inline: calc(var(--space-md) * -1);
   }
 
   table {
     width: calc(100% + var(--space-md) * 2);
-    margin-left: calc(var(--space-md) * -1);
-    margin-right: calc(var(--space-md) * -1);
+    margin-inline: calc(var(--space-md) * -1);
   }
 
   th:first-child,
@@ -387,8 +398,7 @@ hr::before {
 
 @media (max-width: 640px) {
   body {
-    padding-left: var(--space-sm);
-    padding-right: var(--space-sm);
+    padding-inline: var(--space-sm);
     font-size: calc(var(--font-size) * 2.4);
   }
 
@@ -401,10 +411,8 @@ hr::before {
     height: 55vh;
     padding-top: 6vmin;
     padding-bottom: 8vmin;
-    padding-left: var(--space-sm);
-    padding-right: var(--space-sm);
-    margin-left: calc(var(--space-sm) * -1);
-    margin-right: calc(var(--space-sm) * -1);
+    padding-inline: var(--space-sm);
+    margin-inline: calc(var(--space-sm) * -1);
   }
 
   .content ul,
@@ -419,21 +427,17 @@ hr::before {
   blockquote > p {
     padding-left: calc(var(--space-sm) - var(--border-md));
     padding-right: var(--space-sm);
-    margin-left: calc(var(--space-sm) * -1);
-    margin-right: calc(var(--space-sm) * -1);
+    margin-inline: calc(var(--space-sm) * -1);
   }
 
   pre {
-    padding-left: var(--space-sm);
-    padding-right: var(--space-sm);
-    margin-left: calc(var(--space-sm) * -1);
-    margin-right: calc(var(--space-sm) * -1);
+    padding-inline: var(--space-sm);
+    margin-inline: calc(var(--space-sm) * -1);
   }
 
   table {
     width: calc(100% + var(--space-sm) * 2);
-    margin-left: calc(var(--space-sm) * -1);
-    margin-right: calc(var(--space-sm) * -1);
+    margin-inline: calc(var(--space-sm) * -1);
   }
 
   th:first-child,
