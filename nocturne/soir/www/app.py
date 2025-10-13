@@ -45,11 +45,6 @@ def create_app() -> Flask:
         content = render_markdown('examples.md')
         return render_template('page.html', content=content, title='Examples')
 
-    @app.route('/about')
-    def about() -> str:
-        """Render the about page."""
-        content = render_markdown('about.md')
-        return render_template('page.html', content=content, title='About')
 
     @app.route('/reference')
     def reference() -> str:
