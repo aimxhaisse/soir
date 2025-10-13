@@ -20,7 +20,12 @@ def create_app() -> Flask:
     # Store pdoc data in app context
     app.pdoc_modules = {}
 
-    app.markdown = markdown.Markdown(extensions=['codehilite'])
+    app.markdown = markdown.Markdown(extensions=[
+        'codehilite',
+        'tables',
+        'fenced_code',
+        'nl2br'  # Convert newlines to <br> tags
+    ])
 
     @app.route('/')
     def home() -> str:
