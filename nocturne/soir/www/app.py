@@ -5,7 +5,6 @@ import time
 from pathlib import Path
 
 import markdown
-import pdoc.doc
 from flask import Flask, render_template, abort
 
 
@@ -17,41 +16,34 @@ def create_app() -> Flask:
     """
     app = Flask(__name__)
 
-    # Store pdoc data in app context
-    app.pdoc_modules = {}
+    app.markdown = markdown.Markdown(
+        extensions=["codehilite", "tables", "fenced_code", "nl2br"]
+    )
 
-    app.markdown = markdown.Markdown(extensions=[
-        'codehilite',
-        'tables',
-        'fenced_code',
-        'nl2br'  # Convert newlines to <br> tags
-    ])
-
-    @app.route('/')
+    @app.route("/")
     def home() -> str:
         """Render the home page."""
-        content = render_markdown('home.md')
-        return render_template('page.html', content=content, title='Home')
+        content = render_markdown("home.md")
+        return render_template("page.html", content=content, title="Home")
 
-    @app.route('/quickstart')
+    @app.route("/quickstart")
     def quickstart() -> str:
         """Render the quickstart page."""
-        content = render_markdown('quickstart.md')
-        return render_template('page.html', content=content, title='Quickstart')
+        content = render_markdown("quickstart.md")
+        return render_template("page.html", content=content, title="Quickstart")
 
-    @app.route('/examples')
+    @app.route("/examples")
     def examples() -> str:
         """Render the examples page."""
-        content = render_markdown('examples.md')
-        return render_template('page.html', content=content, title='Examples')
+        content = render_markdown("examples.md")
+        return render_template("page.html", content=content, title="Examples")
 
-
-    @app.route('/reference')
+    @app.route("/reference")
     def reference() -> str:
         """Render the reference index page."""
-        return render_template('reference.html', title='API Reference', modules=[])
+        return render_template("reference.html", title="API Reference", modules=[])
 
-    @app.route('/reference/<path:module_path>')
+    @app.route("/reference/<path:module_path>")
     def reference_module(module_path: str) -> str:
         """Render a specific module's reference documentation.
 
@@ -67,16 +59,26 @@ def create_app() -> Flask:
     @app.errorhandler(404)
     def not_found(error: Exception) -> tuple[str, int]:
         """Handle 404 errors."""
-        return render_template('page.html',
-                             content='<h1>404 Not Found</h1><p>The requested page does not exist.</p>',
-                             title='Not Found'), 404
+        return (
+            render_template(
+                "page.html",
+                content="<h1>404 Not Found</h1><p>The requested page does not exist.</p>",
+                title="Not Found",
+            ),
+            404,
+        )
 
     @app.errorhandler(500)
     def server_error(error: Exception) -> tuple[str, int]:
         """Handle 500 errors."""
-        return render_template('page.html',
-                             content='<h1>500 Internal Server Error</h1><p>Something went wrong.</p>',
-                             title='Error'), 500
+        return (
+            render_template(
+                "page.html",
+                content="<h1>500 Internal Server Error</h1><p>Something went wrong.</p>",
+                title="Error",
+            ),
+            500,
+        )
 
     def render_markdown(filename: str) -> str:
         """Load and render a markdown file.
@@ -87,13 +89,13 @@ def create_app() -> Flask:
         Returns:
             Rendered HTML content.
         """
-        content_dir = Path(__file__).parent / 'content'
+        content_dir = Path(__file__).parent / "content"
         file_path = content_dir / filename
 
         if not file_path.exists():
-            return '<p>Content coming soon.</p>'
+            return "<p>Content coming soon.</p>"
 
-        with open(file_path, 'r', encoding='utf-8') as f:
+        with open(file_path, "r", encoding="utf-8") as f:
             markdown_text = f.read()
 
         return app.markdown.convert(markdown_text)
@@ -101,7 +103,9 @@ def create_app() -> Flask:
     return app
 
 
-def start_server(port: int = 5000, dev: bool = False, open_browser: bool = True) -> None:
+def start_server(
+    port: int = 5000, dev: bool = False, open_browser: bool = True
+) -> None:
     """Start the Flask development server.
 
     Args:
@@ -111,15 +115,16 @@ def start_server(port: int = 5000, dev: bool = False, open_browser: bool = True)
     """
     app = create_app()
 
-    url = f'http://localhost:{port}'
+    url = f"http://localhost:{port}"
 
     if open_browser:
+
         def open_in_browser() -> None:
             time.sleep(0.5)
 
         threading.Thread(target=open_in_browser, daemon=True).start()
 
-    print(f'Starting Soir documentation server at {url}')
-    print('Press Ctrl+C to stop the server')
+    print(f"Starting Soir documentation server at {url}")
+    print("Press Ctrl+C to stop the server")
 
-    app.run(host='127.0.0.1', port=port, debug=dev)
+    app.run(host="127.0.0.1", port=port, debug=dev)

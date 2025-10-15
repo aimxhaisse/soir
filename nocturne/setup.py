@@ -1,3 +1,4 @@
+import multiprocessing
 import os
 import subprocess
 from pathlib import Path
@@ -16,19 +17,23 @@ class CMakeBuild(build_ext):
 
         src_dir = Path(__file__).parent.resolve()
 
+        persistent_build_dir = src_dir / "build" / "cmake"
+        persistent_build_dir.mkdir(parents=True, exist_ok=True)
+        self.build_temp = str(persistent_build_dir)
+
         cmake_args = [
             f"-DCMAKE_LIBRARY_OUTPUT_DIRECTORY={extdir}{os.sep}",
             f"-DPYTHON_EXECUTABLE={os.sys.executable}",
+            f"-DPython_EXECUTABLE={os.sys.executable}",
             "-DCMAKE_BUILD_TYPE=Release",
         ]
 
-        build_args: list[str] = []
-
-        Path(self.build_temp).mkdir(parents=True, exist_ok=True)
+        build_args = [f"--parallel={multiprocessing.cpu_count()}"]
 
         subprocess.run(
             ["cmake", str(src_dir), *cmake_args], cwd=self.build_temp, check=True
         )
+
         subprocess.run(
             ["cmake", "--build", ".", *build_args], cwd=self.build_temp, check=True
         )
