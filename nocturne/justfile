@@ -5,20 +5,37 @@ _default:
 setup:
     uv sync --all-extras
 
+# Clean build files
+clean:
+    rm -rf build/ dist/ *.egg-info/
+    find . -name "*.pyc" -delete
+    find . -name "__pycache__" -delete
+
 # Format code & check code
 check:
     uv run black .
-    clang-format -i src/*.cc src/*.hh
+    clang-format -i src/*.cc src/*.hh src/*/*.cc src/*/*.hh
     uv run ruff check .
     uv run mypy soir
 
 # Run all checks
 build:
-    uv pip install -e .
+    uv pip install -e . --verbose
+
+# Run C++ tests
+test-cpp:
+    #!/usr/bin/env bash
+    mkdir -p build/cmake
+    cd build/cmake
+    python_exe=$(uv run which python)
+    cmake ../.. -DBUILD_TESTING=ON -DPython_EXECUTABLE="${python_exe}" -DPython_ROOT_DIR="$(dirname $(dirname ${python_exe}))"
+    make
+    ctest --verbose
 
 # Run tests
 test:
-    uv run pytest
+    just test-cpp
+    uv run --no-project pytest
 
 # Create a distributable package
 package:
