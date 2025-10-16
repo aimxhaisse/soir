@@ -14,6 +14,7 @@ dependencies = [
     "pdoc>=15.0.4",
     "markdown>=3.9",
     "markdown-it-py>=4.0.0",
+    "types-markdown>=3.9.0.20250906",
 ]
 
 [tool.setuptools.packages.find]
