@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "Soir"
 version = "1.0.0"
 description = "Live Coding Environment for Music Creation"
-requires-python = ">=3.13"
+requires-python = "==3.14.0"
 dependencies = [
     "typer>=0.19.2",
     "flask>=3.1.2",
@@ -15,6 +15,7 @@ dependencies = [
     "markdown>=3.9",
     "markdown-it-py>=4.0.0",
     "types-markdown>=3.9.0.20250906",
+    "setuptools>=80.9.0",
 ]
 
 [tool.setuptools.packages.find]
