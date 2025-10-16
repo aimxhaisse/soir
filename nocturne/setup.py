@@ -26,6 +26,7 @@ class CMakeBuild(build_ext):
             f"-DPYTHON_EXECUTABLE={os.sys.executable}",
             f"-DPython_EXECUTABLE={os.sys.executable}",
             "-DCMAKE_BUILD_TYPE=Release",
+            "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
         ]
 
         build_args = [f"--parallel={multiprocessing.cpu_count()}"]
