@@ -20,39 +20,32 @@ check:
     clang-format -i src/*.cc src/*.hh src/*/*.cc src/*/*.hh
     run-clang-tidy -p build/cmake -quiet -- -std=c++17
 
-# Run all checks
+# Build with C++ tests
 build:
-    uv pip install -e . --verbose
+    uv run python setup.py build_ext --with-tests
 
-# Run C++ tests
-test-cpp:
-    #!/usr/bin/env bash
-    mkdir -p build/cmake
-    cd build/cmake
-    python_exe=$(uv run which python)
-    cmake ../.. -DBUILD_TESTING=ON -DPython_EXECUTABLE="${python_exe}" -DPython_ROOT_DIR="$(dirname $(dirname ${python_exe}))"
-    make
-    ctest --verbose
-
-# Run tests
+# Run all tests
 test:
-    just test-cpp
-    uv run --no-project pytest
+    uv run python setup.py run_cpp_tests
+    uv run python setup.py run_python_tests
 
 # Create a distributable package
-package:
+package: clean
     #!/usr/bin/env bash
-    version=$(grep '^version =' pyproject.toml | awk '// { print $3; }' | tr -d '"')
+    soir_version=$(grep '^version =' pyproject.toml | awk '// { print $3; }' | tr -d '"')
+    python_version=$(grep '^requires-python = "==' pyproject.toml | awk '// { print $3; }' | tr -d '"' | tr -d '=')
     virtualenv=dist/.venv
 
     rm -rf dist
     mkdir -p dist/{etc,bin}
 
-    uv python install 3.13
-    py=$(uv python find 3.13)
+    uv python install ${python_version}
+    uv run python setup.py build_ext
+    uv pip install -e . --verbose
+    py=$(uv python find ${python_version})
     $py -m venv --copies ${virtualenv}
     UV_PROJECT_ENVIRONMENT=${virtualenv} uv sync --no-editable
 
     cp bin/soir dist/bin/soir
 
-    tar -czf dist/soir-${version}-{{arch()}}_{{os()}}.tar.gz -C dist bin etc .venv
+    tar -czf dist/soir-${soir_version}-{{arch()}}_{{os()}}.tar.gz -C dist bin etc .venv
