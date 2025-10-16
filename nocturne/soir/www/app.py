@@ -3,6 +3,7 @@
 import threading
 import time
 from pathlib import Path
+from typing import Any
 
 import markdown
 from flask import Flask, render_template, abort
@@ -16,7 +17,7 @@ def create_app() -> Flask:
     """
     app = Flask(__name__)
 
-    app.markdown = markdown.Markdown(
+    app.extensions["markdown"] = markdown.Markdown(
         extensions=["codehilite", "tables", "fenced_code", "nl2br"]
     )
 
@@ -80,7 +81,7 @@ def create_app() -> Flask:
             500,
         )
 
-    def render_markdown(filename: str) -> str:
+    def render_markdown(filename: str) -> Any:
         """Load and render a markdown file.
 
         Args:
@@ -98,7 +99,7 @@ def create_app() -> Flask:
         with open(file_path, "r", encoding="utf-8") as f:
             markdown_text = f.read()
 
-        return app.markdown.convert(markdown_text)
+        return app.extensions["markdown"].convert(markdown_text)
 
     return app
 
