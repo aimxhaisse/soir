@@ -64,8 +64,9 @@ target_link_libraries(soir_utils
 # core
 
 pybind11_add_module(_core
-    src/bindings.cc
-    src/core.cc
+    src/bindings/bindings.cc
+    src/bindings/start.cc
+    src/core/soir.cc
 )
 
 target_include_directories(_core PRIVATE src)
