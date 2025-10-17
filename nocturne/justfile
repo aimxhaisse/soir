@@ -3,6 +3,7 @@ _default:
 
 # Install or update dependencies
 setup:
+    uv python install 3.14
     uv sync --all-extras
 
 # Clean build files
