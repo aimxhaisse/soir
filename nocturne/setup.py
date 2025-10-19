@@ -13,7 +13,7 @@ class CMakeBuild(build_ext):
     """Custom build extension for C++/CMake."""
 
     user_options = build_ext.user_options + [
-        ('with-tests', None, 'Build C++ tests'),
+        ("with-tests", None, "Build C++ tests"),
     ]
 
     def initialize_options(self):
@@ -66,12 +66,12 @@ class RunCppTests(Command):
 
     def run(self):
         if not BUILD_DIR.exists():
-            raise RuntimeError("Build directory not found. Run 'python setup.py build_ext --with-tests' first.")
+            raise RuntimeError(
+                "Build directory not found. Run 'python setup.py build_ext --with-tests' first."
+            )
 
         print("Running C++ tests...")
-        subprocess.run(
-            ["ctest", "--verbose"], cwd=str(BUILD_DIR), check=True
-        )
+        subprocess.run(["ctest", "--verbose"], cwd=str(BUILD_DIR), check=True)
 
 
 class RunPythonTests(Command):
@@ -88,9 +88,7 @@ class RunPythonTests(Command):
 
     def run(self):
         print("Running Python tests...")
-        subprocess.run(
-            ["pytest"], check=True
-        )
+        subprocess.run(["pytest"], check=True)
 
 
 setup(

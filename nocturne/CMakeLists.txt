@@ -73,6 +73,8 @@ target_include_directories(_core PRIVATE src)
 
 target_link_libraries(_core PRIVATE
     soir_utils
+    absl::status
+    absl::statusor
 )
 
 target_compile_options(_core PRIVATE
