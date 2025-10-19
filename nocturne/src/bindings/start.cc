@@ -1,8 +1,7 @@
-#include "bindings/bind.hh"
-
 #include <pybind11/pybind11.h>
 
 #include "absl/log/log.h"
+#include "bindings/bind.hh"
 #include "core/soir.hh"
 #include "utils/config.hh"
 

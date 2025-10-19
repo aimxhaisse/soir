@@ -1,19 +1,12 @@
 import typer
 from pathlib import Path
 
-from soir import hello_world
 from soir.www.app import start_server
 import soir._core as core
 
 app = typer.Typer()
 session_app = typer.Typer()
 app.add_typer(session_app, name="session")
-
-
-@app.command()
-def greet() -> None:
-    """Greet from C++."""
-    print(hello_world())
 
 
 @app.command()
