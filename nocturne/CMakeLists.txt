@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.15)
+make_minimum_required(VERSION 3.15)
 
 set(CMAKE_POLICY_VERSION_MINIMUM 3.5)
 
@@ -44,6 +44,11 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(pybind11 yaml-cpp abseil-cpp googletest)
 
+# make sure pybind targets our environment
+
+set(Python_ROOT_DIR ".venv")
+find_package(Python COMPONENTS Interpreter Development)
+
 # utils
 
 add_library(soir_utils
@@ -65,7 +70,7 @@ target_link_libraries(soir_utils
 
 pybind11_add_module(_core
     src/bindings/bindings.cc
-    src/bindings/start.cc
+    src/bindings/soir.cc
     src/core/soir.cc
 )
 

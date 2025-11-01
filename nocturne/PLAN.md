@@ -5,10 +5,10 @@
 ### Single Process, Multi-Thread Design
 ```
 Python CLI Process
+└─ Python
+    ├─ File Watcher Thread (Python)
+    │   └─ Calls C++ to update code of the RT thread
 └─ C++ Engine (via pybind11)
-    ├─ File Watcher Thread (C++)
-    │   ├─ std::filesystem monitoring
-    │   └─ Direct calls to RT Thread
     ├─ RT Thread (C++)
     │   ├─ Embedded Python Interpreter
     │   ├─ Temporal Scheduler
@@ -22,9 +22,9 @@ Python CLI Process
 ```
 File change
     ↓
-File Watcher Thread detects change
+File Watcher Thread detects change in code files
     ↓
-Direct C++ function call: rt_thread.push_code_update(code)
+Calls : soir.code_update(code)
     ↓
 RT Thread queues code (same as v1 pattern)
     ↓
@@ -39,10 +39,10 @@ User script schedules audio via direct calls to DSP Thread
 
 **C++ Engine Class (pybind11 module)**:
 ```cpp
-class SoirEngine {
+class Soir {
 public:
     // Called from Python CLI
-    absl::Status Init(const Config& config);
+    absl::Status Init(conast std::string config_path);
     absl::Status Start();
 
     absl::Status Stop();
@@ -50,7 +50,6 @@ public:
     void UpdateCode(const std::string& code);
 
 private:
-    std::unique_ptr<CodeWatcher> code_watcher_;
     std::unique_ptr<Engine> dsp_;
     std::unique_ptr<rt::Runtime> rt_;
 };
@@ -69,22 +68,7 @@ def start(watch_dir: str = "."):
 
 ### Code Watcher
 
-**Replace efsw with C++ std::filesystem**:
-```cpp
-class CodeWatcher {
-    void run(const std::string& directory) {
-        while (running_) {
-            for (auto& change : detect_changes()) {
-                if (is_python_file(change.path)) {
-                    auto code = read_file(change.path);
-                    engine_->UpdateCode(code);
-                }
-            }
-            std::this_thread::sleep_for(100ms);  // Or event-based
-        }
-    }
-};
-```
+Use Python file watcher.
 
 ## Migration Strategy
 
