@@ -43,4 +43,8 @@ absl::Status Soir::Stop() {
   return absl::OkStatus();
 }
 
+absl::Status Soir::UpdateCode(const std::string& code) {
+  return absl::OkStatus();
+}
+
 }  // namespace soir

@@ -12,6 +12,7 @@ class Soir {
   absl::Status Init(utils::Config* config);
   absl::Status Start();
   absl::Status Stop();
+  absl::Status UpdateCode(const std::string& code);
 
  private:
   utils::Config* config_ = nullptr;

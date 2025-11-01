@@ -24,6 +24,7 @@ check:
 # Build with C++ tests
 build:
     uv run python setup.py build_ext --with-tests
+    uv pip install -e .
 
 # Run all tests
 test:
@@ -41,11 +42,10 @@ package: clean
     mkdir -p dist/{etc,bin}
 
     uv python install ${python_version}
-    uv run python setup.py build_ext
-    uv pip install -e . --verbose
+    uv run pip install --link-mode clone
+    uv run python -m build --wheel
     py=$(uv python find ${python_version})
     $py -m venv --copies ${virtualenv}
-    UV_PROJECT_ENVIRONMENT=${virtualenv} uv sync --no-editable
 
     cp bin/soir dist/bin/soir
 
