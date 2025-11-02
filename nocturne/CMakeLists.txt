@@ -1,4 +1,4 @@
-make_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.15)
 
 set(CMAKE_POLICY_VERSION_MINIMUM 3.5)
 
@@ -25,9 +25,9 @@ FetchContent_Declare(
 )
 
 FetchContent_Declare(
-    yaml-cpp
-    GIT_REPOSITORY https://github.com/jbeder/yaml-cpp.git
-    GIT_TAG 0.8.0
+    nlohmann_json
+    GIT_REPOSITORY https://github.com/nlohmann/json.git
+    GIT_TAG v3.12.0
 )
 
 FetchContent_Declare(
@@ -42,7 +42,7 @@ FetchContent_Declare(
     GIT_TAG v1.17.0
 )
 
-FetchContent_MakeAvailable(pybind11 yaml-cpp abseil-cpp googletest)
+FetchContent_MakeAvailable(pybind11 nlohmann_json abseil-cpp googletest)
 
 # make sure pybind targets our environment
 
@@ -59,7 +59,7 @@ add_library(soir_utils
 target_include_directories(soir_utils PUBLIC src)
 
 target_link_libraries(soir_utils
-    yaml-cpp::yaml-cpp
+    nlohmann_json::nlohmann_json
     absl::base
     absl::strings
     absl::status
@@ -101,7 +101,6 @@ target_link_libraries(config_test
     soir_utils
     gtest
     gtest_main
-    absl::statusor
 )
 
 add_test(NAME ConfigTest COMMAND config_test)
