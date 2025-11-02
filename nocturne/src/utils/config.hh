@@ -1,53 +1,42 @@
 #pragma once
 
-#include <absl/status/statusor.h>
-#include <yaml-cpp/yaml.h>
-
-#include <memory>
+#include <nlohmann/json.hpp>
 #include <string>
-#include <vector>
 
 namespace soir {
 namespace utils {
 
 class Config {
  public:
-  explicit Config(const YAML::Node& node);
-
-  static absl::StatusOr<std::unique_ptr<Config>> LoadFromPath(
-      const std::string& path);
-
-  static absl::StatusOr<std::unique_ptr<Config>> LoadFromString(
-      const std::string& content);
+  explicit Config(const std::string& json_str);
 
   template <typename T>
-  T Get(const std::string& location, const T& def) const {
-    return GetChildNode(location).as<T>(def);
+  T Get(const std::string& path) const {
+    return GetNode(path).get<T>();
   }
 
-  template <typename T>
-  T Get(const std::string& location) const {
-    return Get(location, T());
-  }
-
-  template <>
-  std::string Get(const std::string& location, const std::string& def) const;
-
-  template <>
-  std::string Get(const std::string& location) const;
-
-  std::unique_ptr<Config> GetConfig(const std::string& location) const;
-
-  std::vector<std::unique_ptr<Config>> GetConfigs(
-      const std::string& location) const;
-
-  static std::string ExpandEnvironmentVariables(const std::string& input);
+  static Config FromJson(const nlohmann::json& json);
 
  private:
-  YAML::Node GetChildNode(const std::string& location) const;
+  struct FromJsonTag {};
+  Config(const nlohmann::json& json, FromJsonTag);
 
-  YAML::Node node_;
+  nlohmann::json GetNode(const std::string& path) const;
+
+  nlohmann::json data_;
 };
 
 }  // namespace utils
 }  // namespace soir
+
+namespace nlohmann {
+
+// Needed to be able to Get<Config>()
+template <>
+struct adl_serializer<soir::utils::Config> {
+  static soir::utils::Config from_json(const json& j) {
+    return soir::utils::Config::FromJson(j);
+  }
+};
+
+}  // namespace nlohmann

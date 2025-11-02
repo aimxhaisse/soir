@@ -17,20 +17,14 @@ void Bind::PySoir(py::module_& m) {
       .def(py::init<>())
       .def(
           "init",
-          [](Soir& self, const std::string& config_path) {
-            auto config_result = utils::Config::LoadFromPath(config_path);
-            if (!config_result.ok()) {
-              throw std::runtime_error(
-                  "Failed to load config: " +
-                  std::string(config_result.status().message()));
-            }
-            auto status = self.Init(config_result->get());
+          [](Soir& self, utils::Config& config) {
+            auto status = self.Init(&config);
             if (!status.ok()) {
               throw std::runtime_error("Failed to initialize Soir: " +
                                        std::string(status.message()));
             }
           },
-          py::arg("config_path"), "Initialize Soir with configuration file")
+          py::arg("config"), "Initialize Soir with configuration")
       .def(
           "start",
           [](Soir& self) {
