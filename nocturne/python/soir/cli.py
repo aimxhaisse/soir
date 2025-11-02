@@ -5,8 +5,8 @@ from soir.www.app import start_server
 import soir._core as core
 
 app = typer.Typer()
-session_app = typer.Typer()
-app.add_typer(session_app, name="session")
+live_app = typer.Typer(help="Run and configure live session.")
+app.add_typer(live_app, name="live")
 
 
 @app.command()
@@ -18,10 +18,10 @@ def www(
     start_server(port=port, dev=dev)
 
 
-@session_app.command()
+@live_app.command()
 def run(path: Path) -> None:
-    """Run a Soir session from the given path."""
-    config_path = path / "etc" / "config.yaml"
+    """Run a Soir live session from the given path."""
+    config_path = path / "etc" / "config.json"
 
     if not config_path.exists():
         typer.echo(f"Error: Config file not found at {config_path}", err=True)
@@ -33,9 +33,11 @@ def run(path: Path) -> None:
         raise typer.Exit(1)
 
 
-def main() -> None:
-    app()
+@app.callback(invoke_without_command=True)
+def main(ctx: typer.Context):
+    if ctx.invoked_subcommand is None:
+        typer.echo(ctx.get_help())
 
 
 if __name__ == "__main__":
-    main()
+    app()
