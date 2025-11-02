@@ -20,7 +20,7 @@ dependencies = [
 ]
 
 [tool.setuptools.packages.find]
-where = ["."]
+where = ["python"]
 include = ["soir*"]
 
 [tool.setuptools.package-data]
@@ -62,5 +62,5 @@ module = "soir._core"
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]
-testpaths = ["tests"]
+testpaths = ["python/tests"]
 python_files = ["test_*.py"]

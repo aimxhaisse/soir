@@ -52,11 +52,11 @@ find_package(Python COMPONENTS Interpreter Development)
 # utils
 
 add_library(soir_utils
-    src/utils/config.cc
-    src/utils/config.hh
+    cpp/src/utils/config.cc
+    cpp/src/utils/config.hh
 )
 
-target_include_directories(soir_utils PUBLIC src)
+target_include_directories(soir_utils PUBLIC cpp/src)
 
 target_link_libraries(soir_utils
     nlohmann_json::nlohmann_json
@@ -69,12 +69,12 @@ target_link_libraries(soir_utils
 # core
 
 pybind11_add_module(_core
-    src/bindings/bindings.cc
-    src/bindings/soir.cc
-    src/core/soir.cc
+    cpp/bindings/bindings.cc
+    cpp/bindings/soir.cc
+    cpp/src/core/soir.cc
 )
 
-target_include_directories(_core PRIVATE src)
+target_include_directories(_core PRIVATE cpp/src cpp)
 
 target_link_libraries(_core PRIVATE
     soir_utils
@@ -94,7 +94,7 @@ set_target_properties(_core PROPERTIES
 enable_testing()
 
 add_executable(config_test
-    tests/utils/config_test.cc
+    cpp/tests/utils/config_test.cc
 )
 
 target_link_libraries(config_test
