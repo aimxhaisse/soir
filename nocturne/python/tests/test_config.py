@@ -11,13 +11,13 @@ from soir.config import Config
 class TestConfig(unittest.TestCase):
     """Test cases for configuration management."""
 
-    def test_audio_config_defaults(self):
+    def test_audio_config_defaults(self) -> None:
         """Test AudioConfig with default values."""
-        config = Config(dsp={}, live={})
+        config = Config(dsp=Config.DspConfig(), live=Config.LiveConfig())
         self.assertEqual(config.dsp.block_size, 4096)
         self.assertEqual(config.live.directory, ".")
 
-    def test_app_config_from_json(self):
+    def test_app_config_from_json(self) -> None:
         """Test deserialization from JSON."""
         json_str = """
         {
@@ -34,7 +34,7 @@ class TestConfig(unittest.TestCase):
         self.assertEqual(config.dsp.block_size, 8192)
         self.assertEqual(config.live.directory, "/live")
 
-    def test_load_from_path(self):
+    def test_load_from_path(self) -> None:
         """Test loading configuration from file."""
         with tempfile.TemporaryDirectory() as tmp_dir:
             config_data = {

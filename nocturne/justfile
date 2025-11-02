@@ -18,7 +18,7 @@ check:
     uv run ruff check . --preview
     uv run mypy python
 
-    clang-format -i src/*/*.cc src/*/*.hh
+    clang-format -i cpp/*/*.cc cpp/*/*.hh
     run-clang-tidy -p build/cmake -quiet -- -std=c++17
 
 # Build with C++ tests
