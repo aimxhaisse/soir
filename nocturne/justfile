@@ -16,7 +16,7 @@ clean:
 check:
     uv run black .
     uv run ruff check . --preview
-    uv run mypy soir
+    uv run mypy python
 
     clang-format -i src/*/*.cc src/*/*.hh
     run-clang-tidy -p build/cmake -quiet -- -std=c++17
