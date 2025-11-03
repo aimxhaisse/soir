@@ -24,8 +24,8 @@ CodeUpdateCallback = Callable[[str], None]
 def reload_code(cb: CodeUpdateCallback, directory: str) -> None:
     """Reloads the entire codebase from the given directory."""
     files: list[str] = []
-    for root, _, files in os.walk(directory):
-        for file in files:
+    for root, _, dir_files in os.walk(directory):
+        for file in dir_files:
             if file.endswith(".py"):
                 files.append(os.path.join(root, file))
 
