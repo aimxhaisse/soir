@@ -1,13 +1,7 @@
 import typer
-from pathlib import Path
 
-from soir.config import Config
-from soir.watcher import Watcher
 from soir.www.app import start_server
 from soir.live.app import live_app
-
-import soir._core as core
-import soir._core.logging as logging
 
 
 app = typer.Typer()
