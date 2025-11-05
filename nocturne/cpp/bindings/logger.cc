@@ -37,19 +37,16 @@ void Bind::PyLogger(py::module_& m) {
       "Shutdown the logger");
 
   logging.def(
-      "info",
-      [](const std::string& msg) { LOG(INFO) << msg; }, py::arg("message"),
-      "Log an info message");
+      "info", [](const std::string& msg) { LOG(INFO) << msg; },
+      py::arg("message"), "Log an info message");
 
   logging.def(
-      "warning",
-      [](const std::string& msg) { LOG(WARNING) << msg; }, py::arg("message"),
-      "Log a warning message");
+      "warning", [](const std::string& msg) { LOG(WARNING) << msg; },
+      py::arg("message"), "Log a warning message");
 
   logging.def(
-      "error",
-      [](const std::string& msg) { LOG(ERROR) << msg; }, py::arg("message"),
-      "Log an error message");
+      "error", [](const std::string& msg) { LOG(ERROR) << msg; },
+      py::arg("message"), "Log an error message");
 }
 
 }  // namespace bindings

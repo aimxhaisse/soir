@@ -53,4 +53,3 @@ def run(path: Path) -> None:
     soir.stop()
 
     logging.shutdown()
-
