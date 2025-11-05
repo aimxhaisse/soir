@@ -3,6 +3,8 @@
 #include <nlohmann/json.hpp>
 #include <string>
 
+#include <absl/status/statusor.h>
+
 namespace soir {
 namespace utils {
 
@@ -16,6 +18,7 @@ class Config {
   }
 
   static Config FromJson(const nlohmann::json& json);
+  static absl::StatusOr<Config> FromPath(const std::string& path);
 
  private:
   struct FromJsonTag {};

@@ -5,3 +5,4 @@ dist
 *.so
 __pycache__
 .claude
+*.log

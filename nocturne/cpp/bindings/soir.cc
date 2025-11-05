@@ -17,8 +17,8 @@ void Bind::PySoir(py::module_& m) {
       .def(py::init<>())
       .def(
           "init",
-          [](Soir& self, utils::Config& config) {
-            auto status = self.Init(&config);
+          [](Soir& self, const std::string& cfg_path) {
+            auto status = self.Init(cfg_path);
             if (!status.ok()) {
               throw std::runtime_error("Failed to initialize Soir: " +
                                        std::string(status.message()));

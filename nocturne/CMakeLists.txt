@@ -54,6 +54,8 @@ find_package(Python COMPONENTS Interpreter Development)
 add_library(soir_utils
     cpp/src/utils/config.cc
     cpp/src/utils/config.hh
+    cpp/src/utils/logger.cc
+    cpp/src/utils/logger.hh
 )
 
 target_include_directories(soir_utils PUBLIC cpp/src)
@@ -63,6 +65,7 @@ target_link_libraries(soir_utils
     absl::base
     absl::strings
     absl::status
+    absl::statusor
     absl::log
 )
 
@@ -70,6 +73,7 @@ target_link_libraries(soir_utils
 
 pybind11_add_module(_core
     cpp/bindings/bindings.cc
+    cpp/bindings/logger.cc
     cpp/bindings/soir.cc
     cpp/src/core/soir.cc
 )
@@ -80,6 +84,8 @@ target_link_libraries(_core PRIVATE
     soir_utils
     absl::status
     absl::statusor
+    absl::log
+    absl::log_initialize
 )
 
 target_compile_options(_core PRIVATE
