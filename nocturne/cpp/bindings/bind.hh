@@ -8,6 +8,7 @@ namespace bindings {
 class Bind {
  public:
   static void PySoir(pybind11::module_& m);
+  static void PyLogger(pybind11::module_& m);
 };
 
 }  // namespace bindings

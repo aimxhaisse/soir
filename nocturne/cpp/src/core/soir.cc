@@ -5,12 +5,17 @@
 
 namespace soir {
 
-absl::Status Soir::Init(utils::Config* config) {
+absl::Status Soir::Init(const std::string& config_path) {
   if (initialized_) {
     return absl::FailedPreconditionError("Soir already initialized");
   }
 
-  config_ = config;
+  auto config_or = utils::Config::FromPath(config_path);
+  if (!config_or.ok()) {
+    return config_or.status();
+  }
+
+  config_ = std::make_unique<utils::Config>(std::move(config_or.value()));
   initialized_ = true;
 
   LOG(INFO) << "Soir initialized";
