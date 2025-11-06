@@ -21,12 +21,12 @@ def main(ctx: typer.Context) -> None:
 
 
 @live_app.command()
-def run(path: Path) -> None:
+def run(path: Path, verbose: bool = False) -> None:
     """Run a Soir live session from the given path."""
     cfg_path = path / "etc" / "config.json"
     log_path = path / "var" / "log"
 
-    logging.init(str(log_path), max_files=25)
+    logging.init(str(log_path), max_files=25, verbose=verbose)
     logging.info("Starting Soir live session")
 
     if not cfg_path.exists():

@@ -49,13 +49,18 @@ Logger& Logger::Instance() {
   return instance;
 }
 
-absl::Status Logger::Init(const std::string& log_dir, size_t max_files) {
+absl::Status Logger::Init(const std::string& log_dir, size_t max_files,
+                          bool verbose) {
   if (initialized_) {
     return absl::FailedPreconditionError("Logger already initialized");
   }
 
-  // Set stderr threshold to FATAL so logs only go to file
-  absl::SetStderrThreshold(absl::LogSeverityAtLeast::kFatal);
+  // Set stderr threshold based on verbose flag
+  if (verbose) {
+    absl::SetStderrThreshold(absl::LogSeverityAtLeast::kInfo);
+  } else {
+    absl::SetStderrThreshold(absl::LogSeverityAtLeast::kFatal);
+  }
 
   std::filesystem::path log_path(log_dir);
 
