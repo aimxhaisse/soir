@@ -26,7 +26,8 @@ class Logger {
  public:
   static Logger& Instance();
 
-  absl::Status Init(const std::string& log_dir, size_t max_files = 25);
+  absl::Status Init(const std::string& log_dir, size_t max_files = 25,
+                    bool verbose = false);
   absl::Status Shutdown();
 
   bool IsInitialized() const { return initialized_; }
