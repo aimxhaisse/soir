@@ -20,9 +20,11 @@ void Bind::PySoir(py::module_& m) {
           [](Soir& self, const std::string& cfg_path) {
             auto status = self.Init(cfg_path);
             if (!status.ok()) {
-              throw std::runtime_error("Failed to initialize Soir: " +
-                                       std::string(status.message()));
+              LOG(ERROR) << "Failed to initialize Soir: " << status.message();
+              return false;
             }
+
+            return true;
           },
           py::arg("config"), "Initialize Soir with configuration")
       .def(
@@ -30,9 +32,11 @@ void Bind::PySoir(py::module_& m) {
           [](Soir& self) {
             auto status = self.Start();
             if (!status.ok()) {
-              throw std::runtime_error("Failed to start Soir: " +
-                                       std::string(status.message()));
+              LOG(ERROR) << "Failed to start Soir: " << status.message();
+              return false;
             }
+
+            return true;
           },
           "Start the Soir engine")
       .def(
@@ -40,9 +44,11 @@ void Bind::PySoir(py::module_& m) {
           [](Soir& self) {
             auto status = self.Stop();
             if (!status.ok()) {
-              throw std::runtime_error("Failed to stop Soir: " +
-                                       std::string(status.message()));
+              LOG(ERROR) << "Failed to stop Soir: " << status.message();
+              return false;
             }
+
+            return true;
           },
           "Stop the Soir engine")
       .def(
@@ -50,9 +56,11 @@ void Bind::PySoir(py::module_& m) {
           [](Soir& self, const std::string& code) {
             auto status = self.UpdateCode(code);
             if (!status.ok()) {
-              throw std::runtime_error("Failed to update code: " +
-                                       std::string(status.message()));
+              LOG(ERROR) << "Failed to update code: " << status.message();
+              return false;
             }
+
+            return true;
           },
           py::arg("code"), "Update the live code");
 }

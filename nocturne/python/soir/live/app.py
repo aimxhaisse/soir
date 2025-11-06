@@ -1,5 +1,8 @@
 import typer
 from pathlib import Path
+import signal
+from typing import Any
+import threading
 
 from soir.config import Config
 from soir.watcher import Watcher
@@ -32,7 +35,6 @@ def run(path: Path) -> None:
         raise typer.Exit(1)
 
     cfg = Config.load_from_path(str(cfg_path))
-    watcher = Watcher(cfg, lambda code: core.update_code(code))
     soir = core.Soir()
 
     if not soir.init(str(cfg_path)):
@@ -45,9 +47,20 @@ def run(path: Path) -> None:
         typer.echo("Error: Failed to start Soir", err=True)
         raise typer.Exit(1)
 
+    watcher = Watcher(cfg, lambda code: soir.update_code(code))
     watcher.start()
 
-    # Here we need to find a way to wait for ctrl-c or termination signal
+    shutdown_event = threading.Event()
+
+    def signal_handler(signum: int, frame: Any) -> None:
+        logging.info(f"Received signal {signum}, shutting down...")
+        shutdown_event.set()
+
+    signal.signal(signal.SIGINT, signal_handler)
+    signal.signal(signal.SIGTERM, signal_handler)
+
+    logging.info("Soir is running. Press Ctrl-C to stop.")
+    shutdown_event.wait()
 
     watcher.stop()
     soir.stop()
