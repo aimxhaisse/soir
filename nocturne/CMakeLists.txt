@@ -74,11 +74,16 @@ target_link_libraries(soir_utils
 add_library(soir_dsp
     cpp/src/dsp/band_pass_filter.cc
     cpp/src/dsp/biquad_filter.cc
+    cpp/src/dsp/comb_filter.cc
+    cpp/src/dsp/delay.cc
+    cpp/src/dsp/delayed_apf.cc
     cpp/src/dsp/high_pass_filter.cc
     cpp/src/dsp/high_shelving_filter.cc
+    cpp/src/dsp/lfo.cc
     cpp/src/dsp/low_pass_filter.cc
     cpp/src/dsp/low_shelving_filter.cc
     cpp/src/dsp/lpf.cc
+    cpp/src/dsp/modulated_delay.cc
     cpp/src/dsp/tools.cc
     cpp/src/dsp/two_band_shelving_filter.cc
 )
@@ -135,6 +140,7 @@ target_link_libraries(config_test
 add_test(NAME ConfigTest COMMAND config_test)
 
 add_executable(dsp_test
+    cpp/tests/dsp/delay_test.cc
     cpp/tests/dsp/filters_test.cc
     cpp/tests/dsp/tools_test.cc
 )
