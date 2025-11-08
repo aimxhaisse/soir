@@ -69,6 +69,19 @@ target_link_libraries(soir_utils
     absl::log
 )
 
+# dsp
+
+add_library(soir_dsp
+    cpp/src/dsp/tools.cc
+)
+
+target_include_directories(soir_dsp PUBLIC cpp/src)
+
+target_link_libraries(soir_dsp
+    absl::status
+    absl::statusor
+)
+
 # core
 
 pybind11_add_module(_core
@@ -97,6 +110,8 @@ set_target_properties(_core PROPERTIES
     INTERPROCEDURAL_OPTIMIZATION ON
 )
 
+# Unit tests
+    
 enable_testing()
 
 add_executable(config_test
@@ -110,3 +125,15 @@ target_link_libraries(config_test
 )
 
 add_test(NAME ConfigTest COMMAND config_test)
+
+add_executable(dsp_tools_test
+    cpp/tests/dsp/tools_test.cc
+)
+
+target_link_libraries(dsp_tools_test
+    soir_dsp
+    gtest
+    gtest_main
+)
+
+add_test(NAME DspToolsTest COMMAND dsp_tools_test)
