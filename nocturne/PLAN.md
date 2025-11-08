@@ -887,7 +887,7 @@ Track progress through each step:
 - [x] Step 5: Migrate effects (reverb, chorus)
 - [x] Step 6: Add core infrastructure
 - [x] Step 7: Add sample and tools (parameter skipped, depends on controls)
-- [ ] Step 8: Add miniaudio wrapper
+- [x] Step 8: Add miniaudio wrapper
 - [ ] Step 9: Migrate effects layer
 - [ ] Step 10: Add audiofile and libremidi
 - [ ] Step 11: Migrate instruments layer

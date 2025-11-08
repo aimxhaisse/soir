@@ -42,7 +42,13 @@ FetchContent_Declare(
     GIT_TAG v1.17.0
 )
 
-FetchContent_MakeAvailable(pybind11 nlohmann_json abseil-cpp googletest)
+FetchContent_Declare(
+    miniaudio
+    GIT_REPOSITORY https://github.com/mackron/miniaudio.git
+    GIT_TAG 0.11.23
+)
+
+FetchContent_MakeAvailable(pybind11 nlohmann_json abseil-cpp googletest miniaudio)
 
 # make sure pybind targets our environment
 
@@ -75,12 +81,14 @@ target_link_libraries(soir_utils
 
 add_library(soir_audio
     cpp/src/audio/audio_buffer.cc
+    cpp/src/audio/audio_output.cc
 )
 
-target_include_directories(soir_audio PUBLIC cpp/src)
+target_include_directories(soir_audio PUBLIC cpp/src ${miniaudio_SOURCE_DIR})
 
 target_link_libraries(soir_audio
     soir_dsp
+    absl::log
     absl::status
     absl::statusor
 )
@@ -176,6 +184,7 @@ add_test(NAME UtilsTest COMMAND utils_test)
 
 add_executable(audio_test
     cpp/tests/audio/audio_buffer_test.cc
+    cpp/tests/audio/audio_output_test.cc
 )
 
 target_link_libraries(audio_test
