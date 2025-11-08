@@ -72,6 +72,11 @@ target_link_libraries(soir_utils
 # dsp
 
 add_library(soir_dsp
+    cpp/src/dsp/band_pass_filter.cc
+    cpp/src/dsp/biquad_filter.cc
+    cpp/src/dsp/high_pass_filter.cc
+    cpp/src/dsp/low_pass_filter.cc
+    cpp/src/dsp/lpf.cc
     cpp/src/dsp/tools.cc
 )
 
@@ -126,14 +131,15 @@ target_link_libraries(config_test
 
 add_test(NAME ConfigTest COMMAND config_test)
 
-add_executable(dsp_tools_test
+add_executable(dsp_test
+    cpp/tests/dsp/filters_test.cc
     cpp/tests/dsp/tools_test.cc
 )
 
-target_link_libraries(dsp_tools_test
+target_link_libraries(dsp_test
     soir_dsp
     gtest
     gtest_main
 )
 
-add_test(NAME DspToolsTest COMMAND dsp_tools_test)
+add_test(NAME DspTest COMMAND dsp_test)
