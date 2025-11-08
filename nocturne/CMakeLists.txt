@@ -70,6 +70,20 @@ target_link_libraries(soir_utils
     absl::log
 )
 
+# audio
+
+add_library(soir_audio
+    cpp/src/audio/audio_buffer.cc
+)
+
+target_include_directories(soir_audio PUBLIC cpp/src)
+
+target_link_libraries(soir_audio
+    soir_dsp
+    absl::status
+    absl::statusor
+)
+
 # dsp
 
 add_library(soir_dsp
@@ -143,6 +157,18 @@ target_link_libraries(config_test
 )
 
 add_test(NAME ConfigTest COMMAND config_test)
+
+add_executable(audio_test
+    cpp/tests/audio/audio_buffer_test.cc
+)
+
+target_link_libraries(audio_test
+    soir_audio
+    gtest
+    gtest_main
+)
+
+add_test(NAME AudioTest COMMAND audio_test)
 
 add_executable(dsp_test
     cpp/tests/dsp/delay_test.cc
