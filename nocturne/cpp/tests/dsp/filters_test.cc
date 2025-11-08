@@ -1,10 +1,15 @@
 #include "dsp/band_pass_filter.hh"
 #include "dsp/biquad_filter.hh"
+#include "dsp/comb_filter.hh"
+#include "dsp/delay.hh"
+#include "dsp/delayed_apf.hh"
 #include "dsp/high_pass_filter.hh"
 #include "dsp/high_shelving_filter.hh"
+#include "dsp/lfo.hh"
 #include "dsp/low_pass_filter.hh"
 #include "dsp/low_shelving_filter.hh"
 #include "dsp/lpf.hh"
+#include "dsp/modulated_delay.hh"
 #include "dsp/two_band_shelving_filter.hh"
 
 #include <gtest/gtest.h>

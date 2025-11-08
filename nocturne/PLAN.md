@@ -883,7 +883,7 @@ Track progress through each step:
 - [x] Step 1: Setup DSP directory structure
 - [x] Step 2: Migrate core DSP filters
 - [x] Step 3: Migrate shelving filters
-- [ ] Step 4: Migrate delay components
+- [x] Step 4: Migrate delay components
 - [ ] Step 5: Migrate LFO and effects
 - [ ] Step 6: Add core infrastructure
 - [ ] Step 7: Add sample, parameter, tools
