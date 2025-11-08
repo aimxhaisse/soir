@@ -57,6 +57,7 @@ add_library(soir_utils
     cpp/src/utils/fast_random.cc
     cpp/src/utils/logger.cc
     cpp/src/utils/logger.hh
+    cpp/src/utils/tools.cc
 )
 
 target_include_directories(soir_utils PUBLIC cpp/src)
@@ -79,6 +80,20 @@ add_library(soir_audio
 target_include_directories(soir_audio PUBLIC cpp/src)
 
 target_link_libraries(soir_audio
+    soir_dsp
+    absl::status
+    absl::statusor
+)
+
+# core
+
+add_library(soir_core_utils
+    cpp/src/core/sample.cc
+)
+
+target_include_directories(soir_core_utils PUBLIC cpp/src)
+
+target_link_libraries(soir_core_utils
     soir_dsp
     absl::status
     absl::statusor
@@ -146,17 +161,18 @@ set_target_properties(_core PROPERTIES
     
 enable_testing()
 
-add_executable(config_test
+add_executable(utils_test
     cpp/tests/utils/config_test.cc
+    cpp/tests/utils/tools_test.cc
 )
 
-target_link_libraries(config_test
+target_link_libraries(utils_test
     soir_utils
     gtest
     gtest_main
 )
 
-add_test(NAME ConfigTest COMMAND config_test)
+add_test(NAME UtilsTest COMMAND utils_test)
 
 add_executable(audio_test
     cpp/tests/audio/audio_buffer_test.cc
@@ -169,6 +185,18 @@ target_link_libraries(audio_test
 )
 
 add_test(NAME AudioTest COMMAND audio_test)
+
+add_executable(core_test
+    cpp/tests/core/core_test.cc
+)
+
+target_link_libraries(core_test
+    soir_core_utils
+    gtest
+    gtest_main
+)
+
+add_test(NAME CoreTest COMMAND core_test)
 
 add_executable(dsp_test
     cpp/tests/dsp/delay_test.cc
