@@ -75,9 +75,12 @@ add_library(soir_dsp
     cpp/src/dsp/band_pass_filter.cc
     cpp/src/dsp/biquad_filter.cc
     cpp/src/dsp/high_pass_filter.cc
+    cpp/src/dsp/high_shelving_filter.cc
     cpp/src/dsp/low_pass_filter.cc
+    cpp/src/dsp/low_shelving_filter.cc
     cpp/src/dsp/lpf.cc
     cpp/src/dsp/tools.cc
+    cpp/src/dsp/two_band_shelving_filter.cc
 )
 
 target_include_directories(soir_dsp PUBLIC cpp/src)

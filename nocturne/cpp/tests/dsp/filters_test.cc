@@ -1,8 +1,11 @@
 #include "dsp/band_pass_filter.hh"
 #include "dsp/biquad_filter.hh"
 #include "dsp/high_pass_filter.hh"
+#include "dsp/high_shelving_filter.hh"
 #include "dsp/low_pass_filter.hh"
+#include "dsp/low_shelving_filter.hh"
 #include "dsp/lpf.hh"
+#include "dsp/two_band_shelving_filter.hh"
 
 #include <gtest/gtest.h>
 
@@ -97,6 +100,59 @@ TEST(LPF1PTest, ProcessSample) {
   filter.UpdateParameters(params);
 
   float output = filter.Process(1.0f);
+  EXPECT_TRUE(std::isfinite(output));
+}
+
+TEST(LowShelvingFilterTest, Construction) {
+  LowShelvingFilter filter;
+  EXPECT_TRUE(true);
+}
+
+TEST(LowShelvingFilterTest, ProcessSample) {
+  LowShelvingFilter filter;
+  LowShelvingFilter::Parameters params;
+  params.cutoff_ = 150.0f;
+  params.boost_db_ = -10.0f;
+
+  filter.UpdateParameters(params);
+
+  float output = filter.Process(0.5f);
+  EXPECT_TRUE(std::isfinite(output));
+}
+
+TEST(HighShelvingFilterTest, Construction) {
+  HighShelvingFilter filter;
+  EXPECT_TRUE(true);
+}
+
+TEST(HighShelvingFilterTest, ProcessSample) {
+  HighShelvingFilter filter;
+  HighShelvingFilter::Parameters params;
+  params.cutoff_ = 4000.0f;
+  params.boost_db_ = -10.0f;
+
+  filter.UpdateParameters(params);
+
+  float output = filter.Process(0.5f);
+  EXPECT_TRUE(std::isfinite(output));
+}
+
+TEST(TwoBandShelvingFilterTest, Construction) {
+  TwoBandShelvingFilter filter;
+  EXPECT_TRUE(true);
+}
+
+TEST(TwoBandShelvingFilterTest, ProcessSample) {
+  TwoBandShelvingFilter filter;
+  TwoBandShelvingFilter::Parameters params;
+  params.low_params_.cutoff_ = 150.0f;
+  params.low_params_.boost_db_ = -5.0f;
+  params.high_params_.cutoff_ = 4000.0f;
+  params.high_params_.boost_db_ = -5.0f;
+
+  filter.UpdateParameters(params);
+
+  float output = filter.Process(0.5f);
   EXPECT_TRUE(std::isfinite(output));
 }
 
