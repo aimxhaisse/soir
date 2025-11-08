@@ -888,18 +888,19 @@ Track progress through each step:
 - [x] Step 6: Add core infrastructure
 - [x] Step 7: Add sample and tools (parameter skipped, depends on controls)
 - [x] Step 8: Add miniaudio wrapper
-- [ ] Step 9: Migrate effects layer
-- [ ] Step 10: Add audiofile and libremidi
-- [ ] Step 11: Migrate instruments layer
-- [ ] Step 12: Migrate engine and MIDI stack
-- [ ] Step 13: Migrate runtime layer
-- [ ] Step 14: Integrate runtime into bindings
-- [ ] Step 15: Migrate Python user API
-- [ ] Step 16: Update CLI for live coding
-- [ ] Step 17: Cleanup Python dependencies
-- [ ] Step 18: Update justfile
-- [ ] Step 19: Integration tests
-- [ ] Step 20: Documentation and cleanup
+- [ ] Step 9: Add audiofile and libremidi (was Step 10)
+- [ ] Step 10: Migrate instruments layer (was Step 11)
+- [ ] Step 11: Migrate engine and MIDI stack (was Step 12)
+- [ ] Step 12: Add parameter and controls
+- [ ] Step 13: Migrate effects layer (fx/, depends on parameter)
+- [ ] Step 14: Migrate runtime layer (was Step 13)
+- [ ] Step 15: Integrate runtime into bindings (was Step 14)
+- [ ] Step 16: Migrate Python user API (was Step 15)
+- [ ] Step 17: Update CLI for live coding (was Step 16)
+- [ ] Step 18: Cleanup Python dependencies (was Step 17)
+- [ ] Step 19: Update justfile (was Step 18)
+- [ ] Step 20: Integration tests (was Step 19)
+- [ ] Step 21: Documentation and cleanup (was Step 20)
 
 ## Final Directory Structure
 
