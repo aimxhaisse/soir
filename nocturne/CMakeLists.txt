@@ -245,18 +245,23 @@ target_link_libraries(soir_dsp
 pybind11_add_module(_core
     cpp/bindings/bindings.cc
     cpp/bindings/logger.cc
+    cpp/bindings/rt.cc
     cpp/bindings/soir.cc
     cpp/src/core/soir.cc
+    cpp/src/rt/runtime.cc
 )
 
 target_include_directories(_core PRIVATE cpp/src cpp)
 
 target_link_libraries(_core PRIVATE
+    soir_engine
     soir_utils
     absl::status
     absl::statusor
     absl::log
     absl::log_initialize
+    absl::synchronization
+    absl::time
 )
 
 target_compile_options(_core PRIVATE

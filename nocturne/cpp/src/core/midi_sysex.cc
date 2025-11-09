@@ -17,4 +17,11 @@ bool MidiSysexInstruction::ParseFromBytes(const uint8_t* data, size_t size) {
   return true;
 }
 
+std::string MidiSysexInstruction::SerializeToBytes() const {
+  std::string result;
+  result.push_back(static_cast<char>(type));
+  result += json_payload;
+  return result;
+}
+
 }  // namespace soir

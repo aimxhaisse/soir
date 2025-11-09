@@ -19,6 +19,7 @@ class Config {
 
   static Config FromJson(const nlohmann::json& json);
   static absl::StatusOr<Config> FromPath(const std::string& path);
+  static std::string ExpandEnvironmentVariables(const std::string& input);
 
  private:
   struct FromJsonTag {};

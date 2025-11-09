@@ -1,6 +1,8 @@
 #include "config.hh"
 
+#include <cstdlib>
 #include <fstream>
+#include <regex>
 
 namespace soir {
 namespace utils {
@@ -54,6 +56,32 @@ nlohmann::json Config::GetNode(const std::string& path) const {
   }
 
   return node;
+}
+
+std::string Config::ExpandEnvironmentVariables(const std::string& input) {
+  std::regex env_var_pattern("\\$(\\w+(_\\w+)*)");
+  std::string result = input;
+
+  std::smatch match;
+  std::string::const_iterator search_start(result.cbegin());
+
+  while (
+      std::regex_search(search_start, result.cend(), match, env_var_pattern)) {
+    const std::string var_name = match[1].str();
+    const char* env_value = std::getenv(var_name.c_str());
+
+    if (env_value) {
+      const size_t pos = match.position(0) + (search_start - result.cbegin());
+      const size_t length = match[0].length();
+      result.replace(pos, length, env_value);
+
+      search_start = result.cbegin() + pos + strlen(env_value);
+    } else {
+      search_start = match.suffix().first;
+    }
+  }
+
+  return result;
 }
 
 }  // namespace utils

@@ -17,6 +17,7 @@ struct MidiSysexInstruction {
   std::string json_payload;
 
   bool ParseFromBytes(const uint8_t* data, size_t size);
+  std::string SerializeToBytes() const;
 };
 
 }  // namespace soir
