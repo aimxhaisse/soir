@@ -1,6 +1,6 @@
 #include "core/sample.hh"
 
-#include "dsp/dsp.hh"
+#include "core/common.hh"
 
 namespace soir {
 

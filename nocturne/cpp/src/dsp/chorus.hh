@@ -2,7 +2,7 @@
 
 #include <utility>
 
-#include "dsp/dsp.hh"
+#include "core/common.hh"
 #include "dsp/modulated_delay.hh"
 
 namespace soir {

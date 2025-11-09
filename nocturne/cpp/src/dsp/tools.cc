@@ -2,7 +2,7 @@
 
 #include <algorithm>
 
-#include "dsp/dsp.hh"
+#include "core/common.hh"
 
 namespace soir {
 namespace dsp {

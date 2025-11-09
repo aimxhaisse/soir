@@ -2,8 +2,8 @@
 
 #include <tuple>
 
+#include "core/common.hh"
 #include "dsp/delay.hh"
-#include "dsp/dsp.hh"
 #include "dsp/lfo.hh"
 
 namespace soir {
