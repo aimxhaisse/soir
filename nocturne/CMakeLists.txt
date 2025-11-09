@@ -128,7 +128,8 @@ add_library(soir_core_utils
     cpp/src/core/sample_pack.cc
 )
 
-target_include_directories(soir_core_utils PUBLIC cpp/src ${audiofile_SOURCE_DIR} ${libremidi_SOURCE_DIR}/include ${rapidjson_SOURCE_DIR}/include)
+target_include_directories(soir_core_utils PUBLIC cpp/src ${audiofile_SOURCE_DIR} ${libremidi_SOURCE_DIR}/include)
+target_include_directories(soir_core_utils SYSTEM PUBLIC ${rapidjson_SOURCE_DIR}/include)
 
 target_link_libraries(soir_core_utils
     soir_audio
@@ -141,6 +142,25 @@ target_link_libraries(soir_core_utils
     absl::statusor
     absl::synchronization
     absl::time
+)
+
+# inst
+
+add_library(soir_inst
+    cpp/src/inst/sampler.cc
+)
+
+target_include_directories(soir_inst PUBLIC cpp/src ${audiofile_SOURCE_DIR} ${libremidi_SOURCE_DIR}/include)
+target_include_directories(soir_inst SYSTEM PUBLIC ${rapidjson_SOURCE_DIR}/include)
+
+target_link_libraries(soir_inst
+    soir_audio
+    soir_core_utils
+    soir_utils
+    libremidi
+    absl::log
+    absl::status
+    absl::statusor
 )
 
 # dsp
@@ -243,6 +263,19 @@ target_link_libraries(core_test
 )
 
 add_test(NAME CoreTest COMMAND core_test)
+
+add_executable(inst_test
+    cpp/tests/inst/sampler_test.cc
+)
+
+target_link_libraries(inst_test
+    soir_inst
+    pybind11::embed
+    gtest
+    gtest_main
+)
+
+add_test(NAME InstTest COMMAND inst_test)
 
 add_executable(dsp_test
     cpp/tests/dsp/delay_test.cc
