@@ -1,6 +1,7 @@
 #include "audio/audio_output.hh"
 
 #define MINIAUDIO_IMPLEMENTATION
+
 #include "absl/log/log.h"
 #include "audio/audio_buffer.hh"
 #include "miniaudio.h"
@@ -38,7 +39,7 @@ static void data_callback(ma_device* device, void* output, const void* input,
     }
   } else {
     // No audio_output, output silence
-    memset(output, 0, samples_needed * sizeof(float));
+    memset(output_buffer, 0, samples_needed * sizeof(float));
   }
 }
 
@@ -95,10 +96,6 @@ absl::Status AudioOutput::Stop() {
 
   LOG(INFO) << "Audio output stopped";
   return absl::OkStatus();
-}
-
-void AudioOutput::SetCallback(AudioCallback callback) {
-  callback_ = std::move(callback);
 }
 
 absl::Status AudioOutput::PushAudioBuffer(AudioBuffer& buffer) {
