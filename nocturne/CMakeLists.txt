@@ -2,14 +2,11 @@ cmake_minimum_required(VERSION 3.15)
 
 set(CMAKE_POLICY_VERSION_MINIMUM 3.5)
 
-set(CMAKE_C_COMPILER clang)
-set(CMAKE_CXX_COMPILER clang++)
+project(soir_core)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libc++")
 set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -stdlib=libc++")
-
-project(soir_core)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -48,7 +45,24 @@ FetchContent_Declare(
     GIT_TAG 0.11.23
 )
 
-FetchContent_MakeAvailable(pybind11 nlohmann_json abseil-cpp googletest miniaudio)
+FetchContent_Declare(
+    audiofile
+    GIT_REPOSITORY https://github.com/adamstark/AudioFile.git
+    GIT_TAG 1.1.4
+)
+
+FetchContent_Declare(
+    libremidi
+    GIT_REPOSITORY https://github.com/jcelerier/libremidi.git
+    GIT_TAG v5.3.1
+)
+
+
+set(BUILD_GMOCK OFF CACHE BOOL "" FORCE)    # gtest
+set(BUILD_EXAMPLES OFF CACHE BOOL "" FORCE) # audiofile
+set(BUILD_TESTS OFF CACHE BOOL "" FORCE)    # audiofile
+
+FetchContent_MakeAvailable(pybind11 nlohmann_json abseil-cpp googletest miniaudio audiofile libremidi)
 
 # make sure pybind targets our environment
 
