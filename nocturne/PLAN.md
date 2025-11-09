@@ -888,7 +888,7 @@ Track progress through each step:
 - [x] Step 6: Add core infrastructure
 - [x] Step 7: Add sample and tools (parameter skipped, depends on controls)
 - [x] Step 8: Add miniaudio wrapper
-- [ ] Step 9: Add audiofile and libremidi (was Step 10)
+- [x] Step 9: Add audiofile and libremidi (was Step 10)
 - [ ] Step 10: Migrate instruments layer (was Step 11)
 - [ ] Step 11: Migrate engine and MIDI stack (was Step 12)
 - [ ] Step 12: Add parameter and controls
