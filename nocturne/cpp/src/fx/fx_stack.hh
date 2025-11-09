@@ -8,6 +8,7 @@
 
 #include "audio/audio_buffer.hh"
 #include "core/common.hh"
+#include "core/parameter.hh"
 #include "fx.hh"
 
 namespace soir {
