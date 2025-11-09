@@ -1,9 +1,9 @@
+#include "fx_hpf.hh"
+
 #include <absl/log/log.h>
 
 #include "core/common.hh"
 #include "utils/tools.hh"
-
-#include "fx_hpf.hh"
 
 namespace soir {
 namespace fx {

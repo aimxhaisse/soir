@@ -104,9 +104,10 @@ target_link_libraries(soir_utils
 add_library(soir_audio
     cpp/src/audio/audio_buffer.cc
     cpp/src/audio/audio_output.cc
+    cpp/src/audio/audio_recorder.cc
 )
 
-target_include_directories(soir_audio PUBLIC cpp/src ${miniaudio_SOURCE_DIR})
+target_include_directories(soir_audio PUBLIC cpp/src ${miniaudio_SOURCE_DIR} ${audiofile_SOURCE_DIR})
 
 target_link_libraries(soir_audio
     soir_dsp
@@ -170,10 +171,11 @@ target_link_libraries(soir_fx
 # inst
 
 add_library(soir_inst
+    cpp/src/inst/midi_ext.cc
     cpp/src/inst/sampler.cc
 )
 
-target_include_directories(soir_inst PUBLIC cpp/src ${audiofile_SOURCE_DIR} ${libremidi_SOURCE_DIR}/include)
+target_include_directories(soir_inst PUBLIC cpp/src ${audiofile_SOURCE_DIR} ${libremidi_SOURCE_DIR}/include ${miniaudio_SOURCE_DIR})
 target_include_directories(soir_inst SYSTEM PUBLIC ${rapidjson_SOURCE_DIR}/include)
 
 target_link_libraries(soir_inst
@@ -184,6 +186,28 @@ target_link_libraries(soir_inst
     absl::log
     absl::status
     absl::statusor
+)
+
+# engine
+
+add_library(soir_engine
+    cpp/src/core/engine.cc
+    cpp/src/core/track.cc
+)
+
+target_include_directories(soir_engine PUBLIC cpp/src ${libremidi_SOURCE_DIR}/include)
+
+target_link_libraries(soir_engine
+    soir_audio
+    soir_core_utils
+    soir_fx
+    soir_inst
+    libremidi
+    absl::log
+    absl::status
+    absl::statusor
+    absl::synchronization
+    absl::time
 )
 
 # dsp

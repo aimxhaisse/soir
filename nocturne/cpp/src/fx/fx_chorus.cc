@@ -1,8 +1,8 @@
+#include "fx_chorus.hh"
+
 #include <absl/log/log.h>
 
 #include "utils/tools.hh"
-
-#include "fx_chorus.hh"
 
 namespace soir {
 namespace fx {

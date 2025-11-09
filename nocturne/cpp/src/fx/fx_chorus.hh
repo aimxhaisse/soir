@@ -1,8 +1,7 @@
 #pragma once
 
-#include "dsp/chorus.hh"
 #include "core/parameter.hh"
-
+#include "dsp/chorus.hh"
 #include "fx.hh"
 
 namespace soir {

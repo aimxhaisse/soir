@@ -1,8 +1,7 @@
 #pragma once
 
-#include "dsp/delay.hh"
 #include "core/parameter.hh"
-
+#include "dsp/delay.hh"
 #include "fx.hh"
 
 namespace soir {
@@ -25,10 +24,10 @@ struct Echo : public Fx {
   std::mutex mutex_;
   Fx::Settings settings_;
 
-  Parameter time_;       // Delay time in seconds
-  Parameter feedback_;   // Feedback amount (0.0-1.0)
-  Parameter dry_;        // Dry level
-  Parameter wet_;        // Wet level
+  Parameter time_;      // Delay time in seconds
+  Parameter feedback_;  // Feedback amount (0.0-1.0)
+  Parameter dry_;       // Dry level
+  Parameter wet_;       // Wet level
 
   bool initialized_ = false;
 

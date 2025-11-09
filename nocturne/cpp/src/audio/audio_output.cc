@@ -2,6 +2,7 @@
 
 #define MINIAUDIO_IMPLEMENTATION
 #include "absl/log/log.h"
+#include "audio/audio_buffer.hh"
 #include "miniaudio.h"
 
 namespace soir {
@@ -12,11 +13,32 @@ static void data_callback(ma_device* device, void* output, const void* input,
   (void)input;
 
   auto* audio_output = static_cast<AudioOutput*>(device->pUserData);
-  if (audio_output && audio_output->callback_) {
-    audio_output->callback_(static_cast<float*>(output), frame_count);
+  float* output_buffer = static_cast<float*>(output);
+  ma_uint32 samples_needed = frame_count * device->playback.channels;
+
+  if (audio_output) {
+    std::lock_guard<std::mutex> lock(audio_output->buffer_mutex_);
+
+    // Consume from buffer if available
+    size_t available = audio_output->audio_buffer_.size();
+    size_t to_copy = std::min(static_cast<size_t>(samples_needed), available);
+
+    if (to_copy > 0) {
+      memcpy(output_buffer, audio_output->audio_buffer_.data(),
+             to_copy * sizeof(float));
+      audio_output->audio_buffer_.erase(
+          audio_output->audio_buffer_.begin(),
+          audio_output->audio_buffer_.begin() + to_copy);
+    }
+
+    // Fill remainder with silence if buffer underrun
+    if (to_copy < samples_needed) {
+      memset(output_buffer + to_copy, 0,
+             (samples_needed - to_copy) * sizeof(float));
+    }
   } else {
-    // No callback, output silence
-    memset(output, 0, frame_count * device->playback.channels * sizeof(float));
+    // No audio_output, output silence
+    memset(output, 0, samples_needed * sizeof(float));
   }
 }
 
@@ -77,6 +99,23 @@ absl::Status AudioOutput::Stop() {
 
 void AudioOutput::SetCallback(AudioCallback callback) {
   callback_ = std::move(callback);
+}
+
+absl::Status AudioOutput::PushAudioBuffer(AudioBuffer& buffer) {
+  auto size = buffer.Size();
+  if (size == 0) {
+    return absl::OkStatus();
+  }
+
+  std::lock_guard<std::mutex> lock(buffer_mutex_);
+
+  // Interleave the audio data and append to buffer
+  for (size_t i = 0; i < size; i++) {
+    audio_buffer_.push_back(buffer.GetChannel(kLeftChannel)[i]);
+    audio_buffer_.push_back(buffer.GetChannel(kRightChannel)[i]);
+  }
+
+  return absl::OkStatus();
 }
 
 }  // namespace audio

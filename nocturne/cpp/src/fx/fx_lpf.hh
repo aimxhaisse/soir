@@ -1,8 +1,7 @@
 #pragma once
 
-#include "dsp/low_pass_filter.hh"
 #include "core/parameter.hh"
-
+#include "dsp/low_pass_filter.hh"
 #include "fx.hh"
 
 namespace soir {

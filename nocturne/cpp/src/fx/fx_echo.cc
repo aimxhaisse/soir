@@ -1,7 +1,6 @@
-#include <absl/log/log.h>
-
-
 #include "fx_echo.hh"
+
+#include <absl/log/log.h>
 
 namespace soir {
 namespace fx {
