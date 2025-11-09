@@ -311,6 +311,19 @@ target_link_libraries(core_test
 
 add_test(NAME CoreTest COMMAND core_test)
 
+add_executable(engine_test
+    cpp/tests/core/engine_test.cc
+)
+
+target_link_libraries(engine_test
+    soir_engine
+    pybind11::embed
+    gtest
+    gtest_main
+)
+
+add_test(NAME EngineTest COMMAND engine_test)
+
 add_executable(inst_test
     cpp/tests/inst/sampler_test.cc
 )
