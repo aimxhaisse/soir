@@ -5,9 +5,7 @@
 namespace soir {
 namespace dsp {
 
-LowShelvingFilter::LowShelvingFilter() {
-  InitFromParameters();
-}
+LowShelvingFilter::LowShelvingFilter() { InitFromParameters(); }
 
 void LowShelvingFilter::UpdateParameters(const Parameters& p) {
   if (p != params_) {
@@ -16,9 +14,7 @@ void LowShelvingFilter::UpdateParameters(const Parameters& p) {
   }
 }
 
-float LowShelvingFilter::Process(float input) {
-  return filter_.Process(input);
-}
+float LowShelvingFilter::Process(float input) { return filter_.Process(input); }
 
 void LowShelvingFilter::InitFromParameters() {
   const float theta_c = 2.0 * kPI * params_.cutoff_ / kSampleRate;

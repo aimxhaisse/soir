@@ -4,7 +4,6 @@
 
 namespace soir {
 
-
 class AudioBuffer {
  public:
   explicit AudioBuffer(int num_samples);
@@ -21,6 +20,5 @@ class AudioBuffer {
   std::size_t size_;
   std::vector<float> buffer_[2];
 };
-
 
 }  // namespace soir

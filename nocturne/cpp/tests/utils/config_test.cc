@@ -1,6 +1,6 @@
-#include <gtest/gtest.h>
-
 #include "utils/config.hh"
+
+#include <gtest/gtest.h>
 
 namespace soir {
 namespace utils {

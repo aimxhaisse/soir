@@ -5,9 +5,7 @@
 namespace soir {
 namespace dsp {
 
-HighShelvingFilter::HighShelvingFilter() {
-  InitFromParameters();
-}
+HighShelvingFilter::HighShelvingFilter() { InitFromParameters(); }
 
 void HighShelvingFilter::UpdateParameters(const Parameters& p) {
   if (p != params_) {

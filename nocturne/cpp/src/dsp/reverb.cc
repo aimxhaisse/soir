@@ -81,7 +81,6 @@ float APFFeedback(float time_factor) {
 }  // namespace
 
 void Reverb::UpdateCombFilters() {
-
   // Comb filter delay times.
   //
   // Those delay times were chosen by hearing, with the only
@@ -145,7 +144,6 @@ void Reverb::UpdateCombFilters() {
 }
 
 void Reverb::UpdateAPFs() {
-
   // There is no strong theory behind those values, we got them by
   // hearing.  Pirkle recommands the APF modulations to be between 1
   // and 5ms, with a rate < 1Hz, we don't follow this rule.

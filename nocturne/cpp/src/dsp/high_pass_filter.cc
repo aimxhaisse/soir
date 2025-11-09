@@ -6,9 +6,7 @@
 namespace soir {
 namespace dsp {
 
-HighPassFilter::HighPassFilter() {
-  InitFromParameters();
-}
+HighPassFilter::HighPassFilter() { InitFromParameters(); }
 
 void HighPassFilter::UpdateParameters(const Parameters& p) {
   if (p != params_) {
@@ -17,13 +15,9 @@ void HighPassFilter::UpdateParameters(const Parameters& p) {
   }
 }
 
-void HighPassFilter::Reset() {
-  filter_.Reset();
-}
+void HighPassFilter::Reset() { filter_.Reset(); }
 
-float HighPassFilter::Process(float input) {
-  return filter_.Process(input);
-}
+float HighPassFilter::Process(float input) { return filter_.Process(input); }
 
 void HighPassFilter::InitFromParameters() {
   // Clamp parameters to reasonable ranges

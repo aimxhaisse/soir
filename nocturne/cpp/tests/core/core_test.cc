@@ -1,6 +1,6 @@
-#include "core/sample.hh"
-
 #include <gtest/gtest.h>
+
+#include "core/sample.hh"
 
 namespace soir {
 

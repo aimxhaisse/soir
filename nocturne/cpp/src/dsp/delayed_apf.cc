@@ -3,9 +3,7 @@
 namespace soir {
 namespace dsp {
 
-DelayedAPF::DelayedAPF() {
-  InitFromParameters();
-}
+DelayedAPF::DelayedAPF() { InitFromParameters(); }
 
 void DelayedAPF::UpdateParameters(const Parameters& p) {
   if (p != params_) {
@@ -40,13 +38,9 @@ float DelayedAPF::Process(float xn) {
   return yn;
 }
 
-void DelayedAPF::Reset() {
-  delay_.Reset();
-}
+void DelayedAPF::Reset() { delay_.Reset(); }
 
-void DelayedAPF::SetModPhase(float coef) {
-  delay_.SetModPhase(coef);
-}
+void DelayedAPF::SetModPhase(float coef) { delay_.SetModPhase(coef); }
 
 }  // namespace dsp
 }  // namespace soir

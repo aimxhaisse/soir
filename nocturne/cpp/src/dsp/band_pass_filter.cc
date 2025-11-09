@@ -5,9 +5,7 @@
 namespace soir {
 namespace dsp {
 
-BandPassFilter::BandPassFilter() {
-  InitFromParameters();
-}
+BandPassFilter::BandPassFilter() { InitFromParameters(); }
 
 void BandPassFilter::UpdateParameters(const Parameters& p) {
   if (p != params_) {
@@ -16,9 +14,7 @@ void BandPassFilter::UpdateParameters(const Parameters& p) {
   }
 }
 
-void BandPassFilter::Reset() {
-  filter_.Reset();
-}
+void BandPassFilter::Reset() { filter_.Reset(); }
 
 float BandPassFilter::Process(float input) {
   return gain_ * filter_.Process(input);

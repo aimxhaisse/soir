@@ -5,7 +5,6 @@
 
 namespace soir {
 
-
 struct Sample {
   std::string path_;
   std::string name_;
@@ -16,6 +15,5 @@ struct Sample {
   float DurationMs(std::size_t samples) const;
   std::size_t DurationSamples() const;
 };
-
 
 }  // namespace soir

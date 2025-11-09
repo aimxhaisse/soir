@@ -1,9 +1,9 @@
 #pragma once
 
+#include <absl/status/statusor.h>
+
 #include <nlohmann/json.hpp>
 #include <string>
-
-#include <absl/status/statusor.h>
 
 namespace soir {
 namespace utils {

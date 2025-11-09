@@ -2,8 +2,8 @@
 
 #include <tuple>
 
-#include "dsp/dsp.hh"
 #include "dsp/biquad_filter.hh"
+#include "dsp/dsp.hh"
 
 namespace soir {
 namespace dsp {
@@ -31,8 +31,8 @@ class HighPassFilter {
 };
 
 inline bool operator!=(const HighPassFilter::Parameters& lhs,
-                     const HighPassFilter::Parameters& rhs) {
-  return std::tie(lhs.cutoff_, lhs.resonance_) != 
+                       const HighPassFilter::Parameters& rhs) {
+  return std::tie(lhs.cutoff_, lhs.resonance_) !=
          std::tie(rhs.cutoff_, rhs.resonance_);
 }
 

@@ -3,9 +3,7 @@
 namespace soir {
 namespace dsp {
 
-TwoBandShelvingFilter::TwoBandShelvingFilter() {
-  InitFromParameters();
-}
+TwoBandShelvingFilter::TwoBandShelvingFilter() { InitFromParameters(); }
 
 void TwoBandShelvingFilter::UpdateParameters(const Parameters& p) {
   if (p != params_) {

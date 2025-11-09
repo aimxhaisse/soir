@@ -1,4 +1,5 @@
 #include "dsp/tools.hh"
+
 #include <gtest/gtest.h>
 
 TEST(DspToolsTest, UnipolarConversion) {
@@ -20,6 +21,8 @@ TEST(DspToolsTest, RoundTripConversion) {
   float bipolar_value = 0.75f;
   float unipolar_value = 0.8f;
 
-  EXPECT_FLOAT_EQ(soir::dsp::Bipolar(soir::dsp::Unipolar(bipolar_value)), bipolar_value);
-  EXPECT_FLOAT_EQ(soir::dsp::Unipolar(soir::dsp::Bipolar(unipolar_value)), unipolar_value);
+  EXPECT_FLOAT_EQ(soir::dsp::Bipolar(soir::dsp::Unipolar(bipolar_value)),
+                  bipolar_value);
+  EXPECT_FLOAT_EQ(soir::dsp::Unipolar(soir::dsp::Bipolar(unipolar_value)),
+                  unipolar_value);
 }
