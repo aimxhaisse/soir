@@ -62,7 +62,7 @@ void Sampler::PlaySample(Sample* sample, const PlaySampleParameters& p) {
   const float decayMs = 0.0f;
   const float level = 1.0f;
 
-  absl::Status status = ps->wrapper_.Init(attackMs, decayMs, level, releaseMs);
+  absl::Status status = ps->wrapper_.Init(attackMs, decayMs, releaseMs, level);
   if (status != absl::OkStatus()) {
     LOG(WARNING) << "Failed to initialize envelope in play sample: " << status;
   }
