@@ -57,12 +57,20 @@ FetchContent_Declare(
     GIT_TAG v5.3.1
 )
 
+FetchContent_Declare(
+    rapidjson
+    GIT_REPOSITORY https://github.com/Tencent/rapidjson.git
+    GIT_TAG v1.1.0
+)
 
 set(BUILD_GMOCK OFF CACHE BOOL "" FORCE)    # gtest
 set(BUILD_EXAMPLES OFF CACHE BOOL "" FORCE) # audiofile
 set(BUILD_TESTS OFF CACHE BOOL "" FORCE)    # audiofile
+set(RAPIDJSON_BUILD_DOC OFF CACHE BOOL "" FORCE)
+set(RAPIDJSON_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+set(RAPIDJSON_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 
-FetchContent_MakeAvailable(pybind11 nlohmann_json abseil-cpp googletest miniaudio audiofile libremidi)
+FetchContent_MakeAvailable(pybind11 nlohmann_json abseil-cpp googletest miniaudio audiofile libremidi rapidjson)
 
 # make sure pybind targets our environment
 
@@ -110,15 +118,29 @@ target_link_libraries(soir_audio
 # core
 
 add_library(soir_core_utils
+    cpp/src/core/adsr.cc
+    cpp/src/core/controls.cc
+    cpp/src/core/midi_stack.cc
+    cpp/src/core/midi_sysex.cc
+    cpp/src/core/parameter.cc
     cpp/src/core/sample.cc
+    cpp/src/core/sample_manager.cc
+    cpp/src/core/sample_pack.cc
 )
 
-target_include_directories(soir_core_utils PUBLIC cpp/src)
+target_include_directories(soir_core_utils PUBLIC cpp/src ${audiofile_SOURCE_DIR} ${libremidi_SOURCE_DIR}/include ${rapidjson_SOURCE_DIR}/include)
 
 target_link_libraries(soir_core_utils
+    soir_audio
     soir_dsp
+    soir_utils
+    libremidi
+    pybind11::pybind11
+    absl::log
     absl::status
     absl::statusor
+    absl::synchronization
+    absl::time
 )
 
 # dsp
@@ -215,6 +237,7 @@ add_executable(core_test
 
 target_link_libraries(core_test
     soir_core_utils
+    pybind11::embed
     gtest
     gtest_main
 )

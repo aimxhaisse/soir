@@ -1,0 +1,106 @@
+#include "core/controls.hh"
+
+#include <absl/log/log.h>
+#include <rapidjson/document.h>
+
+#include "core/midi_sysex.hh"
+
+namespace soir {
+
+Control::Control() {}
+
+void Control::SetTargetValue(SampleTick tick, float target) {
+  std::unique_lock<std::shared_mutex> lock(mutex_);
+
+  initialValue_ = targetValue_;
+  targetValue_ = target;
+
+  fromTick_ = tick;
+  toTick_ = tick + kSampleRate / kControlsFrequencyUpdate;
+}
+
+float Control::GetValue(SampleTick tick) {
+  std::shared_lock<std::shared_mutex> lock(mutex_);
+
+  if (tick >= toTick_) {
+    return targetValue_;
+  }
+
+  const float progress = (tick - fromTick_) / (toTick_ - fromTick_);
+
+  return initialValue_ + (targetValue_ - initialValue_) * progress;
+}
+
+absl::Status Controls::Init() { return absl::OkStatus(); }
+
+Controls::Controls() {}
+
+std::shared_ptr<Control> Controls::GetControl(const std::string& id) {
+  std::shared_lock<std::shared_mutex> lock(mutex_);
+
+  auto it = controls_.find(id);
+  if (it == controls_.end()) {
+    return nullptr;
+  }
+
+  return it->second;
+}
+
+void Controls::AddEvents(const std::list<MidiEventAt>& events) {
+  midi_stack_.AddEvents(events);
+}
+
+void Controls::Update(SampleTick current) {
+  std::list<MidiEventAt> events;
+
+  midi_stack_.EventsAtTick(current, events);
+
+  for (auto& event : events) {
+    ProcessEvent(event);
+  }
+}
+
+void Controls::ProcessEvent(MidiEventAt& event_at) {
+  auto msg = event_at.Msg();
+  auto type = msg.get_message_type();
+
+  if (type != libremidi::message_type::SYSTEM_EXCLUSIVE) {
+    return;
+  }
+
+  MidiSysexInstruction sysex;
+  if (!sysex.ParseFromBytes(msg.bytes.data() + 1, msg.bytes.size() - 1)) {
+    LOG(WARNING) << "Failed to parse sysex message in controls update";
+    return;
+  }
+  if (sysex.type != MidiSysexType::UPDATE_CONTROLS) {
+    return;
+  }
+
+  std::map<std::string, float> values;
+  rapidjson::Document params;
+  params.Parse(sysex.json_payload.c_str());
+  for (auto& k : params["knobs"].GetObject()) {
+    values[k.name.GetString()] = k.value.GetDouble();
+  }
+
+  std::unique_lock<std::shared_mutex> lock(mutex_);
+
+  for (auto& v : values) {
+    auto& name = v.first;
+    auto target = v.second;
+    auto it = controls_.find(name);
+    if (it == controls_.end()) {
+      it = controls_.emplace(name, std::make_shared<Control>()).first;
+    }
+
+    it->second->SetTargetValue(event_at.Tick(), target);
+  }
+
+  // Here eventually we could GC all names that weren't found. It's
+  // not clear though how we can properly handle this since we need
+  // the DSP code to ack it doesn't use any legacy knob that we are
+  // deleting.
+}
+
+}  // namespace soir

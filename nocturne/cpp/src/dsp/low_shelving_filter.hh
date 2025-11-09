@@ -2,8 +2,8 @@
 
 #include <tuple>
 
+#include "core/common.hh"
 #include "dsp/biquad_filter.hh"
-#include "dsp/dsp.hh"
 
 namespace soir {
 namespace dsp {

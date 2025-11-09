@@ -2,7 +2,7 @@
 
 #include <gtest/gtest.h>
 
-#include "dsp/dsp.hh"
+#include "core/common.hh"
 
 namespace soir {
 

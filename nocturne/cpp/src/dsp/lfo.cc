@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <cmath>
 
-#include "dsp/dsp.hh"
+#include "core/common.hh"
 #include "dsp/tools.hh"
 
 namespace soir {
@@ -48,7 +48,7 @@ float LFO::Render() {
       break;
 
     case SINE:
-      result = soir::FastSin(v * kPI);
+      result = FastSin(v * kPI);
       break;
   };
 
