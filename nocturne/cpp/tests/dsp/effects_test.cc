@@ -1,7 +1,7 @@
+#include <gtest/gtest.h>
+
 #include "dsp/chorus.hh"
 #include "dsp/reverb.hh"
-
-#include <gtest/gtest.h>
 
 namespace soir {
 namespace dsp {

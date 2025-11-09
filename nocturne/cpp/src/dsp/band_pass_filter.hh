@@ -2,8 +2,8 @@
 
 #include <tuple>
 
-#include "dsp/dsp.hh"
 #include "dsp/biquad_filter.hh"
+#include "dsp/dsp.hh"
 
 namespace soir {
 namespace dsp {
@@ -40,10 +40,8 @@ class BandPassFilter {
 
 inline bool operator!=(const BandPassFilter::Parameters& lhs,
                        const BandPassFilter::Parameters& rhs) {
-  return std::tie(lhs.frequency_, lhs.width_coefficient_,
-                  lhs.boost_db_) != 
-         std::tie(rhs.frequency_, rhs.width_coefficient_,
-                  rhs.boost_db_);
+  return std::tie(lhs.frequency_, lhs.width_coefficient_, lhs.boost_db_) !=
+         std::tie(rhs.frequency_, rhs.width_coefficient_, rhs.boost_db_);
 }
 
 }  // namespace dsp

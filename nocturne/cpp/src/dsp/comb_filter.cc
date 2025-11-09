@@ -3,9 +3,7 @@
 namespace soir {
 namespace dsp {
 
-FeedbackCombFilter::FeedbackCombFilter() {
-  InitFromParameters();
-}
+FeedbackCombFilter::FeedbackCombFilter() { InitFromParameters(); }
 
 void FeedbackCombFilter::InitFromParameters() {
   delayParams_.max_ = params_.max_;
@@ -21,13 +19,9 @@ void FeedbackCombFilter::Init(const Parameters& p) {
   }
 }
 
-void FeedbackCombFilter::UpdateParameters(const Parameters& p) {
-  Init(p);
-}
+void FeedbackCombFilter::UpdateParameters(const Parameters& p) { Init(p); }
 
-void FeedbackCombFilter::Reset() {
-  delay_.Reset();
-}
+void FeedbackCombFilter::Reset() { delay_.Reset(); }
 
 float FeedbackCombFilter::Process(float input) {
   const float yn = delay_.ReadAt(params_.size_) * params_.feedback_ + input;

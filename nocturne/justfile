@@ -14,11 +14,12 @@ clean:
 
 # Format code & check code
 check:
+    #!/usr/bin/env bash
     uv run black .
     uv run ruff check . --preview
     uv run mypy python
 
-    clang-format -i cpp/*/*.cc cpp/*/*.hh
+    clang-format -i $(find cpp -name '*.cc') $(find cpp -name '*.hh')
     run-clang-tidy -p build/cmake -quiet -- -std=c++17
 
 # Build with C++ tests

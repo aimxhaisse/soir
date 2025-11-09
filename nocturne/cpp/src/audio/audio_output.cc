@@ -1,9 +1,8 @@
 #include "audio/audio_output.hh"
 
 #define MINIAUDIO_IMPLEMENTATION
-#include "miniaudio.h"
-
 #include "absl/log/log.h"
+#include "miniaudio.h"
 
 namespace soir {
 namespace audio {
@@ -21,9 +20,7 @@ static void data_callback(ma_device* device, void* output, const void* input,
   }
 }
 
-AudioOutput::AudioOutput() {
-  device_ = new ma_device();
-}
+AudioOutput::AudioOutput() { device_ = new ma_device(); }
 
 AudioOutput::~AudioOutput() {
   if (initialized_) {
@@ -46,8 +43,8 @@ absl::Status AudioOutput::Init(int sample_rate, int channels, int buffer_size) {
   }
 
   initialized_ = true;
-  LOG(INFO) << "Audio output initialized: " << sample_rate << "Hz, "
-            << channels << " channels, " << buffer_size << " frames";
+  LOG(INFO) << "Audio output initialized: " << sample_rate << "Hz, " << channels
+            << " channels, " << buffer_size << " frames";
 
   return absl::OkStatus();
 }

@@ -1,6 +1,6 @@
-#include <absl/log/log.h>
-
 #include "dsp/modulated_delay.hh"
+
+#include <absl/log/log.h>
 
 namespace soir {
 namespace dsp {
@@ -37,13 +37,9 @@ void ModulatedDelay::InitFromParameters() {
   delay_.Init(delay_params_);
 }
 
-void ModulatedDelay::SetModPhase(float phase) {
-  lfo_.SetPhase(phase);
-}
+void ModulatedDelay::SetModPhase(float phase) { lfo_.SetPhase(phase); }
 
-void ModulatedDelay::UpdateMod() {
-  mod_ = lfo_.Render();
-}
+void ModulatedDelay::UpdateMod() { mod_ = lfo_.Render(); }
 
 float ModulatedDelay::Read() {
   const float at = static_cast<float>(params_.size_) +
@@ -52,9 +48,7 @@ float ModulatedDelay::Read() {
   return delay_.ReadAt(at);
 }
 
-void ModulatedDelay::UpdateState(float xn) {
-  delay_.Update(xn);
-}
+void ModulatedDelay::UpdateState(float xn) { delay_.Update(xn); }
 
 float ModulatedDelay::Render(float xn) {
   const float yn = Read();

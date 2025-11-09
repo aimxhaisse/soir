@@ -1,6 +1,6 @@
-#include <absl/log/log.h>
-
 #include "dsp/delay.hh"
+
+#include <absl/log/log.h>
 
 #include <algorithm>
 #include <cmath>
@@ -52,9 +52,7 @@ float Delay::Render(float xn) {
   return x;
 }
 
-float Delay::Read() const {
-  return ReadAt(params_.size_);
-}
+float Delay::Read() const { return ReadAt(params_.size_); }
 
 float Delay::ReadAt(float at) const {
   switch (params_.interpolation_) {
@@ -141,9 +139,7 @@ void Delay::Update(float xn) {
   }
 }
 
-float Delay::Size() const {
-  return params_.size_;
-}
+float Delay::Size() const { return params_.size_; }
 
 }  // namespace dsp
 }  // namespace soir

@@ -1,9 +1,10 @@
 #include "dsp/lfo.hh"
-#include "dsp/tools.hh"
-#include "dsp/dsp.hh"
 
 #include <algorithm>
 #include <cmath>
+
+#include "dsp/dsp.hh"
+#include "dsp/tools.hh"
 
 namespace soir {
 namespace dsp {
@@ -24,13 +25,9 @@ void LFO::SetPhase(float phase) {
   last_phase_ = phase;
 }
 
-void LFO::Reset() {
-  value_ = last_phase_;
-}
+void LFO::Reset() { value_ = last_phase_; }
 
-void LFO::InitFromParameters() {
-  inc_ = params_.frequency_ / kSampleRate;
-}
+void LFO::InitFromParameters() { inc_ = params_.frequency_ / kSampleRate; }
 
 float LFO::Render() {
   value_ += inc_;

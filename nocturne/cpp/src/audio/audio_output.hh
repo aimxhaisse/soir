@@ -1,8 +1,8 @@
 #pragma once
 
-#include "absl/status/status.h"
-
 #include <functional>
+
+#include "absl/status/status.h"
 
 struct ma_device;
 

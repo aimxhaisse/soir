@@ -1,7 +1,8 @@
 #include "audio/audio_buffer.hh"
-#include "dsp/dsp.hh"
 
 #include <gtest/gtest.h>
+
+#include "dsp/dsp.hh"
 
 namespace soir {
 

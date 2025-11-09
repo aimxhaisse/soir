@@ -35,8 +35,8 @@ void FileSink::Send(const absl::LogEntry& entry) {
   }
 
   std::string formatted_log = std::string(entry.text_message());
-  std::string timestamp = absl::FormatTime("%Y-%m-%d %H:%M:%S", entry.timestamp(),
-                                          absl::LocalTimeZone());
+  std::string timestamp = absl::FormatTime(
+      "%Y-%m-%d %H:%M:%S", entry.timestamp(), absl::LocalTimeZone());
   std::string severity = absl::LogSeverityName(entry.log_severity());
 
   log_file_ << timestamp << " " << severity << " [" << entry.source_filename()
@@ -85,8 +85,7 @@ absl::Status Logger::Init(const std::string& log_dir, size_t max_files,
   std::vector<std::filesystem::path> log_files;
   for (const auto& entry : std::filesystem::directory_iterator(log_path)) {
     auto filename = entry.path().filename().string();
-    if (entry.is_regular_file() &&
-        filename.rfind("soir.", 0) == 0 &&
+    if (entry.is_regular_file() && filename.rfind("soir.", 0) == 0 &&
         entry.path().extension() == ".log") {
       log_files.push_back(entry.path());
     }

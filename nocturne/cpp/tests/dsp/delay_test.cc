@@ -1,10 +1,11 @@
-#include "dsp/comb_filter.hh"
 #include "dsp/delay.hh"
+
+#include <gtest/gtest.h>
+
+#include "dsp/comb_filter.hh"
 #include "dsp/delayed_apf.hh"
 #include "dsp/lfo.hh"
 #include "dsp/modulated_delay.hh"
-
-#include <gtest/gtest.h>
 
 namespace soir {
 namespace dsp {

@@ -3,9 +3,7 @@
 namespace soir {
 namespace dsp {
 
-void FastRandom::Seed(uint32_t seed) {
-  seed_ = seed;
-}
+void FastRandom::Seed(uint32_t seed) { seed_ = seed; }
 
 uint32_t FastRandom::URandom() {
   // Lehmer RNG, formula stolen from Wikipedia.
