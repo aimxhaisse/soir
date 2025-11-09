@@ -1,6 +1,6 @@
-#include <absl/log/log.h>
-
 #include "fx_reverb.hh"
+
+#include <absl/log/log.h>
 
 namespace soir {
 namespace fx {

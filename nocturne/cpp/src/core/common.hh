@@ -1,6 +1,12 @@
 #pragma once
 
+#include <absl/status/status.h>
+
 #include <string_view>
+
+namespace soir {
+class AudioBuffer;
+}
 
 // Used for debugging mainly (Tracy colors)
 #define SOIR_BLUE 0x00A5E3
@@ -95,5 +101,13 @@ static constexpr int kMidiControlReverb = 0x05;
 static constexpr bool kTrackDefaultMuted = false;
 static constexpr int kTrackDefaultVolume = 127;
 static constexpr int kTrackDefaultPan = 64;
+
+// Interface for components that consume audio buffers (audio output, recorders,
+// etc.)
+class SampleConsumer {
+ public:
+  virtual ~SampleConsumer() = default;
+  virtual absl::Status PushAudioBuffer(AudioBuffer&) = 0;
+};
 
 }  // namespace soir

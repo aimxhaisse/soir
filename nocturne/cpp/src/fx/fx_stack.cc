@@ -1,11 +1,11 @@
+#include "fx_stack.hh"
+
 #include <absl/log/log.h>
 
 #include "fx_chorus.hh"
 #include "fx_hpf.hh"
 #include "fx_lpf.hh"
 #include "fx_reverb.hh"
-
-#include "fx_stack.hh"
 
 namespace soir {
 namespace fx {

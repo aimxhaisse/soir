@@ -1,8 +1,7 @@
 #pragma once
 
-#include "dsp/reverb.hh"
 #include "core/parameter.hh"
-
+#include "dsp/reverb.hh"
 #include "fx.hh"
 
 namespace soir {

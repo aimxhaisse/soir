@@ -1,16 +1,18 @@
+#include "inst/midi_ext.hh"
+
 #include <absl/log/log.h>
 #include <absl/status/status.h>
 #include <rapidjson/document.h>
 
 #include "core/common.hh"
-#include "inst/midi_ext.hh"
 
 namespace {
 
 bool useMidiPort(const std::string midi_out, libremidi::midi_out& libremidi) {
   auto ports =
       libremidi::observer{
-          {}, observer_configuration_for(libremidi.get_current_api())}
+          {},
+          libremidi::observer_configuration_for(libremidi.get_current_api())}
           .get_output_ports();
 
   for (auto& port : ports) {
@@ -36,30 +38,44 @@ bool useMidiPort(const std::string midi_out, libremidi::midi_out& libremidi) {
 namespace soir {
 namespace inst {
 
-void MidiExt::ProcessAudioInput() {
-  if (!audio_stream_) {
+void MidiExt::AudioInputCallback(ma_device* device, void* output,
+                                 const void* input, ma_uint32 frame_count) {
+  MidiExt* midi_ext = static_cast<MidiExt*>(device->pUserData);
+  if (!input || !midi_ext) {
     return;
   }
 
-  // Check how much audio data is available
-  int available = SDL_GetAudioStreamAvailable(audio_stream_);
-  if (available < kBlockSize * audio_in_chans_ * sizeof(float)) {
+  // Write captured audio to ringbuffer
+  const float* input_buffer = static_cast<const float*>(input);
+  ma_pcm_rb_acquire_write(&midi_ext->audio_ringbuffer_, &frame_count,
+                          (void**)&input_buffer);
+  ma_pcm_rb_commit_write(&midi_ext->audio_ringbuffer_, frame_count);
+}
+
+void MidiExt::ProcessAudioInput() {
+  if (!audio_in_device_initialized_) {
+    return;
+  }
+
+  // Check how much audio data is available in ringbuffer
+  ma_uint32 available_frames = ma_pcm_rb_available_read(&audio_ringbuffer_);
+  if (available_frames < kBlockSize) {
     return;  // Not enough data for a full block
   }
 
-  // Read interleaved audio data from the stream
+  // Read interleaved audio data from ringbuffer
   std::vector<float> input_buffer(kBlockSize * audio_in_chans_);
-  int bytes_read =
-      SDL_GetAudioStreamData(audio_stream_, input_buffer.data(),
-                             kBlockSize * audio_in_chans_ * sizeof(float));
-  if (bytes_read <= 0) {
+  void* read_ptr;
+  ma_uint32 frames_to_read = kBlockSize;
+  ma_pcm_rb_acquire_read(&audio_ringbuffer_, &frames_to_read, &read_ptr);
+  if (frames_to_read < kBlockSize) {
+    ma_pcm_rb_commit_read(&audio_ringbuffer_, frames_to_read);
     return;
   }
 
-  int samples_read = bytes_read / sizeof(float) / audio_in_chans_;
-  if (samples_read < kBlockSize) {
-    return;
-  }
+  memcpy(input_buffer.data(), read_ptr,
+         kBlockSize * audio_in_chans_ * sizeof(float));
+  ma_pcm_rb_commit_read(&audio_ringbuffer_, kBlockSize);
 
   AudioBuffer output_buffer(kBlockSize);
 
@@ -93,18 +109,13 @@ void MidiExt::ProcessAudioInput() {
   }
 }
 
-MidiExt::MidiExt() {
-  sdl::ListAudioInDevices();
-}
+MidiExt::MidiExt() { audio_in_device_initialized_ = false; }
 
 MidiExt::~MidiExt() {
-  if (audio_stream_) {
-    SDL_DestroyAudioStream(audio_stream_);
-    audio_stream_ = nullptr;
-  }
-  if (audio_in_device_id_ != 0) {
-    SDL_CloseAudioDevice(audio_in_device_id_);
-    audio_in_device_id_ = 0;
+  if (audio_in_device_initialized_) {
+    ma_device_uninit(&audio_in_device_);
+    ma_pcm_rb_uninit(&audio_ringbuffer_);
+    audio_in_device_initialized_ = false;
   }
 }
 
@@ -113,7 +124,7 @@ absl::Status MidiExt::GetMidiDevices(
   libremidi::midi_out midi_out;
   auto ports =
       libremidi::observer{
-          {}, observer_configuration_for(midi_out.get_current_api())}
+          {}, libremidi::observer_configuration_for(midi_out.get_current_api())}
           .get_output_ports();
   int i = 0;
   for (auto& port : ports) {
@@ -184,44 +195,14 @@ absl::Status MidiExt::ConfigureAudioDevice(const std::string& audio_in_device,
     return absl::OkStatus();
   }
 
-  // Clean up existing audio stream
-  if (audio_stream_) {
-    SDL_DestroyAudioStream(audio_stream_);
-    audio_stream_ = nullptr;
-  }
-  if (audio_in_device_id_ != 0) {
-    SDL_CloseAudioDevice(audio_in_device_id_);
-    audio_in_device_id_ = 0;
+  // Clean up existing audio device
+  if (audio_in_device_initialized_) {
+    ma_device_uninit(&audio_in_device_);
+    ma_pcm_rb_uninit(&audio_ringbuffer_);
+    audio_in_device_initialized_ = false;
   }
 
   LOG(INFO) << "Trying to open audio device " << audio_in_device << "...";
-
-  // Get the list of recording devices
-  std::vector<sdl::Device> devices;
-  auto status = sdl::GetAudioInDevices(&devices);
-  if (!status.ok()) {
-    LOG(WARNING) << "Failed to get audio input devices: " << status;
-    return absl::OkStatus();
-  }
-
-  if (devices.empty()) {
-    LOG(WARNING) << "No audio recording devices available";
-    return absl::OkStatus();
-  }
-
-  // Find the device by name
-  SDL_AudioDeviceID device_id = 0;
-  for (const auto& device : devices) {
-    if (device.name == audio_in_device) {
-      device_id = device.id;
-      break;
-    }
-  }
-
-  if (device_id == 0) {
-    LOG(WARNING) << "Audio device not found: " << audio_in_device;
-    return absl::OkStatus();
-  }
 
   // Validate channel indices
   for (int channel : channels) {
@@ -235,35 +216,83 @@ absl::Status MidiExt::ConfigureAudioDevice(const std::string& audio_in_device,
   int max_channel = *std::max_element(channels.begin(), channels.end());
   int required_channels = max_channel + 1;
 
-  // Set up SDL audio specification
-  SDL_AudioSpec spec;
-  spec.freq = kSampleRate;
-  spec.format = SDL_AUDIO_F32;
-  spec.channels = required_channels;
+  // Initialize ringbuffer for audio capture (buffer 4 blocks worth of data)
+  ma_uint32 ringbuffer_size = kBlockSize * 4 * required_channels;
+  ma_result result =
+      ma_pcm_rb_init(ma_format_f32, required_channels, ringbuffer_size, nullptr,
+                     nullptr, &audio_ringbuffer_);
+  if (result != MA_SUCCESS) {
+    LOG(WARNING) << "Failed to initialize ringbuffer: " << result;
+    return absl::OkStatus();
+  }
+
+  // Configure miniaudio capture device
+  ma_device_config config = ma_device_config_init(ma_device_type_capture);
+  config.capture.format = ma_format_f32;
+  config.capture.channels = required_channels;
+  config.sampleRate = kSampleRate;
+  config.dataCallback = AudioInputCallback;
+  config.pUserData = this;
+
+  // If device name is provided, try to find matching device
+  ma_device_info* capture_devices;
+  ma_uint32 capture_device_count;
+  ma_context context;
+
+  result = ma_context_init(nullptr, 0, nullptr, &context);
+  if (result != MA_SUCCESS) {
+    LOG(WARNING) << "Failed to initialize audio context: " << result;
+    ma_pcm_rb_uninit(&audio_ringbuffer_);
+    return absl::OkStatus();
+  }
+
+  result = ma_context_get_devices(&context, &capture_devices,
+                                  &capture_device_count, nullptr, nullptr);
+  if (result != MA_SUCCESS) {
+    LOG(WARNING) << "Failed to enumerate audio devices: " << result;
+    ma_context_uninit(&context);
+    ma_pcm_rb_uninit(&audio_ringbuffer_);
+    return absl::OkStatus();
+  }
+
+  // Find device by name
+  bool found = false;
+  for (ma_uint32 i = 0; i < capture_device_count; ++i) {
+    if (audio_in_device == capture_devices[i].name) {
+      config.capture.pDeviceID = &capture_devices[i].id;
+      found = true;
+      break;
+    }
+  }
+
+  if (!found && !audio_in_device.empty()) {
+    LOG(WARNING) << "Audio device not found: " << audio_in_device;
+    ma_context_uninit(&context);
+    ma_pcm_rb_uninit(&audio_ringbuffer_);
+    return absl::OkStatus();
+  }
 
   // Open the audio input device
-  audio_in_device_id_ = SDL_OpenAudioDevice(device_id, &spec);
-  if (audio_in_device_id_ == 0) {
-    LOG(WARNING) << "Failed to open audio device: " << SDL_GetError();
+  result = ma_device_init(&context, &config, &audio_in_device_);
+  ma_context_uninit(&context);
+
+  if (result != MA_SUCCESS) {
+    LOG(WARNING) << "Failed to open audio device: " << result;
+    ma_pcm_rb_uninit(&audio_ringbuffer_);
     return absl::OkStatus();
   }
 
-  // Create audio stream for processing
-  audio_stream_ = SDL_CreateAudioStream(&spec, &spec);
-  if (!audio_stream_) {
-    LOG(WARNING) << "Failed to create audio stream: " << SDL_GetError();
-    SDL_CloseAudioDevice(audio_in_device_id_);
-    audio_in_device_id_ = 0;
+  // Start capturing
+  result = ma_device_start(&audio_in_device_);
+  if (result != MA_SUCCESS) {
+    LOG(WARNING) << "Failed to start audio device: " << result;
+    ma_device_uninit(&audio_in_device_);
+    ma_pcm_rb_uninit(&audio_ringbuffer_);
     return absl::OkStatus();
   }
-
-  // Bind the stream to the device
-  SDL_BindAudioStream(audio_in_device_id_, audio_stream_);
-
-  // Resume the device to start capturing
-  SDL_ResumeAudioDevice(audio_in_device_id_);
 
   // Update internal state
+  audio_in_device_initialized_ = true;
   audio_in_chans_ = required_channels;
   channel_map_ = channels;
   settings_audio_in_ = audio_in_device;
@@ -273,8 +302,7 @@ absl::Status MidiExt::ConfigureAudioDevice(const std::string& audio_in_device,
             << required_channels << " channels at " << kSampleRate << " Hz, "
             << "using channel map: [";
   for (size_t i = 0; i < channels.size(); ++i) {
-    if (i > 0)
-      LOG(INFO) << ", ";
+    if (i > 0) LOG(INFO) << ", ";
     LOG(INFO) << channels[i];
   }
   LOG(INFO) << "]";
@@ -430,13 +458,11 @@ absl::Status MidiExt::Stop() {
   LOG(INFO) << "MIDI thread stopped";
 
   // Clean up audio resources
-  if (audio_stream_) {
-    SDL_DestroyAudioStream(audio_stream_);
-    audio_stream_ = nullptr;
-  }
-  if (audio_in_device_id_ != 0) {
-    SDL_CloseAudioDevice(audio_in_device_id_);
-    audio_in_device_id_ = 0;
+  if (audio_in_device_initialized_) {
+    ma_device_stop(&audio_in_device_);
+    ma_device_uninit(&audio_in_device_);
+    ma_pcm_rb_uninit(&audio_ringbuffer_);
+    audio_in_device_initialized_ = false;
   }
 
   // Clean up MIDI resources

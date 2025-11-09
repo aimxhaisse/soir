@@ -1,7 +1,7 @@
 #pragma once
 
-#include <SDL3/SDL.h>
 #include <absl/status/status.h>
+
 #include <condition_variable>
 #include <libremidi/libremidi.hpp>
 #include <list>
@@ -11,8 +11,13 @@
 #include <vector>
 
 #include "audio/audio_buffer.hh"
-#include "inst/instrument.hh"
 #include "core/midi_stack.hh"
+#include "inst/instrument.hh"
+
+#define MA_NO_DECODING
+#define MA_NO_ENCODING
+
+#include <miniaudio.h>
 
 namespace soir {
 namespace inst {
@@ -35,7 +40,8 @@ class MidiExt : public Instrument {
   void Render(SampleTick tick, const std::list<MidiEventAt>& events,
               AudioBuffer& buffer);
 
-  // Get the list of available MIDI output devices (device number and associated name).
+  // Get the list of available MIDI output devices (device number and associated
+  // name).
   static absl::Status GetMidiDevices(
       std::vector<std::pair<int, std::string>>* out);
 
@@ -50,8 +56,7 @@ class MidiExt : public Instrument {
                                         std::vector<int>* channels);
   absl::Status ConfigureMidiPort(const std::string& midi_out_device);
   absl::Status ConfigureAudioDevice(const std::string& audio_in_device,
-                                   const std::vector<int>& channels);
-
+                                    const std::vector<int>& channels);
 
   // Current configuration as set from live coding. This is a cache
   // used to know upon update if we need to re-initialize the
@@ -72,12 +77,17 @@ class MidiExt : public Instrument {
   // Underlying devices to which we are connected to.
   libremidi::midi_out midi_out_;
   int audio_in_chans_ = -1;
-  SDL_AudioDeviceID audio_in_device_id_ = 0;
-  SDL_AudioStream* audio_stream_ = nullptr;
+  ma_device audio_in_device_;
+  ma_pcm_rb audio_ringbuffer_;
+  bool audio_in_device_initialized_ = false;
   std::vector<int> channel_map_;
 
   // Audio processing methods
   void ProcessAudioInput();
+
+  // Miniaudio callback for capturing audio
+  static void AudioInputCallback(ma_device* device, void* output,
+                                 const void* input, ma_uint32 frame_count);
 
   MidiStack midi_stack_;
 };
