@@ -890,11 +890,11 @@ Track progress through each step:
 - [x] Step 8: Add miniaudio wrapper
 - [x] Step 9: Add audiofile and libremidi (was Step 10)
 - [x] Step 10: Migrate instruments layer (was Step 11)
-- [ ] Step 11: Migrate engine and MIDI stack (was Step 12)
-- [ ] Step 12: Add parameter and controls
+- [x] Step 11: Migrate engine and MIDI stack (was Step 12)
+- [x] Step 12: Add parameter and controls
 - [x] Step 13: Migrate effects layer (fx/)
-- [ ] Step 14: Migrate runtime layer (was Step 13)
-- [ ] Step 15: Integrate runtime into bindings (was Step 14)
+- [x] Step 14: Migrate runtime layer (was Step 13) - adapted to remove gRPC/Notifier
+- [x] Step 15: Integrate runtime into bindings (was Step 14) - created cpp/bindings/rt.cc following existing pattern
 - [ ] Step 16: Migrate Python user API (was Step 15)
 - [ ] Step 17: Update CLI for live coding (was Step 16)
 - [ ] Step 18: Cleanup Python dependencies (was Step 17)

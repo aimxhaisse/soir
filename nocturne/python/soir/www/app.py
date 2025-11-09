@@ -42,7 +42,7 @@ def create_app() -> Flask:
     @app.route("/reference")
     def reference() -> str:
         """Render the reference index page."""
-        return render_template("reference.html", title="API Reference", modules=[])
+        return render_template("reference.html", title="Reference", modules=[])
 
     @app.route("/reference/<path:module_path>")
     def reference_module(module_path: str) -> str:

@@ -1,9 +1,15 @@
-<h1>Soir
+<h1>soir
   <div class="haiku-container">
-    <i>An old silent pond<br />
-      A frog jumps into the pond<br />
-      Silence again.</i> -- <b>Bashô</b>
+    <i>
+      Oolong in the night<br />
+      Lunar glow on variable names<br />
+      Thunder in distance
+    </i>
   </div>
 </h1>
 
 Live coding platform for sonic exploration.
+
+## Manifesto
+
+Explore. Build.
