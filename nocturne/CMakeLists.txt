@@ -144,6 +144,29 @@ target_link_libraries(soir_core_utils
     absl::time
 )
 
+# fx
+
+add_library(soir_fx
+    cpp/src/fx/fx_chorus.cc
+    cpp/src/fx/fx_echo.cc
+    cpp/src/fx/fx_hpf.cc
+    cpp/src/fx/fx_lpf.cc
+    cpp/src/fx/fx_reverb.cc
+    cpp/src/fx/fx_stack.cc
+)
+
+target_include_directories(soir_fx PUBLIC cpp/src)
+
+target_link_libraries(soir_fx
+    soir_audio
+    soir_core_utils
+    soir_dsp
+    absl::log
+    absl::status
+    absl::statusor
+    absl::synchronization
+)
+
 # inst
 
 add_library(soir_inst
