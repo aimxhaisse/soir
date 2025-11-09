@@ -9,4 +9,5 @@ PYBIND11_MODULE(_core, m, py::mod_gil_not_used()) {
 
   soir::bindings::Bind::PyLogger(m);
   soir::bindings::Bind::PySoir(m);
+  soir::bindings::Bind::PyRt(m);
 }
