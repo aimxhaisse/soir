@@ -2,4 +2,7 @@
 
 __version__ = "0.1.0"
 
-__all__ = []
+# Import RT module to make it available
+from soir import rt
+
+__all__ = ["rt"]
