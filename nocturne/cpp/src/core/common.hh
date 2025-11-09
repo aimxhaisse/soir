@@ -24,9 +24,11 @@
 #define SOIR_TRACING_FRAME(name) FrameMarkNamed(name)
 #else
 #define SOIR_TRACING_ZONE(name)
+#define SOIR_TRACING_ZONE_STR(name)
 #define SOIR_TRACING_ZONE_COLOR(name, color)
+#define SOIR_TRACING_ZONE_COLOR_STR(name, color)
 #define SOIR_TRACING_FRAME(name)
-#endif  // SOIR_ENABLE_TRACY
+#endif  // SOIR_ENABLE_TRACING
 
 namespace soir {
 

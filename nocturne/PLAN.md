@@ -889,10 +889,10 @@ Track progress through each step:
 - [x] Step 7: Add sample and tools (parameter skipped, depends on controls)
 - [x] Step 8: Add miniaudio wrapper
 - [x] Step 9: Add audiofile and libremidi (was Step 10)
-- [ ] Step 10: Migrate instruments layer (was Step 11)
+- [x] Step 10: Migrate instruments layer (was Step 11)
 - [ ] Step 11: Migrate engine and MIDI stack (was Step 12)
 - [ ] Step 12: Add parameter and controls
-- [ ] Step 13: Migrate effects layer (fx/, depends on parameter)
+- [x] Step 13: Migrate effects layer (fx/)
 - [ ] Step 14: Migrate runtime layer (was Step 13)
 - [ ] Step 15: Integrate runtime into bindings (was Step 14)
 - [ ] Step 16: Migrate Python user API (was Step 15)
