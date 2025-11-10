@@ -3,7 +3,10 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
+#include <unistd.h>
+
 #include "absl/log/log.h"
+#include "audio/audio_output.hh"
 #include "bindings/bind.hh"
 #include "core/engine.hh"
 #include "core/track.hh"
@@ -267,6 +270,34 @@ void Bind::PyRt(py::module_& m) {
       return false;
     }
     return true;
+  });
+
+  rt.def("get_audio_out_devices_", []() {
+    auto result = audio::GetAudioOutDevices();
+    if (!result.ok()) {
+      LOG(ERROR) << "Unable to get audio output devices: " << result.status();
+      return std::vector<std::pair<int, std::string>>();
+    }
+
+    std::vector<std::pair<int, std::string>> devices;
+    for (const auto& device : *result) {
+      devices.push_back({device.id, device.name});
+    }
+    return devices;
+  });
+
+  rt.def("get_audio_in_devices_", []() {
+    auto result = audio::GetAudioInDevices();
+    if (!result.ok()) {
+      LOG(ERROR) << "Unable to get audio input devices: " << result.status();
+      return std::vector<std::pair<int, std::string>>();
+    }
+
+    std::vector<std::pair<int, std::string>> devices;
+    for (const auto& device : *result) {
+      devices.push_back({device.id, device.name});
+    }
+    return devices;
   });
 }
 

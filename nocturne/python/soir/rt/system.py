@@ -37,7 +37,6 @@ system.info()
 """
 
 from soir._core.rt import (
-    exec_session_,
     get_audio_in_devices_,
     get_audio_out_devices_,
     get_midi_out_devices_,
