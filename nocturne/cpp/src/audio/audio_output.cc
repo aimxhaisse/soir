@@ -9,6 +9,64 @@
 namespace soir {
 namespace audio {
 
+absl::StatusOr<std::vector<Device>> GetAudioOutDevices() {
+  ma_context context;
+  if (ma_context_init(nullptr, 0, nullptr, &context) != MA_SUCCESS) {
+    return absl::InternalError("Failed to initialize miniaudio context");
+  }
+
+  ma_device_info* playback_infos;
+  ma_uint32 playback_count;
+  ma_device_info* capture_infos;
+  ma_uint32 capture_count;
+
+  if (ma_context_get_devices(&context, &playback_infos, &playback_count,
+                             &capture_infos, &capture_count) != MA_SUCCESS) {
+    ma_context_uninit(&context);
+    return absl::InternalError("Failed to enumerate audio devices");
+  }
+
+  std::vector<Device> devices;
+  for (ma_uint32 i = 0; i < playback_count; i++) {
+    Device dev;
+    dev.id = i;
+    dev.name = playback_infos[i].name;
+    devices.push_back(dev);
+  }
+
+  ma_context_uninit(&context);
+  return devices;
+}
+
+absl::StatusOr<std::vector<Device>> GetAudioInDevices() {
+  ma_context context;
+  if (ma_context_init(nullptr, 0, nullptr, &context) != MA_SUCCESS) {
+    return absl::InternalError("Failed to initialize miniaudio context");
+  }
+
+  ma_device_info* playback_infos;
+  ma_uint32 playback_count;
+  ma_device_info* capture_infos;
+  ma_uint32 capture_count;
+
+  if (ma_context_get_devices(&context, &playback_infos, &playback_count,
+                             &capture_infos, &capture_count) != MA_SUCCESS) {
+    ma_context_uninit(&context);
+    return absl::InternalError("Failed to enumerate audio devices");
+  }
+
+  std::vector<Device> devices;
+  for (ma_uint32 i = 0; i < capture_count; i++) {
+    Device dev;
+    dev.id = i;
+    dev.name = capture_infos[i].name;
+    devices.push_back(dev);
+  }
+
+  ma_context_uninit(&context);
+  return devices;
+}
+
 static void data_callback(ma_device* device, void* output, const void* input,
                           ma_uint32 frame_count) {
   (void)input;

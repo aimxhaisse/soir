@@ -2,9 +2,11 @@
 
 #include <functional>
 #include <mutex>
+#include <string>
 #include <vector>
 
 #include "absl/status/status.h"
+#include "absl/status/statusor.h"
 #include "core/common.hh"
 
 struct ma_device;
@@ -14,6 +16,17 @@ namespace soir {
 class AudioBuffer;
 
 namespace audio {
+
+struct Device {
+  int id;
+  std::string name;
+};
+
+// Get available audio output devices
+absl::StatusOr<std::vector<Device>> GetAudioOutDevices();
+
+// Get available audio input devices
+absl::StatusOr<std::vector<Device>> GetAudioInDevices();
 
 class AudioOutput : public SampleConsumer {
  public:

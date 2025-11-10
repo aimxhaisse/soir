@@ -17,10 +17,10 @@ def play():
 ```
 """
 
-import soir.rt._ctrls
+import soir.rt._ctrls as _ctrls
 
 
-class Control(soir.rt._ctrls.Control_):
+class Control(_ctrls.Control_):
     """Base class for a control.
 
     A control computes a value to the Soir engine about 100 times per
