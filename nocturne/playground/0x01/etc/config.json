@@ -1,5 +1,9 @@
 {
-    "dsp": {},
-    "live": {}
+    "dsp": {
+        "enable_output": true,
+        "block_size": 4096
+    },
+    "live": {
+        "directory": "."
+    }
 }
-
