@@ -42,7 +42,7 @@ dev = [
 ]
 
 [project.scripts]
-soir = "soir.cli:main"
+soir = "soir.app:main"
 
 [tool.black]
 line-length = 88
