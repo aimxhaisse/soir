@@ -2,6 +2,8 @@
 
 #include <absl/status/statusor.h>
 
+#define JSON_NOEXCEPTION
+
 #include <nlohmann/json.hpp>
 #include <string>
 

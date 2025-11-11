@@ -80,15 +80,15 @@ find_package(Python COMPONENTS Interpreter Development)
 # utils
 
 add_library(soir_utils
-    cpp/src/utils/config.cc
-    cpp/src/utils/config.hh
-    cpp/src/utils/fast_random.cc
-    cpp/src/utils/logger.cc
-    cpp/src/utils/logger.hh
-    cpp/src/utils/tools.cc
+    cpp/utils/config.cc
+    cpp/utils/config.hh
+    cpp/utils/fast_random.cc
+    cpp/utils/logger.cc
+    cpp/utils/logger.hh
+    cpp/utils/tools.cc
 )
 
-target_include_directories(soir_utils PUBLIC cpp/src)
+target_include_directories(soir_utils PUBLIC cpp)
 
 target_link_libraries(soir_utils
     nlohmann_json::nlohmann_json
@@ -102,12 +102,12 @@ target_link_libraries(soir_utils
 # audio
 
 add_library(soir_audio
-    cpp/src/audio/audio_buffer.cc
-    cpp/src/audio/audio_output.cc
-    cpp/src/audio/audio_recorder.cc
+    cpp/audio/audio_buffer.cc
+    cpp/audio/audio_output.cc
+    cpp/audio/audio_recorder.cc
 )
 
-target_include_directories(soir_audio PUBLIC cpp/src ${miniaudio_SOURCE_DIR} ${audiofile_SOURCE_DIR})
+target_include_directories(soir_audio PUBLIC cpp ${miniaudio_SOURCE_DIR} ${audiofile_SOURCE_DIR})
 
 target_link_libraries(soir_audio
     soir_dsp
@@ -119,17 +119,17 @@ target_link_libraries(soir_audio
 # core
 
 add_library(soir_core_utils
-    cpp/src/core/adsr.cc
-    cpp/src/core/controls.cc
-    cpp/src/core/midi_stack.cc
-    cpp/src/core/midi_sysex.cc
-    cpp/src/core/parameter.cc
-    cpp/src/core/sample.cc
-    cpp/src/core/sample_manager.cc
-    cpp/src/core/sample_pack.cc
+    cpp/core/adsr.cc
+    cpp/core/controls.cc
+    cpp/core/midi_stack.cc
+    cpp/core/midi_sysex.cc
+    cpp/core/parameter.cc
+    cpp/core/sample.cc
+    cpp/core/sample_manager.cc
+    cpp/core/sample_pack.cc
 )
 
-target_include_directories(soir_core_utils PUBLIC cpp/src ${audiofile_SOURCE_DIR} ${libremidi_SOURCE_DIR}/include)
+target_include_directories(soir_core_utils PUBLIC cpp ${audiofile_SOURCE_DIR} ${libremidi_SOURCE_DIR}/include)
 target_include_directories(soir_core_utils SYSTEM PUBLIC ${rapidjson_SOURCE_DIR}/include)
 
 target_link_libraries(soir_core_utils
@@ -148,15 +148,15 @@ target_link_libraries(soir_core_utils
 # fx
 
 add_library(soir_fx
-    cpp/src/fx/fx_chorus.cc
-    cpp/src/fx/fx_echo.cc
-    cpp/src/fx/fx_hpf.cc
-    cpp/src/fx/fx_lpf.cc
-    cpp/src/fx/fx_reverb.cc
-    cpp/src/fx/fx_stack.cc
+    cpp/fx/fx_chorus.cc
+    cpp/fx/fx_echo.cc
+    cpp/fx/fx_hpf.cc
+    cpp/fx/fx_lpf.cc
+    cpp/fx/fx_reverb.cc
+    cpp/fx/fx_stack.cc
 )
 
-target_include_directories(soir_fx PUBLIC cpp/src)
+target_include_directories(soir_fx PUBLIC cpp)
 
 target_link_libraries(soir_fx
     soir_audio
@@ -171,11 +171,11 @@ target_link_libraries(soir_fx
 # inst
 
 add_library(soir_inst
-    cpp/src/inst/midi_ext.cc
-    cpp/src/inst/sampler.cc
+    cpp/inst/midi_ext.cc
+    cpp/inst/sampler.cc
 )
 
-target_include_directories(soir_inst PUBLIC cpp/src ${audiofile_SOURCE_DIR} ${libremidi_SOURCE_DIR}/include ${miniaudio_SOURCE_DIR})
+target_include_directories(soir_inst PUBLIC cpp ${audiofile_SOURCE_DIR} ${libremidi_SOURCE_DIR}/include ${miniaudio_SOURCE_DIR})
 target_include_directories(soir_inst SYSTEM PUBLIC ${rapidjson_SOURCE_DIR}/include)
 
 target_link_libraries(soir_inst
@@ -191,11 +191,11 @@ target_link_libraries(soir_inst
 # engine
 
 add_library(soir_engine
-    cpp/src/core/engine.cc
-    cpp/src/core/track.cc
+    cpp/core/engine.cc
+    cpp/core/track.cc
 )
 
-target_include_directories(soir_engine PUBLIC cpp/src ${libremidi_SOURCE_DIR}/include)
+target_include_directories(soir_engine PUBLIC cpp ${libremidi_SOURCE_DIR}/include)
 
 target_link_libraries(soir_engine
     soir_audio
@@ -213,25 +213,25 @@ target_link_libraries(soir_engine
 # dsp
 
 add_library(soir_dsp
-    cpp/src/dsp/band_pass_filter.cc
-    cpp/src/dsp/biquad_filter.cc
-    cpp/src/dsp/chorus.cc
-    cpp/src/dsp/comb_filter.cc
-    cpp/src/dsp/delay.cc
-    cpp/src/dsp/delayed_apf.cc
-    cpp/src/dsp/high_pass_filter.cc
-    cpp/src/dsp/high_shelving_filter.cc
-    cpp/src/dsp/lfo.cc
-    cpp/src/dsp/low_pass_filter.cc
-    cpp/src/dsp/low_shelving_filter.cc
-    cpp/src/dsp/lpf.cc
-    cpp/src/dsp/modulated_delay.cc
-    cpp/src/dsp/reverb.cc
-    cpp/src/dsp/tools.cc
-    cpp/src/dsp/two_band_shelving_filter.cc
+    cpp/dsp/band_pass_filter.cc
+    cpp/dsp/biquad_filter.cc
+    cpp/dsp/chorus.cc
+    cpp/dsp/comb_filter.cc
+    cpp/dsp/delay.cc
+    cpp/dsp/delayed_apf.cc
+    cpp/dsp/high_pass_filter.cc
+    cpp/dsp/high_shelving_filter.cc
+    cpp/dsp/lfo.cc
+    cpp/dsp/low_pass_filter.cc
+    cpp/dsp/low_shelving_filter.cc
+    cpp/dsp/lpf.cc
+    cpp/dsp/modulated_delay.cc
+    cpp/dsp/reverb.cc
+    cpp/dsp/tools.cc
+    cpp/dsp/two_band_shelving_filter.cc
 )
 
-target_include_directories(soir_dsp PUBLIC cpp/src)
+target_include_directories(soir_dsp PUBLIC cpp)
 
 target_link_libraries(soir_dsp
     soir_utils
@@ -247,11 +247,11 @@ pybind11_add_module(_core
     cpp/bindings/logger.cc
     cpp/bindings/rt.cc
     cpp/bindings/soir.cc
-    cpp/src/core/soir.cc
-    cpp/src/rt/runtime.cc
+    cpp/core/soir.cc
+    cpp/rt/runtime.cc
 )
 
-target_include_directories(_core PRIVATE cpp/src cpp)
+target_include_directories(_core PRIVATE cpp)
 
 target_link_libraries(_core PRIVATE
     soir_engine
