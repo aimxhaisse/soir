@@ -10,4 +10,4 @@ if [ ! -d "${VENV_DIR}" ]; then
     exit 1
 fi
 
-exec "${VENV_DIR}/bin/python" -m soir.cli "$@"
+exec "${VENV_DIR}/bin/python" -m soir.app "$@"
