@@ -95,7 +95,6 @@ class Runtime {
 
  private:
   std::thread thread_;
-  std::vector<std::string> python_paths_;
 
   Engine* dsp_;
 

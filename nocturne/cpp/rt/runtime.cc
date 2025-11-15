@@ -28,25 +28,11 @@ Runtime::~Runtime() { bindings::ResetEngines(); }
 absl::Status Runtime::Init(const utils::Config& config, Engine* dsp) {
   LOG(INFO) << "Initializing runtime";
 
-  python_paths_ = config.Get<std::vector<std::string>>("soir.rt.python_paths");
-  if (python_paths_.empty()) {
-    LOG(ERROR) << "Python paths is empty";
-    return absl::InvalidArgumentError("Python paths is empty");
-  }
-  for (auto& path : python_paths_) {
-    path = utils::Config::ExpandEnvironmentVariables(path);
-  }
   dsp_ = dsp;
   current_time_ = absl::Now();
-  SetBPM(config.Get<uint16_t>("soir.rt.initial_bpm"));
+  SetBPM(config.Get<uint16_t>("live.initial_bpm"));
 
   Beat();
-
-  auto status = bindings::SetEngines(this, dsp);
-  if (!status.ok()) {
-    LOG(ERROR) << "Unable to set DSP/RT engine: " << status;
-    return status;
-  }
 
   running_ = true;
 
@@ -111,14 +97,7 @@ absl::Status Runtime::Run() {
   SOIR_TRACING_ZONE_COLOR("rt::run", SOIR_GREEN);
 
   py::scoped_interpreter guard{};
-
-  // Import soir module using the Python path provided in the config.
-  // Alternatively we could do this via pyproject as well, unclear what
-  // the user-packaged setup will be at this stage.
   py::module_ sys = py::module_::import("sys");
-  for (auto python_path : python_paths_) {
-    sys.attr("path").attr("append")(python_path);
-  }
   py::module_ soir_mod = py::module_::import("soir");
 
   LOG(INFO) << "Python version: " << std::string(py::str(sys.attr("version")));
