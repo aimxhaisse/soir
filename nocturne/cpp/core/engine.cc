@@ -15,7 +15,7 @@ absl::Status Engine::Init(const utils::Config& config) {
 
   current_tick_ = 0;
 
-  audio_output_enabled_ = config.Get<bool>("soir.dsp.output.audio.enable");
+  audio_output_enabled_ = config.Get<bool>("dsp.enable_output");
 
   audio_output_ = std::make_unique<audio::AudioOutput>();
   if (audio_output_enabled_) {

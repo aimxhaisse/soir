@@ -1,9 +1,12 @@
 {
     "dsp": {
         "enable_output": true,
-        "block_size": 4096
+        "block_size": 4096,
+        "sample_directory": "./lib/samples",
+        "sample_packs": []
     },
     "live": {
-        "directory": "."
+        "directory": ".",
+        "initial_bpm": 130
     }
 }

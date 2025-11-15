@@ -1,6 +1,8 @@
-import typer
+import os
+import os.path
 from pathlib import Path
 import signal
+import typer
 from typing import Any
 import threading
 
@@ -23,21 +25,27 @@ def main(ctx: typer.Context) -> None:
 @live_app.command()
 def run(path: Path, verbose: bool = False) -> None:
     """Run a Soir live session from the given path."""
-    cfg_path = path / "etc" / "config.json"
-    log_path = path / "var" / "log"
+    if not path.is_dir():
+        typer.echo(f"Error: The path '{path}' is not a valid directory.", err=True)
+        raise typer.Exit(1)
 
-    logging.init(str(log_path), max_files=25, verbose=verbose)
+    os.chdir(str(path))
+
+    cfg_path = "etc/config.json"
+    log_path = "var/log"
+
+    logging.init(log_path, max_files=25, verbose=verbose)
     logging.info("Starting Soir live session")
 
-    if not cfg_path.exists():
+    if not os.path.exists(cfg_path):
         logging.error(f"Config file not found at {cfg_path}")
         typer.echo(f"Error: Config file not found at {cfg_path}", err=True)
         raise typer.Exit(1)
 
-    cfg = Config.load_from_path(str(cfg_path))
+    cfg = Config.load_from_path(cfg_path)
     soir = core.Soir()
 
-    if not soir.init(str(cfg_path)):
+    if not soir.init(cfg_path):
         logging.error("Failed to initialize Soir")
         typer.echo("Error: Failed to initialize Soir", err=True)
         raise typer.Exit(1)
