@@ -54,9 +54,11 @@ def run(path: Path, verbose: bool = False) -> None:
         logging.error("Failed to start Soir")
         typer.echo("Error: Failed to start Soir", err=True)
         raise typer.Exit(1)
+    logging.info("Soir started successfully")
 
     watcher = Watcher(cfg, lambda code: soir.update_code(code))
     watcher.start()
+    logging.info("Watcher started successfully")
 
     shutdown_event = threading.Event()
 
