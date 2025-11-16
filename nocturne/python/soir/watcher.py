@@ -14,6 +14,7 @@ from watchdog import events, observers
 import os
 
 from soir.config import Config
+import soir._core.logging as logging
 
 
 # This sends the updated code to the Soir runtime engine. The full
@@ -48,11 +49,13 @@ class LiveCodeUpdateHandler(events.FileSystemEventHandler):
     def on_modified(self, event: events.FileSystemEvent) -> None:
         """Called when a file is modified."""
         if not event.is_directory and str(event.src_path).endswith(".py"):
+            logging.info(f"Detected modification in {event.src_path}")
             reload_code(self.cb, self.directory)
 
     def on_created(self, event: events.FileSystemEvent) -> None:
         """Called when a file is created."""
         if not event.is_directory and str(event.src_path).endswith(".py"):
+            logging.info(f"Detected creation of {event.src_path}")
             reload_code(self.cb, self.directory)
 
 
@@ -70,12 +73,18 @@ class Watcher:
             recursive=True,
         )
 
+        logging.info('Watcher initialized for directory: %s', self.cfg.live.directory)
+
     def start(self) -> None:
         """Start the watcher & initial load of code files."""
         reload_code(self.cb, self.cfg.live.directory)
+        logging.info("Starting watcher thread")
         self.watchdog.start()
+        logging.info("Watcher thread started")
 
     def stop(self) -> None:
         """Stop the watcher."""
+        logging.info("Stopping watcher thread")
         self.watchdog.stop()
         self.watchdog.join()
+        logging.info("Stopping watcher stopped")

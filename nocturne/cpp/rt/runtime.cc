@@ -96,7 +96,8 @@ uint64_t Runtime::MicroBeatToBeat(MicroBeat beat) const {
 absl::Status Runtime::Run() {
   SOIR_TRACING_ZONE_COLOR("rt::run", SOIR_GREEN);
 
-  py::scoped_interpreter guard{};
+  LOG(INFO) << "Starting Python interpreter";
+
   py::module_ sys = py::module_::import("sys");
   py::module_ soir_mod = py::module_::import("soir");
 
