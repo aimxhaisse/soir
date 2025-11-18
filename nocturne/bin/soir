@@ -10,4 +10,8 @@ if [ ! -d "${VENV_DIR}" ]; then
     exit 1
 fi
 
-exec "${VENV_DIR}/bin/python" -m soir.app "$@"
+# We need -Xgil=0 to prevent python from enabling it at runtime
+# whenever a module that doesn't explicitly express thread-free
+# semantics is imported (for example: watchdog).
+
+exec "${VENV_DIR}/bin/python" -Xgil=0 -m soir.app "$@"

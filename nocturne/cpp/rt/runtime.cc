@@ -98,13 +98,19 @@ absl::Status Runtime::Run() {
 
   LOG(INFO) << "Starting Python interpreter";
 
+  // Acquire GIL to attach this C++ thread to the Python interpreter.
+  // Without this, calling Python APIs from a C++ std::thread will
+  // crash in free-threaded mode (-Xgil=0) because the thread has no
+  // Python thread state.
+  py::gil_scoped_acquire acquire;
+
   py::module_ sys = py::module_::import("sys");
   py::module_ soir_mod = py::module_::import("soir");
 
   LOG(INFO) << "Python version: " << std::string(py::str(sys.attr("version")));
 
   // Setup the initial feedback loop for controls.
-  py::exec(R"(soir._ctrls.update_loop_())", soir_mod.attr("__dict__"));
+  py::exec("rt._ctrls.update_loop_()", soir_mod.attr("__dict__"));
 
   while (true) {
     // We assume there is always at least one callback in the queue
@@ -187,9 +193,9 @@ absl::Status Runtime::Run() {
         // that can be used to do some cleanup or other operations.
         {
           SOIR_TRACING_ZONE_COLOR("rt::code::hook", SOIR_GREEN);
-          py::exec("soir._internals.post_eval_()", soir_mod.attr("__dict__"));
-          py::exec("soir._ctrls.post_eval_()", soir_mod.attr("__dict__"));
-          py::exec("soir._system.post_eval_()", soir_mod.attr("__dict__"));
+          py::exec("rt._internals.post_eval_()", soir_mod.attr("__dict__"));
+          py::exec("rt._ctrls.post_eval_()", soir_mod.attr("__dict__"));
+          py::exec("rt._system.post_eval_()", soir_mod.attr("__dict__"));
         }
 
       } catch (py::error_already_set& e) {
