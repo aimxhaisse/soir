@@ -4,6 +4,7 @@
 #include <absl/time/time.h>
 
 #include <condition_variable>
+#include <memory>
 #include <mutex>
 
 #include "core/common.hh"

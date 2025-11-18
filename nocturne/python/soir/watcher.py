@@ -73,7 +73,7 @@ class Watcher:
             recursive=True,
         )
 
-        logging.info('Watcher initialized for directory: %s', self.cfg.live.directory)
+        logging.info(f"Watcher initialized for directory: {self.cfg.live.directory}")
 
     def start(self) -> None:
         """Start the watcher & initial load of code files."""
