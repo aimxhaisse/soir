@@ -105,12 +105,12 @@ absl::Status Runtime::Run() {
   py::gil_scoped_acquire acquire;
 
   py::module_ sys = py::module_::import("sys");
-  py::module_ soir_mod = py::module_::import("soir");
+  py::module_ rt_mod = py::module_::import("soir.rt");
 
   LOG(INFO) << "Python version: " << std::string(py::str(sys.attr("version")));
 
   // Setup the initial feedback loop for controls.
-  py::exec("rt._ctrls.update_loop_()", soir_mod.attr("__dict__"));
+  py::exec("soir.rt._ctrls.update_loop_()", rt_mod.attr("__dict__"));
 
   while (true) {
     // We assume there is always at least one callback in the queue
@@ -186,16 +186,16 @@ absl::Status Runtime::Run() {
 
         {
           SOIR_TRACING_ZONE_COLOR("rt::code::exec", SOIR_GREEN);
-          py::exec(code.c_str(), soir_mod.attr("__dict__"));
+          py::exec(code.c_str(), rt_mod.attr("__dict__"));
         }
 
         // Maybe here we can have some sort of post-execution hook
         // that can be used to do some cleanup or other operations.
         {
           SOIR_TRACING_ZONE_COLOR("rt::code::hook", SOIR_GREEN);
-          py::exec("rt._internals.post_eval_()", soir_mod.attr("__dict__"));
-          py::exec("rt._ctrls.post_eval_()", soir_mod.attr("__dict__"));
-          py::exec("rt._system.post_eval_()", soir_mod.attr("__dict__"));
+          py::exec("soir.rt._internals.post_eval_()", rt_mod.attr("__dict__"));
+          py::exec("soir.rt._ctrls.post_eval_()", rt_mod.attr("__dict__"));
+          py::exec("soir.rt._system.post_eval_()", rt_mod.attr("__dict__"));
         }
 
       } catch (py::error_already_set& e) {

@@ -97,7 +97,7 @@ def loop(track: str = None, beats: int = 4, align: bool = True) -> callable:
     Returns:
         A decorator registering and scheduling the function in a loop.
     """
-    return soir.rt._internals.loop(track, beats, align)
+    return _internals.loop(track, beats, align)
 
 
 def live() -> callable:
@@ -114,7 +114,7 @@ def live() -> callable:
     Returns:
         A decorator registering and executing the live function.
     """
-    return soir.rt._internals.live()
+    return _internals.live()
 
 
 def log(message: str) -> None:
@@ -130,7 +130,7 @@ def log(message: str) -> None:
     Args:
         message: The message to log.
     """
-    return soir.rt._internals.log(message)
+    return _internals.log(message)
 
 
 def sleep(beats: float) -> None:
@@ -153,7 +153,7 @@ def sleep(beats: float) -> None:
     Raises:
         errors.NotInLiveLoopException: If we are not in a loop.
     """
-    return soir.rt._internals.sleep(beats)
+    return _internals.sleep(beats)
 
 
 def current_loop() -> object:
@@ -162,7 +162,7 @@ def current_loop() -> object:
     Raises:
         errors.NotInLiveLoopException: If we are not in a loop.
     """
-    return soir.rt._internals.assert_in_loop()
+    return _internals.assert_in_loop()
 
 
 import soir.rt.bpm as bpm
@@ -183,9 +183,9 @@ def ctrl(name: str) -> ctrls.Control:
     Returns:
         The control.
     """
-    ctrl = soir.rt._ctrls.controls_registry_.get(name)
+    ctrl = _ctrls.controls_registry_.get(name)
     if not ctrl:
-        raise soir.rt.errors.ControlNotFoundException(name)
+        raise errors.ControlNotFoundException(name)
     return ctrl
 
 

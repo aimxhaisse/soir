@@ -88,7 +88,7 @@ def mk_lfo(
         low: The minimum value of the LFO (defaults to -1.0).
         high: The maximum value of the LFO (defaults to 1.0).
     """
-    soir.rt._ctrls.LFO_(name, rate, intensity, low, high)
+    _ctrls.LFO_(name, rate, intensity, low, high)
 
 
 def mk_linear(name: str, start: float, end: float, duration: float) -> None:
@@ -100,7 +100,7 @@ def mk_linear(name: str, start: float, end: float, duration: float) -> None:
         end: The end value.
         duration: The duration of the transition in seconds.
     """
-    soir.rt._ctrls.Linear_(name, start, end, duration)
+    _ctrls.Linear_(name, start, end, duration)
 
 
 def mk_val(name: str, value: float) -> None:
@@ -110,7 +110,7 @@ def mk_val(name: str, value: float) -> None:
         name: The name of the parameter.
         value: The value.
     """
-    soir.rt._ctrls.Val_(name, value)
+    _ctrls.Val_(name, value)
 
 
 def mk_func(name: str, func: callable) -> None:
@@ -120,7 +120,7 @@ def mk_func(name: str, func: callable) -> None:
         name: The name of the parameter.
         func: The function to compute the value.
     """
-    soir.rt._ctrls.Func_(name, func)
+    _ctrls.Func_(name, func)
 
 
 def layout() -> list[Control]:
