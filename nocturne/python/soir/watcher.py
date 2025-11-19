@@ -22,12 +22,17 @@ import soir._core.logging as logging
 CodeUpdateCallback = Callable[[str], None]
 
 
+def is_eligible_file(file_path: str) -> bool:
+    """Check if a file is eligible for live reloading."""
+    return file_path.endswith(".py") and '#' not in file_path
+
+
 def reload_code(cb: CodeUpdateCallback, directory: str) -> None:
     """Reloads the entire codebase from the given directory."""
     files: list[str] = []
     for root, _, dir_files in os.walk(directory):
         for file in dir_files:
-            if file.endswith(".py"):
+            if is_eligible_file(file):
                 files.append(os.path.join(root, file))
 
     contents: str = ""
@@ -48,13 +53,13 @@ class LiveCodeUpdateHandler(events.FileSystemEventHandler):
 
     def on_modified(self, event: events.FileSystemEvent) -> None:
         """Called when a file is modified."""
-        if not event.is_directory and str(event.src_path).endswith(".py"):
+        if not event.is_directory and is_eligible_file(str(event.src_path)):
             logging.info(f"Detected modification in {event.src_path}")
             reload_code(self.cb, self.directory)
 
     def on_created(self, event: events.FileSystemEvent) -> None:
         """Called when a file is created."""
-        if not event.is_directory and str(event.src_path).endswith(".py"):
+        if not event.is_directory and is_eligible_file(str(event.src_path)):
             logging.info(f"Detected creation of {event.src_path}")
             reload_code(self.cb, self.directory)
 

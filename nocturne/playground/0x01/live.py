@@ -3,8 +3,8 @@
 
 # Experiments around Signatune.
 
-MODE = "live"
 
+MODE = "live"
 
 @live()
 def setup():
