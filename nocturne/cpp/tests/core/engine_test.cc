@@ -7,16 +7,10 @@ namespace {
 
 // Test config with audio output disabled
 constexpr const char* kTestConfig = R"({
-  "soir": {
-    "dsp": {
-      "sample_directory": "/tmp",
-      "sample_packs": [],
-      "output": {
-        "audio": {
-          "enable": false
-        }
-      }
-    }
+  "dsp": {
+    "enable_output": false,
+    "sample_directory": "/tmp",
+    "sample_packs": []
   }
 })";
 
