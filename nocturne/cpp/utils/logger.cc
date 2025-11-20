@@ -52,7 +52,10 @@ Logger& Logger::Instance() {
 absl::Status Logger::Init(const std::string& log_dir, size_t max_files,
                           bool verbose) {
   if (initialized_) {
-    return absl::FailedPreconditionError("Logger already initialized");
+    if (file_sink_) {
+      absl::RemoveLogSink(file_sink_.get());
+      file_sink_.reset();
+    }
   }
 
   // Set stderr threshold based on verbose flag
@@ -108,9 +111,10 @@ absl::Status Logger::Init(const std::string& log_dir, size_t max_files,
   file_sink_ = std::make_unique<FileSink>(log_file.string());
   absl::AddLogSink(file_sink_.get());
 
-  absl::InitializeLog();
-
-  initialized_ = true;
+  if (!initialized_) {
+    absl::InitializeLog();
+    initialized_ = true;
+  }
 
   LOG(INFO) << "Logger initialized: " << log_file.string();
 

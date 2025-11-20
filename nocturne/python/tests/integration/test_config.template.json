@@ -1,0 +1,12 @@
+{
+  "dsp": {
+    "enable_output": {{ enable_output | default('false') }},
+    "block_size": {{ block_size | default(4096) }},
+    "sample_directory": "{{ sample_directory | default('.') }}",
+    "sample_packs": []
+  },
+  "live": {
+    "directory": ".",
+    "initial_bpm": {{ initial_bpm | default(120) }}
+  }
+}
