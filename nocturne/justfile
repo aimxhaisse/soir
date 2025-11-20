@@ -30,7 +30,8 @@ build:
 # Run all tests
 test:
     uv run python setup.py run_cpp_tests
-    uv run python setup.py run_python_tests
+    uv run python -m unittest python.tests.test_config python.tests.test_watcher python.tests.test_www
+    uv run python -m unittest python.tests.integration.test_basic
 
 # Create a distributable package
 package: clean
