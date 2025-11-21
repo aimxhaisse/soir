@@ -27,11 +27,19 @@ build:
     uv run python setup.py build_ext --with-tests
     uv pip install -e .
 
-# Run all tests
-test:
+# Run unit tests only
+test-unit:
     uv run python setup.py run_cpp_tests
     uv run python -m unittest python.tests.test_config python.tests.test_watcher python.tests.test_www
-    uv run python -m unittest python.tests.integration.test_basic
+
+# Run integration tests only
+test-integration pattern="":
+    uv run python -m unittest discover -s python/tests/integration -p "test_*.py" -t python/tests -v {{ if pattern != "" { "-k '" + pattern + "'" } else { "" } }}
+
+# Run all tests
+test:
+    just test-unit
+    just test-integration
 
 # Create a distributable package
 package: clean
