@@ -1,4 +1,13 @@
 """
+@@@@@@NEXT STEPS
+
+
+- Refactor wait_for_notifications
+- Base class that inherits from unittest.TestCase
+"""
+
+
+"""
 Base test infrastructure for Soir integration tests.
 
 Provides SoirTestEngine class which wraps the Soir engine
@@ -46,6 +55,8 @@ class SoirTestEngine:
         self.soir = Soir()
         self._log_file_path: Path | None = None
         self._last_read_position = 0
+        self._notifications: list[str] = []
+        self._notification_index = 0
 
         logging.init(str(self.log_dir), max_files=100, verbose=False)
 
@@ -103,6 +114,10 @@ class SoirTestEngine:
         """Push Python code to the engine for execution."""
         return self.soir.update_code(code)
 
+    def get_notifications(self) -> list[str]:
+        """Get all captured notifications."""
+        return self._notifications
+
     def wait_for_notification(
         self,
         expected: str,
@@ -118,6 +133,9 @@ class SoirTestEngine:
 
         The log format is:
         YYYY-MM-DD HH:MM:SS SEVERITY [source:line] message
+
+        Multiline messages have the prefix only on the first line, with
+        continuation lines combined into a single notification.
 
         Args:
             expected: String to look for in log messages
@@ -136,44 +154,49 @@ class SoirTestEngine:
         start_time = time.time()
 
         while time.time() - start_time < timeout:
-            new_lines = self._read_new_log_lines()
 
-            for line in new_lines:
-                match = re.search(r'\[.*?:\d+\]\s+(.*)$', line)
-                if match:
-                    message = match.group(1).strip()
+            # Here we want to be able to capture multiple lines in
+            # case there is a multi-line log (with \n). This is useful
+            # if we want to log big things in python and be able to
+            # match against it (for instance code updates).
+            capture = []
+            for line in self._read_new_log_lines():
+                line = line.rstrip()
+                pattern = r'^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} (INFO|WARN|ERROR|DEBUG|TRACE) \[.+:\d+\] (.*)'
+                m = re.search(pattern, line)
+                if m:
+                    if capture:
+                        self._notifications.append('\n'.join(capture))
+                        capture = []
+                    capture.append(m.group(2))
+                else:
+                    capture.append(line)
 
-                    if exact_match:
-                        if message == expected:
-                            return True
-                    else:
-                        if expected in message:
-                            return True
+            # We assume here that multiline logs are instantaneous, it
+            # could happen that it takes more time to flush them and
+            # _read_new_log_lines did not receive the full content
+            # which we'll insert here. The alternative is to hang
+            # until there is a new pattern-matching log.
+            if capture:
+                self._notifications.append('\n'.join(capture))
+
+            while self._notification_index < len(self._notifications):
+                message = self._notifications[self._notification_index]
+                self._notification_index += 1
+
+                if exact_match:
+                    if message == expected:
+                        return True
+                else:
+                    if expected in message:
+                        return True
 
             time.sleep(0.01)
 
         return False
 
-    def wait_for_multiple_notifications(
-        self,
-        expected_list: list[str],
-        timeout: float = 5.0
-    ) -> bool:
-        """Wait for multiple notifications in order."""
-        for expected in expected_list:
-            if not self.wait_for_notification(expected, timeout):
-                return False
-        return True
-
     def stop(self) -> None:
         """Stop the Soir engine and clean up resources."""
         if not self.soir.stop():
             raise RuntimeError("Failed to stop Soir engine")
-
-    def __enter__(self):
-        """Context manager entry."""
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        """Context manager exit - automatically stops engine."""
-        self.stop()
+        del self.soir
