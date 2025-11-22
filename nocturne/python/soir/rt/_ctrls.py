@@ -76,8 +76,8 @@ class Control_:
 
         # We need to keep the func scope here so that we know how to
         # clean up the resource when it's not around anymore.
-        loop = soir.rt._internals.current_loop()
-        live = soir.rt._internals.current_live()
+        loop = _internals.current_loop()
+        live = _internals.current_live()
 
         if live:
             self.scope_ = Control_.Scope.LIVE
@@ -235,7 +235,7 @@ def post_eval_():
                 delete.append(name)
                 continue
         if ctrl.scope_ == Control_.Scope.LIVE:
-            live = soir.rt._internals.get_live(ctrl.scope_live_name_)
+            live = _internals.get_live(ctrl.scope_live_name_)
             if not live or live.eval_at != ctrl.scope_live_eval_at_:
                 # Here it means, either the live function was removed
                 # or it evalued without re-creating the control which
@@ -243,7 +243,7 @@ def post_eval_():
                 delete.append(name)
                 continue
         if ctrl.scope_ == Control_.Scope.LOOP:
-            loop = soir.rt._internals.get_live(ctrl.scope_loop_name_)
+            loop = _internals.get_live(ctrl.scope_loop_name_)
             if not loop:
                 delete.append(name)
                 continue

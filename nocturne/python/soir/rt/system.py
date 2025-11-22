@@ -102,18 +102,6 @@ def get_midi_out_devices() -> list[tuple[int, str]]:
     return get_midi_out_devices_()
 
 
-def exec_session(name: str) -> None:
-    """Executes the current session.
-
-    Args:
-        name: str, the name of the session to execute.
-
-    Returns:
-        None
-    """
-    exec_session_(name)
-
-
 def set_force_kill_at_shutdown(flag: bool) -> None:
     """Sends a kill signal to the Python thread at exit.
 

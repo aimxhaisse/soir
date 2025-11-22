@@ -1,12 +1,4 @@
 """
-@@@@@@NEXT STEPS
-
-
-- Refactor wait_for_notifications
-- Base class that inherits from unittest.TestCase
-"""
-
-"""
 Base test infrastructure for Soir integration tests.
 
 Provides SoirTestEngine class which wraps the Soir engine

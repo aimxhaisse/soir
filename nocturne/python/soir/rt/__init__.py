@@ -65,7 +65,7 @@ def kick():
 
 """
 
-import soir
+import soir as soir
 
 from soir.rt import _ctrls
 from soir.rt import _internals
@@ -77,8 +77,11 @@ from soir.rt import fx as fx
 from soir.rt import midi as midi
 from soir.rt import rnd as rnd
 from soir.rt import sampler as sampler
-from soir.rt import system as sys
+from soir.rt import system as system
 from soir.rt import tracks as tracks
+
+# Alias for backwards compatibility
+sys = system
 
 
 def loop(track: str = None, beats: int = 4, align: bool = True) -> callable:
