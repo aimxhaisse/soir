@@ -18,6 +18,7 @@ Soir::~Soir() {
       LOG(ERROR) << "Failed to stop Soir in destructor: " << status;
     }
   }
+  LOG(INFO) << "Destroying Soir";
   rt::bindings::ResetEngines();
 }
 
