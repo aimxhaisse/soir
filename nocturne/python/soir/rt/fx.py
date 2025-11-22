@@ -17,7 +17,6 @@ tracks.setup({
 ```
 """
 
-import json
 
 from dataclasses import dataclass
 from soir.rt._helpers import serialize_parameters

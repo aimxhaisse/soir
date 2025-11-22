@@ -1,9 +1,5 @@
 """Basic integration tests for log() function and notifications."""
 
-import unittest
-from pathlib import Path
-import tempfile
-import shutil
 
 from .base import SoirIntegrationTestCase
 

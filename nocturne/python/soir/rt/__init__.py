@@ -65,10 +65,20 @@ def kick():
 
 """
 
-import soir.rt.errors
-import soir.rt._internals
-import soir.rt._ctrls
-import soir.rt._system
+import soir
+
+from soir.rt import _ctrls
+from soir.rt import _internals
+from soir.rt import _system
+from soir.rt import bpm as bpm
+from soir.rt import ctrls as ctrls
+from soir.rt import errors as errors
+from soir.rt import fx as fx
+from soir.rt import midi as midi
+from soir.rt import rnd as rnd
+from soir.rt import sampler as sampler
+from soir.rt import system as sys
+from soir.rt import tracks as tracks
 
 
 def loop(track: str = None, beats: int = 4, align: bool = True) -> callable:
@@ -164,15 +174,6 @@ def current_loop() -> object:
         errors.NotInLiveLoopException: If we are not in a loop.
     """
     return _internals.assert_in_loop()
-
-
-import soir.rt.bpm as bpm
-import soir.rt.sampler as sampler
-import soir.rt.tracks as tracks
-import soir.rt.midi as midi
-import soir.rt.rnd as rnd
-import soir.rt.ctrls as ctrls
-import soir.rt.system as sys
 
 
 def ctrl(name: str) -> ctrls.Control:

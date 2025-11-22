@@ -11,8 +11,7 @@ recording_eval_id_ = None
 
 
 def _reset() -> None:
-    """Helper to reset system state for integration tests.
-    """
+    """Helper to reset system state for integration tests."""
     global eval_id_, current_recording_file_, recording_eval_id_
 
     eval_id_ = 0

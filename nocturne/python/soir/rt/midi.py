@@ -21,7 +21,6 @@ from soir._core.rt import (
 )
 from soir.rt._internals import (
     assert_in_loop,
-    current_loop,
 )
 from soir.rt.errors import (
     UnknownMidiTrackException,

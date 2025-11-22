@@ -1,6 +1,5 @@
 import typer
 
-from soir.www.app import start_server
 from soir.cli.live import live_app
 from soir.cli.www import www_app
 

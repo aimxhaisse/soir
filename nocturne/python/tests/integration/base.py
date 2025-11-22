@@ -10,8 +10,7 @@ from soir._core import logging
 
 
 class SoirIntegrationTestCase(unittest.TestCase):
-    """Base class for all Soir integration tests.
-    """
+    """Base class for all Soir integration tests."""
 
     config_overrides: dict | None = None
     debug_notifications: bool = False
@@ -27,12 +26,13 @@ class SoirIntegrationTestCase(unittest.TestCase):
         self.resetPythonInternals()
 
     def resetPythonInternals(self) -> None:
-        """Reset internal state of Soir modules.
-        """        
-        self.engine.push_code("""\
+        """Reset internal state of Soir modules."""
+        self.engine.push_code(
+            """\
 reset()
 log("reset done")
-""")
+"""
+        )
         self.engine.wait_for_notification("reset done")
 
     def tearDown(self) -> None:

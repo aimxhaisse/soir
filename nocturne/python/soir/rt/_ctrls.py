@@ -1,9 +1,9 @@
 import enum
-import math
 import json
+import math
 
-import soir.rt.errors
-import soir.rt._internals
+from soir.rt import _internals
+from soir.rt import errors
 
 from soir._core.rt import (
     schedule_,
@@ -26,8 +26,7 @@ controls_registry_ = {}
 
 
 def _reset() -> None:
-    """Helper to reset controls state for unit tests mostly.
-    """
+    """Helper to reset controls state for unit tests mostly."""
     global eval_id_, in_update_loop_, controls_registry_
 
     eval_id_ = 0

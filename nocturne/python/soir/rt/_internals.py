@@ -1,14 +1,9 @@
-import json
-import inspect
 
-from enum import Enum
 
 from soir._core.rt import (
     schedule_,
     get_beat_,
-    get_tracks_,
     log_,
-    setup_tracks_,
     get_code_,
 )
 from soir.rt.errors import (
@@ -23,8 +18,7 @@ eval_id_ = 0
 
 
 def _reset() -> None:
-    """Helper to reset internals state for integration tests.
-    """
+    """Helper to reset internals state for integration tests."""
     global eval_id_
 
     eval_id_ = 0
@@ -41,8 +35,7 @@ current_loop_ = None
 
 
 def _reset_loop() -> None:
-    """Helper to reset loop state for integration tests.
-    """
+    """Helper to reset loop state for integration tests."""
     global current_loop_, loop_registry_
 
     current_loop_ = None
@@ -195,8 +188,7 @@ current_live_ = None
 
 
 def _reset_live() -> None:
-    """Helper to reset live state for integration tests.
-    """
+    """Helper to reset live state for integration tests."""
     global current_live_, live_registry_
 
     current_live_ = None
