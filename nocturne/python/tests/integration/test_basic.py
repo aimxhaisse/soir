@@ -1,6 +1,5 @@
 """Basic integration tests for log() function and notifications."""
 
-
 from .base import SoirIntegrationTestCase
 
 
