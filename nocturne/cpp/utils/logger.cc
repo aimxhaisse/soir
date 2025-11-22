@@ -131,8 +131,6 @@ absl::Status Logger::Shutdown() {
     file_sink_.reset();
   }
 
-  initialized_ = false;
-
   return absl::OkStatus();
 }
 

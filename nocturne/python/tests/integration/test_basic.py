@@ -5,7 +5,6 @@ from pathlib import Path
 import tempfile
 import shutil
 
-from soir._core import logging
 from .soir_test_base import SoirTestEngine
 
 
