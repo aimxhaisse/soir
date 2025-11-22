@@ -1,3 +1,5 @@
+from collections.abc import Callable
+
 from soir._core.rt import (
     schedule_,
     get_beat_,
@@ -28,8 +30,8 @@ def _reset() -> None:
 # Decorator API for @loop
 
 
-loop_registry_ = dict()
-current_loop_ = None
+loop_registry_: dict[str, "Loop_"] = {}
+current_loop_: "Loop_ | None" = None
 
 
 def _reset_loop() -> None:
@@ -44,7 +46,7 @@ class Loop_:
     """Helper class to manage a loop function."""
 
     def __init__(
-        self, name: str, beats: int, track: str | None, align: bool, func: callable
+        self, name: str, beats: int, track: str | None, align: bool, func: Callable
     ):
         self.name = name
         self.beats = beats
@@ -54,20 +56,20 @@ class Loop_:
         self.updated_at = None
         self.eval_at = None
 
-        self.extra = {}
+        self.extra: dict[str, str] = {}
 
         # Current offset in beats in the loop, used to schedule events
         # in the future.
         self.current_offset = 0
 
-    def run(self):
+    def run(self) -> None:
         """Temporal recursion scheduling of the loop."""
         now = get_beat_()
         at = 0
         if self.align:
             at = self.beats - (now % self.beats)
 
-        def _loop():
+        def _loop() -> None:
             if self.name not in loop_registry_:
                 return
 
@@ -94,9 +96,9 @@ class Loop_:
         schedule_(at, _loop)
 
 
-def loop(track: str | None, beats: int, align: bool) -> callable:
+def loop(track: str | None, beats: int, align: bool) -> Callable:
 
-    def wrapper(func):
+    def wrapper(func: Callable) -> Callable:
         name = func.__name__
 
         if name not in loop_registry_:
@@ -147,7 +149,7 @@ def assert_in_loop() -> Loop_:
     return current_loop_
 
 
-def assert_not_in_loop():
+def assert_not_in_loop() -> None:
     """Assert that we are not in a loop context.
 
     Raises:
@@ -157,7 +159,7 @@ def assert_not_in_loop():
         raise InLoopException()
 
 
-def current_loop() -> Loop_:
+def current_loop() -> Loop_ | None:
     """Get the current loop.
 
     Returns:
@@ -166,7 +168,7 @@ def current_loop() -> Loop_:
     return current_loop_
 
 
-def get_loop(name: str) -> Loop_:
+def get_loop(name: str) -> Loop_ | None:
     """Get the loop by name.
 
     Args:
@@ -181,8 +183,8 @@ def get_loop(name: str) -> Loop_:
 # Decorator API for @live
 
 
-live_registry_ = dict()
-current_live_ = None
+live_registry_: dict[str, "Live_"] = {}
+current_live_: "Live_ | None" = None
 
 
 def _reset_live() -> None:
@@ -193,7 +195,7 @@ def _reset_live() -> None:
     live_registry_.clear()
 
 
-def get_code_function_(func: callable) -> str:
+def get_code_function_(func: Callable) -> str:
     """Get the code of a function.
 
     This is a helper function to get the code of a function. In Soir
@@ -227,14 +229,14 @@ def get_code_function_(func: callable) -> str:
 class Live_:
     """Helper class to manage a live function."""
 
-    def __init__(self, name: str, func: callable, code: str):
+    def __init__(self, name: str, func: Callable, code: str):
         self.name = name
         self.func = func
         self.code = code
         self.updated_at = None
         self.eval_at = None
 
-    def run(self):
+    def run(self) -> None:
         """Executes right away the live function."""
         global current_live_
 
@@ -250,9 +252,9 @@ class Live_:
             raise err
 
 
-def live() -> callable:
+def live() -> Callable:
 
-    def wrapper(func):
+    def wrapper(func: Callable) -> Callable:
         name = func.__name__
         ll = live_registry_.get(name)
         code = get_code_function_(func)
@@ -282,7 +284,7 @@ def live() -> callable:
     return wrapper
 
 
-def current_live() -> Live_:
+def current_live() -> Live_ | None:
     """Get the current live.
 
     Returns:
@@ -291,7 +293,7 @@ def current_live() -> Live_:
     return current_live_
 
 
-def get_live(name: str) -> Live_:
+def get_live(name: str) -> Live_ | None:
     """Get the live function by name.
 
     Args:
@@ -306,7 +308,7 @@ def get_live(name: str) -> Live_:
 ## Internal facilities
 
 
-def post_eval_():
+def post_eval_() -> None:
     """Called after each buffer evaluation.
 
     Currently used to clean-up loops and live functions that are not
@@ -346,6 +348,6 @@ def log(message: str) -> None:
         log_(message)
 
 
-def sleep(beats: float):
+def sleep(beats: float) -> None:
     """Sleep for the duration of the current loop."""
     assert_in_loop().current_offset += beats
