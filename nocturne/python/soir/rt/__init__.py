@@ -68,6 +68,7 @@ def kick():
 import soir.rt.errors
 import soir.rt._internals
 import soir.rt._ctrls
+import soir.rt._system
 
 
 def loop(track: str = None, beats: int = 4, align: bool = True) -> callable:
@@ -187,6 +188,16 @@ def ctrl(name: str) -> ctrls.Control:
     if not ctrl:
         raise errors.ControlNotFoundException(name)
     return ctrl
+
+
+def reset() -> None:
+    """Resets internal state.
+
+    Mostly used for integration tests.
+    """
+    _internals._reset()
+    _ctrls._reset()
+    _system._reset()
 
 
 # Here lies the live code.

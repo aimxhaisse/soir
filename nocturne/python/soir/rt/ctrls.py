@@ -129,4 +129,4 @@ def layout() -> list[Control]:
     Returns:
         A list of all controls.
     """
-    return list(soir.rt._ctrls.controls_registry_.values())
+    return list(_ctrls.controls_registry_.values())

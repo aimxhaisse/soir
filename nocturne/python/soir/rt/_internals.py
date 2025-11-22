@@ -22,11 +22,31 @@ from soir.rt.errors import (
 eval_id_ = 0
 
 
+def _reset() -> None:
+    """Helper to reset internals state for integration tests.
+    """
+    global eval_id_
+
+    eval_id_ = 0
+
+    _reset_loop()
+    _reset_live()
+
+
 # Decorator API for @loop
 
 
 loop_registry_ = dict()
 current_loop_ = None
+
+
+def _reset_loop() -> None:
+    """Helper to reset loop state for integration tests.
+    """
+    global current_loop_, loop_registry_
+
+    current_loop_ = None
+    loop_registry_.clear()
 
 
 class Loop_:
@@ -172,6 +192,15 @@ def get_loop(name: str) -> Loop_:
 
 live_registry_ = dict()
 current_live_ = None
+
+
+def _reset_live() -> None:
+    """Helper to reset live state for integration tests.
+    """
+    global current_live_, live_registry_
+
+    current_live_ = None
+    live_registry_.clear()
 
 
 def get_code_function_(func: callable) -> str:

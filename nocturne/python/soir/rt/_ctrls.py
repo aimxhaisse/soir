@@ -25,6 +25,16 @@ in_update_loop_ = False
 controls_registry_ = {}
 
 
+def _reset() -> None:
+    """Helper to reset controls state for unit tests mostly.
+    """
+    global eval_id_, in_update_loop_, controls_registry_
+
+    eval_id_ = 0
+    in_update_loop_ = False
+    controls_registry_.clear()
+
+
 # This may need to be adjusted to prevent overloading the RT engine,
 # we'll likely need some instrumentation to measure the time it takes
 # to compute all controls.
