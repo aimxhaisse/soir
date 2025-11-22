@@ -200,3 +200,4 @@ class SoirTestEngine:
         if not self.soir.stop():
             raise RuntimeError("Failed to stop Soir engine")
         del self.soir
+        logging.shutdown()
