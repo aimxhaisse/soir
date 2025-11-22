@@ -43,7 +43,7 @@ def record_(file_path: str) -> bool:
     return True
 
 
-def post_eval_():
+def post_eval_() -> None:
     """Called after each buffer evaluation.
 
     Automatically stops recording if record() wasn't called in this evaluation.

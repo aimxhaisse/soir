@@ -22,7 +22,7 @@ eval_id_ = 0
 
 
 in_update_loop_ = False
-controls_registry_ = {}
+controls_registry_: dict[str, "Control_"] = {}
 
 
 def _reset() -> None:
@@ -41,10 +41,10 @@ frequency_ = controls_get_frequency_update_()
 tick_sec_ = 1 / frequency_
 
 
-def assert_in_update_loop():
+def assert_in_update_loop() -> None:
     """Assert that we are in the update loop."""
     if not in_update_loop_:
-        raise errors.NotInControlUpdateLoopException()
+        raise errors.NotInControlLoopException()
 
 
 class Control_:
