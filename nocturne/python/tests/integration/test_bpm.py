@@ -6,7 +6,7 @@ from .base import SoirIntegrationTestCase
 class TestBPM(SoirIntegrationTestCase):
     """Test BPM get and set functionality."""
 
-    def test_get_bpm_ok(self):
+    def test_get_bpm_ok(self) -> None:
         """Test getting and setting BPM values."""
         code = """
 bpm.set(120)

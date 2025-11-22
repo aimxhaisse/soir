@@ -24,7 +24,7 @@ CodeUpdateCallback = Callable[[str], None]
 
 def is_eligible_file(file_path: str) -> bool:
     """Check if a file is eligible for live reloading."""
-    return file_path.endswith(".py") and '#' not in file_path
+    return file_path.endswith(".py") and "#" not in file_path
 
 
 def reload_code(cb: CodeUpdateCallback, directory: str) -> None:

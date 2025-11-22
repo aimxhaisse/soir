@@ -46,17 +46,16 @@ class SoirIntegrationTestCase(unittest.TestCase):
         self.temp_dir = tempfile.mkdtemp()
         self.log_dir = Path(self.temp_dir) / "logs"
         self.engine = SoirTestEngine(
-            str(self.log_dir),
-            config_overrides=self.config_overrides
+            str(self.log_dir), config_overrides=self.config_overrides
         )
 
     def tearDown(self):
         """Clean up after each test."""
         if self.debug_notifications:
-            print('*' * 80)
+            print("*" * 80)
             for notification in self.engine._notifications:
                 print(f"> [{notification}]")
-            print('*' * 80)
+            print("*" * 80)
 
         self.engine.stop()
         logging.shutdown()

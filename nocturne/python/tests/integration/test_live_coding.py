@@ -8,7 +8,7 @@ class TestLiveCoding(SoirIntegrationTestCase):
 
     debug_notifications = True
 
-    def test_basic_live(self):
+    def test_basic_live(self) -> None:
         """Test that @live() decorated functions execute."""
         code = """
 @live()
@@ -18,7 +18,7 @@ def kick():
         self.engine.push_code(code)
         self.assertTrue(self.engine.wait_for_notification("hello"))
 
-    def test_basic_live_no_update(self):
+    def test_basic_live_no_update(self) -> None:
         """Test that pushing same @live() code twice doesn't re-execute."""
         code = """
 @live()
@@ -31,7 +31,7 @@ def kick():
         self.engine.push_code(code)
         self.assertFalse(self.engine.wait_for_notification("hello"))
 
-    def test_basic_live_get_code(self):
+    def test_basic_live_get_code(self) -> None:
         """Test retrieving code from @live() decorated functions."""
         code = """
 @live()
@@ -44,11 +44,15 @@ log(str(_internals.get_live('kick').code))
 """
         self.engine.push_code(code)
 
-        self.assertTrue(self.engine.wait_for_notification("""\
+        self.assertTrue(
+            self.engine.wait_for_notification(
+                """\
     log('hello')
     pass
     log('world')
-"""))
+"""
+            )
+        )
 
         code2 = """
 @live()

@@ -9,8 +9,7 @@
 namespace soir {
 
 Soir::Soir()
-    : dsp_(std::make_unique<Engine>()),
-      rt_(std::make_unique<rt::Runtime>()) {}
+    : dsp_(std::make_unique<Engine>()), rt_(std::make_unique<rt::Runtime>()) {}
 
 Soir::~Soir() {
   if (running_) {
