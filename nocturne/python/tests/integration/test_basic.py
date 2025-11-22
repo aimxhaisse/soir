@@ -5,22 +5,11 @@ from pathlib import Path
 import tempfile
 import shutil
 
-from .soir_test_base import SoirTestEngine
+from .base import SoirIntegrationTestCase
 
 
-class TestBasicLog(unittest.TestCase):
+class TestBasicLog(SoirIntegrationTestCase):
     """Test basic log() functionality."""
-
-    def setUp(self) -> None:
-        """Set up test engine before each test."""
-        self.temp_dir = tempfile.mkdtemp()
-        self.log_dir = Path(self.temp_dir) / "logs"
-        self.engine = SoirTestEngine(str(self.log_dir))
-
-    def tearDown(self) -> None:
-        """Clean up after each test."""
-        self.engine.stop()
-        shutil.rmtree(self.temp_dir, ignore_errors=True)
 
     def test_basic_log_ok(self) -> None:
         """Test that log() messages are captured correctly."""
