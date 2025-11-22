@@ -9,8 +9,6 @@ class TestControls(SoirIntegrationTestCase):
     """Test ctrls module for creating and managing controls."""
 
     config_overrides = {"initial_bpm": 600}
-    debug_notifications = True
-    debug_logging = True
 
     def test_controls_basic(self):
         """Test creating controls in @live() function."""

@@ -7,7 +7,6 @@ class TestLoops(SoirIntegrationTestCase):
     """Test @loop() decorator and loop execution."""
 
     config_overrides = {"initial_bpm": 600}
-    debug_notifications = True
 
     def test_basic_loop(self) -> None:
         """Test that @loop() decorated functions execute repeatedly."""

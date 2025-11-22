@@ -6,8 +6,6 @@ from .base import SoirIntegrationTestCase
 class TestLiveCoding(SoirIntegrationTestCase):
     """Test @live() decorator and live code reloading."""
 
-    debug_notifications = True
-
     def test_basic_live(self) -> None:
         """Test that @live() decorated functions execute."""
         code = """
