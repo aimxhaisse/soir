@@ -6,7 +6,6 @@
 - Base class that inherits from unittest.TestCase
 """
 
-
 """
 Base test infrastructure for Soir integration tests.
 
@@ -87,7 +86,7 @@ class SoirTestEngine:
         log_files = sorted(
             self.log_dir.glob("soir.*.log"),
             key=lambda p: p.stat().st_mtime,
-            reverse=True
+            reverse=True,
         )
 
         if log_files:
@@ -101,7 +100,7 @@ class SoirTestEngine:
             return []
 
         try:
-            with open(self._log_file_path, 'r') as f:
+            with open(self._log_file_path, "r") as f:
                 f.seek(self._last_read_position)
                 new_lines = f.readlines()
                 self._last_read_position = f.tell()
@@ -119,10 +118,7 @@ class SoirTestEngine:
         return self._notifications
 
     def wait_for_notification(
-        self,
-        expected: str,
-        timeout: float = 5.0,
-        exact_match: bool = False
+        self, expected: str, timeout: float = 5.0, exact_match: bool = False
     ) -> bool:
         """
         Wait for a log message containing the expected string.
@@ -162,11 +158,11 @@ class SoirTestEngine:
             capture = []
             for line in self._read_new_log_lines():
                 line = line.rstrip()
-                pattern = r'^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} (INFO|WARN|ERROR|DEBUG|TRACE) \[.+:\d+\] (.*)'
+                pattern = r"^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} (INFO|WARN|ERROR|DEBUG|TRACE) \[.+:\d+\] (.*)"
                 m = re.search(pattern, line)
                 if m:
                     if capture:
-                        self._notifications.append('\n'.join(capture))
+                        self._notifications.append("\n".join(capture))
                         capture = []
                     capture.append(m.group(2))
                 else:
@@ -178,7 +174,7 @@ class SoirTestEngine:
             # which we'll insert here. The alternative is to hang
             # until there is a new pattern-matching log.
             if capture:
-                self._notifications.append('\n'.join(capture))
+                self._notifications.append("\n".join(capture))
 
             while self._notification_index < len(self._notifications):
                 message = self._notifications[self._notification_index]

@@ -9,7 +9,7 @@ class TestLoops(SoirIntegrationTestCase):
     config_overrides = {"initial_bpm": 600}
     debug_notifications = True
 
-    def test_basic_loop(self):
+    def test_basic_loop(self) -> None:
         """Test that @loop() decorated functions execute repeatedly."""
         code = """
 i = 0
@@ -25,7 +25,7 @@ def kick():
         for i in range(10):
             self.assertTrue(self.engine.wait_for_notification(f"loop {i}"))
 
-    def test_basic_loop_failed_update(self):
+    def test_basic_loop_failed_update(self) -> None:
         """Test that loop recovers after failed code update."""
         code = """
 @loop()
