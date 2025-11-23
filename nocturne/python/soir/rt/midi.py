@@ -53,17 +53,18 @@ class use_chan:
 
     def __init__(self, chan: int):
         self.loop = assert_in_loop()
-        self.previous_chan = self.loop.extra.get("midi_chan")
+        self.previous_chan: int | str | None = self.loop.extra.get("midi_chan")
         self.loop.extra["midi_chan"] = chan
 
-    def __enter__(self):
+    def __enter__(self) -> None:
         pass
 
-    def __exit__(self, exc_type, exc_value, traceback):
-        self.loop.extra["midi_chan"] = self.previous_chan
+    def __exit__(self, exc_type: object, exc_value: object, traceback: object) -> None:
+        if self.previous_chan is not None:
+            self.loop.extra["midi_chan"] = self.previous_chan
 
 
-def _get_chan(chan=None) -> int:
+def _get_chan(chan: int | None = None) -> int:
     """Internal helper to get the MIDI chan to use.
 
     Args:
@@ -77,13 +78,14 @@ def _get_chan(chan=None) -> int:
     if chan is not None:
         return chan
 
-    if loop.extra.get("midi_chan"):
-        return loop.extra["midi_chan"]
+    midi_chan = loop.extra.get("midi_chan")
+    if midi_chan:
+        return int(midi_chan)
 
     raise UnknownMidiTrackException()
 
 
-def note_on(note: int, velocity: int = 127, chan=None) -> float:
+def note_on(note: int, velocity: int = 127, chan: int | None = None) -> None:
     """Send the MIDI note to the external synthesizer configured on the track.
     Args:
         note: The MIDI note to send.
@@ -103,7 +105,7 @@ def note_on(note: int, velocity: int = 127, chan=None) -> float:
     schedule_(loop.current_offset, lambda: midi_note_on_(track, chan, note, velocity))
 
 
-def note_off(note: int, velocity: int = 127, chan: int | None = None) -> float:
+def note_off(note: int, velocity: int = 127, chan: int | None = None) -> None:
     """Send the MIDI note off to the external synthesizer using the track id of the loop as MIDI channel.
 
     Args:

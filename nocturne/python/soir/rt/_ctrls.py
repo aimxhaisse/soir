@@ -1,6 +1,7 @@
 import enum
 import json
 import math
+from collections.abc import Callable
 
 from soir.rt import _internals
 from soir.rt import errors
@@ -60,10 +61,10 @@ class Control_:
         LIVE = 1
         LOOP = 2
 
-    def __init__(self, name):
+    def __init__(self, name: str) -> None:
         self.name_ = name
-        self.tick_ = 0
-        self.value_ = 0
+        self.tick_: float = 0
+        self.value_: float = 0
 
         # This is a nice trick, if the control exists, we replace it
         # with the new one, but we keep its tick/value state so that
@@ -100,14 +101,14 @@ class Control_:
         return self.value_
 
     def name(self) -> str:
-        return self.name
+        return self.name_
 
     # This is meant to be implemented by inheriting classes.
 
-    def set(self, **params) -> None:
+    def set(self, **params: float) -> None:
         raise NotImplementedError()
 
-    def fwd(self) -> float:
+    def fwd(self) -> None:
         raise NotImplementedError()
 
 
@@ -124,7 +125,7 @@ class LFO_(Control_):
         self.low_ = low
         self.high_ = high
 
-    def fwd(self) -> float:
+    def fwd(self) -> None:
         assert_in_update_loop()
 
         v = (
@@ -147,7 +148,7 @@ class Linear_(Control_):
 
         self.value_ = start
 
-    def fwd(self) -> float:
+    def fwd(self) -> None:
         assert_in_update_loop()
 
         self.value_ = self.start_ + (self.end_ - self.start_) * (
@@ -164,29 +165,29 @@ class Val_(Control_):
 
         self.value_ = value
 
-    def set(self, value) -> None:
+    def set(self, value: float) -> None:  # type: ignore[override]
         self.value_ = value
 
-    def fwd(self) -> float:
+    def fwd(self) -> None:
         pass
 
 
 class Func_(Control_):
     """A function parameter."""
 
-    def __init__(self, name: str, func: callable):
+    def __init__(self, name: str, func: Callable[[], float]):
         super().__init__(name)
 
         self.callable_ = func
         self.value_ = self.callable_()
 
-    def fwd(self) -> float:
+    def fwd(self) -> None:
         assert_in_update_loop()
 
         self.value_ = self.callable_()
 
 
-def update_loop_():
+def update_loop_() -> None:
     """Ticker for the controls.
 
     This needs to be fast as it is the temporal recursion that is
@@ -197,7 +198,7 @@ def update_loop_():
     global in_update_loop_
     in_update_loop_ = True
 
-    payload = {"knobs": {}}
+    payload: dict[str, dict[str, float]] = {"knobs": {}}
 
     # We sort by alphabetical order to ensure that dependencies are
     # correctly resolved.
@@ -213,7 +214,7 @@ def update_loop_():
     in_update_loop_ = False
 
 
-def post_eval_():
+def post_eval_() -> None:
     """Called after each buffer evaluation.
 
     Currently used to clean-up buffers that aren't defined anymore.

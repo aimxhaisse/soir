@@ -3,7 +3,7 @@
 import time
 from pathlib import Path
 
-import soundfile as sf
+import soundfile as sf  # type: ignore[import-untyped]
 
 from .base import SoirIntegrationTestCase
 
@@ -13,7 +13,7 @@ class TestAudioRecording(SoirIntegrationTestCase):
 
     config_overrides = {"initial_bpm": 600}
 
-    def test_basic_recording_file_creation(self):
+    def test_basic_recording_file_creation(self) -> None:
         """Test that sys.record() creates a WAV file."""
         test_file = Path(self.temp_dir) / "test_recording_basic.wav"
 
@@ -42,7 +42,7 @@ log("recording_stopped")
         self.assertTrue(test_file.exists())
         test_file.unlink(missing_ok=True)
 
-    def test_valid_wav_file_properties(self):
+    def test_valid_wav_file_properties(self) -> None:
         """Test that recorded WAV file has correct properties."""
         test_file = Path(self.temp_dir) / "test_recording_wav.wav"
 
@@ -77,7 +77,7 @@ log("recording_stopped")
 
         test_file.unlink(missing_ok=True)
 
-    def test_recording_stops_after_code_update(self):
+    def test_recording_stops_after_code_update(self) -> None:
         """Test that recording stops when code is updated without sys.record()."""
         test_file = Path(self.temp_dir) / "test_recording_stop.wav"
 
@@ -117,7 +117,7 @@ log("code_updated_without_record")
 
         test_file.unlink(missing_ok=True)
 
-    def test_recording_continues_with_same_file(self):
+    def test_recording_continues_with_same_file(self) -> None:
         """Test that recording continues when same file path is used."""
         test_file = Path(self.temp_dir) / "test_recording_continue.wav"
 
@@ -159,7 +159,7 @@ log("recording_stopped")
 
         test_file.unlink(missing_ok=True)
 
-    def test_recording_with_different_files(self):
+    def test_recording_with_different_files(self) -> None:
         """Test that switching to a different file stops first and starts second."""
         test_file1 = Path(self.temp_dir) / "test_recording_file1.wav"
         test_file2 = Path(self.temp_dir) / "test_recording_file2.wav"

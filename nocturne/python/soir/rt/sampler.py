@@ -41,6 +41,7 @@ samples = sampler.samples('808')
 """
 
 from dataclasses import dataclass
+from typing import Any, Callable
 
 import json
 
@@ -53,7 +54,6 @@ from soir._core.rt import (
 )
 from soir.rt._internals import (
     assert_in_loop,
-    current_loop,
     sleep,
 )
 from soir.rt.ctrls import (
@@ -100,7 +100,7 @@ class Sampler:
         release: float = 0.0,
         rate: float = 1.0,
         amp: float = 1.0,
-    ):
+    ) -> None:
         """Plays a sample by its given name. If there is no exact
         match, attempts to find one that contains the name (for
         example, 'kick' will match 'hard-kick'). If the selected
@@ -120,7 +120,7 @@ class Sampler:
             rate: The playback rate of the sample.
             amp: The amplitude of the sample.
         """
-        assert_in_loop()
+        loop = assert_in_loop()
 
         params = {
             "pack": self.pack_name_,
@@ -136,14 +136,14 @@ class Sampler:
             "amp": amp,
         }
 
-        track = current_loop().track
+        track = loop.track
 
         schedule_(
-            current_loop().current_offset,
+            loop.current_offset,
             lambda: midi_sysex_sample_play_(track, serialize_parameters(params)),
         )
 
-    def stop(self, name: str):
+    def stop(self, name: str) -> None:
         """Stops playing the sample. If there is no exact match,
         attempts to find one that contains the name (for example,
         'kick' will match 'hard-kick'). If the same sample is
@@ -153,17 +153,17 @@ class Sampler:
         Args:
             name: The name of the sample.
         """
-        assert_in_loop()
+        loop = assert_in_loop()
 
         params = {
             "pack": self.pack_name_,
             "name": name,
         }
 
-        track = current_loop().track
+        track = loop.track
 
         schedule_(
-            current_loop().current_offset,
+            loop.current_offset,
             lambda: midi_sysex_sample_stop_(track, json.dumps(params)),
         )
 
@@ -196,7 +196,7 @@ def packs() -> list[str]:
     Returns:
         The list of loaded sample packs.
     """
-    return get_packs_()
+    return get_packs_()  # type: ignore[no-any-return]
 
 
 def samples(pack_name: str) -> list[Sample]:
@@ -249,11 +249,12 @@ class Kit:
             sp (sampler.Sampler): The sampler instance to use for playing samples.
         """
         self.sp = sp
-        self.duration = current_loop().beats
-        self.kit = dict()
-        self.patterns = dict()
+        loop = assert_in_loop()
+        self.duration: float = loop.beats
+        self.kit: dict[str, Callable[[], dict[str, Any]]] = {}
+        self.patterns: dict[str, list[str]] = {}
 
-    def set(self, char: str, mkplay: callable) -> None:
+    def set(self, char: str, mkplay: Callable[[], dict[str, Any]]) -> None:
         """Set a character to a sample play function.
 
         Args:

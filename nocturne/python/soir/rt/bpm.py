@@ -51,7 +51,8 @@ def get() -> float:
     """
     assert_not_in_loop()
 
-    return get_bpm_()
+    result: float = get_bpm_()
+    return result
 
 
 def set(bpm: float) -> float:
@@ -69,7 +70,8 @@ def set(bpm: float) -> float:
     """
     assert_not_in_loop()
 
-    return set_bpm_(bpm)
+    result: float = set_bpm_(bpm)
+    return result
 
 
 def beat() -> float:
@@ -80,7 +82,8 @@ def beat() -> float:
     """
     loop = current_loop()
 
+    current_beat: float = get_beat_()
     if loop:
-        return get_beat_() + loop.current_offset
+        return current_beat + loop.current_offset
 
-    return get_beat_()
+    return current_beat
