@@ -1,4 +1,7 @@
 """
+
+@public
+
 Soir is a Python library for live coding music. It provides facilities
 to create and manipulate audio tracks, and to interact with external
 synthesizers. There are two important concepts in Soir:
@@ -12,7 +15,7 @@ synthesizers. There are two important concepts in Soir:
     are used to create patterns and sequences.
 
 
-``` python
+```python
 # Live function
 @live
 def setup():
@@ -42,7 +45,7 @@ module. The available modules are:
 
 ## Minimalistic Example
 
-``` python
+```python
 @live
 def setup():
     bpm.set(120)
@@ -93,6 +96,8 @@ def loop(
 ) -> Callable[..., Any]:
     """Decorator to create a loop that is rescheduled every given number of beats.
 
+    @public
+
     The concept of a loop is similar to [Sonic
     Pi](https://sonic-pi.net/)'s live loops. Code within a loop is
     executed using temporal recursion, and can be updated in
@@ -123,6 +128,8 @@ def loop(
 def live() -> Callable[..., Any]:
     """Decorator to create a live function that is executed each time the code is changed.
 
+    @public
+
     ``` python
     @live
     def setup:
@@ -140,6 +147,8 @@ def live() -> Callable[..., Any]:
 def log(message: str) -> None:
     """Log a message to the console.
 
+    @public
+
     This function is used to log messages to the console. It is useful
     for debugging purposes.
 
@@ -155,6 +164,8 @@ def log(message: str) -> None:
 
 def sleep(beats: float) -> None:
     """Sleep for the given duration in beats in the current loop.
+
+    @public
 
     In this example, we define a 4-beats loop that plays a kick sample
     every beats, and sleeps for 1 beat between each sample.
@@ -187,6 +198,8 @@ def current_loop() -> Loop_:
 
 def ctrl(name: str) -> _ctrls.Control_:
     """Get a control by its name.
+
+    @public
 
     Args:
         name: The name of the control.

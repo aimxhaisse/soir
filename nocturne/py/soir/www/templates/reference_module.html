@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block content %}
+<article class="reference-content">
+  <h1>{{ module.name }}</h1>
+
+  {% if module.doc %}
+  <div class="module-doc">
+    {{ module.doc | safe }}
+  </div>
+  {% endif %}
+
+  {% for member in module.members %}
+    <section class="member">
+      <h3>{{ member.name }}</h3>
+
+      {% if member.signature_html %}
+      <pre><code class="highlight">{{ member.signature_html | safe }}</code></pre>
+      {% endif %}
+
+      {% if member.description_html %}
+      <div class="member-description">
+        {{ member.description_html | safe }}
+      </div>
+      {% endif %}
+
+      {% if member.params %}
+      <h4>Arguments</h4>
+      <table>
+          <thead>
+              <tr>
+                  <th>Name</th>
+                  <th>Type</th>
+                  <th>Description</th>
+              </tr>
+          </thead>
+          <tbody>
+          {% for param in member.params %}
+              <tr>
+                  <td><code>{{ param.arg_name }}</code></td>
+                  <td>{% if param.type_name %}<code>{{ param.type_name }}</code>{% endif %}</td>
+                  <td>{{ param.description }}</td>
+              </tr>
+          {% endfor %}
+          </tbody>
+      </table>
+      {% endif %}
+
+      {% if member.returns %}
+      <h4>Returns</h4>
+      <p>
+          {% if member.returns.type_name %}<code>{{ member.returns.type_name }}</code>{% endif %}
+          {% if member.returns.description %}– {{ member.returns.description }}{% endif %}
+      </p>
+      {% endif %}
+
+      {% if member.raises %}
+      <h4>Raises</h4>
+      <table>
+          <thead>
+              <tr>
+                  <th>Exception</th>
+                  <th>Description</th>
+              </tr>
+          </thead>
+          <tbody>
+          {% for raises in member.raises %}
+              <tr>
+                  <td><code>{{ raises.type_name }}</code></td>
+                  <td>{{ raises.description }}</td>
+              </tr>
+          {% endfor %}
+          </tbody>
+      </table>
+      {% endif %}
+    </section>
+  {% endfor %}
+</article>
+{% endblock %}
