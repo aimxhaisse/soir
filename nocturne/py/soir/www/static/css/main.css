@@ -344,20 +344,42 @@ blockquote > p:last-of-type {
   letter-spacing: normal;
 }
 
+/* Reference layout - TOC outside on left */
+.reference-content {
+  position: relative;
+}
+
 /* Table of Contents */
 .toc-inline {
-  margin: 2rem 0 4rem;
-  padding: 2rem var(--space-current);
-  background: var(--text-color-3);
-  border-left: var(--border-md) solid var(--text-color-5);
-  font-size: 80%;
+  position: sticky;
+  top: 2rem;
+  float: left;
+  width: 200px;
+  margin-left: calc(-220px - 3rem);
+  margin-right: 3rem;
+  padding-left: 1.5rem;
+  border-left: 4px solid var(--text-color-5);
+  font-size: 70%;
+  max-height: calc(100vh - 4rem);
+  overflow-y: auto;
+}
+
+.reference-main-content {
+  /* No special styling needed, flows normally */
+}
+
+/* Hide TOC on smaller screens */
+@media (max-width: 1400px) {
+  .toc-inline {
+    display: none;
+  }
 }
 
 .toc-title {
-  font-size: 140%;
+  font-size: 130%;
   font-weight: normal;
   opacity: var(--opacity-medium);
-  margin: 0 0 1.5rem 0;
+  margin: 0 0 1.2rem 0;
 }
 
 .toc-section {
