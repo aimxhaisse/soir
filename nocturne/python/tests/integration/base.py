@@ -4,6 +4,7 @@ import shutil
 import tempfile
 import unittest
 from pathlib import Path
+from typing import Any
 
 from .soir_test_base import SoirTestEngine
 from soir._core import logging
@@ -12,7 +13,7 @@ from soir._core import logging
 class SoirIntegrationTestCase(unittest.TestCase):
     """Base class for all Soir integration tests."""
 
-    config_overrides: dict | None = None
+    config_overrides: dict[str, Any] | None = None
     debug_notifications: bool = False
     debug_logging: bool = False
 

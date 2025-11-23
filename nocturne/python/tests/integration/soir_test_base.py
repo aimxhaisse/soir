@@ -9,6 +9,7 @@ to detect notifications.
 import re
 import time
 from pathlib import Path
+from typing import Any
 
 from jinja2 import Environment, FileSystemLoader
 
@@ -31,7 +32,9 @@ class SoirTestEngine:
         engine.stop()
     """
 
-    def __init__(self, log_dir: str, config_overrides: dict | None = None):
+    def __init__(
+        self, log_dir: str, config_overrides: dict[str, Any] | None = None
+    ) -> None:
         """
         Initialize the test engine.
 
@@ -60,7 +63,7 @@ class SoirTestEngine:
 
         self._find_log_file()
 
-    def _generate_config(self, overrides: dict) -> Path:
+    def _generate_config(self, overrides: dict[str, Any]) -> Path:
         """Generate a config file from the Jinja2 template."""
         template_dir = Path(__file__).parent
         env = Environment(loader=FileSystemLoader(template_dir))
@@ -103,7 +106,7 @@ class SoirTestEngine:
 
     def push_code(self, code: str) -> bool:
         """Push Python code to the engine for execution."""
-        return self.soir.update_code(code)
+        return bool(self.soir.update_code(code))
 
     def get_notifications(self) -> list[str]:
         """Get all captured notifications."""
@@ -147,7 +150,7 @@ class SoirTestEngine:
             # case there is a multi-line log (with \n). This is useful
             # if we want to log big things in python and be able to
             # match against it (for instance code updates).
-            capture = []
+            capture: list[str] = []
             for line in self._read_new_log_lines():
                 line = line.rstrip()
                 pattern = r"^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} (INFO|WARN|ERROR|DEBUG|TRACE) \[.+:\d+\] (.*)"

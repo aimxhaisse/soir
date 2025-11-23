@@ -18,6 +18,7 @@ tracks.setup({
 """
 
 from dataclasses import dataclass
+from typing import Any
 from soir.rt._helpers import serialize_parameters
 from soir.rt.ctrls import Control
 
@@ -35,14 +36,16 @@ class Fx:
 
     name: str = "unnamed"
     type: str = "unknown"
-    mix: float | None = None
+    mix: float | Control | None = None
     extra: str | None = None
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"Fx(name={self.name}, type={self.type}, mix={self.mix}, extra={self.extra})"
 
 
-def mk(type: str, mix: float | Control | None = None, extra: dict | None = None) -> Fx:
+def mk(
+    type: str, mix: float | Control | None = None, extra: dict[str, Any] | None = None
+) -> Fx:
     """Creates a new Fx.
 
     Args:

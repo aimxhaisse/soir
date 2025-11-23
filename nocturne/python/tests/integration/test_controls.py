@@ -10,7 +10,7 @@ class TestControls(SoirIntegrationTestCase):
 
     config_overrides = {"initial_bpm": 600}
 
-    def test_controls_basic(self):
+    def test_controls_basic(self) -> None:
         """Test creating controls in @live() function."""
         self.engine.push_code(
             """
@@ -27,7 +27,7 @@ log(str(ctrls.layout()))
         time.sleep(1)
         self.assertTrue(self.engine.wait_for_notification("[[c1=0], [c2=0.5]]"))
 
-    def test_controls_global(self):
+    def test_controls_global(self) -> None:
         """Test creating controls at global scope."""
         self.engine.push_code(
             """
@@ -38,7 +38,7 @@ log(str(ctrls.layout()))
 
         self.assertTrue(self.engine.wait_for_notification("[[c1=0]]"))
 
-    def test_controls_global_deletion(self):
+    def test_controls_global_deletion(self) -> None:
         """Test that global controls are deleted when not recreated."""
         self.engine.push_code(
             """
@@ -62,7 +62,7 @@ log(str(ctrls.layout()))
 
         self.assertTrue(self.engine.wait_for_notification("[]"))
 
-    def test_controls_deletion_in_live(self):
+    def test_controls_deletion_in_live(self) -> None:
         """Test that controls in @live() are deleted when not recreated."""
         self.engine.push_code(
             """
@@ -97,7 +97,7 @@ def setup():
 
         self.assertTrue(self.engine.wait_for_notification("[]"))
 
-    def test_controls_live_function_deleted(self):
+    def test_controls_live_function_deleted(self) -> None:
         """Test that controls are deleted when @live() function is removed."""
         self.engine.push_code(
             """
@@ -128,7 +128,7 @@ log(str(ctrls.layout()))
 
         self.assertTrue(self.engine.wait_for_notification("[]"))
 
-    def test_controls_deletion_in_loop(self):
+    def test_controls_deletion_in_loop(self) -> None:
         """Test that controls in @loop() are deleted when not recreated."""
         self.engine.push_code(
             """
@@ -165,7 +165,7 @@ def helloop():
 
         self.assertTrue(self.engine.wait_for_notification("[]"))
 
-    def test_controls_loop_function_deleted(self):
+    def test_controls_loop_function_deleted(self) -> None:
         """Test that controls are deleted when @loop() function is removed."""
         self.engine.push_code(
             """
@@ -196,7 +196,7 @@ log(str(ctrls.layout()))
 
         self.assertTrue(self.engine.wait_for_notification("[]"))
 
-    def test_controls_value(self):
+    def test_controls_value(self) -> None:
         """Test mk_val() control creation and value updates."""
         self.engine.push_code(
             """

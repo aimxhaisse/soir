@@ -66,11 +66,13 @@ def kick():
 """
 
 from collections.abc import Callable
+from typing import Any
 
 import soir as soir
 
 from soir.rt import _ctrls
 from soir.rt import _internals
+from soir.rt._internals import Loop_
 from soir.rt import _system
 from soir.rt import bpm as bpm
 from soir.rt import ctrls as ctrls
@@ -86,7 +88,9 @@ from soir.rt import tracks as tracks
 sys = system
 
 
-def loop(track: str | None = None, beats: int = 4, align: bool = True) -> Callable:
+def loop(
+    track: str | None = None, beats: int = 4, align: bool = True
+) -> Callable[..., Any]:
     """Decorator to create a loop that is rescheduled every given number of beats.
 
     The concept of a loop is similar to [Sonic
@@ -116,7 +120,7 @@ def loop(track: str | None = None, beats: int = 4, align: bool = True) -> Callab
     return _internals.loop(track, beats, align)
 
 
-def live() -> Callable:
+def live() -> Callable[..., Any]:
     """Decorator to create a live function that is executed each time the code is changed.
 
     ``` python
@@ -172,7 +176,7 @@ def sleep(beats: float) -> None:
     return _internals.sleep(beats)
 
 
-def current_loop() -> object:
+def current_loop() -> Loop_:
     """Get the current loop.
 
     Raises:

@@ -81,7 +81,8 @@ def get_audio_out_devices() -> list[tuple[int, str]]:
     Returns:
         A list of audio output devices.
     """
-    return get_audio_out_devices_()
+    result: list[tuple[int, str]] = get_audio_out_devices_()
+    return result
 
 
 def get_audio_in_devices() -> list[tuple[int, str]]:
@@ -90,7 +91,8 @@ def get_audio_in_devices() -> list[tuple[int, str]]:
     Returns:
         A list of audio input devices.
     """
-    return get_audio_in_devices_()
+    result: list[tuple[int, str]] = get_audio_in_devices_()
+    return result
 
 
 def get_midi_out_devices() -> list[tuple[int, str]]:
@@ -99,7 +101,8 @@ def get_midi_out_devices() -> list[tuple[int, str]]:
     Returns:
         A list of MIDI output devices.
     """
-    return get_midi_out_devices_()
+    result: list[tuple[int, str]] = get_midi_out_devices_()
+    return result
 
 
 def set_force_kill_at_shutdown(flag: bool) -> None:

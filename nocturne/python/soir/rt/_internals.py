@@ -46,21 +46,26 @@ class Loop_:
     """Helper class to manage a loop function."""
 
     def __init__(
-        self, name: str, beats: int, track: str | None, align: bool, func: Callable
+        self,
+        name: str,
+        beats: int,
+        track: str | None,
+        align: bool,
+        func: Callable[..., None],
     ):
         self.name = name
         self.beats = beats
         self.track = track
         self.align = align
         self.func = func
-        self.updated_at = None
-        self.eval_at = None
+        self.updated_at: int | None = None
+        self.eval_at: int | None = None
 
-        self.extra: dict[str, str] = {}
+        self.extra: dict[str, int | str] = {}
 
         # Current offset in beats in the loop, used to schedule events
         # in the future.
-        self.current_offset = 0
+        self.current_offset: float = 0
 
     def run(self) -> None:
         """Temporal recursion scheduling of the loop."""
@@ -96,9 +101,11 @@ class Loop_:
         schedule_(at, _loop)
 
 
-def loop(track: str | None, beats: int, align: bool) -> Callable:
+def loop(
+    track: str | None, beats: int, align: bool
+) -> Callable[[Callable[..., None]], Callable[..., None]]:
 
-    def wrapper(func: Callable) -> Callable:
+    def wrapper(func: Callable[..., None]) -> Callable[..., None]:
         name = func.__name__
 
         if name not in loop_registry_:
@@ -144,7 +151,7 @@ def assert_in_loop() -> Loop_:
     Returns:
         The current loop.
     """
-    if not current_loop_:
+    if current_loop_ is None:
         raise NotInLoopException()
     return current_loop_
 
@@ -195,7 +202,7 @@ def _reset_live() -> None:
     live_registry_.clear()
 
 
-def get_code_function_(func: Callable) -> str:
+def get_code_function_(func: Callable[..., None]) -> str:
     """Get the code of a function.
 
     This is a helper function to get the code of a function. In Soir
@@ -229,12 +236,12 @@ def get_code_function_(func: Callable) -> str:
 class Live_:
     """Helper class to manage a live function."""
 
-    def __init__(self, name: str, func: Callable, code: str):
+    def __init__(self, name: str, func: Callable[..., None], code: str):
         self.name = name
         self.func = func
         self.code = code
-        self.updated_at = None
-        self.eval_at = None
+        self.updated_at: int | None = None
+        self.eval_at: int | None = None
 
     def run(self) -> None:
         """Executes right away the live function."""
@@ -252,9 +259,9 @@ class Live_:
             raise err
 
 
-def live() -> Callable:
+def live() -> Callable[[Callable[..., None]], Callable[..., None]]:
 
-    def wrapper(func: Callable) -> Callable:
+    def wrapper(func: Callable[..., None]) -> Callable[..., None]:
         name = func.__name__
         ll = live_registry_.get(name)
         code = get_code_function_(func)
@@ -325,8 +332,8 @@ def post_eval_() -> None:
         del loop_registry_[name]
 
     live_to_remove = []
-    for name, ll in live_registry_.items():
-        if ll.updated_at != eval_id_:
+    for name, lv in live_registry_.items():
+        if lv.updated_at != eval_id_:
             live_to_remove.append(name)
     for name in live_to_remove:
         del live_registry_[name]

@@ -33,6 +33,7 @@ from dataclasses import (
     dataclass,
     asdict,
 )
+from typing import Any
 from soir._core.rt import (
     get_tracks_,
     setup_tracks_,
@@ -68,14 +69,14 @@ class Track:
     muted: bool | None = None
     volume: float | Control = 1.0
     pan: float | Control = 0.0
-    fxs: dict | None = None
+    fxs: dict[str, Any] | None = None
     extra: str | None = None
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"Track(name={self.name}, instrument={self.instrument}, muted={self.muted}, volume={self.volume}, pan={self.pan}, fxs={self.fxs})"
 
 
-def layout() -> dict[Track]:
+def layout() -> dict[str, Track]:
     """Get the current tracks.
 
     Returns:
@@ -86,12 +87,12 @@ def layout() -> dict[Track]:
     """
     assert_not_in_loop()
 
-    tracks = {}
+    tracks: dict[str, Track] = {}
     for trk in get_tracks_():
         # Here we translate back control names into actual Control
         # parameters, this allows setup()/layout() to be somewhat
         # idempotent calls using the same parameter formats.
-        params = {}
+        params: dict[str, Any] = {}
         for k, v in trk.items():
             # Avoid parameters that need to be kept as a string, maybe
             # a better way via Track.__dict__ or something to check
@@ -130,10 +131,17 @@ def setup(tracks: dict[str, Track]) -> bool:
         track_dict[name] = asdict(track)
         track_dict[name]["fxs"] = fxs
 
-    return setup_tracks_(track_dict)
+    return setup_tracks_(track_dict)  # type: ignore[no-any-return]
 
 
-def mk(instrument: str, muted=None, volume=1.0, pan=0.0, fxs=None, extra=None) -> Track:
+def mk(
+    instrument: str,
+    muted: bool | None = None,
+    volume: float | Control = 1.0,
+    pan: float | Control = 0.0,
+    fxs: dict[str, Any] | None = None,
+    extra: dict[str, Any] | None = None,
+) -> Track:
     """Creates a new track.
 
     Args:
@@ -155,7 +163,12 @@ def mk(instrument: str, muted=None, volume=1.0, pan=0.0, fxs=None, extra=None) -
     return t
 
 
-def mk_sampler(muted=None, volume=1.0, pan=0.0, fxs=None) -> Track:
+def mk_sampler(
+    muted: bool | None = None,
+    volume: float | Control = 1.0,
+    pan: float | Control = 0.0,
+    fxs: dict[str, Any] | None = None,
+) -> Track:
     """Creates a new sampler track.
 
     Args:
@@ -168,13 +181,13 @@ def mk_sampler(muted=None, volume=1.0, pan=0.0, fxs=None) -> Track:
 
 
 def mk_midi(
-    muted=None,
-    volume=1.0,
-    pan=0.0,
+    muted: bool | None = None,
+    volume: float | Control = 1.0,
+    pan: float | Control = 0.0,
     midi_out: str = "",
     audio_in: str = "",
-    audio_chans=None,
-    fxs=None,
+    audio_chans: list[int] | None = None,
+    fxs: dict[str, Any] | None = None,
 ) -> Track:
     """Creates a new midi track.
 

@@ -17,6 +17,8 @@ def play():
 ```
 """
 
+from collections.abc import Callable
+
 import soir.rt._ctrls as _ctrls
 
 
@@ -64,7 +66,7 @@ class Control(_ctrls.Control_):
         """
         raise NotImplementedError()
 
-    def fwd(self):
+    def fwd(self) -> None:
         """Computes the next value of the control and advance the tick.
 
         This is meant to be used by the soir engine.
@@ -113,7 +115,7 @@ def mk_val(name: str, value: float) -> None:
     _ctrls.Val_(name, value)
 
 
-def mk_func(name: str, func: callable) -> None:
+def mk_func(name: str, func: Callable[[], float]) -> None:
     """Create a new function parameter.
 
     Args:
@@ -129,4 +131,5 @@ def layout() -> list[Control]:
     Returns:
         A list of all controls.
     """
-    return list(_ctrls.controls_registry_.values())
+    # The values are Control_ instances which Control inherits from
+    return list(_ctrls.controls_registry_.values())  # type: ignore[arg-type]
