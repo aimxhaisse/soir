@@ -10,11 +10,11 @@ from typing import Any
 import markdown
 from docstring_parser import parse as parse_docstring
 from flask import Flask, render_template, abort
-from pygments import highlight
-from pygments.formatters import HtmlFormatter
-from pygments.lexers import PythonLexer
+from pygments import highlight  # type: ignore[import-untyped]
+from pygments.formatters import HtmlFormatter  # type: ignore[import-untyped]
+from pygments.lexers import PythonLexer  # type: ignore[import-untyped]
 
-# Public modules in py/soir/rt that should be documented
+
 PUBLIC_MODULES = [
     "bpm",
     "ctrls",
@@ -27,7 +27,6 @@ PUBLIC_MODULES = [
     "tracks",
 ]
 
-# Global cache for generated documentation
 docs_cache: dict[str, dict[str, Any]] = {}
 
 
@@ -55,7 +54,8 @@ def highlight_signature(name: str, signature: str) -> str:
     """
     code = f"{name}{signature}"
     formatter = HtmlFormatter(nowrap=True)
-    return highlight(code, PythonLexer(), formatter)
+    result: str = highlight(code, PythonLexer(), formatter)
+    return result
 
 
 def clean_doc(doc: str) -> str:
@@ -67,29 +67,13 @@ def clean_doc(doc: str) -> str:
     Returns:
         Cleaned docstring with @public marker removed.
     """
-    # Remove @public marker entirely
     cleaned = doc.replace("@public", "")
-
-    # Clean up any resulting empty lines or extra whitespace
-    lines = cleaned.split("\n")
-    cleaned_lines = [line.rstrip() for line in lines]
-
-    # Remove consecutive empty lines
-    result = []
-    prev_empty = False
-    for line in cleaned_lines:
-        if line.strip() == "":
-            if not prev_empty:
-                result.append("")
-            prev_empty = True
-        else:
-            result.append(line)
-            prev_empty = False
-
-    return "\n".join(result).strip()
+    return cleaned
 
 
-def extract_module_docs(module_name: str, full_path: str | None = None) -> dict[str, Any]:
+def extract_module_docs(
+    module_name: str, full_path: str | None = None
+) -> dict[str, Any]:
     """Extract documentation from a module.
 
     Args:
@@ -208,7 +192,6 @@ def create_app() -> Flask:
             "codehilite",
             "tables",
             "fenced_code",
-            "nl2br",
         ],
         extension_configs={
             "codehilite": {
