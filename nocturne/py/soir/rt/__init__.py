@@ -1,16 +1,17 @@
 """
+*Live coding platform for sonic exploration.*
 
 @public
 
-Soir is a Python library for live coding music. It provides facilities
-to create and manipulate audio tracks, and to interact with external
-synthesizers. There are two important concepts in Soir:
+Soir is a Python environment for live coding music. It provides
+facilities to create and manipulate audio tracks, and to interact with
+external synthesizers. There are two important concepts in Soir:
 
-- **Live** functions ([`@live`](/reference/soir/#soir.live) decorator)
+- **Live** decorators ([`@live`](/reference/soir/#live) decorator)
     that are executed each time the code is changed. They are used to
     setup the environment, and to create tracks and instruments.
 
-- **Loops** functions ([`@loop`](/reference/soir/#soir.loop)
+- **Loop** decorators ([`@loop`](/reference/soir/#loop)
     decorator) that are rescheduled every given number of beats. They
     are used to create patterns and sequences.
 

@@ -364,10 +364,6 @@ blockquote > p:last-of-type {
   overflow-y: auto;
 }
 
-.reference-main-content {
-  /* No special styling needed, flows normally */
-}
-
 /* Hide TOC on smaller screens */
 @media (max-width: 1400px) {
   .toc-inline {
