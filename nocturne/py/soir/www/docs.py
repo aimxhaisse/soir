@@ -1,0 +1,200 @@
+"""Documentation extraction and parsing module.
+
+This module handles extracting documentation from Python modules,
+parsing docstrings, and building structured documentation data.
+"""
+
+import importlib
+import inspect
+from typing import Any
+
+from docstring_parser import parse as parse_docstring
+
+
+def is_public(doc: str) -> bool:
+    """Check if a docstring is marked as public.
+
+    Args:
+        doc: The docstring to check.
+
+    Returns:
+        True if the docstring contains @public marker.
+    """
+    return "@public" in doc
+
+
+def clean_doc(doc: str) -> str:
+    """Remove @public marker from docstring.
+
+    Args:
+        doc: The docstring to clean.
+
+    Returns:
+        Cleaned docstring with @public marker removed.
+    """
+    cleaned = doc.replace("@public", "")
+    return cleaned
+
+
+def extract_module_docs(
+    module_name: str, full_path: str | None = None
+) -> dict[str, Any]:
+    """Extract documentation from a module.
+
+    Args:
+        module_name: Display name of the module (e.g., 'bpm' or 'rt').
+        full_path: Full module path to import (e.g., 'soir.rt.bpm').
+                   If None, will construct from module_name.
+
+    Returns:
+        Dictionary containing module documentation data with keys:
+        - name: Display name of the module
+        - full_path: Full import path
+        - parsed: Parsed module docstring (from docstring_parser)
+        - members: List of documented members (functions, classes, etc.)
+    """
+    if full_path is None:
+        full_path = f"soir.rt.{module_name}"
+
+    module = importlib.import_module(full_path)
+
+    # Get module docstring and parse it
+    module_doc_raw = inspect.getdoc(module) or ""
+    module_doc_raw = clean_doc(module_doc_raw)
+    module_parsed = parse_docstring(module_doc_raw)
+
+    # Extract public members (functions, classes, etc.)
+    members = []
+    for name, obj in inspect.getmembers(module):
+        # Skip private members and imports
+        if name.startswith("_"):
+            continue
+
+        # Get docstring
+        doc = inspect.getdoc(obj) or ""
+
+        # Only include members with @public in their docstring
+        if not is_public(doc):
+            continue
+
+        # Remove the @public marker from the doc
+        doc = clean_doc(doc)
+
+        # Parse the docstring
+        parsed = parse_docstring(doc)
+
+        # Get signature for callables
+        signature = None
+        if callable(obj):
+            try:
+                sig = inspect.signature(obj)
+                signature = str(sig)
+            except (ValueError, TypeError):
+                pass
+
+        # Determine type
+        if inspect.isfunction(obj):
+            # Check if it's a decorator based on name
+            decorator_names = {"live", "loop"}
+            if name in decorator_names:
+                member_type = "decorator"
+            else:
+                member_type = "function"
+        elif inspect.isclass(obj):
+            member_type = "class"
+        else:
+            member_type = "attribute"
+
+        members.append(
+            {
+                "name": name,
+                "type": member_type,
+                "signature": signature,
+                "parsed": parsed,  # Parsed docstring object
+            }
+        )
+
+    return {
+        "name": module_name,
+        "full_path": full_path,
+        "parsed": module_parsed,  # Parsed module docstring
+        "members": members,
+    }
+
+
+class DocsCache:
+    """Documentation cache for storing pre-generated module documentation.
+
+    This class provides a simple cache for module documentation to avoid
+    re-extracting documentation on every request.
+    """
+
+    def __init__(self) -> None:
+        """Initialize an empty documentation cache."""
+        self._cache: dict[str, dict[str, Any]] = {}
+
+    def get(self, module_name: str) -> dict[str, Any] | None:
+        """Get cached documentation for a module.
+
+        Args:
+            module_name: Name of the module to retrieve.
+
+        Returns:
+            Module documentation dict if cached, None otherwise.
+        """
+        return self._cache.get(module_name)
+
+    def set(self, module_name: str, docs: dict[str, Any]) -> None:
+        """Store documentation for a module in the cache.
+
+        Args:
+            module_name: Name of the module.
+            docs: Documentation data to cache.
+        """
+        self._cache[module_name] = docs
+
+    def has(self, module_name: str) -> bool:
+        """Check if module documentation is cached.
+
+        Args:
+            module_name: Name of the module to check.
+
+        Returns:
+            True if the module is in the cache, False otherwise.
+        """
+        return module_name in self._cache
+
+    def clear(self) -> None:
+        """Clear all cached documentation."""
+        self._cache.clear()
+
+    def __len__(self) -> int:
+        """Get the number of cached modules.
+
+        Returns:
+            Number of modules in the cache.
+        """
+        return len(self._cache)
+
+
+def generate_all_docs(module_names: list[str], cache: DocsCache) -> None:
+    """Generate documentation for all specified modules and cache them.
+
+    Args:
+        module_names: List of module names to generate documentation for.
+        cache: DocsCache instance to store the generated documentation.
+    """
+    for module_name in module_names:
+        try:
+            docs = extract_module_docs(module_name)
+            cache.set(module_name, docs)
+        except Exception as e:
+            # Store error information in cache
+            cache.set(
+                module_name,
+                {
+                    "name": module_name,
+                    "doc": f"Error generating documentation: {e}",
+                    "members": [],
+                },
+            )
