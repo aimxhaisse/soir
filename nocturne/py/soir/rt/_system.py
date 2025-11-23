@@ -1,4 +1,4 @@
-from soir._core.rt import (
+from soir._bindings.rt import (
     start_recording_,
     stop_recording_,
 )

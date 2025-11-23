@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Any
 
 from .soir_test_base import SoirTestEngine
-from soir._core import logging
+from soir._bindings import logging
 
 
 class SoirIntegrationTestCase(unittest.TestCase):

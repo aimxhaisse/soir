@@ -1,6 +1,6 @@
 from collections.abc import Callable
 
-from soir._core.rt import (
+from soir._bindings.rt import (
     schedule_,
     get_beat_,
     log_,

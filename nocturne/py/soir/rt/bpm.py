@@ -28,7 +28,7 @@ beat = bpm.beat()
 # Reference
 """
 
-from soir._core.rt import (
+from soir._bindings.rt import (
     set_bpm_,
     get_bpm_,
     get_beat_,

@@ -45,7 +45,7 @@ from typing import Any, Callable
 
 import json
 
-from soir._core.rt import (
+from soir._bindings.rt import (
     midi_sysex_sample_play_,
     midi_sysex_sample_stop_,
     get_packs_,

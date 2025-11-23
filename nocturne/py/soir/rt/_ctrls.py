@@ -6,7 +6,7 @@ from collections.abc import Callable
 from soir.rt import _internals
 from soir.rt import errors
 
-from soir._core.rt import (
+from soir._bindings.rt import (
     schedule_,
     get_bpm_,
     midi_sysex_update_controls_,

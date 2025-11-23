@@ -92,7 +92,7 @@ class RunPythonTests(Command):
 
 
 setup(
-    ext_modules=[Extension("soir._core", sources=[])],
+    ext_modules=[Extension("soir._bindings", sources=[])],
     cmdclass={
         "build_ext": CMakeBuild,
         "run_cpp_tests": RunCppTests,

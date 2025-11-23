@@ -36,7 +36,7 @@ system.info()
 # Reference
 """
 
-from soir._core.rt import (
+from soir._bindings.rt import (
     get_audio_in_devices_,
     get_audio_out_devices_,
     get_midi_out_devices_,

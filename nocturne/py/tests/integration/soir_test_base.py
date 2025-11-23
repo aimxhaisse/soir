@@ -13,7 +13,7 @@ from typing import Any
 
 from jinja2 import Environment, FileSystemLoader
 
-from soir._core import Soir, logging
+from soir._bindings import Soir, logging
 
 
 class SoirTestEngine:
