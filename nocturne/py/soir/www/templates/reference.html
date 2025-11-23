@@ -4,16 +4,44 @@
 <article class="reference-content">
     <h1>reference</h1>
 
+    {% if members and members|length > 3 %}
+    <nav class="toc-inline" id="toc">
+        <h2 class="toc-title">Table of Contents</h2>
+        {% if doc %}
+        <div class="toc-section">
+            <h4><a href="#overview">Overview</a></h4>
+        </div>
+        {% endif %}
+
+        {% for type, group in members|groupby('type') %}
+        <div class="toc-section">
+            <h4><a href="#section-{{ type }}">{{ type|capitalize }}s</a></h4>
+            <ul>
+                {% for member in group %}
+                <li><a href="#{{ member.name }}">{{ member.name }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endfor %}
+    </nav>
+    {% endif %}
+
     {% if doc %}
-    <div class="rt-doc">
-        {{ doc | safe }}
+    <div id="overview" class="member-section">
+        <h2 class="section-header">OVERVIEW</h2>
+        <div class="rt-doc">
+            {{ doc | safe }}
+        </div>
     </div>
     {% endif %}
 
     {% if members %}
-    {% for member in members %}
-        <section class="member">
-            <h3>{{ member.name }}</h3>
+    {% for type, group in members|groupby('type') %}
+        <div id="section-{{ type }}" class="member-section">
+            <h2 class="section-header">{{ type|upper }}S</h2>
+            {% for member in group %}
+            <section class="member" id="{{ member.name }}">
+                <h3>{{ member.name }}</h3>
 
             {% if member.signature_html %}
             <pre><code class="highlight">{{ member.signature_html | safe }}</code></pre>
@@ -74,7 +102,13 @@
                 </tbody>
             </table>
             {% endif %}
-        </section>
+
+                <div class="back-to-toc">
+                    <a href="#toc">↑ back to contents</a>
+                </div>
+            </section>
+            {% endfor %}
+        </div>
     {% endfor %}
     {% endif %}
 </article>
