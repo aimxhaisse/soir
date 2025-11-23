@@ -4,8 +4,8 @@
 
 namespace py = pybind11;
 
-PYBIND11_MODULE(_core, m, py::mod_gil_not_used()) {
-  m.doc() = "Soir C++ core module";
+PYBIND11_MODULE(_bindings, m, py::mod_gil_not_used()) {
+  m.doc() = "Soir C++ bindings module";
 
   soir::bindings::Bind::PyLogger(m);
   soir::bindings::Bind::PySoir(m);

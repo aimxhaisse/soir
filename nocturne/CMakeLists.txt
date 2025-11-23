@@ -242,7 +242,7 @@ target_link_libraries(soir_dsp
 
 # core
 
-pybind11_add_module(_core
+pybind11_add_module(_bindings
     cpp/bindings/bindings.cc
     cpp/bindings/logger.cc
     cpp/bindings/rt.cc
@@ -251,9 +251,9 @@ pybind11_add_module(_core
     cpp/rt/runtime.cc
 )
 
-target_include_directories(_core PRIVATE cpp)
+target_include_directories(_bindings PRIVATE cpp)
 
-target_link_libraries(_core PRIVATE
+target_link_libraries(_bindings PRIVATE
     soir_engine
     soir_utils
     absl::status
@@ -264,12 +264,12 @@ target_link_libraries(_core PRIVATE
     absl::time
 )
 
-target_compile_options(_core PRIVATE
+target_compile_options(_bindings PRIVATE
     -Os
     -fvisibility=hidden
 )
 
-set_target_properties(_core PROPERTIES
+set_target_properties(_bindings PROPERTIES
     INTERPROCEDURAL_OPTIMIZATION ON
 )
 

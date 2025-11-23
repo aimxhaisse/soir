@@ -34,7 +34,7 @@ from dataclasses import (
     asdict,
 )
 from typing import Any
-from soir._core.rt import (
+from soir._bindings.rt import (
     get_tracks_,
     setup_tracks_,
 )
