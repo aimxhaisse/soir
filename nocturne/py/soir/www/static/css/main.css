@@ -344,6 +344,111 @@ blockquote > p:last-of-type {
   letter-spacing: normal;
 }
 
+/* Table of Contents */
+.toc-inline {
+  margin: 2rem 0 4rem;
+  padding: 2rem var(--space-current);
+  background: var(--text-color-3);
+  border-left: var(--border-md) solid var(--text-color-5);
+  font-size: 80%;
+}
+
+.toc-title {
+  font-size: 140%;
+  font-weight: normal;
+  opacity: var(--opacity-medium);
+  margin: 0 0 1.5rem 0;
+}
+
+.toc-section {
+  margin-bottom: 1.5rem;
+}
+
+.toc-section:last-child {
+  margin-bottom: 0;
+}
+
+.toc-section h4 {
+  font-size: 100%;
+  font-weight: normal;
+  margin: 0 0 0.5rem 0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.toc-section h4 a {
+  opacity: var(--opacity-subtle);
+  text-decoration: none;
+}
+
+.toc-section h4 a:hover {
+  opacity: var(--opacity-high);
+  text-decoration: none;
+}
+
+.toc-inline ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.toc-inline li {
+  margin: 0 0 0.3rem 0;
+  line-height: 1.6;
+}
+
+.toc-inline li::before {
+  content: none !important;
+}
+
+.toc-inline a {
+  opacity: var(--opacity-medium);
+}
+
+.toc-inline a:hover {
+  opacity: 1;
+  color: var(--link-color);
+}
+
+/* Back to TOC link */
+.back-to-toc {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: var(--border-sm) solid var(--text-color-5);
+  text-align: right;
+}
+
+.back-to-toc a {
+  font-size: 85%;
+  font-weight: normal;
+  opacity: var(--opacity-subtle);
+  transition: opacity 0.2s;
+}
+
+.back-to-toc a:hover {
+  opacity: 1;
+  color: var(--link-color);
+  text-decoration: none;
+}
+
+/* Member sections */
+.member-section {
+  scroll-margin-top: 2rem;
+}
+
+.section-header {
+  margin-top: 8vmin;
+  margin-bottom: 4vmin;
+  font-size: 200%;
+  opacity: var(--opacity-high);
+  scroll-margin-top: 2rem;
+}
+
+.member {
+  margin-bottom: 6vmin;
+  scroll-margin-top: 2rem;
+}
+
 /* Footer */
 .footer {
   padding: 0 0 16vmin;

@@ -141,7 +141,12 @@ def extract_module_docs(module_name: str, full_path: str | None = None) -> dict[
 
         # Determine type
         if inspect.isfunction(obj):
-            member_type = "function"
+            # Check if it's a decorator based on name
+            decorator_names = {"live", "loop"}
+            if name in decorator_names:
+                member_type = "decorator"
+            else:
+                member_type = "function"
         elif inspect.isclass(obj):
             member_type = "class"
         else:
