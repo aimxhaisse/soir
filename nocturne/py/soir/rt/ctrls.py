@@ -1,20 +1,6 @@
 """
 The **ctrls** module contains facilities to control settings of soir
 in real-time.
-
-# Cookbook
-
-```python
-@live()
-def controls():
-    ctrls.mk_lfo('[x0]', rate=0.5, intensity=0.75)
-
-sp = samples.new('my-pack')
-
-@loop()
-def play():
-    sp.play('my-sample', pan=ctrl('[x0]'))
-```
 """
 
 from collections.abc import Callable
@@ -24,6 +10,8 @@ import soir.rt._ctrls as _ctrls
 
 class Control(_ctrls.Control_):
     """Base class for a control.
+
+    @public
 
     A control computes a value to the Soir engine about 100 times per
     second via the `Control.fwd()` call, this value is then
@@ -45,6 +33,8 @@ class Control(_ctrls.Control_):
     def name(self) -> str:
         """Get the name of the control.
 
+        @public
+
         Returns:
             The name of the control.
         """
@@ -52,6 +42,8 @@ class Control(_ctrls.Control_):
 
     def set(self, **params: float) -> None:
         """Set the control parameters.
+
+        @public
 
         Args:
             **params: The parameters to set.
@@ -61,6 +53,8 @@ class Control(_ctrls.Control_):
     def get(self) -> float:
         """Get the current value of the control.
 
+        @public
+
         Returns:
                 The current value of the control.
         """
@@ -68,6 +62,8 @@ class Control(_ctrls.Control_):
 
     def fwd(self) -> None:
         """Computes the next value of the control and advance the tick.
+
+        @public
 
         This is meant to be used by the soir engine.
         """
@@ -83,6 +79,8 @@ def mk_lfo(
 ) -> None:
     """Create a new LFO parameter.
 
+    @public
+
     Args:
         name: The name of the parameter.
         rate: The rate of the LFO in seconds.
@@ -96,6 +94,8 @@ def mk_lfo(
 def mk_linear(name: str, start: float, end: float, duration: float) -> None:
     """Create a new linear parameter.
 
+    @public
+
     Args:
         name: The name of the parameter.
         start: The start value.
@@ -108,6 +108,8 @@ def mk_linear(name: str, start: float, end: float, duration: float) -> None:
 def mk_val(name: str, value: float) -> None:
     """Create a new value parameter.
 
+    @public
+
     Args:
         name: The name of the parameter.
         value: The value.
@@ -118,6 +120,8 @@ def mk_val(name: str, value: float) -> None:
 def mk_func(name: str, func: Callable[[], float]) -> None:
     """Create a new function parameter.
 
+    @public
+
     Args:
         name: The name of the parameter.
         func: The function to compute the value.
@@ -127,6 +131,8 @@ def mk_func(name: str, func: Callable[[], float]) -> None:
 
 def layout() -> list[Control]:
     """Get the list of all controls.
+
+    @public
 
     Returns:
         A list of all controls.
