@@ -1,4 +1,4 @@
-{% if members and members|length > 3 %}
+{% if members and members|length > 0 %}
 <nav class="toc-inline" id="toc">
     {% if doc %}
     <div class="toc-section">
@@ -8,7 +8,7 @@
 
     {% for type, group in members|groupby('type') %}
     <div class="toc-section">
-        <h4><a href="#section-{{ type }}">{{ type|capitalize }}s</a></h4>
+        <h4><a href="#section-{{ type }}">{{ type|capitalize }}</a></h4>
         <ul>
             {% for member in group %}
             <li><a href="#{{ member.name }}">{{ member.name }}</a></li>

@@ -159,7 +159,7 @@ def extract_module_docs(
             except (ValueError, TypeError):
                 pass
 
-        # Determine type
+        # Determine type (use plural forms for proper rendering)
         if inspect.isfunction(obj):
             # Check if it's a decorator based on name
             decorator_names = {"live", "loop"}

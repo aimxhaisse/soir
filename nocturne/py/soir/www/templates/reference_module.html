@@ -20,7 +20,7 @@
 
   {% for type, group in module.members|groupby('type') %}
     <div id="section-{{ type }}" class="member-section">
-      <h2 class="section-header">{{ type|upper }}S</h2>
+      <h2 class="section-header">{{ type|upper }}</h2>
       {% for member in group %}
       <section class="member" id="{{ member.name }}">
         <h3>{{ member.name }}</h3>
