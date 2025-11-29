@@ -281,6 +281,32 @@ pre code {
   overflow-wrap: normal;
 }
 
+/* Custom scrollbar styling for code blocks */
+pre::-webkit-scrollbar {
+  height: 8px;
+}
+
+pre::-webkit-scrollbar-track {
+  background: var(--text-color-3);
+  border-radius: 4px;
+}
+
+pre::-webkit-scrollbar-thumb {
+  background: var(--text-color-5);
+  border-radius: 4px;
+  transition: background 0.2s ease;
+}
+
+pre::-webkit-scrollbar-thumb:hover {
+  background: hsla(215, 12%, 75%, .12);
+}
+
+/* Firefox scrollbar styling */
+pre {
+  scrollbar-width: thin;
+  scrollbar-color: var(--text-color-5) var(--text-color-3);
+}
+
 /* Tables */
 table {
   width: var(--table-width);
