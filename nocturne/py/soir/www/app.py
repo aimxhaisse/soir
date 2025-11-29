@@ -97,10 +97,7 @@ def create_app() -> Flask:
     @app.route("/reference/core")
     def reference_core() -> str:
         """Render the core facilities reference page."""
-        # Extract documentation from soir.rt.__init__.py
         rt_data = extract_module_docs("rt", full_path="soir.rt")
-
-        # Render the module documentation to HTML
         md = app.extensions["markdown"]
         module_rendered = render_module(rt_data, md)
 
@@ -130,7 +127,6 @@ def create_app() -> Flask:
         if module_data is None:
             abort(404)
 
-        # Render the module documentation to HTML
         md = app.extensions["markdown"]
         module_rendered = render_module(module_data, md)
 
