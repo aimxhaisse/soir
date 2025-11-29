@@ -24,16 +24,83 @@ def is_public(doc: str) -> bool:
 
 
 def clean_doc(doc: str) -> str:
-    """Remove @public marker from docstring.
+    """Remove @public marker and normalize line wrapping in docstring.
 
     Args:
         doc: The docstring to clean.
 
     Returns:
-        Cleaned docstring with @public marker removed.
+        Cleaned docstring with @public marker removed and normalized wrapping.
     """
     cleaned = doc.replace("@public", "")
-    return cleaned
+    lines = cleaned.split("\n")
+    normalized = []
+    i = 0
+
+    while i < len(lines):
+        line = lines[i]
+
+        if not line.strip():
+            normalized.append(line)
+            i += 1
+            continue
+
+        if line.strip().startswith("```"):
+            normalized.append(line)
+            i += 1
+            while i < len(lines) and not lines[i].strip().startswith("```"):
+                normalized.append(lines[i])
+                i += 1
+            if i < len(lines):
+                normalized.append(lines[i])
+                i += 1
+            continue
+
+        if line.strip().endswith(":") and len(line.strip().split()) == 1:
+            normalized.append(line)
+            i += 1
+            continue
+
+        if line.strip().startswith("#"):
+            normalized.append(line)
+            i += 1
+            continue
+
+        paragraph = [line]
+        base_indent = len(line) - len(line.lstrip())
+        i += 1
+
+        while i < len(lines):
+            next_line = lines[i]
+
+            if not next_line.strip():
+                break
+
+            if next_line.strip().startswith("```"):
+                break
+
+            if next_line.strip().endswith(":") and len(next_line.strip().split()) == 1:
+                break
+
+            if next_line.strip().startswith("#"):
+                break
+
+            next_indent = len(next_line) - len(next_line.lstrip())
+
+            if next_indent >= base_indent:
+                paragraph.append(next_line)
+                i += 1
+            else:
+                break
+
+        if len(paragraph) == 1:
+            normalized.append(paragraph[0])
+        else:
+            indent = paragraph[0][: len(paragraph[0]) - len(paragraph[0].lstrip())]
+            content = " ".join(line.strip() for line in paragraph if line.strip())
+            normalized.append(indent + content)
+
+    return "\n".join(normalized)
 
 
 def extract_module_docs(

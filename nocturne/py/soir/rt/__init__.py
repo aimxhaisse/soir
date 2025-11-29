@@ -27,6 +27,7 @@ def setup():
 def kick():
     log('beat')
 ```
+
 """
 
 from collections.abc import Callable
