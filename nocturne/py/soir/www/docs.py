@@ -105,14 +105,54 @@ def extract_module_docs(
         else:
             member_type = "attribute"
 
-        members.append(
-            {
-                "name": name,
-                "type": member_type,
-                "signature": signature,
-                "parsed": parsed,  # Parsed docstring object
-            }
-        )
+        member_data = {
+            "name": name,
+            "type": member_type,
+            "signature": signature,
+            "parsed": parsed,  # Parsed docstring object
+        }
+
+        # If it's a class, extract its methods
+        if inspect.isclass(obj):
+            methods = []
+            for method_name, method_obj in inspect.getmembers(obj):
+                # Skip private methods and special methods
+                if method_name.startswith("_"):
+                    continue
+
+                # Get method docstring
+                method_doc = inspect.getdoc(method_obj) or ""
+
+                # Only include methods with @public in their docstring
+                if not is_public(method_doc):
+                    continue
+
+                # Remove the @public marker
+                method_doc = clean_doc(method_doc)
+
+                # Parse the docstring
+                method_parsed = parse_docstring(method_doc)
+
+                # Get signature for the method
+                method_signature = None
+                if callable(method_obj):
+                    try:
+                        sig = inspect.signature(method_obj)
+                        method_signature = str(sig)
+                    except (ValueError, TypeError):
+                        pass
+
+                methods.append(
+                    {
+                        "name": method_name,
+                        "signature": method_signature,
+                        "parsed": method_parsed,
+                    }
+                )
+
+            member_data["methods"] = methods
+
+        members.append(member_data)
 
     return {
         "name": module_name,

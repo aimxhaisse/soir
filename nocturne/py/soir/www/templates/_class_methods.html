@@ -1,0 +1,68 @@
+{% if member.methods %}
+<h4>Methods</h4>
+{% for method in member.methods %}
+<div class="method" id="{{ member.name }}.{{ method.name }}">
+    <h5>{{ method.name }}</h5>
+
+    {% if method.signature_html %}
+    <pre><code class="highlight">{{ method.signature_html | safe }}</code></pre>
+    {% endif %}
+
+    {% if method.description_html %}
+    <div class="member-description">
+        {{ method.description_html | safe }}
+    </div>
+    {% endif %}
+
+    {% if method.params %}
+    <h6>Arguments</h6>
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for param in method.params %}
+            <tr>
+                <td><code>{{ param.arg_name }}</code></td>
+                <td>{% if param.type_name %}<code>{{ param.type_name }}</code>{% endif %}</td>
+                <td>{{ param.description }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+
+    {% if method.returns %}
+    <h6>Returns</h6>
+    <p>
+        {% if method.returns.type_name %}<code>{{ method.returns.type_name }}</code>{% endif %}
+        {% if method.returns.description %}– {{ method.returns.description }}{% endif %}
+    </p>
+    {% endif %}
+
+    {% if method.raises %}
+    <h6>Raises</h6>
+    <table>
+        <thead>
+            <tr>
+                <th>Exception</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for raises in method.raises %}
+            <tr>
+                <td><code>{{ raises.type_name }}</code></td>
+                <td>{{ raises.description }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+</div>
+{% endfor %}
+{% endif %}

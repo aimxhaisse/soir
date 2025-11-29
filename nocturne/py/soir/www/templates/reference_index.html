@@ -61,32 +61,42 @@
                             <td><a href="/reference/core">core</a></td>
                             <td>Core decorators and functions for live coding (@live, @loop, sleep, log)</td>
                         </tr>
-                        {% for module in modules %}
                         <tr>
-                            <td><a href="/reference/{{ module }}">{{ module }}</a></td>
-                            <td>
-                                {% if module == 'bpm' %}
-                                Tempo control and beat timing
-                                {% elif module == 'ctrls' %}
-                                Parameter controls and modulation
-                                {% elif module == 'tracks' %}
-                                Track management and routing
-                                {% elif module == 'fx' %}
-                                Audio effects and processing
-                                {% elif module == 'midi' %}
-                                MIDI input/output and control
-                                {% elif module == 'sampler' %}
-                                Sample playback and management
-                                {% elif module == 'rnd' %}
-                                Random number generation for musical variation
-                                {% elif module == 'errors' %}
-                                Error types and exception handling
-                                {% elif module == 'system' %}
-                                System utilities and configuration
-                                {% endif %}
-                            </td>
+                            <td><a href="/reference/bpm">bpm</a></td>
+                            <td>Tempo control and beat timing</td>
                         </tr>
-                        {% endfor %}
+                        <tr>
+                            <td><a href="/reference/ctrls">ctrls</a></td>
+                            <td>Parameter controls and modulation</td>
+                        </tr>
+                        <tr>
+                            <td><a href="/reference/errors">errors</a></td>
+                            <td>Error types and exception handling</td>
+                        </tr>
+                        <tr>
+                            <td><a href="/reference/fx">fx</a></td>
+                            <td>Audio effects and processing</td>
+                        </tr>
+                        <tr>
+                            <td><a href="/reference/midi">midi</a></td>
+                            <td>MIDI input/output and control</td>
+                        </tr>
+                        <tr>
+                            <td><a href="/reference/rnd">rnd</a></td>
+                            <td>Random number generation for musical variation</td>
+                        </tr>
+                        <tr>
+                            <td><a href="/reference/sampler">sampler</a></td>
+                            <td>Sample playback and management</td>
+                        </tr>
+                        <tr>
+                            <td><a href="/reference/system">system</a></td>
+                            <td>System utilities and configuration</td>
+                        </tr>
+                        <tr>
+                            <td><a href="/reference/tracks">tracks</a></td>
+                            <td>Track management and routing</td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
