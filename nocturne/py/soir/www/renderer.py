@@ -60,6 +60,7 @@ def render_member(member: dict[str, Any], md: Markdown) -> dict[str, Any]:
                 - type: Member type (function, class, decorator, etc.)
                 - signature: Function signature string (if callable)
                 - parsed: Parsed docstring object
+                - methods: List of method dictionaries (for classes)
         md: Markdown instance for rendering.
 
     Returns:
@@ -71,6 +72,7 @@ def render_member(member: dict[str, Any], md: Markdown) -> dict[str, Any]:
         - returns: Return value documentation
         - raises: List of raised exceptions
         - signature_html: Syntax-highlighted signature (if present)
+        - methods: List of rendered methods (for classes)
     """
     parsed = member["parsed"]
 
@@ -82,6 +84,7 @@ def render_member(member: dict[str, Any], md: Markdown) -> dict[str, Any]:
         "returns": parsed.returns,
         "raises": parsed.raises,
         "signature_html": None,
+        "methods": [],
     }
 
     # Highlight signature if present
@@ -89,6 +92,27 @@ def render_member(member: dict[str, Any], md: Markdown) -> dict[str, Any]:
         member_rendered["signature_html"] = highlight_signature(
             member["name"], member["signature"]
         )
+
+    # Render methods if this is a class
+    if member["type"] == "class" and "methods" in member:
+        for method in member["methods"]:
+            method_parsed = method["parsed"]
+            method_rendered = {
+                "name": method["name"],
+                "description_html": render_description(method_parsed, md),
+                "params": method_parsed.params,
+                "returns": method_parsed.returns,
+                "raises": method_parsed.raises,
+                "signature_html": None,
+            }
+
+            # Highlight method signature if present
+            if method["signature"]:
+                method_rendered["signature_html"] = highlight_signature(
+                    method["name"], method["signature"]
+                )
+
+            member_rendered["methods"].append(method_rendered)
 
     return member_rendered
 

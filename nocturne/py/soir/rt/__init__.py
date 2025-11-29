@@ -27,46 +27,6 @@ def setup():
 def kick():
     log('beat')
 ```
-
-Soir's facilities are organized in modules that are accessible from
-the global context. For example, to set the BPM, you can use
-`bpm.set(120)` without having to explicitly import the `bpm`
-module. The available modules are:
-
-- [bpm](/reference/bpm)
-- [ctrls](/reference/ctrls)
-- [tracks](/reference/tracks)
-- [fx](/reference/fx)
-- [midi](/reference/midi)
-- [errors](/reference/errors)
-- [sampler](/reference/sampler)
-- [rnd](/reference/rnd)
-
-# Cookbook
-
-## Minimalistic Example
-
-```python
-@live
-def setup():
-    bpm.set(120)
-
-    tracks.setup({
-        'sampler': tracks.mk_sampler(muted=False, volume=100),
-    })
-
-s = sampler.new('passage')
-
-@loop(track='sampler', beats=4)
-def kick():
-    for i in range(4):
-        s.play('kick')
-        sleep(1)
-```
-
-# Reference
-
-
 """
 
 from collections.abc import Callable

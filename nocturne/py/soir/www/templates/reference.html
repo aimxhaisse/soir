@@ -4,26 +4,7 @@
 <article class="reference-content">
     <h1>reference</h1>
 
-    {% if members and members|length > 3 %}
-    <nav class="toc-inline" id="toc">
-        {% if doc %}
-        <div class="toc-section">
-            <h4><a href="#overview">Overview</a></h4>
-        </div>
-        {% endif %}
-
-        {% for type, group in members|groupby('type') %}
-        <div class="toc-section">
-            <h4><a href="#section-{{ type }}">{{ type|capitalize }}s</a></h4>
-            <ul>
-                {% for member in group %}
-                <li><a href="#{{ member.name }}">{{ member.name }}</a></li>
-                {% endfor %}
-            </ul>
-        </div>
-        {% endfor %}
-    </nav>
-    {% endif %}
+    {% include "_toc.html" %}
 
     <div class="reference-main-content">
     {% if doc %}
@@ -102,6 +83,8 @@
                 </tbody>
             </table>
             {% endif %}
+
+            {% include "_class_methods.html" %}
 
                 <div class="back-to-toc">
                     <a href="#">↑ back to top</a>
