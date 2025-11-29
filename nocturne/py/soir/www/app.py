@@ -61,6 +61,23 @@ def create_app() -> Flask:
     """
     app = Flask(__name__)
 
+    # Add custom Jinja2 filter for truncating text
+    @app.template_filter("truncate_toc")
+    def truncate_toc(text: str, max_total: int = 14) -> str:
+        """Truncate text for TOC display with ellipsis.
+
+        Args:
+            text: Text to truncate.
+            max_total: Maximum total length including the '...' (default 14).
+
+        Returns:
+            Truncated text with '...' if longer than max_total, otherwise original text.
+        """
+        if len(text) <= max_total:
+            return text
+        # Reserve 3 characters for '...'
+        return text[: max_total - 3] + "..."
+
     # Create markdown renderer
     app.extensions["markdown"] = create_markdown_renderer()
 
