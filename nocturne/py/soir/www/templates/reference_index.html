@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block content %}
+<article class="reference-content">
+    <h1>reference</h1>
+
+    <nav class="toc-inline" id="toc">
+        <div class="toc-section">
+            <h4><a href="#philosophy">Philosophy</a></h4>
+        </div>
+        <div class="toc-section">
+            <h4><a href="#getting-started">Basics</a></h4>
+        </div>
+        <div class="toc-section">
+            <h4><a href="#modules">Modules</a></h4>
+        </div>
+    </nav>
+
+    <div class="reference-main-content">
+        <div id="philosophy" class="member-section">
+            <h2 class="section-header">PHILOSOPHY</h2>
+            <div class="module-doc">
+                <p>
+                    Soir is organized around the concept of <strong>live coding</strong> - writing and modifying code
+                    in real-time to create music. The API is designed to be minimal, expressive, and organized into
+                    focused modules that each handle a specific aspect of music creation.
+                </p>
+                <p>
+                    All modules are available globally when running Soir in live mode, so you can use them directly
+                    without imports. This design keeps your live coding sessions clean and focused on the music.
+                </p>
+            </div>
+        </div>
+
+        <div id="getting-started" class="member-section">
+            <h2 class="section-header">BASICS</h2>
+            <div class="module-doc">
+                <p>
+                    The best place to start is with the <strong><a href="/reference/core">core facilities</a></strong>,
+                    which provides the fundamental decorators and functions you'll use in every Soir session:
+                    Once you understand these core facilities, explore the modules below to add specific capabilities
+                    to your performances.
+                </p>
+            </div>
+        </div>
+
+        <div id="modules" class="member-section">
+            <h2 class="section-header">MODULES</h2>
+            <div class="module-doc">
+                <p>Each module provides focused functionality for different aspects of music creation:</p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Module</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><a href="/reference/core">core</a></td>
+                            <td>Core decorators and functions for live coding (@live, @loop, sleep, log)</td>
+                        </tr>
+                        {% for module in modules %}
+                        <tr>
+                            <td><a href="/reference/{{ module }}">{{ module }}</a></td>
+                            <td>
+                                {% if module == 'bpm' %}
+                                Tempo control and beat timing
+                                {% elif module == 'ctrls' %}
+                                Parameter controls and modulation
+                                {% elif module == 'tracks' %}
+                                Track management and routing
+                                {% elif module == 'fx' %}
+                                Audio effects and processing
+                                {% elif module == 'midi' %}
+                                MIDI input/output and control
+                                {% elif module == 'sampler' %}
+                                Sample playback and management
+                                {% elif module == 'rnd' %}
+                                Random number generation for musical variation
+                                {% elif module == 'errors' %}
+                                Error types and exception handling
+                                {% elif module == 'system' %}
+                                System utilities and configuration
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</article>
+{% endblock %}

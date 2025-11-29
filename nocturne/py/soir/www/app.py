@@ -90,6 +90,13 @@ def create_app() -> Flask:
     @app.route("/reference")
     def reference() -> str:
         """Render the reference index page."""
+        return render_template(
+            "reference_index.html", title="Reference", modules=PUBLIC_MODULES
+        )
+
+    @app.route("/reference/core")
+    def reference_core() -> str:
+        """Render the core facilities reference page."""
         # Extract documentation from soir.rt.__init__.py
         rt_data = extract_module_docs("rt", full_path="soir.rt")
 
@@ -99,7 +106,7 @@ def create_app() -> Flask:
 
         return render_template(
             "reference.html",
-            title="Reference",
+            title="Core Facilities - Reference",
             modules=PUBLIC_MODULES,
             doc=module_rendered["doc"],
             members=module_rendered["members"],

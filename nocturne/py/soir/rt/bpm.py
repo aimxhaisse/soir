@@ -1,29 +1,7 @@
 """
 
-The **bpm** module provides a way to set the tempo of the current
-session. The tempo is a global setting that affects all loops and
-samples, it is measured in beats per minute (BPM) and can be adjusted
-in real-time.
-
-# Cookbook
-
-## Set the tempo
-
-``` python
-bpm.set(120)
-```
-
-## Get the current tempo
-
-``` python
-tempo = bpm.get()
-```
-
-## Get the current beat
-
-``` python
-beat = bpm.beat()
-```
+The **bpm** module provides a way to set the tempo of the current session.
+The tempo is a global setting that affects all loops and samples, it is measured in beats per minute (BPM) and can be adjusted in real-time.
 
 # Reference
 """
@@ -43,6 +21,8 @@ def get() -> float:
     """Get the BPM. This function can only be called from the global
        scope.
 
+    @public
+
     Returns:
         The current BPM.
 
@@ -58,6 +38,8 @@ def get() -> float:
 def set(bpm: float) -> float:
     """Set the BPM. This function can only be called from the global
        scope.
+
+    @public
 
     Args:
         bpm: The new BPM.
@@ -76,6 +58,8 @@ def set(bpm: float) -> float:
 
 def beat() -> float:
     """Get the current beat.
+
+    @public
 
     Returns:
         The current beat.
