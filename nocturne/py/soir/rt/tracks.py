@@ -5,9 +5,7 @@ and effects. Once a track is created, loops can be scheduled on
 it. Tracks can be added & removed in real-time using the `setup()`
 function, existing tracks are untouched.
 
-# Cookbook
-
-## Setup tracks
+@public
 
 ```python
 tracks.setup({
@@ -17,14 +15,6 @@ tracks.setup({
     'melody': tracks.mk_sampler()
 })
 ```
-
-## Get current tracks
-
-``` python
-trks = tracks.layout()
-```
-
-# Reference
 """
 
 import json
@@ -53,6 +43,8 @@ from soir.rt._internals import (
 class Track:
     """Representation of a Soir track.
 
+    @public
+
     Attributes:
         name: The track name.
         instrument: The instrument type.
@@ -78,6 +70,8 @@ class Track:
 
 def layout() -> dict[str, Track]:
     """Get the current tracks.
+
+    @public
 
     Returns:
         dict[Track]: The current tracks.
@@ -108,6 +102,8 @@ def layout() -> dict[str, Track]:
 
 def setup(tracks: dict[str, Track]) -> bool:
     """Setup tracks.
+
+    @public
 
     Args:
         tracks (dict[str, Track]): The tracks to setup.
@@ -144,6 +140,8 @@ def mk(
 ) -> Track:
     """Creates a new track.
 
+    @public
+
     Args:
         instrument (str): The instrument type.
         muted (bool, optional): The muted state. Defaults to None.
@@ -171,6 +169,8 @@ def mk_sampler(
 ) -> Track:
     """Creates a new sampler track.
 
+    @public
+
     Args:
         muted (bool, optional): The muted state. Defaults to None.
         volume (float | Control): The volume in the [0.0, 1.0] range. Defaults to 1.0.
@@ -190,6 +190,8 @@ def mk_midi(
     fxs: dict[str, Any] | None = None,
 ) -> Track:
     """Creates a new midi track.
+
+    @public
 
     Args:
         muted (bool, optional): The muted state. Defaults to None.

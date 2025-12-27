@@ -4,9 +4,7 @@ tracks in the soir engine. Each track can have a set of effects with
 corresponding parameters, which are typically defined using the
 `tracks.setup()` function.
 
-# Cookbook
-
-## Setup tracks with effects
+@public
 
 ```python
 tracks.setup({
@@ -26,6 +24,8 @@ from soir.rt.ctrls import Control
 @dataclass
 class Fx:
     """Representation of a Soir FX.
+
+    @public
 
     Attributes:
         name: The name of the effect.
@@ -48,6 +48,8 @@ def mk(
 ) -> Fx:
     """Creates a new Fx.
 
+    @public
+
     Args:
         type (str): The effect type.
         mix (float, optional): The mix parameter of the effect. Defaults to None.
@@ -69,6 +71,8 @@ def mk_chorus(
 ) -> Fx:
     """Creates a new Chorus FX.
 
+    @public
+
     Args:
         time: The time parameter of the chorus effect. Defaults to 0.5.
         depth: The depth parameter of the chorus effect. Defaults to 0.5.
@@ -84,6 +88,8 @@ def mk_reverb(
     dry: float | Control = 0.25,
 ) -> Fx:
     """Creates a new Reverb FX.
+
+    @public
 
     Args:
         mix: The mix parameter of the chorus effect. Defaults to None.
@@ -101,6 +107,8 @@ def mk_lpf(
 ) -> Fx:
     """Creates a new Low Pass Filter FX.
 
+    @public
+
     Args:
         mix: The mix parameter of the low pass filter effect. Defaults to None.
         cutoff: The cutoff frequency of the low pass filter in the [0.0, 1.0] range. Defaults to 0.5.
@@ -115,6 +123,8 @@ def mk_hpf(
     resonance: float | Control = 0.5,
 ) -> Fx:
     """Creates a new High Pass Filter FX.
+
+    @public
 
     Args:
         mix: The mix parameter of the high pass filter effect. Defaults to None.

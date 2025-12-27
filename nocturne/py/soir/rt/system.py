@@ -1,39 +1,8 @@
 """
-
 The **system** module provides access to low-level facilities
 of the soir engine.
 
-# Cookbook
-
-## Get the current audio output devices
-
-``` python
-audio_out = system.get_audio_out_devices()
-```
-
-## Get the current audio output devices
-
-``` python
-audio_in = system.get_audio_in_devices()
-```
-
-## Get the current MIDI output devices
-
-``` python
-midi_out = system.get_midi_out_devices()
-```
-
-## Sets the force kill at exit
-``` python
-system.set_force_kill_at_shutdown(true)
-```
-
-## Prints the current informations about the system
-``` python
-system.info()
-```
-
-# Reference
+@public
 """
 
 from soir._bindings.rt import (
@@ -53,6 +22,8 @@ from soir.rt._system import (
 
 def record(file_path: str) -> bool:
     """Record audio to a WAV file.
+
+    @public
 
     This function starts recording all audio output to the specified WAV file.
     Recording will automatically stop if this function is not called in a
@@ -78,6 +49,8 @@ def record(file_path: str) -> bool:
 def get_audio_out_devices() -> list[tuple[int, str]]:
     """Get the current output audio devices.
 
+    @public
+    
     Returns:
         A list of audio output devices.
     """
@@ -87,6 +60,8 @@ def get_audio_out_devices() -> list[tuple[int, str]]:
 
 def get_audio_in_devices() -> list[tuple[int, str]]:
     """Get the current input audio devices.
+
+    @public
 
     Returns:
         A list of audio input devices.
@@ -98,6 +73,8 @@ def get_audio_in_devices() -> list[tuple[int, str]]:
 def get_midi_out_devices() -> list[tuple[int, str]]:
     """Get the current MIDI output devices.
 
+    @public
+
     Returns:
         A list of MIDI output devices.
     """
@@ -107,6 +84,8 @@ def get_midi_out_devices() -> list[tuple[int, str]]:
 
 def set_force_kill_at_shutdown(flag: bool) -> None:
     """Sends a kill signal to the Python thread at exit.
+
+    @public
 
     This is required under rare circumstances where the Python thread
     is blocked (like when serving documentation).
@@ -121,7 +100,13 @@ def set_force_kill_at_shutdown(flag: bool) -> None:
 
 
 def info() -> None:
-    """Prints the current layout of the system."""
+    """Prints the current layout of the system.
+
+    @public
+
+    Returns:
+        None
+    """
     log("=== Audio output devices ===")
     audio_out = get_audio_out_devices()
     for idx, name in audio_out:

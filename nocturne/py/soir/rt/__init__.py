@@ -8,7 +8,7 @@ facilities to create and manipulate audio tracks, and to interact with
 external synthesizers. There are two important concepts in Soir:
 
 - **Live** decorators ([`@live`](/reference/soir/#live) decorator)
-    that are executed each time the code is changed. They are used to
+    that are executed each time their code is changed. They are used to
     setup the environment, and to create tracks and instruments.
 
 - **Loop** decorators ([`@loop`](/reference/soir/#loop)

@@ -1,8 +1,8 @@
 """
-???+ info
+The sampler module can be used on loops running on tracks with
+instrument type set to `sampler`.
 
-    The sampler module can be used on loops running on tracks with
-    instrument type set to `sampler`.
+@public
 
 The **sampler** module provides a way to load samples and play them
 inside loops in an intuitive way. Once instantiated, a `Sampler` can
@@ -11,11 +11,7 @@ exact match of the sample name is found, the first matching sample is
 selected. The cost of creating and using a sampler is cheap so it is
 fine to have a lot of instances at once.
 
-# Cookbook
-
-## Play samples
-
-``` python
+```python
 s = sampler.new('808')
 
 @loop
@@ -24,20 +20,6 @@ def kick(beats=4):
     s.play('kick')
     sleep(1)
 ```
-
-## List available packs
-
-``` python
-packs = sampler.packs()
-```
-
-## List samples in a pack
-
-``` python
-samples = sampler.samples('808')
-```
-
-# Reference
 """
 
 from dataclasses import dataclass
@@ -67,6 +49,8 @@ from soir.rt._helpers import (
 def new(pack_name: str) -> "Sampler":
     """Creates a new sampler with samples from the designated pack.
 
+    @public
+
     Args:
         pack_name: The name of the sample pack to use.
     """
@@ -74,13 +58,16 @@ def new(pack_name: str) -> "Sampler":
 
 
 class Sampler:
+    """A sampler allows playing samples from a given sample pack.
+
+    @public
+
+    Use the shortcut `sampler.new()` to create a `Sampler`.
+    
+    """
 
     def __init__(self, pack_name: str):
         """Creates a new sampler with samples from the designated pack.
-
-        ???+ note
-
-            You can create a Sampler via the shortcut `n.sampler.new()`.
 
         Args:
             pack_name: The name of the sample pack to use.
@@ -106,6 +93,8 @@ class Sampler:
         example, 'kick' will match 'hard-kick'). If the selected
         sample is already being played, enqueues a new one, allowing
         to play simultaneously multiple times the same sample.
+
+        @public
 
         Args:
             name: The name of the sample.
@@ -150,6 +139,8 @@ class Sampler:
         currently played multiple times, the latest one is selected to
         stop (LIFO).
 
+        @public
+
         Args:
             name: The name of the sample.
         """
@@ -170,7 +161,10 @@ class Sampler:
 
 @dataclass
 class Sample:
-    """
+    """Represents a sample from a sample pack.
+
+    @public
+    
     A sample is a sound file that can be played by a sampler. It has a
     name, a pack, a path, and a duration. The name is the identifier
     used to play the sample, the pack is the name of the pack the
@@ -193,6 +187,8 @@ class Sample:
 def packs() -> list[str]:
     """Returns the list of available sample packs.
 
+    @public
+
     Returns:
         The list of loaded sample packs.
     """
@@ -201,6 +197,8 @@ def packs() -> list[str]:
 
 def samples(pack_name: str) -> list[Sample]:
     """Returns the list of samples available in the given pack.
+
+    @public
 
     Args:
         pack_name: The name of the sample pack.
@@ -217,6 +215,8 @@ def samples(pack_name: str) -> list[Sample]:
 class Kit:
     """A simple kit for playing patterns of samples.
 
+    @public
+    
     This class allows you to define a set of samples (or "plays") that can be
     triggered by characters, and then create sequences of these characters to
     play patterns.
@@ -245,6 +245,8 @@ class Kit:
     def __init__(self, sp: Sampler):
         """Initialize the Kit with a sampler instance.
 
+        @public
+
         Args:
             sp (sampler.Sampler): The sampler instance to use for playing samples.
         """
@@ -257,6 +259,8 @@ class Kit:
     def set(self, char: str, mkplay: Callable[[], dict[str, Any]]) -> None:
         """Set a character to a sample play function.
 
+        @public
+
         Args:
             char (str): The character that will trigger the sample.
             mkplay (callable): A function that returns a dictionary of sample parameters.
@@ -265,6 +269,8 @@ class Kit:
 
     def seq(self, flavor: str, sequences: list[str]) -> None:
         """Define a sequence of samples for a given flavor.
+
+        @public
 
         Args:
             flavor (str): The name of the sequence flavor.
@@ -279,6 +285,8 @@ class Kit:
 
     def play(self, flavor: str) -> None:
         """Play a sequence of samples defined by the flavor.
+
+        @public
 
         Args:
                 flavor (str): The name of the sequence flavor to play.

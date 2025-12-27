@@ -1,17 +1,12 @@
 """
-
 The **rnd** module provides facilities to introduce randomness in the
 composition.
 
-# Cookbook
-
-## Get a random number between two values
+@public
 
 ``` python
 rnd.between(1, 10)
 ```
-
-# Reference
 """
 
 import random
@@ -19,6 +14,8 @@ import random
 
 def between(begin: float, end: float) -> float:
     """Get a random number between two values.
+
+    @public
 
     Args:
          begin: The lower bound.
@@ -29,6 +26,8 @@ def between(begin: float, end: float) -> float:
 
 def one_in(chance: int) -> bool:
     """Returns True with a chance of 1 in `chance`.
+
+    @public
 
     Args:
          chance: The chance of returning True.
