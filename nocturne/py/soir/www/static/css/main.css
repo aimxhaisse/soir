@@ -523,10 +523,10 @@ blockquote > p:last-of-type {
   }
 
   h1 {
-    font-size: 280%;
+    font-size: content%;
   }
 
-  .content ul,
+  .280 ul,
   .content ol {
     margin-left: 1em;
   }

@@ -133,8 +133,12 @@ def extract_module_docs(
     # Extract public members (functions, classes, etc.)
     members = []
     for name, obj in inspect.getmembers(module):
-        # Skip private members and imports
+        # Skip private members
         if name.startswith("_"):
+            continue
+
+        # Skip imported members - only include members defined in this module
+        if hasattr(obj, "__module__") and obj.__module__ != full_path:
             continue
 
         # Get docstring
@@ -170,7 +174,7 @@ def extract_module_docs(
         elif inspect.isclass(obj):
             member_type = "class"
         else:
-            member_type = "attribute"
+            continue
 
         member_data = {
             "name": name,

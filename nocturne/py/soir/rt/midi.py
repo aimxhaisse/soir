@@ -2,7 +2,7 @@
 The **midi** module provides a way to communicate with external
 synthesizers.
 
-# Cookbook
+@public
 
 ``` python
 with midi.use_chan(1):
@@ -11,7 +11,6 @@ with midi.use_chan(1):
   midi.note_off(60)
 ```
 
-# Reference
 """
 
 from soir._bindings.rt import (
@@ -30,13 +29,15 @@ from soir.rt.errors import (
 class use_chan:
     """Context manager to set the MIDI channel to use.
 
+    @public
+
     `use_chan` can be used to send MIDI events to a specific channel. It
     can be used as a context manager to set the MIDI channel to use, or
     as a function from within a loop.
 
     Examples:
 
-    ``` python
+    ```python
     @loop(track='bass', beats=4)
     def my_loop:
         # This block will send MIDI events to channel 1 on the 'bass' track.
@@ -87,6 +88,9 @@ def _get_chan(chan: int | None = None) -> int:
 
 def note_on(note: int, velocity: int = 127, chan: int | None = None) -> None:
     """Send the MIDI note to the external synthesizer configured on the track.
+
+    @public
+    
     Args:
         note: The MIDI note to send.
         velocity: The velocity. Defaults to 127.
@@ -107,6 +111,8 @@ def note_on(note: int, velocity: int = 127, chan: int | None = None) -> None:
 
 def note_off(note: int, velocity: int = 127, chan: int | None = None) -> None:
     """Send the MIDI note off to the external synthesizer using the track id of the loop as MIDI channel.
+
+    @public
 
     Args:
         note: The MIDI note to stop.
@@ -130,6 +136,8 @@ def note(
     note: int, duration: float, velocity: int = 127, chan: int | None = None
 ) -> None:
     """Send the MIDI note on and off to the external synthesizer using the track id of the loop as MIDI channel.
+
+    @public
 
     Args:
         note: The MIDI note to send.
