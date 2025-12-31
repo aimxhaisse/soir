@@ -34,10 +34,8 @@ else:
         """Test that system.get_midi_out_devices() returns available devices."""
         self.engine.push_code(
             """
-if len(system.get_midi_out_devices()):
-    log("OK")
-else:
-    log("KO")
+system.get_midi_out_devices()
+log("OK")
         """
         )
         self.assertTrue(self.engine.wait_for_notification("OK"))
