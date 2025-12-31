@@ -496,7 +496,6 @@ blockquote > p:last-of-type {
   text-transform: lowercase;
 }
 
-.footer-container a,
 .footer-container p {
   display: inline-block;
   padding: var(--nav-item-padding);
