@@ -300,7 +300,6 @@ def generate_all_docs(module_names: list[str], cache: DocsCache) -> None:
             docs = extract_module_docs(module_name)
             cache.set(module_name, docs)
         except Exception as e:
-            # Store error information in cache
             cache.set(
                 module_name,
                 {
