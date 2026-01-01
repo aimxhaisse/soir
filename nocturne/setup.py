@@ -36,6 +36,7 @@ class CMakeBuild(build_ext):
             f"-DPython_EXECUTABLE={os.sys.executable}",
             "-DCMAKE_BUILD_TYPE=Release",
             "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON",
+            "-DCMAKE_CXX_STANDARD=17",
         ]
 
         if self.with_tests:
