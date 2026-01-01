@@ -6,3 +6,6 @@ dist
 __pycache__
 .claude
 *.log
+Dockerfile
+.*
+*.pyc

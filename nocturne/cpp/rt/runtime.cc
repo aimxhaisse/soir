@@ -3,6 +3,7 @@
 #include <absl/log/log.h>
 #include <absl/time/clock.h>
 #include <pthread.h>
+#include <signal.h>
 #include <pybind11/embed.h>
 
 #include <libremidi/libremidi.hpp>

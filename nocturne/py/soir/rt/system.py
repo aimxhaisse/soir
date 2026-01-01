@@ -50,7 +50,7 @@ def get_audio_out_devices() -> list[tuple[int, str]]:
     """Get the current output audio devices.
 
     @public
-    
+
     Returns:
         A list of audio output devices.
     """

@@ -63,7 +63,7 @@ class Sampler:
     @public
 
     Use the shortcut `sampler.new()` to create a `Sampler`.
-    
+
     """
 
     def __init__(self, pack_name: str):
@@ -164,7 +164,7 @@ class Sample:
     """Represents a sample from a sample pack.
 
     @public
-    
+
     A sample is a sound file that can be played by a sampler. It has a
     name, a pack, a path, and a duration. The name is the identifier
     used to play the sample, the pack is the name of the pack the
@@ -216,7 +216,7 @@ class Kit:
     """A simple kit for playing patterns of samples.
 
     @public
-    
+
     This class allows you to define a set of samples (or "plays") that can be
     triggered by characters, and then create sequences of these characters to
     play patterns.

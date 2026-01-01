@@ -90,7 +90,7 @@ def note_on(note: int, velocity: int = 127, chan: int | None = None) -> None:
     """Send the MIDI note to the external synthesizer configured on the track.
 
     @public
-    
+
     Args:
         note: The MIDI note to send.
         velocity: The velocity. Defaults to 127.
