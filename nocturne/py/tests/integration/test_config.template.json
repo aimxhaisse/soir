@@ -1,6 +1,6 @@
 {
   "dsp": {
-    "enable_output": {{ enable_output | default('false') }},
+    "enable_output": {{ enable_output | default(false) | lower }},
     "block_size": {{ block_size | default(4096) }},
     "sample_directory": "{{ sample_directory | default('.') }}",
     "sample_packs": []

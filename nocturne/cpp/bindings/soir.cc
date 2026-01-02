@@ -18,6 +18,7 @@ void Bind::PySoir(py::module_& m) {
       .def(
           "init",
           [](Soir& self, const std::string& cfg_path) {
+            py::gil_scoped_release release;
             auto status = self.Init(cfg_path);
             if (!status.ok()) {
               LOG(ERROR) << "Failed to initialize Soir: " << status.message();
@@ -30,6 +31,7 @@ void Bind::PySoir(py::module_& m) {
       .def(
           "start",
           [](Soir& self) {
+            py::gil_scoped_release release;
             auto status = self.Start();
             if (!status.ok()) {
               LOG(ERROR) << "Failed to start Soir: " << status.message();
@@ -42,6 +44,7 @@ void Bind::PySoir(py::module_& m) {
       .def(
           "stop",
           [](Soir& self) {
+            py::gil_scoped_release release;
             auto status = self.Stop();
             if (!status.ok()) {
               LOG(ERROR) << "Failed to stop Soir: " << status.message();
@@ -54,6 +57,7 @@ void Bind::PySoir(py::module_& m) {
       .def(
           "update_code",
           [](Soir& self, const std::string& code) {
+            py::gil_scoped_release release;
             auto status = self.UpdateCode(code);
             if (!status.ok()) {
               LOG(ERROR) << "Failed to update code: " << status.message();
