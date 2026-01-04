@@ -24,66 +24,28 @@ PUBLIC_MODULES = [
 ]
 
 
-def generate_docs_cache(app: Flask, cache: DocsCache) -> None:
-    """Generate documentation for all public modules and cache them.
-
-    This is called once on application startup to warm the cache.
-
-    Args:
-        app: Flask application instance for logging.
-        cache: DocsCache instance to store the generated documentation.
-    """
+def mk_docs(app: Flask, cache: DocsCache) -> None:
     app.logger.info("Generating API documentation...")
     for module_name in PUBLIC_MODULES:
-        try:
-            docs = extract_module_docs(module_name)
-            cache.set(module_name, docs)
-            app.logger.info(f"  ✓ Generated docs for {module_name}")
-        except Exception as e:
-            app.logger.error(f"  ✗ Failed to generate docs for {module_name}: {e}")
-            cache.set(
-                module_name,
-                {
-                    "name": module_name,
-                    "doc": f"Error generating documentation: {e}",
-                    "members": [],
-                },
-            )
-
+        docs = extract_module_docs(f"soir.rt.{module_name}")
+        cache.set(module_name, docs)
+        app.logger.info(f"  ✓ Generated docs for {module_name}")
     app.logger.info(f"Documentation generated for {len(cache)} modules")
 
 
 def create_app() -> Flask:
-    """Create and configure the Flask application.
-
-    Returns:
-        Configured Flask application instance.
-    """
     app = Flask(__name__)
 
-    # Add custom Jinja2 filter for truncating text
     @app.template_filter("truncate_toc")
     def truncate_toc(text: str, max_total: int = 14) -> str:
-        """Truncate text for TOC display with ellipsis.
-
-        Args:
-            text: Text to truncate.
-            max_total: Maximum total length including the '...' (default 14).
-
-        Returns:
-            Truncated text with '...' if longer than max_total, otherwise original text.
-        """
         if len(text) <= max_total:
             return text
-        # Reserve 3 characters for '...'
         return text[: max_total - 3] + "..."
 
-    # Create markdown renderer
     app.extensions["markdown"] = create_markdown_renderer()
 
-    # Create and populate documentation cache
     docs_cache = DocsCache()
-    generate_docs_cache(app, docs_cache)
+    mk_docs(app, docs_cache)
     app.extensions["docs_cache"] = docs_cache
 
     @app.route("/")
@@ -114,7 +76,7 @@ def create_app() -> Flask:
     @app.route("/reference/core")
     def reference_core() -> str:
         """Render the core facilities reference page."""
-        rt_data = extract_module_docs("rt", full_path="soir.rt")
+        rt_data = extract_module_docs("soir.rt")
         md = app.extensions["markdown"]
         module_rendered = render_module(rt_data, md)
 
@@ -155,7 +117,6 @@ def create_app() -> Flask:
 
     @app.errorhandler(404)
     def not_found(error: Exception) -> tuple[str, int]:
-        """Handle 404 errors."""
         return (
             render_template(
                 "page.html",
@@ -167,7 +128,6 @@ def create_app() -> Flask:
 
     @app.errorhandler(500)
     def server_error(error: Exception) -> tuple[str, int]:
-        """Handle 500 errors."""
         return (
             render_template(
                 "page.html",
@@ -178,14 +138,6 @@ def create_app() -> Flask:
         )
 
     def render_markdown(filename: str) -> Any:
-        """Load and render a markdown file.
-
-        Args:
-            filename: Name of the markdown file in the content directory.
-
-        Returns:
-            Rendered HTML content.
-        """
         content_dir = Path(__file__).parent / "content"
         file_path = content_dir / filename
 
