@@ -16,7 +16,7 @@
   --opacity-high: .7;
   --opacity-medium: .6;
   --opacity-low: .5;
-  --opacity-subtle: .4;
+  --opacity-subtle: .15;
 
   --hero-height: 60vh;
   --hero-padding-top: 6vmin;
@@ -90,6 +90,12 @@ h1, h2, h3, h4, h5, h6 {
 h1 {
   font-size: 360%;
   margin: 10vmin 0 1rem;
+}
+
+small {
+    font-size: 60%;
+    font-weight: normal;
+    opacity: var(--opacity-subtle);
 }
 
 /* Header with background */

@@ -65,7 +65,7 @@ def extract_module_docs(module_path: str) -> ModuleDoc:
         if not is_public(doc):
             continue
 
-        parsed = parse_docstring(doc)
+        parsed = parse_docstring(doc.replace('@public', ''))
 
         signature = None
         if callable(obj):
@@ -96,7 +96,7 @@ def extract_module_docs(module_path: str) -> ModuleDoc:
                 method_doc = inspect.getdoc(method_obj)
                 if not is_public(method_doc):
                     continue
-                method_parsed = parse_docstring(method_doc)
+                method_parsed = parse_docstring(method_doc.replace('@public', ''))
 
                 method_signature = None
                 if callable(method_obj):
