@@ -1,4 +1,4 @@
-<h1>soir
+<h1>soir <small>live coding environment</small>
   <div class="haiku-container">
     <i>
       No path but this—<br />
@@ -23,5 +23,3 @@ def example(beats=4):
         log(f'Welcome to Soir')
         sleep(1)
 ```
-
-## Manifesto
