@@ -4,13 +4,15 @@ This module handles rendering parsed documentation into HTML,
 including syntax highlighting and markdown conversion.
 """
 
-from typing import Any
+from typing import Any, cast
 
 from docstring_parser import Docstring
 from markdown import Markdown
 from pygments import highlight  # type: ignore[import-untyped]
 from pygments.formatters import HtmlFormatter  # type: ignore[import-untyped]
 from pygments.lexers import PythonLexer  # type: ignore[import-untyped]
+
+from .docs import MemberDoc, ModuleDoc
 
 
 def highlight_signature(name: str, signature: str) -> str:
@@ -51,96 +53,75 @@ def render_description(parsed: Docstring, md: Markdown) -> str:
     return md.convert(full_desc) if full_desc else ""
 
 
-def render_member(member: dict[str, Any], md: Markdown) -> dict[str, Any]:
+def render_member(member: MemberDoc, md: Markdown) -> dict[str, Any]:
     """Render a single member (function, class, etc.) to HTML.
 
     Args:
-        member: Dictionary containing member data with keys:
-                - name: Member name
-                - type: Member type (function, class, decorator, etc.)
-                - signature: Function signature string (if callable)
-                - parsed: Parsed docstring object
-                - methods: List of method dictionaries (for classes)
+        member: MemberDoc containing member documentation.
         md: Markdown instance for rendering.
 
     Returns:
-        Dictionary with rendered HTML fields:
-        - name: Member name
-        - type: Member type
-        - description_html: Rendered description
-        - params: List of parameter documentation
-        - returns: Return value documentation
-        - raises: List of raised exceptions
-        - signature_html: Syntax-highlighted signature (if present)
-        - methods: List of rendered methods (for classes)
+        Dictionary with rendered HTML fields.
     """
-    parsed = member["parsed"]
-
     member_rendered = {
-        "name": member["name"],
-        "type": member["type"],
-        "description_html": render_description(parsed, md),
-        "params": parsed.params,
-        "returns": parsed.returns,
-        "raises": parsed.raises,
+        "name": member.name,
+        "type": member.type,
+        "description_html": render_description(member.parsed, md),
+        "params": member.parsed.params,
+        "returns": member.parsed.returns,
+        "raises": member.parsed.raises,
         "signature_html": None,
         "methods": [],
     }
 
     # Highlight signature if present
-    if member["signature"]:
+    if member.signature:
         member_rendered["signature_html"] = highlight_signature(
-            member["name"], member["signature"]
+            member.name, member.signature
         )
 
     # Render methods if this is a class
-    if member["type"] == "class" and "methods" in member:
-        for method in member["methods"]:
-            method_parsed = method["parsed"]
+    methods_list = cast(list[dict[str, Any]], member_rendered["methods"])
+    if member.type == "class" and member.methods:
+        for method in member.methods:
             method_rendered = {
-                "name": method["name"],
-                "description_html": render_description(method_parsed, md),
-                "params": method_parsed.params,
-                "returns": method_parsed.returns,
-                "raises": method_parsed.raises,
+                "name": method.name,
+                "description_html": render_description(method.parsed, md),
+                "params": method.parsed.params,
+                "returns": method.parsed.returns,
+                "raises": method.parsed.raises,
                 "signature_html": None,
             }
 
             # Highlight method signature if present
-            if method["signature"]:
+            if method.signature:
                 method_rendered["signature_html"] = highlight_signature(
-                    method["name"], method["signature"]
+                    method.name, method.signature
                 )
 
-            member_rendered["methods"].append(method_rendered)
+            methods_list.append(method_rendered)
 
     return member_rendered
 
 
-def render_module(module_data: dict[str, Any], md: Markdown) -> dict[str, Any]:
+def render_module(module_data: ModuleDoc, md: Markdown) -> dict[str, Any]:
     """Render a complete module's documentation to HTML.
 
     Args:
-        module_data: Dictionary containing module data from extract_module_docs:
-                     - name: Module name
-                     - parsed: Parsed module docstring
-                     - members: List of member dictionaries
+        module_data: ModuleDoc containing module documentation.
         md: Markdown instance for rendering.
 
     Returns:
-        Dictionary with rendered HTML fields:
-        - name: Module name
-        - doc: Rendered module description
-        - members: List of rendered members
+        Dictionary with rendered HTML fields.
     """
-    module_doc_html = render_description(module_data["parsed"], md)
+    module_doc_html = render_description(module_data.parsed, md)
 
     members_rendered = []
-    for member in module_data["members"]:
+    for member in module_data.members:
         members_rendered.append(render_member(member, md))
 
     return {
-        "name": module_data["name"],
+        "name": module_data.name,
         "doc": module_doc_html,
         "members": members_rendered,
     }
