@@ -1,13 +1,16 @@
 _default:
     @just --list
 
-# Install or update dependencies
+# Create virtual environment and install Python
 setup:
-    uv python install 3.14t
-    uv sync --all-extras
+    uv python install 3.14.2t
+    uv venv --python 3.14.2t --python-preference only-managed .venv
+    .venv/bin/python -m venv --copies --clear .venv
 
 # Clean build files
 clean:
+    #!/usr/bin/env bash
+
     rm -rf build/ dist/ *.egg-info/
     find . -name "*.pyc" -delete
     find . -name "__pycache__" -delete
@@ -15,6 +18,7 @@ clean:
 # Format code & check code
 check:
     #!/usr/bin/env bash
+
     uv run black .
     uv run ruff check . --preview
     uv run mypy py
@@ -22,10 +26,10 @@ check:
     clang-format -i $(find cpp -name '*.cc') $(find cpp -name '*.hh')
     run-clang-tidy -p build/cmake -quiet -- -std=c++17
 
-# Build with C++ tests
+# Build C++ extension and install dependencies
 build:
+    uv pip install .[dev]
     uv run python setup.py build_ext --with-tests
-    uv pip install -e .
 
 # Run unit tests only
 test-unit:
@@ -42,21 +46,23 @@ test:
     just test-integration
 
 # Create a distributable package
-package: clean
+package:
     #!/usr/bin/env bash
-    soir_version=$(grep '^version =' pyproject.toml | awk '// { print $3; }' | tr -d '"')
-    python_version=$(grep '^requires-python = "==' pyproject.toml | awk '// { print $3; }' | tr -d '"' | tr -d '=')
-    virtualenv=dist/.venv
+    set -e
+
+    version=$(grep '^version =' pyproject.toml | awk '{print $3}' | tr -d '"')
+    tarball="dist/soir-${version}-{{arch()}}-{{os()}}.tar.gz"
 
     rm -rf dist
-    mkdir -p dist/{etc,bin}
+    mkdir -p dist/soir
 
-    uv python install ${python_version}
-    uv run pip install --link-mode clone
-    uv run python -m build --wheel
-    py=$(uv python find ${python_version})
-    $py -m venv --copies ${virtualenv}
+    cp -rL .venv dist/soir/
+    cp -r bin dist/soir/
 
-    cp bin/soir dist/bin/soir
+    python_home=$(.venv/bin/python -c "import sys; print(sys.base_prefix)")
+    mkdir -p dist/soir/.venv/lib
+    cp "$python_home"/lib/libpython3.14t.* dist/soir/.venv/lib/ 2>/dev/null || true
 
-    tar -czf dist/soir-${soir_version}-{{arch()}}_{{os()}}.tar.gz -C dist bin etc .venv
+    dist/soir/bin/soir --help > /dev/null
+
+    tar -czf "${tarball}" -C dist soir

@@ -1,6 +1,6 @@
 version = 1
 revision = 3
-requires-python = "==3.14.0"
+requires-python = "==3.14.2"
 
 [[package]]
 name = "annotated-types"
@@ -313,6 +313,15 @@ wheels = [
 ]
 
 [[package]]
+name = "pip"
+version = "25.3"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/fe/6e/74a3f0179a4a73a53d66ce57fdb4de0080a8baa1de0063de206d6167acc2/pip-25.3.tar.gz", hash = "sha256:8d0538dbbd7babbd207f261ed969c65de439f6bc9e5dbd3b3b9a77f25d95f343", size = 1803014, upload-time = "2025-10-25T00:55:41.394Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/44/3c/d717024885424591d5376220b5e836c2d5293ce2011523c9de23ff7bf068/pip-25.3-py3-none-any.whl", hash = "sha256:9655943313a94722b7774661c21049070f6bbb0a1516bf02f7c8d5d9201514cd", size = 1778622, upload-time = "2025-10-25T00:55:39.247Z" },
+]
+
+[[package]]
 name = "platformdirs"
 version = "4.4.0"
 source = { registry = "https://pypi.org/simple" }
@@ -520,6 +529,7 @@ dependencies = [
     { name = "markdown" },
     { name = "markdown-it-py" },
     { name = "pdoc" },
+    { name = "pip" },
     { name = "pydantic" },
     { name = "pygments" },
     { name = "pytest-timeout" },
@@ -550,6 +560,7 @@ requires-dist = [
     { name = "markdown-it-py", specifier = ">=4.0.0" },
     { name = "mypy", marker = "extra == 'dev'", specifier = ">=1.18.2" },
     { name = "pdoc", specifier = ">=15.0.4" },
+    { name = "pip", specifier = ">=25.3" },
     { name = "pydantic", specifier = ">=2.12.0" },
     { name = "pygments", specifier = ">=2.19.2" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.4.2" },
