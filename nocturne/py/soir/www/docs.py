@@ -6,7 +6,6 @@ parsing docstrings, and building structured documentation data.
 
 import importlib
 import inspect
-from typing import Any
 
 from docstring_parser import Docstring, parse as parse_docstring
 from pydantic import BaseModel, ConfigDict, Field
@@ -39,9 +38,7 @@ class ModuleDoc(BaseModel):
     members: list[MemberDoc]
 
 
-def is_public(doc: str | None) -> bool:
-    if doc is None:
-        return False
+def is_public(doc: str) -> bool:
     return "@public" in doc
 
 
@@ -49,7 +46,7 @@ def extract_module_docs(module_path: str) -> ModuleDoc:
     module = importlib.import_module(module_path)
 
     module_doc_raw = inspect.getdoc(module)
-    module_parsed = parse_docstring(module_doc_raw)
+    module_parsed = parse_docstring(str(module_doc_raw))
 
     members = []
     for name, obj in inspect.getmembers(module):
@@ -62,10 +59,10 @@ def extract_module_docs(module_path: str) -> ModuleDoc:
             continue
 
         doc = inspect.getdoc(obj)
-        if not is_public(doc):
+        if doc is None or not is_public(doc):
             continue
 
-        parsed = parse_docstring(doc.replace('@public', ''))
+        parsed = parse_docstring(doc.replace("@public", ""))
 
         signature = None
         if callable(obj):
@@ -94,9 +91,9 @@ def extract_module_docs(module_path: str) -> ModuleDoc:
                     continue
 
                 method_doc = inspect.getdoc(method_obj)
-                if not is_public(method_doc):
+                if method_doc is None or not is_public(method_doc):
                     continue
-                method_parsed = parse_docstring(method_doc.replace('@public', ''))
+                method_parsed = parse_docstring(method_doc.replace("@public", ""))
 
                 method_signature = None
                 if callable(method_obj):
@@ -126,7 +123,7 @@ def extract_module_docs(module_path: str) -> ModuleDoc:
         members.append(member_data)
 
     return ModuleDoc(
-        name=module_path.split('.')[0],
+        name=module_path.split(".")[0],
         full_path=module_path,
         parsed=module_parsed,
         members=members,
