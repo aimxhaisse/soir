@@ -11,7 +11,7 @@ setup:
 clean:
     #!/usr/bin/env bash
 
-    rm -rf build/ dist/ *.egg-info/
+    rm -rf build/ .dist/ *.egg-info/
     find . -name "*.pyc" -delete
     find . -name "__pycache__" -delete
 
@@ -51,18 +51,18 @@ package:
     set -e
 
     version=$(grep '^version =' pyproject.toml | awk '{print $3}' | tr -d '"')
-    tarball="dist/soir-${version}-{{arch()}}-{{os()}}.tar.gz"
+    tarball="soir-${version}-{{arch()}}-{{os()}}.tar.gz"
 
-    rm -rf dist
-    mkdir -p dist/soir
+    rm -rf .dist
+    mkdir -p .dist/soir
 
-    cp -rL .venv dist/soir/
-    cp -r bin dist/soir/
+    cp -rL .venv .dist/soir/
+    cp -r bin .dist/soir/
 
     python_home=$(.venv/bin/python -c "import sys; print(sys.base_prefix)")
-    mkdir -p dist/soir/.venv/lib
-    cp "$python_home"/lib/libpython3.14t.* dist/soir/.venv/lib/ 2>/dev/null || true
+    mkdir -p .dist/soir/.venv/lib
+    cp "$python_home"/lib/libpython3.14t.* .dist/soir/.venv/lib/ 2>/dev/null || true
 
-    dist/soir/bin/soir --help > /dev/null
+    .dist/soir/bin/soir --help > /dev/null
 
-    tar -czf "${tarball}" -C dist soir
+    tar -czf "${tarball}" -C .dist soir
