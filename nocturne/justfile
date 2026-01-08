@@ -4,14 +4,14 @@ _default:
 # Create virtual environment and install Python
 setup:
     uv python install 3.14.2t
-    uv venv --python 3.14.2t --python-preference only-managed .venv
-    .venv/bin/python -m venv --copies --clear .venv
+    uv venv --python 3.14.2t --relocatable
+    #.venv/bin/python -m venv --copies --clear .venv
 
 # Clean build files
 clean:
     #!/usr/bin/env bash
 
-    rm -rf build/ .dist/ *.egg-info/
+    rm -rf build/ .dist/ *.egg-info/ .venv/
     find . -name "*.pyc" -delete
     find . -name "__pycache__" -delete
 
@@ -56,9 +56,9 @@ package:
     rm -rf .dist
     mkdir -p .dist/soir
 
-    cp -rL .venv .dist/soir/
-    cp -r bin .dist/soir/
+    cp -rL .venv .dist/soir
 
+    cp -R etc bin .dist/soir/
     python_home=$(.venv/bin/python -c "import sys; print(sys.base_prefix)")
     mkdir -p .dist/soir/.venv/lib
     cp "$python_home"/lib/libpython3.14t.* .dist/soir/.venv/lib/ 2>/dev/null || true

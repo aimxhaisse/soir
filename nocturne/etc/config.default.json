@@ -1,0 +1,12 @@
+{
+    "dsp": {
+        "enable_output": true,
+        "block_size": 4096,
+        "sample_directory": "${SOIR_DIR}/lib/samples",
+        "sample_packs": []
+    },
+    "live": {
+        "directory": ".",
+        "initial_bpm": 130
+    }
+}

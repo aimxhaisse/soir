@@ -1,6 +1,6 @@
 .venv
+.dist
 build
-dist
 *.egg-info
 *.so
 __pycache__
