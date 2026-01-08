@@ -24,7 +24,7 @@ nocturne/
 │   └── tests/              # C++ unit tests (GoogleTest)
 ├── py/                     # Python package
 │   ├── soir/               # Main package
-│   │   ├── cli/            # CLI commands (live, www)
+│   │   ├── cli/            # CLI commands (session, www)
 │   │   ├── rt/             # Runtime Python API
 │   │   ├── www/            # Flask web application
 │   │   ├── app.py          # Main entry point (typer)
@@ -55,11 +55,12 @@ uv run python -m soir.module
 
 # Run CLI commands
 uv run soir                 # Show help
-uv run soir live            # Live coding mode
+uv run soir session mk demo # Create new session
+uv run soir session run demo # Run session
 uv run soir www             # Start web interface
 
 # Or use the wrapper script
-./bin/soir live
+./bin/soir session run demo
 ```
 
 ## Build System
@@ -143,7 +144,7 @@ just package                # Create distributable package
 2. **Build** if C++ changed: `just build`
 3. **Format/lint**: `just check`
 4. **Test**: `just test` or specific test commands
-5. **Run**: `uv run soir live` or `./bin/soir live`
+5. **Run**: `uv run soir session run <path>` or `./bin/soir session run <path>`
 
 ## Important Notes
 
