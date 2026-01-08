@@ -1,13 +1,13 @@
 import typer
 
-from soir.cli.live import live_app
+from soir.cli.session import session_app
 from soir.cli.www import www_app
 
 
 app = typer.Typer()
 
 
-app.add_typer(live_app, name="live")
+app.add_typer(session_app, name="session")
 app.add_typer(www_app, name="www")
 
 

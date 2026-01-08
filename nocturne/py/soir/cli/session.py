@@ -5,6 +5,8 @@ import signal
 import typer
 from typing import Any
 import threading
+import json
+import shutil
 
 from soir.config import Config
 from soir.watcher import Watcher
@@ -13,18 +15,18 @@ import soir._bindings as bindings
 import soir._bindings.logging as logging
 
 
-live_app = typer.Typer(help="Run and configure live session.")
+session_app = typer.Typer(help="Create and manage Soir sessions.")
 
 
-@live_app.callback(invoke_without_command=True)
+@session_app.callback(invoke_without_command=True)
 def main(ctx: typer.Context) -> None:
     if ctx.invoked_subcommand is None:
         typer.echo(ctx.get_help())
 
 
-@live_app.command()
+@session_app.command()
 def run(path: Path, verbose: bool = False) -> None:
-    """Run a Soir live session from the given path."""
+    """Run a Soir session from the given path."""
     if not path.is_dir():
         typer.echo(f"Error: The path '{path}' is not a valid directory.", err=True)
         raise typer.Exit(1)
@@ -76,3 +78,34 @@ def run(path: Path, verbose: bool = False) -> None:
     soir.stop()
 
     logging.shutdown()
+
+
+@session_app.command()
+def mk(name: str) -> None:
+    """Create a new session directory structure."""
+    if not name or "/" in name or "\\" in name or name.startswith("."):
+        typer.echo("Error: Invalid session name.", err=True)
+        raise typer.Exit(1)
+
+    session_path = Path(name)
+
+    if session_path.exists():
+        typer.echo(f"Error: Session '{name}' already exists.", err=True)
+        raise typer.Exit(1)
+
+    try:
+        (session_path / "etc").mkdir(parents=True)
+        (session_path / "lib" / "samples").mkdir(parents=True)
+        (session_path / "var" / "log").mkdir(parents=True)
+
+        soir_dir = os.environ.get("SOIR_DIR", os.getcwd())
+        config_template = Path(soir_dir) / "etc" / "config.default.json"
+        live_template = Path(soir_dir) / "etc" / "live.default.py"
+
+        shutil.copy(config_template, session_path / "etc" / "config.json")
+        shutil.copy(live_template, session_path / "live.py")
+
+        typer.echo(f"Session '{name}' created at {session_path}")
+    except (OSError, FileNotFoundError) as e:
+        typer.echo(f"Error: {e}", err=True)
+        raise typer.Exit(1)
