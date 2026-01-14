@@ -1,0 +1,88 @@
+/* Textual CSS for Soir TUI */
+
+/* Global scrollbar styling */
+* {
+    scrollbar-background: #0f172a;
+    scrollbar-color: #2563eb;
+    scrollbar-color-hover: #3b82f6;
+    scrollbar-color-active: #60a5fa;
+}
+
+/* Header styling */
+HeaderWidget {
+    dock: top;
+    height: 7;
+    background: #0a0e27;
+    color: #e0e7ff;
+    content-align: center middle;
+}
+
+/* Main container layout */
+#main-container {
+    height: 1fr;
+}
+
+#left-pane {
+    width: 60%;
+}
+
+#right-pane {
+    width: 40%;
+}
+
+/* Command shell styling */
+CommandShellWidget {
+    height: 100%;
+    border: solid #2563eb;
+    background: #0a0e27;
+}
+
+#command-output {
+    height: 1fr;
+    scrollbar-gutter: stable;
+    background: #0a0e27;
+    padding: 1;
+}
+
+#command-input {
+    height: 3;
+    border-top: double #3b82f6;
+    border-bottom: none;
+    border-left: none;
+    border-right: none;
+    padding: 0 1;
+    background: #141b3d;
+}
+
+/* Info panel styling */
+InfoPanelWidget {
+    height: 100%;
+    border: solid #2563eb;
+    background: #0a0e27;
+    color: #e0e7ff;
+    padding: 1 2;
+    content-align: left top;
+}
+
+/* Log viewer styling */
+LogViewerWidget {
+    dock: bottom;
+    height: 50%;
+    border-top: double #3b82f6;
+    background: #0a0e27;
+    color: #e0e7ff;
+}
+
+/* Footer styling */
+Footer {
+    background: #0a0e27;
+}
+
+Footer > .footer--highlight {
+    background: #2563eb;
+}
+
+Footer > .footer--key {
+    background: #3b82f6;
+    color: #ffffff;
+}

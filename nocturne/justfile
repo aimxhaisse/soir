@@ -5,7 +5,6 @@ _default:
 setup:
     uv python install 3.14.2t
     uv venv --python 3.14.2t --relocatable
-    #.venv/bin/python -m venv --copies --clear .venv
 
 # Clean build files
 clean:
