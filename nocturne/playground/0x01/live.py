@@ -173,3 +173,5 @@ def bass():
         midi.note_on(40)
         sleep(1)
         midi.note_off(40)
+
+log("OK")

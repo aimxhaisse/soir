@@ -25,12 +25,28 @@ def main(ctx: typer.Context) -> None:
 
 
 @session_app.command()
-def run(path: Path, verbose: bool = False) -> None:
+def run(path: Path, verbose: bool = False, no_tui: bool = False) -> None:
     """Run a Soir session from the given path."""
     if not path.is_dir():
         typer.echo(f"Error: The path '{path}' is not a valid directory.", err=True)
         raise typer.Exit(1)
 
+    if no_tui:
+        _run_blocking(path, verbose)
+    else:
+        _run_tui(path, verbose)
+
+
+def _run_tui(path: Path, verbose: bool) -> None:
+    """Run session with TUI interface."""
+    from soir.cli.tui import SoirTuiApp
+
+    app = SoirTuiApp(path, verbose)
+    app.run()
+
+
+def _run_blocking(path: Path, verbose: bool) -> None:
+    """Run session with blocking CLI interface (legacy mode)."""
     os.chdir(str(path))
 
     cfg_path = "etc/config.json"
