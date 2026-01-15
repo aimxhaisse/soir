@@ -3,7 +3,7 @@
 :root {
   --fontstack: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
   --fontstack-mono: Menlo, Consolas, monospace;
-  --font-size: 1.6vw;
+  --font-size: clamp(14px, 1.6vw, 22px);
   --font-scale: 1;
   --font-features: "halt", "cv01", "cv02", "cv03";
   --line-height: 1.428571429;
@@ -176,6 +176,12 @@ a:focus {
   text-decoration: underline;
 }
 
+a:focus-visible {
+  outline: 2px solid var(--link-color);
+  outline-offset: 2px;
+  text-decoration: none;
+}
+
 /* Navigation */
 .navigation {
   padding-top: var(--nav-padding);
@@ -229,6 +235,7 @@ a:focus {
 
 .content ul li,
 .content ol li {
+  position: relative;
   line-height: var(--line-height-content);
 }
 
@@ -381,7 +388,35 @@ blockquote > p:last-of-type {
   position: relative;
 }
 
-/* Table of Contents */
+/* Table of Contents - Shared styles */
+.toc ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.toc li {
+  margin: 0 0 0.4em 0;
+  line-height: 1.5;
+}
+
+.toc li::before {
+  content: none !important;
+  display: none !important;
+}
+
+.toc a {
+  color: var(--text-color);
+  font-weight: normal;
+  opacity: var(--opacity-medium);
+}
+
+.toc a:hover {
+  opacity: 1;
+  color: var(--link-color);
+}
+
+/* Desktop TOC - sticky sidebar */
 .toc-inline {
   position: sticky;
   top: 25px;
@@ -397,7 +432,6 @@ blockquote > p:last-of-type {
   overflow-y: auto;
 }
 
-/* Hide TOC on smaller screens */
 @media (max-width: 1400px) {
   .toc-inline {
     display: none;
@@ -428,30 +462,6 @@ blockquote > p:last-of-type {
 .toc-section h4 a:hover {
   opacity: var(--opacity-high);
   text-decoration: none;
-}
-
-.toc-inline ul {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.toc-inline li {
-  margin: 0 0 0.3rem 0;
-  line-height: 1.6;
-}
-
-.toc-inline li::before {
-  content: none !important;
-}
-
-.toc-inline a {
-  opacity: var(--opacity-medium);
-}
-
-.toc-inline a:hover {
-  opacity: 1;
-  color: var(--link-color);
 }
 
 /* Back to TOC link */
@@ -528,10 +538,10 @@ blockquote > p:last-of-type {
   }
 
   h1 {
-    font-size: content%;
+    font-size: 280%;
   }
 
-  .280 ul,
+  .content ul,
   .content ol {
     margin-left: 1em;
   }
@@ -550,5 +560,52 @@ blockquote > p:last-of-type {
 @media (max-width: 400px) {
   :root {
     --font-scale: 3.2;
+  }
+}
+
+/* Reduced motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Skip link - visually hidden until focused */
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 0;
+  z-index: 1000;
+  padding: 1em var(--space-body);
+  background: var(--bg-color);
+  color: var(--link-color);
+  font-weight: bold;
+  text-decoration: none;
+  transition: top 0.1s ease;
+}
+
+.skip-link:focus {
+  top: 0;
+  outline: 2px solid var(--link-color);
+  outline-offset: -2px;
+}
+
+/* Mobile TOC - visible on smaller screens */
+.toc-mobile {
+  display: none;
+}
+
+@media (max-width: 1400px) {
+  .toc-mobile {
+    display: block;
+    margin: 6vmin 0 4vmin;
+    border-left: 4px solid var(--text-color-5);
+    padding-left: 1.5rem;
+    font-size: 90%;
   }
 }
