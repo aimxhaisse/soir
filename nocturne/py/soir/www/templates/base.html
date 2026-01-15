@@ -8,7 +8,9 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/pygments.css') }}">
 </head>
 <body>
-    <nav class="navigation">
+    <a href="#main" class="skip-link">Skip to content</a>
+
+    <nav class="navigation" aria-label="Main navigation">
         <div class="nav-container">
             <a href="{{ url_for('home') }}" class="nav-link">home</a>
             <a href="{{ url_for('quickstart') }}" class="nav-link">quickstart</a>
@@ -17,13 +19,13 @@
         </div>
     </nav>
 
-    <main class="content">
+    <main class="content" id="main">
         {% block content %}{% endblock %}
     </main>
 
     <footer class="footer">
         <div class="footer-container">
-            <p>soir — <i>live-coding environment</i><br />by <a href="https://mxs.sbrk.org">mxs</a></p>
+            <p>soir — <i>live-coding environment</i><br />by <a href="https://mxs.sbrk.org" rel="noopener">mxs</a></p>
         </div>
     </footer>
 </body>

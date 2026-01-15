@@ -42,7 +42,7 @@ void FileSink::Send(const absl::LogEntry& entry) {
   std::filesystem::path source_path(entry.source_filename());
   std::string source_file = source_path.filename().string();
 
-  log_file_ << timestamp << severity << " [" << source_file << ":"
+  log_file_ << timestamp << " " << severity << " [" << source_file << ":"
             << entry.source_line() << "] " << formatted_log << std::endl;
   log_file_.flush();
 }

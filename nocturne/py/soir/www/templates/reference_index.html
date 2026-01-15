@@ -4,7 +4,8 @@
 <article class="reference-content">
     <h1>reference</h1>
 
-    <nav class="toc-inline" id="toc">
+    {# Desktop TOC #}
+    <nav class="toc toc-inline" id="toc" aria-label="Table of contents">
         <div class="toc-section">
             <h4><a href="#philosophy">Philosophy</a></h4>
         </div>
@@ -14,6 +15,15 @@
         <div class="toc-section">
             <h4><a href="#modules">Modules</a></h4>
         </div>
+    </nav>
+
+    {# Mobile TOC #}
+    <nav class="toc toc-mobile" aria-label="Table of contents">
+        <ul>
+            <li><a href="#philosophy">Philosophy</a></li>
+            <li><a href="#getting-started">Basics</a></li>
+            <li><a href="#modules">Modules</a></li>
+        </ul>
     </nav>
 
     <div class="reference-main-content">

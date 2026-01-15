@@ -13,6 +13,7 @@ clean:
     rm -rf build/ .dist/ *.egg-info/ .venv/
     find . -name "*.pyc" -delete
     find . -name "__pycache__" -delete
+    find py -name "*.so" -delete
 
 # Format code & check code
 check:
@@ -28,7 +29,7 @@ check:
 # Build C++ extension and install dependencies
 build:
     uv pip install .[dev]
-    uv run python setup.py build_ext --with-tests
+    uv run python setup.py build_ext --inplace --with-tests
 
 # Run unit tests only
 test-unit:
