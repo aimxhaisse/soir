@@ -89,3 +89,17 @@ class ConfigurationError(SoirException):
     """
 
     pass
+
+
+class SamplePackNotFoundException(SoirException):
+    """Raised when trying to load a non-existing sample pack.
+
+    @public
+
+    Sample packs are loaded once at the initialization of the session,
+    trying to refer to a non-loaded pack triggers this
+    exception. Configure your session to include the desired sample
+    packs.
+    """
+
+    pass

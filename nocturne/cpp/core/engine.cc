@@ -24,6 +24,8 @@ absl::Status Engine::Init(const utils::Config& config) {
       LOG(ERROR) << "Failed to initialize audio output: " << status;
       return status;
     }
+  } else {
+    LOG(INFO) << "Audio output disabled";
   }
 
   sample_manager_ = std::make_unique<SampleManager>();
@@ -32,6 +34,7 @@ absl::Status Engine::Init(const utils::Config& config) {
     LOG(ERROR) << "Failed to initialize sample manager: " << status;
     return status;
   }
+  LOG(INFO) << "Sample manager initialized";
 
   controls_ = std::make_unique<Controls>();
   status = controls_->Init();
@@ -39,6 +42,7 @@ absl::Status Engine::Init(const utils::Config& config) {
     LOG(ERROR) << "Failed to initialize controls: " << status;
     return status;
   }
+  LOG(INFO) << "Controls initialized";
 
   audio_recorder_ = std::make_unique<AudioRecorder>();
 
