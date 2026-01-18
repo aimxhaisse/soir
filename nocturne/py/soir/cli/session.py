@@ -7,7 +7,10 @@ from typing import Any
 import threading
 import shutil
 
-from soir.config import Config
+from soir.config import (
+    Config,
+    get_soir_dir,
+)
 from soir.watcher import Watcher
 
 import soir._bindings as bindings
@@ -113,7 +116,7 @@ def mk(name: str) -> None:
         (session_path / "lib" / "samples").mkdir(parents=True)
         (session_path / "var" / "log").mkdir(parents=True)
 
-        soir_dir = os.environ.get("SOIR_DIR", os.getcwd())
+        soir_dir = get_soir_dir()
         config_template = Path(soir_dir) / "etc" / "config.default.json"
         live_template = Path(soir_dir) / "etc" / "live.default.py"
 
