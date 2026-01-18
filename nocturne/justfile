@@ -20,7 +20,7 @@ check:
     #!/usr/bin/env bash
 
     uv run black .
-    uv run ruff check . --preview
+    uv run ruff check . --preview --exclude etc --exclude playground
     uv run mypy py
 
     clang-format -i $(find cpp -name '*.cc') $(find cpp -name '*.hh')

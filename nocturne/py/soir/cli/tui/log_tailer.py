@@ -4,8 +4,8 @@ This module provides log file tailing functionality, monitoring the
 Soir log directory for new log entries and delivering them to a callback.
 """
 
-import os
 import time
+from collections.abc import Callable
 from pathlib import Path
 
 
@@ -17,7 +17,7 @@ class LogTailer:
     function for display in the TUI.
     """
 
-    def __init__(self, log_dir: Path, callback: callable):
+    def __init__(self, log_dir: Path, callback: Callable[[str], None]):
         """Initialize the log tailer.
 
         Args:

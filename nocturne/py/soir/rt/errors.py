@@ -77,3 +77,15 @@ class ControlNotFoundException(SoirException):
     """
 
     pass
+
+
+class ConfigurationError(SoirException):
+    """Raised when there is a configuration error.
+
+    @public
+
+    This exception is raised when required configuration is missing,
+    such as the SOIR_DIR environment variable not being set.
+    """
+
+    pass

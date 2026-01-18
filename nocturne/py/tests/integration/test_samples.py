@@ -13,10 +13,8 @@ from pathlib import Path
 
 import click.exceptions
 
-import soir.cli.samples
 from soir.cli.samples import (
     create_pack,
-    get_installed_packs,
     get_samples_from_directory,
     install_pack,
     list_packs,
@@ -47,7 +45,7 @@ def create_test_audio_file(
         wav_file.writeframes(b"\x00\x00" * num_frames)
 
 
-def create_test_registry(packs: list[dict], registry_path: str) -> None:
+def create_test_registry(packs: list[dict[str, str]], registry_path: str) -> None:
     """Create a test registry.json file.
 
     Args:
@@ -118,7 +116,6 @@ class SamplesTestBase(unittest.TestCase):
         registry.write_text('{"packs": []}')
 
         os.environ["SOIR_DIR"] = str(self.soir_dir)
-        soir.cli.samples.SOIR_DIR = str(self.soir_dir)
 
     def tearDown(self) -> None:
         """Clean up test environment."""

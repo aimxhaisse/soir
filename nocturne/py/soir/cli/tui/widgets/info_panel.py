@@ -5,6 +5,7 @@ the Soir engine, including tracks, BPM, and output device.
 """
 
 from pathlib import Path
+from typing import Any
 
 from textual.reactive import reactive
 from textual.widgets import Static
@@ -13,9 +14,9 @@ from textual.widgets import Static
 class InfoPanelWidget(Static):
     """Display panel for runtime information."""
 
-    track_count: int = reactive(0)
-    current_bpm: float = reactive(0.0)
-    session_name: str = reactive("")
+    track_count = reactive(0)
+    current_bpm = reactive(0.0)
+    session_name = reactive("")
 
     def __init__(self, session_path: Path) -> None:
         """Initialize the info panel widget.
@@ -45,7 +46,7 @@ class InfoPanelWidget(Static):
 
         return "\n".join(lines)
 
-    def update_from_engine(self, info: dict) -> None:
+    def update_from_engine(self, info: dict[str, Any]) -> None:
         """Update display from engine runtime info.
 
         Args:

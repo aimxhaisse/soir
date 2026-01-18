@@ -4,6 +4,7 @@ This module provides an interactive command shell with input and output
 display for executing soir-specific commands.
 """
 
+from textual.app import ComposeResult
 from textual.containers import Container
 from textual.widgets import Input, RichLog
 
@@ -18,7 +19,7 @@ class CommandShellWidget(Container):
         super().__init__()
         self.interpreter: CommandInterpreter | None = None
 
-    def compose(self):
+    def compose(self) -> ComposeResult:
         """Compose the command shell layout.
 
         Yields:
