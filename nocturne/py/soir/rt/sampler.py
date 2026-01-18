@@ -41,6 +41,9 @@ from soir.rt._internals import (
 from soir.rt.ctrls import (
     Control,
 )
+from soir.rt.errors import (
+    SamplePackNotFoundException,
+)
 from soir.rt._helpers import (
     serialize_parameters,
 )
@@ -54,6 +57,10 @@ def new(pack_name: str) -> "Sampler":
     Args:
         pack_name: The name of the sample pack to use.
     """
+    if pack_name not in packs():
+        raise SamplePackNotFoundException(
+            f"{pack_name} not available, add it to your session"
+        )
     return Sampler(pack_name)
 
 
