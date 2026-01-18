@@ -16,10 +16,10 @@ class CommandInterpreter:
     """
 
     COMMANDS = {
-        "help": "Show available commands",
-        "status": "Show engine status",
-        "tracks": "List all tracks",
-        "quit": "Quit the session",
+        "help": "show available commands",
+        "status": "show engine status",
+        "tracks": "list tracks",
+        "quit": "quit the session",
     }
 
     def __init__(self, engine_manager: EngineManager, app: App):
@@ -55,10 +55,10 @@ class CommandInterpreter:
         elif cmd == "tracks":
             return self._tracks()
         elif cmd == "quit":
-            self.app.exit()
-            return "Exiting..."
+            self.app.action_quit()
+            return "exiting..."
         else:
-            return f"Unknown command: {cmd}. Type 'help' for available commands."
+            return f"unknown command: {cmd}. Type 'help' for available commands."
 
     def _help(self) -> str:
         """Return help text showing all available commands.
@@ -66,9 +66,9 @@ class CommandInterpreter:
         Returns:
             Formatted help text
         """
-        lines = ["Available commands:"]
+        lines = []
         for cmd, desc in self.COMMANDS.items():
-            lines.append(f"  {cmd:<20} {desc}")
+            lines.append(f"{cmd:<20} {desc}")
         return "\n".join(lines)
 
     def _status(self) -> str:
@@ -80,9 +80,9 @@ class CommandInterpreter:
         running = self.engine.is_running()
         info = self.engine.get_runtime_info()
         return (
-            f"Engine: {'Running' if running else 'Stopped'}\n"
-            f"BPM: {info.get('bpm', 0):.1f}\n"
-            f"Tracks: {len(info.get('tracks', []))}"
+            f"engine: {'Running' if running else 'Stopped'}\n"
+            f"bpm: {info.get('bpm', 0):.1f}\n"
+            f"tracks: {len(info.get('tracks', []))}"
         )
 
     def _tracks(self) -> str:
@@ -95,13 +95,13 @@ class CommandInterpreter:
         tracks = info.get("tracks", [])
 
         if not tracks:
-            return "No tracks configured"
+            return "no tracks configured"
 
-        lines = ["Tracks:"]
+        lines = []
         for track in tracks:
-            instrument = track.get("instrument", "Unknown")
-            name = track.get("name", "Unknown")
+            instrument = track.get("instrument", "unknown")
+            name = track.get("name", "unknown")
             muted = " (muted)" if track.get("muted", False) else ""
-            lines.append(f"  {name}: {instrument}{muted}")
+            lines.append(f"{name}: {instrument}{muted}")
 
         return "\n".join(lines)

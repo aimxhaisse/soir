@@ -73,6 +73,9 @@ class SoirTuiApp(App):
 
         command_shell = self.query_one(CommandShellWidget)
         command_shell.set_interpreter(self.command_interpreter)
+        command_shell.write_output(
+            "[dim]No path but this\nBell crickets singing\nIn the moonlight[/dim]"
+        )
 
         log_viewer = self.query_one(LogViewerWidget)
         log_dir = self.session_path / "var" / "log"
