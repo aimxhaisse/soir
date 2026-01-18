@@ -80,9 +80,7 @@ def verify_pack_structure(
         pack_data = json.load(f)
 
     if pack_data["name"] != pack_name:
-        raise AssertionError(
-            f"Expected pack name {pack_name}, got {pack_data['name']}"
-        )
+        raise AssertionError(f"Expected pack name {pack_name}, got {pack_data['name']}")
     if len(pack_data["samples"]) != len(expected_samples):
         raise AssertionError(
             f"Expected {len(expected_samples)} samples, "

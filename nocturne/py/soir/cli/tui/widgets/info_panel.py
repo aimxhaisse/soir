@@ -32,7 +32,9 @@ class InfoPanelWidget(Static):
         Returns:
             Formatted string with runtime information
         """
-        session_header = f"[bold reverse cyan] Session {self.session_name} [/bold reverse cyan]"
+        session_header = (
+            f"[bold reverse cyan] Session {self.session_name} [/bold reverse cyan]"
+        )
 
         lines = [
             session_header,

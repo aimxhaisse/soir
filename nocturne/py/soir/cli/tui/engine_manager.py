@@ -75,7 +75,9 @@ class EngineManager:
 
                 logging.info("Soir started successfully")
 
-                self.watcher = Watcher(self.config, lambda code: self.soir.update_code(code))
+                self.watcher = Watcher(
+                    self.config, lambda code: self.soir.update_code(code)
+                )
                 self.watcher.start()
                 logging.info("Watcher started successfully")
 

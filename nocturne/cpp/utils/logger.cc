@@ -114,6 +114,16 @@ absl::Status Logger::Init(const std::string& log_dir, size_t max_files,
   file_sink_ = std::make_unique<FileSink>(log_file.string());
   absl::AddLogSink(file_sink_.get());
 
+  // Create/update symbolic link to latest log file
+  std::filesystem::path latest_link = log_path / "latest.log";
+  std::error_code ec;
+  std::filesystem::remove(latest_link, ec);
+  std::filesystem::create_symlink(log_file.filename(), latest_link, ec);
+  if (ec) {
+    std::cerr << "Failed to create latest.log symlink: " << ec.message()
+              << std::endl;
+  }
+
   if (!initialized_) {
     absl::InitializeLog();
     initialized_ = true;
