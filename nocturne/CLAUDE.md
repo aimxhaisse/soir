@@ -5,7 +5,7 @@
 Soir is a Live Coding Environment for Music Creation featuring:
 - Real-time audio synthesis and processing
 - C++ audio engine (soir_core) with Python bindings via pybind11
-- Python frontend with CLI (typer) and web interface (Flask)
+- Python frontend with CLI (typer), TUI (textual), and web interface (Flask)
 - DSP effects, samplers, MIDI support, and live coding capabilities
 
 ## Repository Structure
@@ -24,7 +24,11 @@ nocturne/
 │   └── tests/              # C++ unit tests (GoogleTest)
 ├── py/                     # Python package
 │   ├── soir/               # Main package
-│   │   ├── cli/            # CLI commands (session, www)
+│   │   ├── cli/            # CLI commands
+│   │   │   ├── samples.py  # Sample pack management
+│   │   │   ├── session.py  # Session management
+│   │   │   ├── tui/        # Terminal UI (textual)
+│   │   │   └── www.py      # Web server command
 │   │   ├── rt/             # Runtime Python API
 │   │   ├── www/            # Flask web application
 │   │   ├── app.py          # Main entry point (typer)
