@@ -4,6 +4,9 @@ This module provides a command interpreter for executing soir-specific
 commands from the TUI command shell.
 """
 
+import asyncio
+from typing import Any
+
 from soir.cli.tui.engine_manager import EngineManager
 from textual.app import App
 
@@ -22,7 +25,7 @@ class CommandInterpreter:
         "quit": "quit the session",
     }
 
-    def __init__(self, engine_manager: EngineManager, app: App):
+    def __init__(self, engine_manager: EngineManager, app: App[Any]):
         """Initialize the command interpreter.
 
         Args:
@@ -46,7 +49,6 @@ class CommandInterpreter:
             return ""
 
         cmd = parts[0].lower()
-        args = parts[1:]
 
         if cmd == "help":
             return self._help()
@@ -55,7 +57,7 @@ class CommandInterpreter:
         elif cmd == "tracks":
             return self._tracks()
         elif cmd == "quit":
-            self.app.action_quit()
+            asyncio.create_task(self.app.action_quit())
             return "exiting..."
         else:
             return f"unknown command: {cmd}. Type 'help' for available commands."
@@ -92,7 +94,7 @@ class CommandInterpreter:
             Formatted track listing
         """
         info = self.engine.get_runtime_info()
-        tracks = info.get("tracks", [])
+        tracks: list[dict[str, Any]] = info.get("tracks", [])
 
         if not tracks:
             return "no tracks configured"

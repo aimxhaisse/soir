@@ -15,7 +15,7 @@ def expand_env_vars(s: str) -> str:
         String with environment variables expanded
     """
 
-    def _replacer(match: re.Match) -> str:
+    def _replacer(match: re.Match[str]) -> str:
         var_name = match.group(1) or match.group(2)
         return os.environ.get(var_name, "")
 

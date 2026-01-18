@@ -61,6 +61,7 @@ class LogViewerWidget(RichLog):
         match = re.match(pattern, line)
 
         if match:
-            return match.groups()
+            timestamp, level, location, message = match.groups()
+            return timestamp, level, location, message
 
         return None

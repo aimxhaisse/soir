@@ -22,7 +22,7 @@ from soir.cli.tui.widgets.info_panel import InfoPanelWidget
 from soir.cli.tui.widgets.log_viewer import LogViewerWidget
 
 
-class SoirTuiApp(App):
+class SoirTuiApp(App[None]):
     """Textual TUI for Soir live coding sessions."""
 
     CSS_PATH = "app.tcss"
@@ -33,9 +33,9 @@ class SoirTuiApp(App):
         Binding("ctrl+k", "focus_command", "Focus Command"),
     ]
 
-    engine_status: str = reactive("stopped")
-    track_count: int = reactive(0)
-    current_bpm: float = reactive(0.0)
+    engine_status = reactive("stopped")
+    track_count = reactive(0)
+    current_bpm = reactive(0.0)
 
     def __init__(self, session_path: Path, verbose: bool = False):
         """Initialize the TUI application.
@@ -87,7 +87,7 @@ class SoirTuiApp(App):
         self.run_worker(self._tail_logs, thread=True, exclusive=True)
         self.run_worker(self._update_info_panel, thread=True, exclusive=True)
 
-    def action_quit(self) -> None:
+    async def action_quit(self) -> None:
         """Override quit to ensure clean shutdown."""
         self._shutting_down = True
         if self.log_tailer:

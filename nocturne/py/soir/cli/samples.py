@@ -15,9 +15,9 @@ from dataclasses import dataclass
 
 import typer
 
-app = typer.Typer(help="Sample packs management commands", no_args_is_help=True)
+from soir.config import get_soir_dir
 
-SOIR_DIR = os.getenv("SOIR_DIR")
+app = typer.Typer(help="Sample packs management commands", no_args_is_help=True)
 
 
 @dataclass
@@ -40,8 +40,12 @@ def load_available_packs() -> dict[str, Pack]:
 
     Returns:
         Dictionary mapping pack names to Pack objects
+
+    Raises:
+        ConfigurationError: If SOIR_DIR is not set
     """
-    registry_path = os.path.join(SOIR_DIR, "lib", "samples", "registry.json")
+    soir_dir = get_soir_dir()
+    registry_path = os.path.join(soir_dir, "lib", "samples", "registry.json")
     if not os.path.exists(registry_path):
         return {}
 
@@ -65,8 +69,12 @@ def get_installed_packs() -> dict[str, Pack]:
 
     Returns:
         Dictionary mapping pack names to Pack objects
+
+    Raises:
+        ConfigurationError: If SOIR_DIR is not set
     """
-    samples_dir = os.path.join(SOIR_DIR, "lib", "samples")
+    soir_dir = get_soir_dir()
+    samples_dir = os.path.join(soir_dir, "lib", "samples")
     if not os.path.exists(samples_dir):
         return {}
 
@@ -88,10 +96,6 @@ def list_packs() -> None:
 
     Shows which packs are installed (in registry) and which are local/remote.
     """
-    if not SOIR_DIR:
-        typer.echo("SOIR_DIR environment variable not set.")
-        raise typer.Exit(1)
-
     available_packs = load_available_packs()
     installed_packs = get_installed_packs()
 
@@ -272,9 +276,7 @@ def create_pack(
 
     Converts samples to the correct format and organizes them into a pack.
     """
-    if not SOIR_DIR:
-        typer.echo("SOIR_DIR environment variable not set.")
-        raise typer.Exit(1)
+    soir_dir = get_soir_dir()
 
     if not os.path.isdir(input_dir):
         typer.echo(f"Error: Input directory '{input_dir}' does not exist")
@@ -282,7 +284,7 @@ def create_pack(
 
     pack_name = name if name else os.path.basename(os.path.abspath(input_dir))
 
-    samples_dir = os.path.join(SOIR_DIR, "lib", "samples")
+    samples_dir = os.path.join(soir_dir, "lib", "samples")
     output_dir = os.path.join(samples_dir, pack_name)
 
     if os.path.abspath(input_dir) == os.path.abspath(output_dir):
@@ -384,11 +386,9 @@ def install_pack(
         pack_name: Name of the sample pack to install
         force: Force reinstallation even if already installed
     """
-    if not SOIR_DIR:
-        typer.echo("SOIR_DIR environment variable not set.")
-        raise typer.Exit(1)
+    soir_dir = get_soir_dir()
 
-    samples_dir = os.path.join(SOIR_DIR, "lib", "samples")
+    samples_dir = os.path.join(soir_dir, "lib", "samples")
     if not os.path.exists(samples_dir):
         os.makedirs(samples_dir)
 
@@ -405,7 +405,7 @@ def install_pack(
         typer.echo(f"Error: Sample pack '{pack_name}' not found in registry.")
         raise typer.Exit(1)
 
-    registry_path = os.path.join(SOIR_DIR, "lib", "samples", "registry.json")
+    registry_path = os.path.join(soir_dir, "lib", "samples", "registry.json")
     try:
         with open(registry_path, "r") as f:
             registry = json.load(f)
@@ -462,11 +462,9 @@ def remove_pack(
     Args:
         pack_name: Name of the sample pack to remove
     """
-    if not SOIR_DIR:
-        typer.echo("SOIR_DIR environment variable not set.")
-        raise typer.Exit(1)
+    soir_dir = get_soir_dir()
 
-    samples_dir = os.path.join(SOIR_DIR, "lib", "samples")
+    samples_dir = os.path.join(soir_dir, "lib", "samples")
     installed_packs = get_installed_packs()
 
     if pack_name not in installed_packs:
@@ -499,11 +497,9 @@ def pack_info(
     Args:
         pack_name: Name of the sample pack
     """
-    if not SOIR_DIR:
-        typer.echo("SOIR_DIR environment variable not set.")
-        raise typer.Exit(1)
+    soir_dir = get_soir_dir()
 
-    samples_dir = os.path.join(SOIR_DIR, "lib", "samples")
+    samples_dir = os.path.join(soir_dir, "lib", "samples")
     installed_packs = get_installed_packs()
     available_packs = load_available_packs()
 

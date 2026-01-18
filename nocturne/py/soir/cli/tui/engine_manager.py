@@ -7,6 +7,7 @@ providing a clean interface for the TUI to interact with the C++ engine.
 import os
 import threading
 from pathlib import Path
+from typing import Any
 
 import soir._bindings as bindings
 import soir._bindings.logging as logging
@@ -75,8 +76,9 @@ class EngineManager:
 
                 logging.info("Soir started successfully")
 
+                soir_engine = self.soir
                 self.watcher = Watcher(
-                    self.config, lambda code: self.soir.update_code(code)
+                    self.config, lambda code: soir_engine.update_code(code)
                 )
                 self.watcher.start()
                 logging.info("Watcher started successfully")
@@ -108,7 +110,7 @@ class EngineManager:
 
             self._running = False
 
-    def get_runtime_info(self) -> dict[str, any]:
+    def get_runtime_info(self) -> dict[str, Any]:
         """Get current runtime information from the engine.
 
         Returns:

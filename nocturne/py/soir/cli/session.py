@@ -5,7 +5,6 @@ import signal
 import typer
 from typing import Any
 import threading
-import json
 import shutil
 
 from soir.config import Config
