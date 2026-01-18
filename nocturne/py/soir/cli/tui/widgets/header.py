@@ -41,7 +41,9 @@ class HeaderWidget(Static):
         for i, line in enumerate(ascii_art):
             if i == 0:
                 padding = " " * max(0, width - len(line) - len(version_text) - 2)
-                lines.append(f"[bold cyan]{line}[/bold cyan]{padding}[dim]{version_text}[/dim]")
+                lines.append(
+                    f"[bold cyan]{line}[/bold cyan]{padding}[dim]{version_text}[/dim]"
+                )
             else:
                 lines.append(f"[bold cyan]{line}[/bold cyan]")
 
