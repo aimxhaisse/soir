@@ -255,6 +255,60 @@ def convert_audio_to_wav(file_path: str) -> None:
         typer.echo(f"Error converting {file_path}: {str(e)}")
 
 
+def remove_pack_files(pack_name: str, samples_dir: str) -> None:
+    """Remove pack directory and metadata file.
+
+    Args:
+        pack_name: Name of the pack to remove
+        samples_dir: Path to the samples directory
+    """
+    pack_dir = os.path.join(samples_dir, pack_name)
+    pack_json = os.path.join(samples_dir, f"{pack_name}.pack.json")
+
+    if os.path.exists(pack_dir):
+        shutil.rmtree(pack_dir)
+    if os.path.exists(pack_json):
+        os.remove(pack_json)
+
+
+def get_pack_name_from_tarball(tarball_path: str) -> str:
+    """Get pack name from a tarball by finding the .pack.json file.
+
+    Args:
+        tarball_path: Path to the tarball file
+
+    Returns:
+        The pack name
+
+    Raises:
+        ValueError: If tarball doesn't contain a valid pack
+    """
+    with tarfile.open(tarball_path, "r:gz") as tar:
+        for name in tar.getnames():
+            if name.endswith(".pack.json"):
+                return name.replace(".pack.json", "")
+    raise ValueError("Tarball does not contain a .pack.json file")
+
+
+def extract_pack_from_tarball(tarball_path: str, samples_dir: str) -> str:
+    """Extract a pack tarball to the samples directory and return pack name.
+
+    Args:
+        tarball_path: Path to the tarball file
+        samples_dir: Path to the samples directory
+
+    Returns:
+        The name of the extracted pack
+
+    Raises:
+        ValueError: If tarball doesn't contain a valid pack
+    """
+    pack_name = get_pack_name_from_tarball(tarball_path)
+    with tarfile.open(tarball_path, "r:gz") as tar:
+        tar.extractall(path=samples_dir)
+    return pack_name
+
+
 @app.command("mk")
 def create_pack(
     input_dir: str = typer.Argument(..., help="Directory with samples to pack"),
@@ -371,28 +425,71 @@ def create_pack(
         raise typer.Exit(1)
 
 
+def _is_local_tarball(source: str) -> bool:
+    """Check if source is a local tarball file."""
+    return os.path.isfile(source) and (
+        source.endswith(".tar.gz") or source.endswith(".tgz")
+    )
+
+
+def _get_registry_url(pack_name: str, registry_path: str) -> str | None:
+    """Get download URL for a pack from the registry."""
+    try:
+        with open(registry_path, "r") as f:
+            registry = json.load(f)
+            for pack in registry.get("packs", []):
+                if pack["name"] == pack_name:
+                    url = pack.get("url")
+                    return str(url) if url else None
+    except Exception:
+        pass
+    return None
+
+
 @app.command("install")
 def install_pack(
-    pack_name: str = typer.Argument(..., help="Name of the sample pack to install"),
+    source: str = typer.Argument(
+        ..., help="Pack name from registry or path to local .tar.gz file"
+    ),
     force: bool = typer.Option(
         False, "--force", "-f", help="Force reinstallation if already installed"
     ),
 ) -> None:
-    """Install a sample pack from the registry.
-
-    Downloads pack from registry URL and extracts it into SOIR_DIR/lib/samples.
+    """Install a sample pack from the registry or a local file.
 
     Args:
-        pack_name: Name of the sample pack to install
+        source: Pack name from registry or path to local tarball
         force: Force reinstallation even if already installed
     """
     soir_dir = get_soir_dir()
-
     samples_dir = os.path.join(soir_dir, "lib", "samples")
     if not os.path.exists(samples_dir):
         os.makedirs(samples_dir)
 
     installed_packs = get_installed_packs()
+    is_local = _is_local_tarball(source)
+    pack_url = ""
+
+    if is_local:
+        try:
+            pack_name = get_pack_name_from_tarball(source)
+        except (tarfile.TarError, ValueError) as e:
+            typer.echo(f"Error reading tarball: {str(e)}")
+            raise typer.Exit(1)
+        tarball_path = source
+    else:
+        pack_name = source
+        available_packs = load_available_packs()
+        if pack_name not in available_packs:
+            typer.echo(f"Error: Sample pack '{pack_name}' not found in registry.")
+            raise typer.Exit(1)
+
+        registry_path = os.path.join(samples_dir, "registry.json")
+        pack_url = _get_registry_url(pack_name, registry_path) or ""
+        if not pack_url:
+            typer.echo(f"Error: URL for '{pack_name}' not found in registry.")
+            raise typer.Exit(1)
+
     if pack_name in installed_packs and not force:
         typer.echo(
             f"Sample pack '{pack_name}' is already installed. "
@@ -400,54 +497,28 @@ def install_pack(
         )
         return
 
-    available_packs = load_available_packs()
-    if pack_name not in available_packs:
-        typer.echo(f"Error: Sample pack '{pack_name}' not found in registry.")
-        raise typer.Exit(1)
-
-    registry_path = os.path.join(soir_dir, "lib", "samples", "registry.json")
-    try:
-        with open(registry_path, "r") as f:
-            registry = json.load(f)
-            pack_url = None
-            for pack in registry.get("packs", []):
-                if pack["name"] == pack_name:
-                    pack_url = pack.get("url")
-                    break
-
-            if not pack_url:
-                typer.echo(
-                    f"Error: URL for sample pack '{pack_name}' not found in registry."
-                )
-                raise typer.Exit(1)
-    except Exception as e:
-        typer.echo(f"Error reading registry file: {str(e)}")
-        raise typer.Exit(1)
-
     if pack_name in installed_packs:
         typer.echo(f"Removing existing installation of '{pack_name}'...")
-        pack_dir = os.path.join(samples_dir, pack_name)
-        pack_json = os.path.join(samples_dir, f"{pack_name}.pack.json")
-
-        if os.path.exists(pack_dir):
-            shutil.rmtree(pack_dir)
-        if os.path.exists(pack_json):
-            os.remove(pack_json)
+        remove_pack_files(pack_name, samples_dir)
 
     try:
-        typer.echo(f"Downloading sample pack '{pack_name}'...")
-        with tempfile.NamedTemporaryFile(suffix=".tar.gz", delete=False) as temp_file:
-            temp_path = temp_file.name
+        if is_local:
+            typer.echo(f"Installing '{pack_name}' from local file...")
+        else:
+            typer.echo(f"Downloading '{pack_name}'...")
+            with tempfile.NamedTemporaryFile(
+                suffix=".tar.gz", delete=False
+            ) as temp_file:
+                tarball_path = temp_file.name
+            urllib.request.urlretrieve(pack_url, tarball_path)
 
-        urllib.request.urlretrieve(pack_url, temp_path)
+        typer.echo(f"Extracting '{pack_name}'...")
+        extract_pack_from_tarball(tarball_path, samples_dir)
 
-        typer.echo(f"Extracting sample pack '{pack_name}'...")
-        with tarfile.open(temp_path, "r:gz") as tar:
-            tar.extractall(path=samples_dir)
+        if not is_local:
+            os.remove(tarball_path)
 
-        os.remove(temp_path)
-
-        typer.echo(f"Sample pack '{pack_name}' has been installed successfully.")
+        typer.echo(f"Sample pack '{pack_name}' installed successfully.")
     except Exception as e:
         typer.echo(f"Error installing sample pack: {str(e)}")
         raise typer.Exit(1)
@@ -463,7 +534,6 @@ def remove_pack(
         pack_name: Name of the sample pack to remove
     """
     soir_dir = get_soir_dir()
-
     samples_dir = os.path.join(soir_dir, "lib", "samples")
     installed_packs = get_installed_packs()
 
@@ -471,15 +541,8 @@ def remove_pack(
         typer.echo(f"Error: Sample pack '{pack_name}' is not installed.")
         raise typer.Exit(1)
 
-    pack_dir = os.path.join(samples_dir, pack_name)
-    pack_json = os.path.join(samples_dir, f"{pack_name}.pack.json")
-
     try:
-        if os.path.exists(pack_dir):
-            shutil.rmtree(pack_dir)
-        if os.path.exists(pack_json):
-            os.remove(pack_json)
-
+        remove_pack_files(pack_name, samples_dir)
         typer.echo(f"Sample pack '{pack_name}' removed successfully.")
     except Exception as e:
         typer.echo(f"Error removing sample pack: {str(e)}")
