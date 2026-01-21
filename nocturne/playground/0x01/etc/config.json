@@ -3,7 +3,7 @@
         "enable_output": true,
         "block_size": 4096,
         "sample_directory": "./lib/samples",
-        "sample_packs": []
+        "sample_packs": ["mxs-samples"]
     },
     "live": {
         "directory": ".",
