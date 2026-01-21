@@ -32,7 +32,7 @@ absl::Status SampleManager::Init(const utils::Config& config) {
 }
 
 absl::Status SampleManager::LoadPack(const std::string& name) {
-  auto config_path = directory_ + "/" + name + ".pack.yaml";
+  auto config_path = directory_ + "/" + name + ".pack.json";
 
   LOG(INFO) << "Loading pack: " << name;
 

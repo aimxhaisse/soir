@@ -39,7 +39,7 @@ def setup():
     )
 
 
-sp = sampler.new("sample-db")
+sp = sampler.new("mxs-samples")
 
 
 @loop(track="lead", beats=16)
