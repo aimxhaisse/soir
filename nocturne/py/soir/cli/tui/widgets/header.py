@@ -42,9 +42,9 @@ class HeaderWidget(Static):
             if i == 0:
                 padding = " " * max(0, width - len(line) - len(version_text) - 2)
                 lines.append(
-                    f"[bold cyan]{line}[/bold cyan]{padding}[dim]{version_text}[/dim]"
+                    f"[#7ba3d1]{line}[/#7ba3d1]{padding}[#4a5878]{version_text}[/#4a5878]"
                 )
             else:
-                lines.append(f"[bold cyan]{line}[/bold cyan]")
+                lines.append(f"[#7ba3d1]{line}[/#7ba3d1]")
 
         return "\n".join(lines)

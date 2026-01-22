@@ -54,7 +54,7 @@ class CommandShellWidget(Container):
             return
 
         output = self.query_one("#command-output", RichLog)
-        output.write(f"[bold cyan]> {command}[/bold cyan]")
+        output.write(f"[#7ba3d1]> {command}[/#7ba3d1]")
 
         if self.interpreter:
             try:
@@ -62,9 +62,9 @@ class CommandShellWidget(Container):
                 if result:
                     output.write(result)
             except Exception as e:
-                output.write(f"[red]Error: {e}[/red]")
+                output.write(f"[#c95757]Error: {e}[/#c95757]")
         else:
-            output.write("[yellow]Command interpreter not initialized[/yellow]")
+            output.write("[#c9a857]Command interpreter not initialized[/#c9a857]")
 
         event.input.value = ""
 

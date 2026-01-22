@@ -30,18 +30,18 @@ class LogViewerWidget(RichLog):
             timestamp, level, location, message = parts
 
             level_colors = {
-                "INFO": "green",
-                "WARNING": "yellow",
-                "ERROR": "red",
-                "FATAL": "bright_red",
+                "INFO": "#5b9a6d",
+                "WARNING": "#c9a857",
+                "ERROR": "#c95757",
+                "FATAL": "#ff6b6b",
             }
-            color = level_colors.get(level, "white")
+            color = level_colors.get(level, "#b8c0cc")
 
             formatted = (
-                f"[dim]{timestamp}[/dim] "
+                f"[#4a5878]{timestamp}[/#4a5878] "
                 f"[{color}]{level}[/{color}] "
-                f"[dim]{location}[/dim] "
-                f"{message}"
+                f"[#4a5878]{location}[/#4a5878] "
+                f"[#b8c0cc]{message}[/#b8c0cc]"
             )
 
             self.write(formatted)

@@ -75,7 +75,7 @@ class SoirTuiApp(App[None]):
         command_shell = self.query_one(CommandShellWidget)
         command_shell.set_interpreter(self.command_interpreter)
         command_shell.write_output(
-            "[dim]No path but this\nBell crickets singing\nIn the moonlight[/dim]"
+            "[#4a5878]No path but this\nBell crickets singing\nIn the moonlight[/#4a5878]"
         )
 
         log_viewer = self.query_one(LogViewerWidget)
@@ -116,7 +116,7 @@ class SoirTuiApp(App[None]):
                 command_shell = self.query_one(CommandShellWidget)
                 self.call_from_thread(
                     command_shell.write_output,
-                    "[green]Engine started successfully[/green]",
+                    "[#5b9a6d]Engine started successfully[/#5b9a6d]",
                 )
             else:
                 self.call_from_thread(setattr, self, "engine_status", "error")
@@ -126,7 +126,7 @@ class SoirTuiApp(App[None]):
 
                 command_shell = self.query_one(CommandShellWidget)
                 self.call_from_thread(
-                    command_shell.write_output, f"[red]Error: {message}[/red]"
+                    command_shell.write_output, f"[#c95757]Error: {message}[/#c95757]"
                 )
 
         except Exception as e:
@@ -135,7 +135,7 @@ class SoirTuiApp(App[None]):
 
             command_shell = self.query_one(CommandShellWidget)
             self.call_from_thread(
-                command_shell.write_output, f"[red]Unexpected error: {e}[/red]"
+                command_shell.write_output, f"[#c95757]Unexpected error: {e}[/#c95757]"
             )
 
     def _tail_logs(self) -> None:
