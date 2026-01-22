@@ -121,21 +121,23 @@ class EngineManager:
         """
         with self._lock:
             if not self._running or not self.soir:
-                return {"tracks": [], "bpm": 0.0, "output_devices": []}
+                return {"tracks": [], "bpm": 0.0, "beat": 0.0, "output_devices": []}
 
             try:
                 tracks = rt.get_tracks_()
                 bpm = rt.get_bpm_()
+                beat = rt.get_beat_()
                 devices = rt.get_audio_out_devices_()
 
                 return {
                     "tracks": tracks if tracks else [],
                     "bpm": bpm if bpm else 0.0,
+                    "beat": beat if beat else 0.0,
                     "output_devices": devices if devices else [],
                 }
             except Exception as e:
                 logging.error(f"Failed to get runtime info: {e}")
-                return {"tracks": [], "bpm": 0.0, "output_devices": []}
+                return {"tracks": [], "bpm": 0.0, "beat": 0.0, "output_devices": []}
 
     def is_running(self) -> bool:
         """Check if the engine is currently running.

@@ -24,6 +24,7 @@ class InfoPanelWidget(Static):
 
     track_count = reactive(0)
     current_bpm = reactive(0.0)
+    current_beat = reactive(0)
     session_name = reactive("")
     level_left = reactive(0.0)
     level_right = reactive(0.0)
@@ -136,6 +137,8 @@ class InfoPanelWidget(Static):
             f"[{_COLOR_TEXT}]{self.track_count}[/{_COLOR_TEXT}]",
             f"[{_COLOR_TEXT_DIM}]bpm[/{_COLOR_TEXT_DIM}]     "
             f"[{_COLOR_TEXT}]{self.current_bpm:.1f}[/{_COLOR_TEXT}]",
+            f"[{_COLOR_TEXT_DIM}]beat[/{_COLOR_TEXT_DIM}]    "
+            f"[{_COLOR_TEXT}]{self.current_beat}[/{_COLOR_TEXT}]",
         ]
 
         # Level meters with dB readout
@@ -169,6 +172,7 @@ class InfoPanelWidget(Static):
         """
         self.track_count = len(info.get("tracks", []))
         self.current_bpm = info.get("bpm", 0.0)
+        self.current_beat = int(info.get("beat", 0))
 
         levels = info.get("levels")
         if levels:

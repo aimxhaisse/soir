@@ -8,6 +8,7 @@ import asyncio
 from typing import Any
 
 from soir.cli.tui.engine_manager import EngineManager
+from soir.rt.sampler import packs as get_packs, samples as get_samples
 from textual.app import App
 
 
@@ -22,6 +23,7 @@ class CommandInterpreter:
         "help": "show available commands",
         "status": "show engine status",
         "tracks": "list tracks",
+        "packs": "list available sample packs",
         "quit": "quit the session",
     }
 
@@ -56,6 +58,8 @@ class CommandInterpreter:
             return self._status()
         elif cmd == "tracks":
             return self._tracks()
+        elif cmd == "packs":
+            return self._packs()
         elif cmd == "quit":
             asyncio.create_task(self.app.action_quit())
             return "exiting..."
@@ -84,6 +88,7 @@ class CommandInterpreter:
         return (
             f"engine: {'Running' if running else 'Stopped'}\n"
             f"bpm: {info.get('bpm', 0):.1f}\n"
+            f"beat: {int(info.get('beat', 0))}\n"
             f"tracks: {len(info.get('tracks', []))}"
         )
 
@@ -106,4 +111,21 @@ class CommandInterpreter:
             muted = " (muted)" if track.get("muted", False) else ""
             lines.append(f"{name}: {instrument}{muted}")
 
+        return "\n".join(lines)
+
+    def _packs(self) -> str:
+        """List available sample packs.
+
+        Returns:
+            Formatted pack listing
+        """
+        packs = get_packs()
+
+        if not packs:
+            return "no sample packs loaded"
+
+        lines = []
+        for pack in sorted(packs):
+            samples = get_samples(pack)
+            lines.append(f"{pack}: {len(samples)} samples")
         return "\n".join(lines)
