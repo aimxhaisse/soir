@@ -117,6 +117,7 @@ target_link_libraries(soir_audio
 add_library(soir_core_utils
     cpp/core/adsr.cc
     cpp/core/controls.cc
+    cpp/core/level_meter.cc
     cpp/core/midi_stack.cc
     cpp/core/midi_sysex.cc
     cpp/core/parameter.cc

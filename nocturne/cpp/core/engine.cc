@@ -226,6 +226,9 @@ absl::Status Engine::Run() {
           track->Join(buffer);
         }
       }
+
+      master_meter_.Process(buffer.GetChannel(kLeftChannel),
+                            buffer.GetChannel(kRightChannel), buffer.Size());
     }
 
     current_tick_ += kBlockSize;
@@ -337,6 +340,17 @@ absl::Status Engine::SetupTracks(const std::list<Track::Settings>& settings) {
 }
 
 SampleManager& Engine::GetSampleManager() { return *sample_manager_; }
+
+Levels Engine::GetMasterLevels() const { return master_meter_.GetLevels(); }
+
+std::optional<Levels> Engine::GetTrackLevels(const std::string& name) {
+  std::scoped_lock<std::mutex> lock(tracks_mutex_);
+  auto it = tracks_.find(name);
+  if (it != tracks_.end()) {
+    return it->second->GetLevels();
+  }
+  return std::nullopt;
+}
 
 absl::Status Engine::StartRecording(const std::string& file_path) {
   if (!audio_recorder_) {

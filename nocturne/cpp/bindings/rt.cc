@@ -8,6 +8,7 @@
 #include "audio/audio_output.hh"
 #include "bindings/bind.hh"
 #include "core/engine.hh"
+#include "core/level_meter.hh"
 #include "core/track.hh"
 #include "inst/midi_ext.hh"
 #include "rt/runtime.hh"
@@ -297,6 +298,40 @@ void Bind::PyRt(py::module_& m) {
       devices.push_back({device.id, device.name});
     }
     return devices;
+  });
+
+  rt.def("get_track_levels_", []() {
+    py::dict result;
+    std::list<Track::Settings> tracks;
+    gDsp_->GetTracks(&tracks);
+
+    for (const auto& track : tracks) {
+      auto levels = gDsp_->GetTrackLevels(track.name_);
+      if (levels.has_value()) {
+        result[py::str(track.name_)] = py::dict(
+            "peak_left"_a = levels->peak_left,
+            "peak_right"_a = levels->peak_right,
+            "rms_left"_a = levels->rms_left, "rms_right"_a = levels->rms_right);
+      }
+    }
+    return result;
+  });
+
+  rt.def("get_track_level_", [](const std::string& name) -> py::object {
+    auto levels = gDsp_->GetTrackLevels(name);
+    if (!levels.has_value()) {
+      return py::none();
+    }
+    return py::dict(
+        "peak_left"_a = levels->peak_left, "peak_right"_a = levels->peak_right,
+        "rms_left"_a = levels->rms_left, "rms_right"_a = levels->rms_right);
+  });
+
+  rt.def("get_master_levels_", []() {
+    auto levels = gDsp_->GetMasterLevels();
+    return py::dict(
+        "peak_left"_a = levels.peak_left, "peak_right"_a = levels.peak_right,
+        "rms_left"_a = levels.rms_left, "rms_right"_a = levels.rms_right);
   });
 }
 
