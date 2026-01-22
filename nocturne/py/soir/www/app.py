@@ -16,6 +16,7 @@ PUBLIC_MODULES = [
     "ctrls",
     "errors",
     "fx",
+    "levels",
     "midi",
     "rnd",
     "sampler",

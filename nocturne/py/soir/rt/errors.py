@@ -103,3 +103,15 @@ class SamplePackNotFoundException(SoirException):
     """
 
     pass
+
+
+class TrackNotFoundException(SoirException):
+    """Raised when trying to access a non-existing track.
+
+    @public
+
+    This exception is raised when trying to get levels or other
+    information for a track that doesn't exist.
+    """
+
+    pass

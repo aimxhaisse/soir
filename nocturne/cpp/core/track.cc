@@ -130,6 +130,8 @@ const std::string& Track::GetTrackName() {
   return settings_.name_;
 }
 
+Levels Track::GetLevels() const { return level_meter_.GetLevels(); }
+
 void Track::RenderAsync(SampleTick tick, const std::list<MidiEventAt>& events) {
   std::lock_guard<std::mutex> lock(work_mutex_);
 
@@ -210,6 +212,10 @@ absl::Status Track::ProcessLoop() {
         SOIR_TRACING_ZONE_COLOR("track::render::fx-stack", SOIR_PINK);
         fx_stack_->Render(current_tick_, track_buffer_);
       }
+
+      level_meter_.Process(track_buffer_.GetChannel(kLeftChannel),
+                           track_buffer_.GetChannel(kRightChannel),
+                           track_buffer_.Size());
     }
 
     {

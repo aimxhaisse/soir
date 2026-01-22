@@ -13,6 +13,7 @@
 #include "audio/audio_buffer.hh"
 #include "core/common.hh"
 #include "core/controls.hh"
+#include "core/level_meter.hh"
 #include "core/midi_stack.hh"
 #include "core/parameter.hh"
 #include "core/sample_manager.hh"
@@ -53,6 +54,7 @@ struct Track {
 
   Settings GetSettings();
   const std::string& GetTrackName();
+  Levels GetLevels() const;
 
   // Schedule an async render operation
   void RenderAsync(SampleTick tick, const std::list<MidiEventAt>& events);
@@ -86,6 +88,7 @@ struct Track {
   SampleTick current_tick_;
   std::list<MidiEventAt> current_events_;
   AudioBuffer track_buffer_;
+  LevelMeter level_meter_;
 };
 
 }  // namespace soir

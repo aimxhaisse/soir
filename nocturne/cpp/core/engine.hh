@@ -5,12 +5,14 @@
 #include <condition_variable>
 #include <list>
 #include <mutex>
+#include <optional>
 #include <thread>
 
 #include "audio/audio_output.hh"
 #include "audio/audio_recorder.hh"
 #include "core/common.hh"
 #include "core/controls.hh"
+#include "core/level_meter.hh"
 #include "core/sample_manager.hh"
 #include "core/track.hh"
 #include "utils/config.hh"
@@ -40,6 +42,9 @@ class Engine {
   Controls* GetControls();
 
   SampleManager& GetSampleManager();
+
+  Levels GetMasterLevels() const;
+  std::optional<Levels> GetTrackLevels(const std::string& name);
 
   absl::Status StartRecording(const std::string& file_path);
   absl::Status StopRecording();
@@ -82,6 +87,7 @@ class Engine {
   std::map<std::string, std::list<MidiEventAt>> msgs_by_track_;
 
   std::unique_ptr<SampleManager> sample_manager_;
+  LevelMeter master_meter_;
 };
 
 }  // namespace soir

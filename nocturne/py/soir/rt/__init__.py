@@ -43,6 +43,7 @@ from soir.rt import bpm as bpm
 from soir.rt import ctrls as ctrls
 from soir.rt import errors as errors
 from soir.rt import fx as fx
+from soir.rt import levels as levels
 from soir.rt import midi as midi
 from soir.rt import rnd as rnd
 from soir.rt import sampler as sampler
