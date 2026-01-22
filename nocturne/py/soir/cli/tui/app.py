@@ -20,6 +20,7 @@ from soir.cli.tui.widgets.command_shell import CommandShellWidget
 from soir.cli.tui.widgets.header import HeaderWidget
 from soir.cli.tui.widgets.info_panel import InfoPanelWidget
 from soir.cli.tui.widgets.log_viewer import LogViewerWidget
+from soir.rt import levels
 
 
 class SoirTuiApp(App[None]):
@@ -153,12 +154,13 @@ class SoirTuiApp(App[None]):
             try:
                 if self.engine_manager.is_running():
                     info = self.engine_manager.get_runtime_info()
+                    info["levels"] = levels.get_master_levels()
                     self.call_from_thread(info_panel.update_from_engine, info)
 
-                time.sleep(0.5)
+                time.sleep(0.1)
 
             except Exception:
-                time.sleep(1.0)
+                time.sleep(0.5)
 
     def action_focus_logs(self) -> None:
         """Focus the log viewer for scrolling."""
