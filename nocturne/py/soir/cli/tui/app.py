@@ -91,6 +91,8 @@ class SoirTuiApp(App[None]):
     async def action_quit(self) -> None:
         """Override quit to ensure clean shutdown."""
         self._shutting_down = True
+        if self.command_interpreter:
+            self.command_interpreter.stop_recording()
         if self.log_tailer:
             self.log_tailer.stop()
         self.engine_manager.stop()
@@ -98,6 +100,8 @@ class SoirTuiApp(App[None]):
 
     def on_unmount(self) -> None:
         """Clean up when the app is closing."""
+        if self.command_interpreter:
+            self.command_interpreter.stop_recording()
         if self.log_tailer:
             self.log_tailer.stop()
         self.engine_manager.stop()
