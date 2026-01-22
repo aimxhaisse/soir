@@ -20,32 +20,20 @@ def setup():
     tracks.setup(
         {
             "lead": tracks.mk_sampler(
+                volume=0.2,
                 fxs={
                     "lpf": fx.mk_lpf(cutoff=ctrl("x5")),
                     "chorus": fx.mk_chorus(
                         time=ctrl("x1"), depth=ctrl("x2"), rate=ctrl("x3")
                     ),
-                    "hpf": fx.mk_lpf(cutoff=ctrl("x5")),
                     "reverb": fx.mk_reverb(time=1.0, dry=0, wet=1),
-                }
-            ),
-            "lead-h": tracks.mk_sampler(
-                fxs={
-                    "reverb": fx.mk_reverb(time=1.0, dry=0, wet=1),
-                }
-            ),
-            "drums": tracks.mk_sampler(),
+                },
+            )
         }
     )
 
 
 sp = sampler.new("mxs-samples")
-
-
-@loop(track="lead", beats=16)
-def fullsp():
-    return
-    sp.play("dynasty-freaking-intro-120")
 
 
 signatune_1 = [
@@ -92,30 +80,6 @@ signatune_4 = [
 ]
 
 
-@loop(track="lead-h", beats=16)
-def lead_h():
-    for pattern in [signatune_1, signatune_2, signatune_3, signatune_4]:
-        slept = 0
-        i = 0
-        for splay in pattern:
-            i += 1
-            params = {
-                "start": splay["start"],
-                "end": splay["start"] + splay["dur"],
-                "pan": rnd.between(-0.1, 0.1),
-            }
-
-            for rate in [8]:
-                params["rate"] = rate
-                sp.play("dynasty-freaking-intro-120", **params)
-
-            sleep_for = splay["dur"] * 16
-            sleep(sleep_for)
-            slept += sleep_for
-
-        sleep(4 - slept)
-
-
 @loop(track="lead", beats=16)
 def lead():
     for pattern in [signatune_1, signatune_2, signatune_3, signatune_4]:
@@ -138,41 +102,3 @@ def lead():
             slept += sleep_for
 
         sleep(4 - slept)
-
-
-sp_beats = sampler.new("drumnibus")
-
-
-@loop(track="drums", beats=16)
-def drums():
-    patterns = [
-        "k.......k.......k.......k.......",
-        "........t...............t.......",
-    ]
-
-    for i in range(4):
-        for tick in range(32):
-            instruments = {
-                "k": ("bd-electro1shorter", {"rate": 1.0}),
-                "s": ("ch-distortedritmo", {"amp": 1.0}),
-                "o": ("ch-draconisd922", {"amp": 0.3}),
-                "t": ("ch-lofihuman", {"amp": 0.7, "rate": 1.5}),
-            }
-            for pattern in patterns:
-                if pattern[tick] in instruments:
-                    play = instruments[pattern[tick]]
-                    sp_beats.play(play[0], **play[1])
-
-            sleep(1 / 8)
-
-
-@loop(track="minitaur", beats=4)
-def bass():
-    log("bass")
-    with midi.use_chan(1):
-        midi.note_on(40)
-        sleep(1)
-        midi.note_off(40)
-
-
-log("OK")
