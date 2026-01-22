@@ -12,6 +12,13 @@ from textual.reactive import reactive
 from textual.widgets import Static
 
 
+# Color palette matching website CSS
+_COLOR_TEXT = "#b8c0cc"
+_COLOR_TEXT_DIM = "#4a5878"
+_COLOR_ACCENT = "#7ba3d1"
+_COLOR_PURPLE = "#9a8bd9"
+
+
 class InfoPanelWidget(Static):
     """Display panel for runtime information."""
 
@@ -20,6 +27,8 @@ class InfoPanelWidget(Static):
     session_name = reactive("")
     level_left = reactive(0.0)
     level_right = reactive(0.0)
+    peak_left = reactive(0.0)
+    peak_right = reactive(0.0)
 
     def __init__(self, session_path: Path) -> None:
         """Initialize the info panel widget.
@@ -29,43 +38,87 @@ class InfoPanelWidget(Static):
         """
         super().__init__()
         self.session_name = session_path.name
+        self._peak_hold_left = 0.0
+        self._peak_hold_right = 0.0
+        self._peak_decay = 0.92
 
-    def _render_level_bar(self, level: float, width: int = 20) -> str:
-        """Render a single level meter bar.
+    def _level_to_db(self, level: float) -> float:
+        """Convert linear level to dB.
 
         Args:
-            level: Audio level (0.0 to 1.0+, can clip above 1.0)
-            width: Width of the bar in characters
+            level: Linear audio level
 
         Returns:
-            Formatted string with colored level bar
+            Level in dB, clamped to -60
         """
         if level <= 0.0:
-            return f"[dim white]{'░' * width}[/dim white]"
+            return -60.0
+        return max(-60.0, 20 * math.log10(level))
 
-        db = 20 * math.log10(max(level, 1e-10))
-        db_normalized = (db + 60) / 60
-        db_normalized = max(0.0, min(1.0, db_normalized))
+    def _render_meter(self, level: float, peak: float, width: int = 24) -> str:
+        """Render a refined level meter with peak hold.
 
-        filled = int(db_normalized * width)
-        filled = min(filled, width)
+        Args:
+            level: Current audio level (linear)
+            peak: Peak hold level (linear)
+            width: Width of the meter in characters
 
-        green_threshold = int(width * 0.6)
-        yellow_threshold = int(width * 0.85)
+        Returns:
+            Formatted string with level meter
+        """
+        db = self._level_to_db(level)
+        peak_db = self._level_to_db(peak)
+
+        # Map -60dB to 0dB onto the meter width
+        db_norm = (db + 60) / 60
+        peak_norm = (peak_db + 60) / 60
+
+        db_norm = max(0.0, min(1.0, db_norm))
+        peak_norm = max(0.0, min(1.0, peak_norm))
+
+        filled = int(db_norm * width)
+        peak_pos = int(peak_norm * width)
+
+        # Thresholds for color zones
+        green_end = int(width * 0.65)  # -60 to -21 dB
+        yellow_end = int(width * 0.85)  # -21 to -9 dB
+        # Rest is red                   # -9 to 0 dB
 
         bar = ""
         for i in range(width):
-            if i < filled:
-                if i < green_threshold:
-                    bar += "[green]█[/green]"
-                elif i < yellow_threshold:
-                    bar += "[yellow]█[/yellow]"
+            is_peak = i == peak_pos - 1 and peak_pos > 0
+
+            if i < filled or is_peak:
+                # Determine color based on position
+                if i < green_end:
+                    color = "#5b9a6d"  # Muted green
+                elif i < yellow_end:
+                    color = "#c9a857"  # Muted yellow
                 else:
-                    bar += "[red]█[/red]"
+                    color = "#c95757"  # Muted red
+
+                if is_peak and i >= filled:
+                    bar += f"[{color}]▌[/{color}]"
+                else:
+                    bar += f"[{color}]▌[/{color}]"
             else:
-                bar += "[dim white]░[/dim white]"
+                bar += f"[{_COLOR_TEXT_DIM}]▪[/{_COLOR_TEXT_DIM}]"
 
         return bar
+
+    def _format_db(self, level: float) -> str:
+        """Format level as dB string.
+
+        Args:
+            level: Linear audio level
+
+        Returns:
+            Formatted dB string
+        """
+        db = self._level_to_db(level)
+        if db <= -60:
+            return " -∞ "
+        return f"{db:+.0f}".rjust(4)
 
     def render(self) -> str:
         """Render info panel content.
@@ -73,25 +126,40 @@ class InfoPanelWidget(Static):
         Returns:
             Formatted string with runtime information
         """
-        session_header = (
-            f"[bold reverse cyan] Session {self.session_name} [/bold reverse cyan]"
-        )
+        # Session header with subtle styling
+        header = f"[{_COLOR_ACCENT}]─── {self.session_name} ───[/{_COLOR_ACCENT}]"
 
-        left_bar = self._render_level_bar(self.level_left)
-        right_bar = self._render_level_bar(self.level_right)
-
-        lines = [
-            session_header,
+        # Stats section
+        stats = [
             "",
-            f"[dim cyan]Tracks[/dim cyan]  [bold white]{self.track_count}[/bold white]",
-            f"[dim cyan]BPM[/dim cyan]     [bold white]{self.current_bpm:.1f}[/bold white]",
-            "",
-            "[dim cyan]Output[/dim cyan]",
-            f"  [dim]L[/dim] {left_bar}",
-            f"  [dim]R[/dim] {right_bar}",
+            f"[{_COLOR_TEXT_DIM}]tracks[/{_COLOR_TEXT_DIM}]  "
+            f"[{_COLOR_TEXT}]{self.track_count}[/{_COLOR_TEXT}]",
+            f"[{_COLOR_TEXT_DIM}]bpm[/{_COLOR_TEXT_DIM}]     "
+            f"[{_COLOR_TEXT}]{self.current_bpm:.1f}[/{_COLOR_TEXT}]",
         ]
 
-        return "\n".join(lines)
+        # Level meters with dB readout
+        left_meter = self._render_meter(self.level_left, self.peak_left)
+        right_meter = self._render_meter(self.level_right, self.peak_right)
+
+        left_db = self._format_db(self.level_left)
+        right_db = self._format_db(self.level_right)
+
+        meters = [
+            "",
+            f"[{_COLOR_TEXT_DIM}]output[/{_COLOR_TEXT_DIM}]",
+            "",
+            f"[{_COLOR_TEXT_DIM}]L[/{_COLOR_TEXT_DIM}] {left_meter} "
+            f"[{_COLOR_TEXT_DIM}]{left_db}[/{_COLOR_TEXT_DIM}]",
+            f"[{_COLOR_TEXT_DIM}]R[/{_COLOR_TEXT_DIM}] {right_meter} "
+            f"[{_COLOR_TEXT_DIM}]{right_db}[/{_COLOR_TEXT_DIM}]",
+        ]
+
+        # Scale markers
+        scale = f"[{_COLOR_TEXT_DIM}]  -60        -20    -9  0[/{_COLOR_TEXT_DIM}]"
+        meters.append(scale)
+
+        return "\n".join([header] + stats + meters)
 
     def update_from_engine(self, info: dict[str, Any]) -> None:
         """Update display from engine runtime info.
@@ -106,3 +174,17 @@ class InfoPanelWidget(Static):
         if levels:
             self.level_left = levels.peak_left
             self.level_right = levels.peak_right
+
+            # Update peak hold with decay
+            if levels.peak_left > self._peak_hold_left:
+                self._peak_hold_left = levels.peak_left
+            else:
+                self._peak_hold_left *= self._peak_decay
+
+            if levels.peak_right > self._peak_hold_right:
+                self._peak_hold_right = levels.peak_right
+            else:
+                self._peak_hold_right *= self._peak_decay
+
+            self.peak_left = self._peak_hold_left
+            self.peak_right = self._peak_hold_right

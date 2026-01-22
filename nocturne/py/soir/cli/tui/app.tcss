@@ -1,19 +1,20 @@
 /* Textual CSS for Soir TUI */
+/* Colors matched to website: hsl(215, 20%, 9%) bg, hsl(215, 12%, 75%) text */
 
 /* Global scrollbar styling */
 * {
-    scrollbar-background: #0f172a;
-    scrollbar-color: #2563eb;
-    scrollbar-color-hover: #3b82f6;
-    scrollbar-color-active: #60a5fa;
+    scrollbar-background: #12161f;
+    scrollbar-color: #3a4560;
+    scrollbar-color-hover: #4a5878;
+    scrollbar-color-active: #7ba3d1;
 }
 
 /* Header styling */
 HeaderWidget {
     dock: top;
     height: 7;
-    background: #0a0e27;
-    color: #e0e7ff;
+    background: #0e1118;
+    color: #b8c0cc;
     content-align: center middle;
 }
 
@@ -33,33 +34,39 @@ HeaderWidget {
 /* Command shell styling */
 CommandShellWidget {
     height: 100%;
-    border: solid #2563eb;
-    background: #0a0e27;
+    border: solid #2a3040;
+    background: #12161f;
 }
 
 #command-output {
     height: 1fr;
     scrollbar-gutter: stable;
-    background: #0a0e27;
+    background: #12161f;
+    color: #b8c0cc;
     padding: 1;
 }
 
 #command-input {
     height: 3;
-    border-top: double #3b82f6;
+    border-top: solid #2a3040;
     border-bottom: none;
     border-left: none;
     border-right: none;
     padding: 0 1;
-    background: #141b3d;
+    background: #181d28;
+    color: #b8c0cc;
+}
+
+#command-input:focus {
+    border-top: solid #7ba3d1;
 }
 
 /* Info panel styling */
 InfoPanelWidget {
     height: 100%;
-    border: solid #2563eb;
-    background: #0a0e27;
-    color: #e0e7ff;
+    border: solid #2a3040;
+    background: #12161f;
+    color: #b8c0cc;
     padding: 1 2;
     content-align: left top;
 }
@@ -68,21 +75,23 @@ InfoPanelWidget {
 LogViewerWidget {
     dock: bottom;
     height: 50%;
-    border-top: double #3b82f6;
-    background: #0a0e27;
-    color: #e0e7ff;
+    border-top: solid #2a3040;
+    background: #12161f;
+    color: #b8c0cc;
 }
 
 /* Footer styling */
 Footer {
-    background: #0a0e27;
+    background: #0e1118;
+    color: #6b7280;
 }
 
 Footer > .footer--highlight {
-    background: #2563eb;
+    background: #2a3040;
+    color: #b8c0cc;
 }
 
 Footer > .footer--key {
-    background: #3b82f6;
-    color: #ffffff;
+    background: #3a4560;
+    color: #b8c0cc;
 }
