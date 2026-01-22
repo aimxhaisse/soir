@@ -408,7 +408,7 @@ blockquote > p:last-of-type {
 .toc a {
   color: var(--text-color);
   font-weight: normal;
-  opacity: var(--opacity-medium);
+  opacity: var(--opacity-high);
 }
 
 .toc a:hover {
@@ -455,7 +455,7 @@ blockquote > p:last-of-type {
 }
 
 .toc-section h4 a {
-  opacity: var(--opacity-subtle);
+  opacity: var(--opacity-low);
   text-decoration: none;
 }
 
