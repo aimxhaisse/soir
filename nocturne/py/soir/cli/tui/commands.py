@@ -8,6 +8,7 @@ import asyncio
 from typing import Any
 
 from soir.cli.tui.engine_manager import EngineManager
+from soir._bindings.rt import start_recording_, stop_recording_
 from soir.rt.sampler import packs as get_packs, samples as get_samples
 from textual.app import App
 
@@ -24,6 +25,8 @@ class CommandInterpreter:
         "status": "show engine status",
         "tracks": "list tracks",
         "packs": "list available sample packs",
+        "record start <file.wav>": "start recording to file",
+        "record stop": "stop recording",
         "quit": "quit the session",
     }
 
@@ -36,6 +39,7 @@ class CommandInterpreter:
         """
         self.engine = engine_manager
         self.app = app
+        self._recording_file: str | None = None
 
     def execute(self, command: str) -> str:
         """Execute a command and return the result.
@@ -60,6 +64,8 @@ class CommandInterpreter:
             return self._tracks()
         elif cmd == "packs":
             return self._packs()
+        elif cmd == "record":
+            return self._record(parts[1:])
         elif cmd == "quit":
             asyncio.create_task(self.app.action_quit())
             return "exiting..."
@@ -74,7 +80,7 @@ class CommandInterpreter:
         """
         lines = []
         for cmd, desc in self.COMMANDS.items():
-            lines.append(f"{cmd:<20} {desc}")
+            lines.append(f"{cmd:<26} {desc}")
         return "\n".join(lines)
 
     def _status(self) -> str:
@@ -129,3 +135,49 @@ class CommandInterpreter:
             samples = get_samples(pack)
             lines.append(f"{pack}: {len(samples)} samples")
         return "\n".join(lines)
+
+    def _record(self, args: list[str]) -> str:
+        """Handle record commands.
+
+        Args:
+            args: Command arguments (start/stop and optional file path)
+
+        Returns:
+            Result message
+        """
+        if not args:
+            if self._recording_file:
+                return f"recording to: {self._recording_file}"
+            return "usage: record start <file.wav> | record stop"
+
+        subcmd = args[0].lower()
+
+        if subcmd == "start":
+            if len(args) < 2:
+                return "usage: record start <file.wav>"
+            file_path = args[1]
+            if self._recording_file:
+                return f"already recording to: {self._recording_file}"
+            if start_recording_(file_path):
+                self._recording_file = file_path
+                return f"recording started: {file_path}"
+            return "failed to start recording"
+
+        elif subcmd == "stop":
+            return self.stop_recording()
+
+        return "usage: record start <file.wav> | record stop"
+
+    def stop_recording(self) -> str:
+        """Stop any active recording.
+
+        Returns:
+            Result message
+        """
+        if not self._recording_file:
+            return "not recording"
+        if stop_recording_():
+            file_path = self._recording_file
+            self._recording_file = None
+            return f"recording stopped: {file_path}"
+        return "failed to stop recording"
