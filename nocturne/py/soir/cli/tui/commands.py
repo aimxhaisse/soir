@@ -8,7 +8,13 @@ import asyncio
 from typing import Any
 
 from soir.cli.tui.engine_manager import EngineManager
-from soir._bindings.rt import start_recording_, stop_recording_
+from soir._bindings.rt import (
+    get_audio_in_devices_,
+    get_audio_out_devices_,
+    get_midi_out_devices_,
+    start_recording_,
+    stop_recording_,
+)
 from soir.rt.sampler import packs as get_packs, samples as get_samples
 from textual.app import App
 
@@ -25,6 +31,9 @@ class CommandInterpreter:
         "status": "show engine status",
         "tracks": "list tracks",
         "packs": "list available sample packs",
+        "audio-out": "list audio output devices",
+        "audio-in": "list audio input devices",
+        "midi-out": "list MIDI output devices",
         "record start <file.wav>": "start recording to file",
         "record stop": "stop recording",
         "quit": "quit the session",
@@ -64,6 +73,12 @@ class CommandInterpreter:
             return self._tracks()
         elif cmd == "packs":
             return self._packs()
+        elif cmd == "audio-out":
+            return self._audio_out()
+        elif cmd == "audio-in":
+            return self._audio_in()
+        elif cmd == "midi-out":
+            return self._midi_out()
         elif cmd == "record":
             return self._record(parts[1:])
         elif cmd == "quit":
@@ -134,6 +149,48 @@ class CommandInterpreter:
         for pack in sorted(packs):
             samples = get_samples(pack)
             lines.append(f"{pack}: {len(samples)} samples")
+        return "\n".join(lines)
+
+    def _audio_out(self) -> str:
+        """List audio output devices.
+
+        Returns:
+            Formatted device listing
+        """
+        devices = get_audio_out_devices_()
+        if not devices:
+            return "no audio output devices found"
+        lines = []
+        for idx, name in devices:
+            lines.append(f"{idx}: {name}")
+        return "\n".join(lines)
+
+    def _audio_in(self) -> str:
+        """List audio input devices.
+
+        Returns:
+            Formatted device listing
+        """
+        devices = get_audio_in_devices_()
+        if not devices:
+            return "no audio input devices found"
+        lines = []
+        for idx, name in devices:
+            lines.append(f"{idx}: {name}")
+        return "\n".join(lines)
+
+    def _midi_out(self) -> str:
+        """List MIDI output devices.
+
+        Returns:
+            Formatted device listing
+        """
+        devices = get_midi_out_devices_()
+        if not devices:
+            return "no MIDI output devices found"
+        lines = []
+        for idx, name in devices:
+            lines.append(f"{idx}: {name}")
         return "\n".join(lines)
 
     def _record(self, args: list[str]) -> str:
