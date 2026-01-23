@@ -15,7 +15,7 @@ def setup():
     ctrls.mk_lfo("x2", 0.25, low=0.1, high=0.6)
     ctrls.mk_lfo("x3", 0.02)
     ctrls.mk_lfo("x4", 0.01, low=0.1, high=0.4)
-    ctrls.mk_lfo("x5", 0.1, low=0.3, high=0.7)
+    ctrls.mk_lfo("x5", 0.01, low=0.1, high=0.7)
 
     tracks.setup(
         {
