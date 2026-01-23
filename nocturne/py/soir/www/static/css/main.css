@@ -101,6 +101,7 @@ small {
 /* Header with background */
 .content h1:first-child,
 .content > h1:first-of-type {
+  position: relative;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -111,7 +112,27 @@ small {
   margin-top: 0;
   margin-inline: var(--space-body-neg);
   margin-bottom: 0;
-  background: var(--text-color-3);
+  overflow: hidden;
+  text-shadow: 0 2px 24px rgba(0, 0, 0, 0.9), 0 0 40px rgba(0, 0, 0, 0.6);
+}
+
+.content h1:first-child::before,
+.content > h1:first-of-type::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(to bottom, rgba(15, 18, 23, 0.3), rgba(15, 18, 23, 0.4)),
+    url('/static/img/header-1.jpg');
+  background-size: cover;
+  background-position: center 85%;
+  transform: scale(1.15);
+  z-index: -1;
+}
+
+.content h1:first-child small,
+.content > h1:first-of-type small {
+  opacity: 0.9;
 }
 
 .content h1:first-child + *,
