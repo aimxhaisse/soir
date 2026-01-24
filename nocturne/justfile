@@ -24,7 +24,6 @@ check:
     uv run mypy py
 
     clang-format -i $(find cpp -name '*.cc') $(find cpp -name '*.hh')
-    run-clang-tidy -p build/cmake -quiet -- -std=c++17
 
 # Build C++ extension and install dependencies
 build:

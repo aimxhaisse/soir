@@ -118,10 +118,8 @@ absl::Status External::GetMidiDevices(
 }
 
 absl::Status External::ParseAndValidateSettings(
-    const std::string& settings,
-    std::optional<std::string>* midi_out_device,
-    std::optional<std::string>* audio_in_device,
-    std::vector<int>* channels) {
+    const std::string& settings, std::optional<std::string>* midi_out_device,
+    std::optional<std::string>* audio_in_device, std::vector<int>* channels) {
   rapidjson::Document params;
   params.Parse(settings.c_str());
 
