@@ -18,8 +18,8 @@
 #include "core/parameter.hh"
 #include "core/sample_manager.hh"
 #include "fx/fx_stack.hh"
-#include "inst/instrument.hh"
 #include "inst/external.hh"
+#include "inst/instrument.hh"
 #include "inst/sampler.hh"
 #include "utils/config.hh"
 

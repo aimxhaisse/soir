@@ -48,13 +48,14 @@ class External : public Instrument {
   void ScheduleMidiEvents(const absl::Time& next_block_at);
   void WaitForInitialTick();
 
-  absl::Status ParseAndValidateSettings(const std::string& settings,
-                                        std::optional<std::string>* midi_out_device,
-                                        std::optional<std::string>* audio_in_device,
-                                        std::vector<int>* channels);
-  absl::Status ConfigureMidiPort(const std::optional<std::string>& midi_out_device);
-  absl::Status ConfigureAudioDevice(const std::optional<std::string>& audio_in_device,
-                                    const std::vector<int>& channels);
+  absl::Status ParseAndValidateSettings(
+      const std::string& settings, std::optional<std::string>* midi_out_device,
+      std::optional<std::string>* audio_in_device, std::vector<int>* channels);
+  absl::Status ConfigureMidiPort(
+      const std::optional<std::string>& midi_out_device);
+  absl::Status ConfigureAudioDevice(
+      const std::optional<std::string>& audio_in_device,
+      const std::vector<int>& channels);
 
   std::string settings_ = "";
   std::optional<std::string> settings_midi_out_ = std::nullopt;
