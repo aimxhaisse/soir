@@ -10,7 +10,7 @@
 #include "core/engine.hh"
 #include "core/level_meter.hh"
 #include "core/track.hh"
-#include "inst/midi_ext.hh"
+#include "inst/external.hh"
 #include "rt/runtime.hh"
 
 namespace py = pybind11;
@@ -86,8 +86,8 @@ void Bind::PyRt(py::module_& m) {
           instrument = "sampler";
           break;
 
-        case inst::Type::MIDI_EXT:
-          instrument = "midi_ext";
+        case inst::Type::EXTERNAL:
+          instrument = "external";
           break;
 
         default:
@@ -147,8 +147,8 @@ void Bind::PyRt(py::module_& m) {
 
       if (instr == "sampler") {
         s.instrument_ = inst::Type::SAMPLER;
-      } else if (instr == "midi_ext") {
-        s.instrument_ = inst::Type::MIDI_EXT;
+      } else if (instr == "external") {
+        s.instrument_ = inst::Type::EXTERNAL;
       } else {
         LOG(ERROR) << "Unknown instrument: " << instr;
         return false;
@@ -243,7 +243,7 @@ void Bind::PyRt(py::module_& m) {
 
   rt.def("get_midi_out_devices_", []() {
     std::vector<std::pair<int, std::string>> devices;
-    auto status = inst::MidiExt::GetMidiDevices(&devices);
+    auto status = inst::External::GetMidiDevices(&devices);
     if (!status.ok()) {
       LOG(ERROR) << "Unable to get midi output devices: " << status;
       return std::vector<std::pair<int, std::string>>();

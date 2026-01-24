@@ -180,35 +180,40 @@ def mk_sampler(
     return mk("sampler", muted, volume, pan, fxs, extra={})
 
 
-def mk_midi(
+def mk_external(
     muted: bool | None = None,
     volume: float | Control = 1.0,
     pan: float | Control = 0.0,
-    midi_out: str = "",
-    audio_in: str = "",
+    midi_out: str | None = None,
+    audio_in: str | None = None,
     audio_chans: list[int] | None = None,
     fxs: dict[str, Any] | None = None,
 ) -> Track:
-    """Creates a new midi track.
+    """Creates a new external device track.
 
     @public
 
     Args:
-        muted (bool, optional): The muted state. Defaults to None.
-        volume (float | Control): The volume in the [0.0, 1.0] range. Defaults to 1.0.
-        pan (float | Control): The pan in the [-1.0, 1.0] range. Defaults to 0.0.
-        midi_out (int, optional): The output midi device. Defaults to 0.
-        audio_in (int, optional): The input audio device. Defaults to 0.
-        audio_chans (list[int], optional): The audio channels. Defaults to [0, 1].
-        fxs (dict, optional): The effects to apply to the track. Defaults to None.
+        muted: The muted state.
+        volume: The volume in [0.0, 1.0].
+        pan: The pan in [-1.0, 1.0].
+        midi_out: MIDI output device name.
+        audio_in: Audio input device name.
+        audio_chans: Channel mapping [L_source, R_source]. Required if audio_in set.
+        fxs: Effects to apply.
     """
-    chans = audio_chans if audio_chans else [0, 1]
+    if midi_out is None and audio_in is None:
+        raise ValueError("At least one of midi_out or audio_in must be specified")
 
-    return mk(
-        "midi_ext",
-        muted,
-        volume,
-        pan,
-        fxs,
-        extra={"midi_out": midi_out, "audio_in": audio_in, "audio_channels": chans},
-    )
+    extra: dict[str, Any] = {}
+
+    if midi_out is not None:
+        extra["midi_out"] = midi_out
+
+    if audio_in is not None:
+        if audio_chans is None or len(audio_chans) != 2:
+            raise ValueError("audio_chans must have exactly 2 elements [L, R]")
+        extra["audio_in"] = audio_in
+        extra["audio_channels"] = audio_chans
+
+    return mk("external", muted, volume, pan, fxs, extra=extra)
