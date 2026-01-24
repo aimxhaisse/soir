@@ -5,6 +5,8 @@ of the soir engine.
 @public
 """
 
+from dataclasses import dataclass
+
 from soir._bindings.rt import (
     get_audio_in_devices_,
     get_audio_out_devices_,
@@ -18,6 +20,25 @@ from soir.rt._internals import (
 from soir.rt._system import (
     record_,
 )
+
+
+@dataclass
+class AudioDeviceInfo:
+    """Information about an audio device.
+
+    @public
+
+    Attributes:
+        id: Device index.
+        name: Device name.
+        is_default: Whether this is the system default device.
+        channels: Number of channels supported by the device.
+    """
+
+    id: int
+    name: str
+    is_default: bool
+    channels: int
 
 
 def record(file_path: str) -> bool:
@@ -46,28 +67,28 @@ def record(file_path: str) -> bool:
     return record_(file_path)
 
 
-def get_audio_out_devices() -> list[tuple[int, str]]:
+def get_audio_out_devices() -> list[AudioDeviceInfo]:
     """Get the current output audio devices.
 
     @public
 
     Returns:
-        A list of audio output devices.
+        A list of audio output devices with detailed information.
     """
-    result: list[tuple[int, str]] = get_audio_out_devices_()
-    return result
+    raw = get_audio_out_devices_()
+    return [AudioDeviceInfo(**d) for d in raw]
 
 
-def get_audio_in_devices() -> list[tuple[int, str]]:
+def get_audio_in_devices() -> list[AudioDeviceInfo]:
     """Get the current input audio devices.
 
     @public
 
     Returns:
-        A list of audio input devices.
+        A list of audio input devices with detailed information.
     """
-    result: list[tuple[int, str]] = get_audio_in_devices_()
-    return result
+    raw = get_audio_in_devices_()
+    return [AudioDeviceInfo(**d) for d in raw]
 
 
 def get_midi_out_devices() -> list[tuple[int, str]]:
@@ -109,12 +130,14 @@ def info() -> None:
     """
     log("=== Audio output devices ===")
     audio_out = get_audio_out_devices()
-    for idx, name in audio_out:
-        log(f"  {idx}: {name}")
+    for dev in audio_out:
+        default_marker = " *" if dev.is_default else ""
+        log(f"  {dev.id}: {dev.name}{default_marker} ({dev.channels}ch)")
     log("=== Audio input devices ===")
     audio_in = get_audio_in_devices()
-    for idx, name in audio_in:
-        log(f"  {idx}: {name}")
+    for dev in audio_in:
+        default_marker = " *" if dev.is_default else ""
+        log(f"  {dev.id}: {dev.name}{default_marker} ({dev.channels}ch)")
     log("=== MIDI output devices ===")
     midi_out = get_midi_out_devices()
     for idx, name in midi_out:

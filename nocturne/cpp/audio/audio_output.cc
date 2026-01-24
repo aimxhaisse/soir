@@ -9,6 +9,25 @@
 namespace soir {
 namespace audio {
 
+namespace {
+
+void PopulateDevice(int id, const ma_device_info& info, Device* dev) {
+  dev->id = id;
+  dev->name = info.name;
+  dev->is_default = info.isDefault != 0;
+  dev->channels = 0;
+
+  for (ma_uint32 j = 0; j < info.nativeDataFormatCount; j++) {
+    const auto& fmt = info.nativeDataFormats[j];
+    int channels = (fmt.channels == 0) ? 64 : static_cast<int>(fmt.channels);
+    if (channels > dev->channels) {
+      dev->channels = channels;
+    }
+  }
+}
+
+}  // namespace
+
 absl::StatusOr<std::vector<Device>> GetAudioOutDevices() {
   ma_context context;
   if (ma_context_init(nullptr, 0, nullptr, &context) != MA_SUCCESS) {
@@ -28,10 +47,14 @@ absl::StatusOr<std::vector<Device>> GetAudioOutDevices() {
 
   std::vector<Device> devices;
   for (ma_uint32 i = 0; i < playback_count; i++) {
-    Device dev;
-    dev.id = i;
-    dev.name = playback_infos[i].name;
-    devices.push_back(dev);
+    ma_device_info detailed_info;
+    if (ma_context_get_device_info(&context, ma_device_type_playback,
+                                   &playback_infos[i].id,
+                                   &detailed_info) == MA_SUCCESS) {
+      Device dev;
+      PopulateDevice(i, detailed_info, &dev);
+      devices.push_back(dev);
+    }
   }
 
   ma_context_uninit(&context);
@@ -57,10 +80,14 @@ absl::StatusOr<std::vector<Device>> GetAudioInDevices() {
 
   std::vector<Device> devices;
   for (ma_uint32 i = 0; i < capture_count; i++) {
-    Device dev;
-    dev.id = i;
-    dev.name = capture_infos[i].name;
-    devices.push_back(dev);
+    ma_device_info detailed_info;
+    if (ma_context_get_device_info(&context, ma_device_type_capture,
+                                   &capture_infos[i].id,
+                                   &detailed_info) == MA_SUCCESS) {
+      Device dev;
+      PopulateDevice(i, detailed_info, &dev);
+      devices.push_back(dev);
+    }
   }
 
   ma_context_uninit(&context);
