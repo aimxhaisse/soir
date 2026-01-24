@@ -25,9 +25,9 @@ absl::Status Track::Init(const Settings& settings,
       inst_ = std::make_unique<inst::Sampler>();
     } break;
 
-    case inst::Type::MIDI_EXT: {
-      settings_.instrument_ = inst::Type::MIDI_EXT;
-      inst_ = std::make_unique<inst::MidiExt>();
+    case inst::Type::EXTERNAL: {
+      settings_.instrument_ = inst::Type::EXTERNAL;
+      inst_ = std::make_unique<inst::External>();
       break;
     }
 

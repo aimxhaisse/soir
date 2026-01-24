@@ -14,7 +14,7 @@ class Controls;
 
 namespace inst {
 
-enum class Type { UNKNOWN, SAMPLER, MIDI_EXT };
+enum class Type { UNKNOWN, SAMPLER, EXTERNAL };
 
 // Abstract class for instruments. Some things may not be needed
 // for all instrumnets (such as the sample manager for instance), we might

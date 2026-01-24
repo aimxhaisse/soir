@@ -168,7 +168,7 @@ target_link_libraries(soir_fx
 # inst
 
 add_library(soir_inst
-    cpp/inst/midi_ext.cc
+    cpp/inst/external.cc
     cpp/inst/sampler.cc
 )
 
