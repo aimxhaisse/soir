@@ -276,12 +276,14 @@ void Bind::PyRt(py::module_& m) {
     auto result = audio::GetAudioOutDevices();
     if (!result.ok()) {
       LOG(ERROR) << "Unable to get audio output devices: " << result.status();
-      return std::vector<std::pair<int, std::string>>();
+      return std::vector<py::dict>();
     }
 
-    std::vector<std::pair<int, std::string>> devices;
+    std::vector<py::dict> devices;
     for (const auto& device : *result) {
-      devices.push_back({device.id, device.name});
+      devices.push_back(py::dict("id"_a = device.id, "name"_a = device.name,
+                                 "is_default"_a = device.is_default,
+                                 "channels"_a = device.channels));
     }
     return devices;
   });
@@ -290,12 +292,14 @@ void Bind::PyRt(py::module_& m) {
     auto result = audio::GetAudioInDevices();
     if (!result.ok()) {
       LOG(ERROR) << "Unable to get audio input devices: " << result.status();
-      return std::vector<std::pair<int, std::string>>();
+      return std::vector<py::dict>();
     }
 
-    std::vector<std::pair<int, std::string>> devices;
+    std::vector<py::dict> devices;
     for (const auto& device : *result) {
-      devices.push_back({device.id, device.name});
+      devices.push_back(py::dict("id"_a = device.id, "name"_a = device.name,
+                                 "is_default"_a = device.is_default,
+                                 "channels"_a = device.channels));
     }
     return devices;
   });

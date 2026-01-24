@@ -20,6 +20,8 @@ namespace audio {
 struct Device {
   int id;
   std::string name;
+  bool is_default;
+  int channels;
 };
 
 // Get available audio output devices

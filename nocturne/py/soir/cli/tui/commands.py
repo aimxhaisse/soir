@@ -161,8 +161,11 @@ class CommandInterpreter:
         if not devices:
             return "no audio output devices found"
         lines = []
-        for idx, name in devices:
-            lines.append(f"{idx}: {name}")
+        for d in devices:
+            default_marker = " *" if d.get("is_default", False) else ""
+            lines.append(
+                f"{d['id']}: {d['name']}{default_marker} ({d.get('channels', '?')}ch)"
+            )
         return "\n".join(lines)
 
     def _audio_in(self) -> str:
@@ -175,8 +178,11 @@ class CommandInterpreter:
         if not devices:
             return "no audio input devices found"
         lines = []
-        for idx, name in devices:
-            lines.append(f"{idx}: {name}")
+        for d in devices:
+            default_marker = " *" if d.get("is_default", False) else ""
+            lines.append(
+                f"{d['id']}: {d['name']}{default_marker} ({d.get('channels', '?')}ch)"
+            )
         return "\n".join(lines)
 
     def _midi_out(self) -> str:
