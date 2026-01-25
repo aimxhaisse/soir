@@ -28,7 +28,12 @@ def setup():
                     ),
                     "reverb": fx.mk_reverb(time=1.0, dry=0, wet=1),
                 },
-            )
+            ),
+            "bass": tracks.mk_external(
+                audio_in="Scarlett 18i20 USB",
+                midi_out="Moog Minitaur",
+                audio_chans=[0, 1],
+            ),
         }
     )
 
@@ -80,8 +85,18 @@ signatune_4 = [
 ]
 
 
+@loop(track="bass", beats=1)
+def minitaur():
+    log("ok")
+    with midi.use_chan(1):
+        midi.note_on(30)
+        sleep(0.5)
+        midi.note_off(30)
+
+
 @loop(track="lead", beats=16)
 def lead():
+    return
     for pattern in [signatune_1, signatune_2, signatune_3, signatune_4]:
         slept = 0
         i = 0
