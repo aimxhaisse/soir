@@ -92,13 +92,20 @@ void External::ProcessAudioInput() {
   }
 }
 
-External::External() { audio_in_device_initialized_ = false; }
+External::External() {
+  audio_in_context_initialized_ = false;
+  audio_in_device_initialized_ = false;
+}
 
 External::~External() {
   if (audio_in_device_initialized_) {
     ma_device_uninit(&audio_in_device_);
     ma_pcm_rb_uninit(&audio_ringbuffer_);
     audio_in_device_initialized_ = false;
+  }
+  if (audio_in_context_initialized_) {
+    ma_context_uninit(&audio_in_context_);
+    audio_in_context_initialized_ = false;
   }
 }
 
@@ -208,6 +215,10 @@ absl::Status External::ConfigureAudioDevice(
     ma_pcm_rb_uninit(&audio_ringbuffer_);
     audio_in_device_initialized_ = false;
   }
+  if (audio_in_context_initialized_) {
+    ma_context_uninit(&audio_in_context_);
+    audio_in_context_initialized_ = false;
+  }
 
   LOG(INFO) << "Trying to open audio device " << *audio_in_device << "...";
 
@@ -239,20 +250,21 @@ absl::Status External::ConfigureAudioDevice(
 
   ma_device_info* capture_devices;
   ma_uint32 capture_device_count;
-  ma_context context;
 
-  result = ma_context_init(nullptr, 0, nullptr, &context);
+  result = ma_context_init(nullptr, 0, nullptr, &audio_in_context_);
   if (result != MA_SUCCESS) {
     LOG(WARNING) << "Failed to initialize audio context: " << result;
     ma_pcm_rb_uninit(&audio_ringbuffer_);
     return absl::OkStatus();
   }
+  audio_in_context_initialized_ = true;
 
-  result = ma_context_get_devices(&context, &capture_devices,
+  result = ma_context_get_devices(&audio_in_context_, &capture_devices,
                                   &capture_device_count, nullptr, nullptr);
   if (result != MA_SUCCESS) {
     LOG(WARNING) << "Failed to enumerate audio devices: " << result;
-    ma_context_uninit(&context);
+    ma_context_uninit(&audio_in_context_);
+    audio_in_context_initialized_ = false;
     ma_pcm_rb_uninit(&audio_ringbuffer_);
     return absl::OkStatus();
   }
@@ -268,16 +280,18 @@ absl::Status External::ConfigureAudioDevice(
 
   if (!found) {
     LOG(WARNING) << "Audio device not found: " << *audio_in_device;
-    ma_context_uninit(&context);
+    ma_context_uninit(&audio_in_context_);
+    audio_in_context_initialized_ = false;
     ma_pcm_rb_uninit(&audio_ringbuffer_);
     return absl::OkStatus();
   }
 
-  result = ma_device_init(&context, &config, &audio_in_device_);
-  ma_context_uninit(&context);
+  result = ma_device_init(&audio_in_context_, &config, &audio_in_device_);
 
   if (result != MA_SUCCESS) {
     LOG(WARNING) << "Failed to open audio device: " << result;
+    ma_context_uninit(&audio_in_context_);
+    audio_in_context_initialized_ = false;
     ma_pcm_rb_uninit(&audio_ringbuffer_);
     return absl::OkStatus();
   }
@@ -286,6 +300,8 @@ absl::Status External::ConfigureAudioDevice(
   if (result != MA_SUCCESS) {
     LOG(WARNING) << "Failed to start audio device: " << result;
     ma_device_uninit(&audio_in_device_);
+    ma_context_uninit(&audio_in_context_);
+    audio_in_context_initialized_ = false;
     ma_pcm_rb_uninit(&audio_ringbuffer_);
     return absl::OkStatus();
   }
@@ -442,6 +458,10 @@ absl::Status External::Stop() {
     ma_device_uninit(&audio_in_device_);
     ma_pcm_rb_uninit(&audio_ringbuffer_);
     audio_in_device_initialized_ = false;
+  }
+  if (audio_in_context_initialized_) {
+    ma_context_uninit(&audio_in_context_);
+    audio_in_context_initialized_ = false;
   }
 
   if (midi_out_.is_port_open()) {

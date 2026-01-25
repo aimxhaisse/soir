@@ -72,8 +72,10 @@ class External : public Instrument {
 
   libremidi::midi_out midi_out_;
   int audio_in_chans_ = -1;
+  ma_context audio_in_context_;
   ma_device audio_in_device_;
   ma_pcm_rb audio_ringbuffer_;
+  bool audio_in_context_initialized_ = false;
   bool audio_in_device_initialized_ = false;
   std::vector<int> channel_map_;
 
