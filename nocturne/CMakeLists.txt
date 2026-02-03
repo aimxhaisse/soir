@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.15)
 
 set(CMAKE_POLICY_VERSION_MINIMUM 3.5)
 
-project(soir_core)
+project(soir_core LANGUAGES CXX OBJCXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -59,6 +59,12 @@ FetchContent_Declare(
     GIT_TAG v1.1.0
 )
 
+FetchContent_Declare(
+    vst3sdk
+    GIT_REPOSITORY https://github.com/steinbergmedia/vst3sdk.git
+    GIT_TAG v3.8.0_build_66
+)
+
 set(BUILD_GMOCK OFF CACHE BOOL "" FORCE)    # gtest
 set(BUILD_EXAMPLES OFF CACHE BOOL "" FORCE) # audiofile
 set(BUILD_TESTS OFF CACHE BOOL "" FORCE)    # audiofile
@@ -66,7 +72,14 @@ set(RAPIDJSON_BUILD_DOC OFF CACHE BOOL "" FORCE)
 set(RAPIDJSON_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 set(RAPIDJSON_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 
-FetchContent_MakeAvailable(pybind11 nlohmann_json abseil-cpp googletest miniaudio audiofile libremidi rapidjson)
+# VST3 SDK options
+set(SMTG_ADD_VSTGUI OFF CACHE BOOL "" FORCE)
+set(SMTG_ADD_VST3_PLUGINS_SAMPLES OFF CACHE BOOL "" FORCE)
+set(SMTG_ADD_VST3_HOSTING_SAMPLES OFF CACHE BOOL "" FORCE)
+set(SMTG_RUN_VST_VALIDATOR OFF CACHE BOOL "" FORCE)
+set(SMTG_CREATE_PLUGIN_LINK OFF CACHE BOOL "" FORCE)
+
+FetchContent_MakeAvailable(pybind11 nlohmann_json abseil-cpp googletest miniaudio audiofile libremidi rapidjson vst3sdk)
 
 # make sure pybind targets our environment
 
@@ -151,14 +164,16 @@ add_library(soir_fx
     cpp/fx/fx_lpf.cc
     cpp/fx/fx_reverb.cc
     cpp/fx/fx_stack.cc
+    cpp/fx/fx_vst.cc
 )
 
-target_include_directories(soir_fx PUBLIC cpp)
+target_include_directories(soir_fx PUBLIC cpp ${vst3sdk_SOURCE_DIR})
 
 target_link_libraries(soir_fx
     soir_audio
     soir_core_utils
     soir_dsp
+    soir_vst
     absl::log
     absl::status
     absl::statusor
@@ -185,6 +200,44 @@ target_link_libraries(soir_inst
     absl::statusor
 )
 
+# vst
+
+add_library(soir_vst
+    cpp/vst/vst_host.cc
+    cpp/vst/vst_plugin.cc
+    cpp/vst/vst_scanner.cc
+)
+
+if(APPLE)
+    target_sources(soir_vst PRIVATE
+        cpp/vst/vst_editor_macos.mm
+        ${vst3sdk_SOURCE_DIR}/public.sdk/source/vst/hosting/module_mac.mm
+    )
+    set_source_files_properties(
+        ${vst3sdk_SOURCE_DIR}/public.sdk/source/vst/hosting/module_mac.mm
+        PROPERTIES COMPILE_FLAGS "-fobjc-arc"
+    )
+endif()
+
+target_include_directories(soir_vst PUBLIC cpp ${vst3sdk_SOURCE_DIR})
+
+target_link_libraries(soir_vst
+    soir_audio
+    sdk
+    sdk_hosting
+    absl::log
+    absl::status
+    absl::statusor
+    absl::synchronization
+)
+
+if(APPLE)
+    target_link_libraries(soir_vst
+        "-framework Cocoa"
+        "-framework CoreFoundation"
+    )
+endif()
+
 # engine
 
 add_library(soir_engine
@@ -192,13 +245,14 @@ add_library(soir_engine
     cpp/core/track.cc
 )
 
-target_include_directories(soir_engine PUBLIC cpp ${libremidi_SOURCE_DIR}/include)
+target_include_directories(soir_engine PUBLIC cpp ${libremidi_SOURCE_DIR}/include ${vst3sdk_SOURCE_DIR})
 
 target_link_libraries(soir_engine
     soir_audio
     soir_core_utils
     soir_fx
     soir_inst
+    soir_vst
     libremidi
     absl::log
     absl::status
@@ -319,6 +373,8 @@ add_executable(engine_test
 
 target_link_libraries(engine_test
     soir_engine
+    sdk
+    sdk_hosting
     pybind11::embed
     gtest
     gtest_main

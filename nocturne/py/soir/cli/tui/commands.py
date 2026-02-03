@@ -14,6 +14,7 @@ from soir._bindings.rt import (
     get_midi_out_devices_,
     start_recording_,
     stop_recording_,
+    vst_get_plugins_,
 )
 from soir.rt.sampler import packs as get_packs, samples as get_samples
 from textual.app import App
@@ -34,6 +35,7 @@ class CommandInterpreter:
         "audio-out": "list audio output devices",
         "audio-in": "list audio input devices",
         "midi-out": "list MIDI output devices",
+        "vst list": "list available and instantiated VST plugins",
         "record start <file.wav>": "start recording to file",
         "record stop": "stop recording",
         "quit": "quit the session",
@@ -81,6 +83,8 @@ class CommandInterpreter:
             return self._midi_out()
         elif cmd == "record":
             return self._record(parts[1:])
+        elif cmd == "vst":
+            return self._vst(parts[1:])
         elif cmd == "quit":
             asyncio.create_task(self.app.action_quit())
             return "exiting..."
@@ -244,3 +248,48 @@ class CommandInterpreter:
             self._recording_file = None
             return f"recording stopped: {file_path}"
         return "failed to stop recording"
+
+    def _vst(self, args: list[str]) -> str:
+        """Handle VST commands.
+
+        Args:
+            args: Command arguments
+
+        Returns:
+            Formatted VST information
+        """
+        if not args or args[0].lower() != "list":
+            return "usage: vst list"
+
+        lines: list[str] = []
+
+        plugins = vst_get_plugins_()
+        lines.append(f"[Available VST Plugins: {len(plugins)}]")
+        if plugins:
+            for p in plugins:
+                lines.append(f"  {p['name']} ({p['vendor']})")
+        else:
+            lines.append("  (none found)")
+
+        lines.append("")
+
+        info = self.engine.get_runtime_info()
+        tracks: list[dict[str, Any]] = info.get("tracks", [])
+        instantiated: list[str] = []
+        for track in tracks:
+            track_name = track.get("name", "unknown")
+            fxs = track.get("fxs", [])
+            for fx in fxs:
+                if fx.get("type") == "vst":
+                    extra = fx.get("extra", {})
+                    plugin_name = extra.get("plugin", "unknown")
+                    fx_name = fx.get("name", "unnamed")
+                    instantiated.append(f"  {track_name}/{fx_name}: {plugin_name}")
+
+        lines.append(f"[Instantiated VST Effects: {len(instantiated)}]")
+        if instantiated:
+            lines.extend(instantiated)
+        else:
+            lines.append("  (none)")
+
+        return "\n".join(lines)

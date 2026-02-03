@@ -49,6 +49,7 @@ from soir.rt import rnd as rnd
 from soir.rt import sampler as sampler
 from soir.rt import system as system
 from soir.rt import tracks as tracks
+from soir.rt import vst as vst
 
 # Alias for backwards compatibility
 sys = system

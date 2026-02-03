@@ -12,6 +12,7 @@
 #include "core/track.hh"
 #include "inst/external.hh"
 #include "rt/runtime.hh"
+#include "vst/vst_host.hh"
 
 namespace py = pybind11;
 using namespace pybind11::literals;
@@ -95,7 +96,7 @@ void Bind::PyRt(py::module_& m) {
           break;
       }
 
-      std::list<std::string> fxs;
+      std::vector<py::dict> fxs;
       for (const auto& fx : track.fxs_) {
         std::string type;
 
@@ -116,12 +117,17 @@ void Bind::PyRt(py::module_& m) {
             type = "hpf";
             break;
 
+          case fx::Type::VST:
+            type = "vst";
+            break;
+
           default:
             type = "unknown";
             break;
         }
 
-        fxs.push_back(type);
+        fxs.push_back(py::dict("name"_a = fx.name_, "type"_a = type,
+                               "extra"_a = fx.extra_));
       }
 
       result.push_back(
@@ -180,6 +186,8 @@ void Bind::PyRt(py::module_& m) {
           fx_settings.type_ = fx::Type::LPF;
         } else if (it["type"].cast<std::string>() == "hpf") {
           fx_settings.type_ = fx::Type::HPF;
+        } else if (it["type"].cast<std::string>() == "vst") {
+          fx_settings.type_ = fx::Type::VST;
         } else {
           fx_settings.type_ = fx::Type::UNKNOWN;
         }
@@ -336,6 +344,21 @@ void Bind::PyRt(py::module_& m) {
     return py::dict(
         "peak_left"_a = levels.peak_left, "peak_right"_a = levels.peak_right,
         "rms_left"_a = levels.rms_left, "rms_right"_a = levels.rms_right);
+  });
+
+  rt.def("vst_get_plugins_", []() {
+    std::vector<py::dict> result;
+    auto* vst_host = gDsp_->GetVstHost();
+    if (!vst_host) {
+      return result;
+    }
+    auto plugins = vst_host->GetAvailablePlugins();
+    for (const auto& [uid, info] : plugins) {
+      result.push_back(py::dict(
+          "uid"_a = info.uid, "name"_a = info.name, "vendor"_a = info.vendor,
+          "category"_a = info.category, "path"_a = info.path));
+    }
+    return result;
   });
 }
 

@@ -6,11 +6,13 @@
 #include "fx_hpf.hh"
 #include "fx_lpf.hh"
 #include "fx_reverb.hh"
+#include "fx_vst.hh"
 
 namespace soir {
 namespace fx {
 
-FxStack::FxStack(Controls* controls) : controls_(controls) {}
+FxStack::FxStack(Controls* controls, vst::VstHost* vst_host)
+    : controls_(controls), vst_host_(vst_host) {}
 
 absl::Status FxStack::Init(const std::list<Fx::Settings> fx_settings) {
   std::lock_guard<std::mutex> lock(mutex_);
@@ -30,6 +32,9 @@ absl::Status FxStack::Init(const std::list<Fx::Settings> fx_settings) {
         break;
       case Type::HPF:
         fx = std::make_unique<HPF>(controls_);
+        break;
+      case Type::VST:
+        fx = std::make_unique<FxVst>(controls_, vst_host_);
         break;
       default:
         return absl::InvalidArgumentError("Unknown FX type");

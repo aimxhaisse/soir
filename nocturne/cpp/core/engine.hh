@@ -18,6 +18,9 @@
 #include "utils/config.hh"
 
 namespace soir {
+namespace vst {
+class VstHost;
+}  // namespace vst
 
 // First implementation is stupid and does not take
 // into account lag. The timing precision of MIDI
@@ -40,6 +43,7 @@ class Engine {
   absl::Status GetTracks(std::list<Track::Settings>* settings);
 
   Controls* GetControls();
+  vst::VstHost* GetVstHost();
 
   SampleManager& GetSampleManager();
 
@@ -87,6 +91,7 @@ class Engine {
   std::map<std::string, std::list<MidiEventAt>> msgs_by_track_;
 
   std::unique_ptr<SampleManager> sample_manager_;
+  std::unique_ptr<vst::VstHost> vst_host_;
   LevelMeter master_meter_;
 };
 

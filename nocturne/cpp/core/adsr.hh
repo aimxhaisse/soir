@@ -26,7 +26,7 @@ class ADSR {
   float GetSustainLevel() const { return sustainLevel_; }
 
  private:
-  enum State { NONE, ATTACK, DECAY, SUSTAIN, RELEASE };
+  enum State { NONE, ATTACK, DECAY, SUSTAIN, RELEASING };
 
   // Configuration.
   float attackMs_ = 100.0;

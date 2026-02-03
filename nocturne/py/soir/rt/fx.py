@@ -132,3 +132,33 @@ def mk_hpf(
         resonance: The resonance of the high pass filter in the [0.0, 1.0] range. Defaults to 0.5.
     """
     return mk("hpf", mix=mix, extra={"cutoff": cutoff, "resonance": resonance})
+
+
+def mk_vst(
+    plugin: str,
+    params: dict[str, float | Control] | None = None,
+) -> Fx:
+    """Creates a new VST3 effect.
+
+    @public
+
+    Use `vst.plugins()` to get a list of available plugins.
+
+    Args:
+        plugin: The plugin UID or name.
+        params: Parameter values to set. Keys are parameter names, values are
+                floats in [0.0, 1.0] range or Control references.
+
+    Example:
+        ```python
+        tracks.setup({
+            'synth': tracks.mk_sampler(fxs={
+                'eq': fx.mk_vst('FabFilter Pro-Q 3', params={'gain': 0.5}),
+            }),
+        })
+        ```
+    """
+    extra: dict[str, Any] = {"plugin": plugin}
+    if params:
+        extra["params"] = params
+    return mk("vst", extra=extra)
