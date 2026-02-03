@@ -18,12 +18,13 @@ tracks.setup({
 """
 
 import json
+from typing import Any
 
 from dataclasses import (
     dataclass,
     asdict,
+    field,
 )
-from typing import Any
 from soir._bindings.rt import (
     get_tracks_,
     setup_tracks_,
@@ -37,6 +38,7 @@ from soir.rt._ctrls import (
 from soir.rt._internals import (
     assert_not_in_loop,
 )
+from soir.rt.fx import Fx
 
 
 @dataclass
@@ -51,7 +53,7 @@ class Track:
         muted: The muted state. Defaults to None.
         volume: The volume in the [0.0, 1.0] range. Defaults to 1.0.
         pan: The pan in the [-1.0, 1.0] range. Defaults to 0.0.
-        fxs: The effects. Defaults to None.
+        fxs: The effects as an ordered dict mapping names to Fx objects.
         extra: Extra parameters, JSON encoded. Defaults to None.
     """
 
@@ -61,11 +63,12 @@ class Track:
     muted: bool | None = None
     volume: float | Control = 1.0
     pan: float | Control = 0.0
-    fxs: dict[str, Any] | None = None
+    fxs: dict[str, Fx] = field(default_factory=dict)
     extra: str | None = None
 
     def __repr__(self) -> str:
-        return f"Track(name={self.name}, instrument={self.instrument}, muted={self.muted}, volume={self.volume}, pan={self.pan}, fxs={self.fxs})"
+        fxs_types = [fx.type for fx in self.fxs.values()]
+        return f"Track(name={self.name}, instrument={self.instrument}, muted={self.muted}, volume={self.volume}, pan={self.pan}, fxs={fxs_types})"
 
 
 def layout() -> dict[str, Track]:
@@ -86,16 +89,24 @@ def layout() -> dict[str, Track]:
         # Here we translate back control names into actual Control
         # parameters, this allows setup()/layout() to be somewhat
         # idempotent calls using the same parameter formats.
-        params: dict[str, Any] = {}
+        params: dict[str, object] = {}
         for k, v in trk.items():
-            # Avoid parameters that need to be kept as a string, maybe
-            # a better way via Track.__dict__ or something to check
-            # the type.
-            if isinstance(v, str) and k not in ["name", "instrument"]:
+            if k == "fxs":
+                # Convert list of dicts from C++ to dict[str, Fx]
+                fxs_dict: dict[str, Fx] = {}
+                for fx_dict in v:
+                    fxs_dict[fx_dict["name"]] = Fx(
+                        name=fx_dict["name"],
+                        type=fx_dict["type"],
+                        extra=fx_dict.get("extra"),
+                    )
+                params[k] = fxs_dict
+            elif isinstance(v, str) and k not in ["name", "instrument"]:
+                # Translate control names back to Control objects
                 params[k] = controls_registry_[v]
             else:
                 params[k] = v
-        tracks[params["name"]] = Track(**params)
+        tracks[str(params["name"])] = Track(**params)  # type: ignore[arg-type]
 
     return tracks
 
@@ -135,8 +146,8 @@ def mk(
     muted: bool | None = None,
     volume: float | Control = 1.0,
     pan: float | Control = 0.0,
-    fxs: dict[str, Any] | None = None,
-    extra: dict[str, Any] | None = None,
+    fxs: dict[str, Fx] | None = None,
+    extra: dict[str, object] | None = None,
 ) -> Track:
     """Creates a new track.
 
@@ -147,7 +158,7 @@ def mk(
         muted (bool, optional): The muted state. Defaults to None.
         volume (float | Control): The volume in the [0.0, 1.0] range. Defaults to 1.0.
         pan (float | Control): The pan in the [-1.0, 1.0] range. Defaults to 0.0.
-        fxs (dict, optional): The effects to apply to the track. Defaults to None.
+        fxs: The effects to apply to the track, as an ordered dict.
         extra (dict, optional): Extra parameters. Defaults to None.
     """
     t = Track()
@@ -155,7 +166,7 @@ def mk(
     t.muted = muted
     t.volume = volume
     t.pan = pan
-    t.fxs = fxs
+    t.fxs = fxs if fxs is not None else {}
     t.extra = json.dumps(extra)
 
     return t
@@ -165,7 +176,7 @@ def mk_sampler(
     muted: bool | None = None,
     volume: float | Control = 1.0,
     pan: float | Control = 0.0,
-    fxs: dict[str, Any] | None = None,
+    fxs: dict[str, Fx] | None = None,
 ) -> Track:
     """Creates a new sampler track.
 
@@ -175,7 +186,7 @@ def mk_sampler(
         muted (bool, optional): The muted state. Defaults to None.
         volume (float | Control): The volume in the [0.0, 1.0] range. Defaults to 1.0.
         pan (float | Control): The pan in the [-1.0, 1.0] range. Defaults to 0.0.
-        fxs (dict, optional): The effects to apply to the track. Defaults to None.
+        fxs: The effects to apply to the track, as an ordered dict.
     """
     return mk("sampler", muted, volume, pan, fxs, extra={})
 
@@ -187,7 +198,7 @@ def mk_external(
     midi_out: str | None = None,
     audio_in: str | None = None,
     audio_chans: list[int] | None = None,
-    fxs: dict[str, Any] | None = None,
+    fxs: dict[str, Fx] | None = None,
 ) -> Track:
     """Creates a new external device track.
 
@@ -200,7 +211,7 @@ def mk_external(
         midi_out: MIDI output device name.
         audio_in: Audio input device name.
         audio_chans: Channel mapping [L_source, R_source]. Required if audio_in set.
-        fxs: Effects to apply.
+        fxs: The effects to apply to the track, as an ordered dict.
     """
     if midi_out is None and audio_in is None:
         raise ValueError("At least one of midi_out or audio_in must be specified")

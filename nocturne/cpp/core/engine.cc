@@ -3,6 +3,7 @@
 #include <absl/log/log.h>
 
 #include "audio/audio_recorder.hh"
+#include "vst/vst_host.hh"
 
 namespace soir {
 
@@ -44,12 +45,25 @@ absl::Status Engine::Init(const utils::Config& config) {
   }
   LOG(INFO) << "Controls initialized";
 
+  vst_host_ = std::make_unique<vst::VstHost>();
+  status = vst_host_->Init();
+  if (!status.ok()) {
+    LOG(WARNING) << "Failed to initialize VST host: " << status;
+  } else {
+    status = vst_host_->ScanPlugins();
+    if (!status.ok()) {
+      LOG(WARNING) << "Failed to scan VST plugins: " << status;
+    }
+  }
+
   audio_recorder_ = std::make_unique<AudioRecorder>();
 
   return absl::OkStatus();
 }
 
 Controls* Engine::GetControls() { return controls_.get(); }
+
+vst::VstHost* Engine::GetVstHost() { return vst_host_.get(); }
 
 absl::Status Engine::Start() {
   LOG(INFO) << "Starting engine";
@@ -97,7 +111,9 @@ absl::Status Engine::Stop() {
     cv_.notify_all();
   }
 
-  thread_.join();
+  if (thread_.joinable()) {
+    thread_.join();
+  }
 
   {
     std::scoped_lock<std::mutex> lock(tracks_mutex_);
@@ -302,8 +318,8 @@ absl::Status Engine::SetupTracks(const std::list<Track::Settings>& settings) {
   // Perform slow operations here.
   for (auto& track : tracks_to_add) {
     auto new_track = std::make_unique<Track>();
-    auto status =
-        new_track->Init(track.second, sample_manager_.get(), controls_.get());
+    auto status = new_track->Init(track.second, sample_manager_.get(),
+                                  controls_.get(), vst_host_.get());
     if (!status.ok()) {
       LOG(ERROR) << "Failed to initialize track: " << status;
       return status;

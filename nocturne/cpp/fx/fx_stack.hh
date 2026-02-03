@@ -12,12 +12,16 @@
 #include "fx.hh"
 
 namespace soir {
+namespace vst {
+class VstHost;
+}  // namespace vst
+
 namespace fx {
 
 // Represents a stack of ordered DSP fx.
 class FxStack {
  public:
-  FxStack(Controls* controls);
+  FxStack(Controls* controls, vst::VstHost* vst_host);
 
   absl::Status Init(const std::list<Fx::Settings> fx_settings);
 
@@ -32,6 +36,7 @@ class FxStack {
 
  private:
   Controls* controls_;
+  vst::VstHost* vst_host_;
 
   std::mutex mutex_;
   std::list<std::string> order_;

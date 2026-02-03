@@ -6,6 +6,7 @@
 #include <filesystem>
 
 #include "utils/tools.hh"
+#include "vst/vst_host.hh"
 
 namespace soir {
 
@@ -14,10 +15,12 @@ Track::Track() : track_buffer_(kBlockSize) {}
 Track::~Track() { Stop().IgnoreError(); }
 
 absl::Status Track::Init(const Settings& settings,
-                         SampleManager* sample_manager, Controls* controls) {
+                         SampleManager* sample_manager, Controls* controls,
+                         vst::VstHost* vst_host) {
   settings_ = settings;
   controls_ = controls;
   sample_manager_ = sample_manager;
+  vst_host_ = vst_host;
 
   switch (settings_.instrument_) {
     case inst::Type::SAMPLER: {
@@ -46,7 +49,7 @@ absl::Status Track::Init(const Settings& settings,
     return status;
   }
 
-  fx_stack_ = std::make_unique<fx::FxStack>(controls_);
+  fx_stack_ = std::make_unique<fx::FxStack>(controls_, vst_host_);
 
   status = fx_stack_->Init(settings_.fxs_);
   if (!status.ok()) {

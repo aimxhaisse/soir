@@ -449,7 +449,9 @@ absl::Status External::Stop() {
     cv_.notify_all();
   }
 
-  thread_.join();
+  if (thread_.joinable()) {
+    thread_.join();
+  }
 
   LOG(INFO) << "External thread stopped";
 

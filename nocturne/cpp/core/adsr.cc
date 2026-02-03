@@ -79,7 +79,7 @@ void ADSR::NoteOff() {
   }
 
   if (releaseMs_ >= 0.0) {
-    currentState_ = RELEASE;
+    currentState_ = RELEASING;
     return;
   }
 
@@ -113,7 +113,7 @@ float ADSR::GetNextEnvelope() {
       envelope_ = sustainLevel_;
       break;
 
-    case RELEASE:
+    case RELEASING:
       envelope_ -= releaseDec_;
 
       if (envelope_ <= 0.0f) {

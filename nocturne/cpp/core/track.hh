@@ -24,6 +24,9 @@
 #include "utils/config.hh"
 
 namespace soir {
+namespace vst {
+class VstHost;
+}  // namespace vst
 
 // Only sample tracks for now, keep it stupid simple
 // before we introduce more complex stuff.
@@ -43,7 +46,7 @@ struct Track {
   ~Track();
 
   absl::Status Init(const Settings& settings, SampleManager* sample_manager,
-                    Controls* controls);
+                    Controls* controls, vst::VstHost* vst_host);
   absl::Status Start();
   absl::Status Stop();
 
@@ -68,6 +71,7 @@ struct Track {
 
   Controls* controls_;
   SampleManager* sample_manager_;
+  vst::VstHost* vst_host_;
 
   std::mutex mutex_;
   Settings settings_;
