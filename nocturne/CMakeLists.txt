@@ -2,7 +2,11 @@ cmake_minimum_required(VERSION 3.15)
 
 set(CMAKE_POLICY_VERSION_MINIMUM 3.5)
 
-project(soir_core LANGUAGES CXX OBJCXX)
+project(soir_core LANGUAGES CXX)
+
+if(APPLE)
+    enable_language(OBJCXX)
+endif()
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -217,6 +221,10 @@ if(APPLE)
         ${vst3sdk_SOURCE_DIR}/public.sdk/source/vst/hosting/module_mac.mm
         PROPERTIES COMPILE_FLAGS "-fobjc-arc"
     )
+elseif(UNIX)
+    target_sources(soir_vst PRIVATE
+        ${vst3sdk_SOURCE_DIR}/public.sdk/source/vst/hosting/module_linux.cpp
+    )
 endif()
 
 target_include_directories(soir_vst PUBLIC cpp ${vst3sdk_SOURCE_DIR})
@@ -235,6 +243,10 @@ if(APPLE)
     target_link_libraries(soir_vst
         "-framework Cocoa"
         "-framework CoreFoundation"
+    )
+elseif(UNIX)
+    target_link_libraries(soir_vst
+        dl
     )
 endif()
 
