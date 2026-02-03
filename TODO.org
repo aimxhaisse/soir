@@ -1,8 +1,0 @@
-* DONE LPF
-* DONE HPF
-* TODO Simpler / more efficient reverb
-* TODO Better packaging
-* TODO Switch to uv
-* TODO Bound rate of parameter change to avoid glitch
-* TODO Don't load all samples at the beginning
-* TODO Interactive prompt to start/configure a session (input, output, skeleton, packs)

@@ -1,0 +1,11 @@
+{
+  "name": "mxs-samples",
+  "description": "Sample pack created with Soir",
+  "author": "Anonymous",
+  "samples": [
+    {
+      "name": "dynasty-freaking-intro-120",
+      "path": "mxs-samples/dynasty-freaking-intro-120.wav"
+    }
+  ]
+}

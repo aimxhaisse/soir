@@ -1,71 +1,79 @@
-# --- This file is the main entrypoint for anything related to development. ---
-
-set allow-duplicate-recipes := true
-set allow-duplicate-variables := true
-
-export SOIR_DIR := "./dist"
-
 _default:
-    @just --list --unsorted --justfile {{ justfile() }}
+    @just --list
 
-# Setup the virtualenv for Soir.
-_venv:
-    $SOIR_DIR/bin/soir --setup-only
+# Create virtual environment and install Python
+setup:
+    uv python install 3.14.2t
+    uv venv --python 3.14.2t --relocatable
 
-# Build Soir.
-[group('dev')]
-dev-build:
+# Clean build files
+clean:
     #!/usr/bin/env bash
-    if ! [ -f build ]
-    then
-       mkdir -p build
-       cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake -B build -G Ninja
-    fi
-    cmake --build build --parallel 16
-    cp build/soir dist/bin/soir-core
 
-# Runs the Soir unit test suites.
-[group('dev')]
-dev-test filter='*': dev-build _venv
+    rm -rf build/ .dist/ *.egg-info/ .venv/
+    find . -name "*.pyc" -delete
+    find . -name "__pycache__" -delete
+    find py -name "*.so" -delete
+
+# Format code & check code
+check:
     #!/usr/bin/env bash
-    source ${SOIR_DIR}/venv/bin/activate
-    build/src/core/soir_core_test --gtest_filter='{{filter}}'
-    build/src/utils/soir_utils_test --gtest_filter='{{filter}}'
 
-# Build and push documentation to soir.dev.
-[group('dev')]
-dev-mk-docs:
+    uv run black .
+    uv run ruff check . --preview --exclude etc --exclude playground
+    uv run mypy py
+
+    clang-format -i $(find cpp -name '*.cc') $(find cpp -name '*.hh')
+
+# Build C++ extension and install dependencies
+build:
+    uv pip install .[dev]
+    uv run python setup.py build_ext --inplace --with-tests
+
+# Run unit tests only
+test-unit:
+    uv run python setup.py run_cpp_tests
+    uv run pytest py/tests/test_config.py py/tests/test_watcher.py py/tests/test_www.py -v
+
+# Run integration tests only
+test-integration pattern="":
+    uv run pytest -sv --timeout 32 py/tests/integration -v {{ if pattern != "" { "-k '" + pattern + "'" } else { "" } }}
+
+# Run all tests
+test:
+    just test-unit
+    just test-integration
+
+# Create a distributable package
+package:
     #!/usr/bin/env bash
-    source ${SOIR_DIR}/venv/bin/activate
-    cp install.sh www/site/
+    set -e
 
-# Push the documentation to soir.sh.
-[group('dev')]
-dev-sync-docs:
-    #!/usr/bin/env bash
-    rsync -avz --delete dist/www/site/ soir.dev:srv/services/soir.dev/data
+    version=$(grep '^version =' pyproject.toml | awk '{print $3}' | tr -d '"')
+    tarball="soir-${version}-{{arch()}}-{{os()}}.tar.gz"
 
-# Format the C++/Python code.
-[group('dev')]
-dev-fmt: _venv
-    #!/usr/bin/env bash
-    find src/ -name "*.cc" -o -name "*.h" | xargs clang-format -i --style=file
-    uv run --python $SOIR_DIR/venv black $SOIR_DIR/py
+    rm -rf .dist
+    mkdir -p .dist/soir
 
-# Build the package for Soir.
-[group('dev')]
-dev-mk-package: dev-build
-    #!/usr/bin/env bash
-    git fetch --tags
-    TAG=$(git describe --tags `git rev-list --tags --max-count=1`)
-    RELEASE="soir-${TAG}-{{ arch() }}-{{ os() }}"
+    cp -rL .venv .dist/soir
 
-    # Here we are explicit so that we can be sure we don't embed assets
-    # or other files that are not needed.
-    tar -czf ${RELEASE}.tar.gz \
-        dist/bin \
-        dist/etc \
-        dist/py \
-        dist/samples/registry.json \
-        dist/templates \
-        dist/www
+    cp -R etc bin .dist/soir/
+    python_home=$(.venv/bin/python -c "import sys; print(sys.base_prefix)")
+    mkdir -p .dist/soir/.venv/lib
+    cp "$python_home"/lib/libpython3.14t.* .dist/soir/.venv/lib/ 2>/dev/null || true
+
+    .dist/soir/bin/soir --help > /dev/null
+
+    tar -czf "${tarball}" -C .dist soir
+
+# Build Docker image for documentation website
+www-docker-build:
+    docker build --target runtime -t soir-www:latest .
+
+# Run documentation website via docker-compose
+www-docker-up:
+    docker compose up -d
+
+# Stop documentation website
+www-docker-down:
+    docker compose down
