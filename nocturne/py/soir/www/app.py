@@ -154,20 +154,24 @@ def create_app() -> Flask:
 
 
 def start_server(
-    port: int = 5000, dev: bool = False, open_browser: bool = True
+    port: int = 5000,
+    host: str = "127.0.0.1",
+    dev: bool = False,
+    open_browser: bool = True,
 ) -> None:
     """Start the Flask development server.
 
     Args:
         port: Port number to run the server on.
+        host: Host address to bind to. Use "0.0.0.0" for containers.
         dev: Enable development mode with debug and auto-reload.
         open_browser: Automatically open the browser to the app URL.
     """
     app = create_app()
 
-    url = f"http://localhost:{port}"
+    url = f"http://{host}:{port}"
 
-    if open_browser:
+    if open_browser and host == "127.0.0.1":
 
         def open_in_browser() -> None:
             time.sleep(0.5)
@@ -177,4 +181,4 @@ def start_server(
     print(f"Starting Soir documentation server at {url}")
     print("Press Ctrl+C to stop the server")
 
-    app.run(host="127.0.0.1", port=port, debug=dev)
+    app.run(host=host, port=port, debug=dev)

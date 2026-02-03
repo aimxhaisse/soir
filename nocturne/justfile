@@ -65,3 +65,15 @@ package:
     .dist/soir/bin/soir --help > /dev/null
 
     tar -czf "${tarball}" -C .dist soir
+
+# Build Docker image for documentation website
+www-docker-build:
+    docker build --target runtime -t soir-www:latest .
+
+# Run documentation website via docker-compose
+www-docker-up:
+    docker compose up -d
+
+# Stop documentation website
+www-docker-down:
+    docker compose down
