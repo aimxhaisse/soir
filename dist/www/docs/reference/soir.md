@@ -1,7 +1,0 @@
----
-title: Reference
----
-
-# ✨ soir
-
-::: soir
