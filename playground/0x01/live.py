@@ -18,10 +18,11 @@ def setup():
         {
             "lead": tracks.mk_sampler(
                 volume=0.5,
+                fxs={"shimmer": fx.mk_vst('ValhallaShimmer')}
             ),
             "pads": tracks.mk_sampler(
                 volume=0.4,
-                fxs={"reverb": fx.mk_reverb(time=2.0, dry=0.7, wet=1)},
+                fxs={"shimmer": fx.mk_vst('ValhallaShimmer')}
             ),
         }
     )

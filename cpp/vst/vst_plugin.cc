@@ -4,6 +4,7 @@
 
 #include "pluginterfaces/gui/iplugview.h"
 #include "pluginterfaces/vst/ivstaudioprocessor.h"
+#include "pluginterfaces/vst/ivstmessage.h"
 #include "public.sdk/source/vst/utility/stringconvert.h"
 
 namespace soir {
@@ -93,6 +94,16 @@ absl::Status VstPlugin::Init(const std::string& path, FUnknown* host_context) {
 
   if (!controller_) {
     controller_ = FUnknownPtr<IEditController>(component_);
+  }
+
+  // Connect component and controller if they are separate objects.
+  if (controller_) {
+    FUnknownPtr<IConnectionPoint> comp_cp(component_);
+    FUnknownPtr<IConnectionPoint> ctrl_cp(controller_);
+    if (comp_cp && ctrl_cp) {
+      comp_cp->connect(ctrl_cp);
+      ctrl_cp->connect(comp_cp);
+    }
   }
 
   LOG(INFO) << "Loaded VST plugin: " << path;
@@ -245,6 +256,8 @@ absl::StatusOr<float> VstPlugin::GetParameter(uint32_t id) {
   return controller_->getParamNormalized(id);
 }
 
+std::pair<int, int> VstPlugin::GetEditorSize() const { return editor_size_; }
+
 bool VstPlugin::HasEditor() {
   std::lock_guard<std::mutex> lock(mutex_);
 
@@ -259,10 +272,6 @@ bool VstPlugin::HasEditor() {
 absl::Status VstPlugin::OpenEditor(void* parent_window) {
   std::lock_guard<std::mutex> lock(mutex_);
 
-  if (editor_open_) {
-    return absl::AlreadyExistsError("Editor already open");
-  }
-
   if (!controller_) {
     return absl::FailedPreconditionError("No edit controller available");
   }
@@ -270,6 +279,11 @@ absl::Status VstPlugin::OpenEditor(void* parent_window) {
   view_ = controller_->createView(ViewType::kEditor);
   if (!view_) {
     return absl::NotFoundError("Plugin does not have an editor");
+  }
+
+  ViewRect rect{};
+  if (view_->getSize(&rect) == kResultOk) {
+    editor_size_ = {rect.right - rect.left, rect.bottom - rect.top};
   }
 
   auto result = view_->attached(parent_window, kPlatformTypeNSView);
@@ -284,10 +298,6 @@ absl::Status VstPlugin::OpenEditor(void* parent_window) {
 
 absl::Status VstPlugin::CloseEditor() {
   std::lock_guard<std::mutex> lock(mutex_);
-
-  if (!editor_open_) {
-    return absl::OkStatus();
-  }
 
   if (view_) {
     view_->removed();

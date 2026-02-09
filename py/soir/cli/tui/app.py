@@ -13,6 +13,7 @@ from textual.containers import Horizontal, Vertical
 from textual.reactive import reactive
 from textual.widgets import Footer
 
+from soir._bindings.rt import pump_ui_events_
 from soir.cli.tui.commands import CommandInterpreter
 from soir.cli.tui.engine_manager import EngineManager
 from soir.cli.tui.log_tailer import LogTailer
@@ -87,6 +88,7 @@ class SoirTuiApp(App[None]):
         self.run_worker(self._start_engine, thread=True, exclusive=True)
         self.run_worker(self._tail_logs, thread=True, exclusive=True)
         self.run_worker(self._update_info_panel, thread=True, exclusive=True)
+        self.set_interval(1 / 60, self._pump_ui_events)
 
     async def action_quit(self) -> None:
         """Override quit to ensure clean shutdown."""
@@ -165,6 +167,13 @@ class SoirTuiApp(App[None]):
 
             except Exception:
                 time.sleep(0.5)
+
+    def _pump_ui_events(self) -> None:
+        """Pump platform UI events so native windows (e.g. VST editors) render."""
+        try:
+            pump_ui_events_()
+        except Exception:
+            pass
 
     def action_focus_logs(self) -> None:
         """Focus the log viewer for scrolling."""

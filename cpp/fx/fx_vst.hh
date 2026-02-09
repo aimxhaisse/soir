@@ -1,5 +1,6 @@
 #pragma once
 
+#include <functional>
 #include <map>
 #include <memory>
 #include <mutex>
@@ -21,7 +22,7 @@ struct FxVst : public Fx {
   void FastUpdate(const Fx::Settings& settings) override;
   void Render(SampleTick tick, AudioBuffer& buffer) override;
 
-  absl::Status OpenEditor(void* parent_window);
+  absl::Status OpenEditor();
   absl::Status CloseEditor();
   bool IsEditorOpen();
 
@@ -44,6 +45,8 @@ struct FxVst : public Fx {
   std::map<std::string, AutomatedParam> automated_params_;
 
   bool initialized_ = false;
+
+  std::unique_ptr<void, std::function<void(void*)>> editor_window_;
 };
 
 }  // namespace fx
