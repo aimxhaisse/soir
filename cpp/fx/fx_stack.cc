@@ -110,5 +110,33 @@ void FxStack::Render(SampleTick tick, AudioBuffer& buffer) {
   }
 }
 
+absl::StatusOr<FxVst*> FxStack::FindVstFx(const std::string& fx_name) {
+  auto it = fxs_.find(fx_name);
+  if (it == fxs_.end()) {
+    return absl::NotFoundError("Effect not found: " + fx_name);
+  }
+  auto* vst_fx = dynamic_cast<FxVst*>(it->second.get());
+  if (!vst_fx) {
+    return absl::InvalidArgumentError("Effect is not a VST: " + fx_name);
+  }
+  return vst_fx;
+}
+
+absl::Status FxStack::OpenVstEditor(const std::string& fx_name) {
+  std::lock_guard<std::mutex> lock(mutex_);
+
+  auto result = FindVstFx(fx_name);
+  if (!result.ok()) return result.status();
+  return (*result)->OpenEditor();
+}
+
+absl::Status FxStack::CloseVstEditor(const std::string& fx_name) {
+  std::lock_guard<std::mutex> lock(mutex_);
+
+  auto result = FindVstFx(fx_name);
+  if (!result.ok()) return result.status();
+  return (*result)->CloseEditor();
+}
+
 }  // namespace fx
 }  // namespace soir

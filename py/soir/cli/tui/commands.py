@@ -5,6 +5,7 @@ commands from the TUI command shell.
 """
 
 import asyncio
+import json
 from typing import Any
 
 from soir.cli.tui.engine_manager import EngineManager
@@ -14,7 +15,9 @@ from soir._bindings.rt import (
     get_midi_out_devices_,
     start_recording_,
     stop_recording_,
+    vst_close_editor_,
     vst_get_plugins_,
+    vst_open_editor_,
 )
 from soir.rt.sampler import packs as get_packs, samples as get_samples
 from textual.app import App
@@ -35,7 +38,7 @@ class CommandInterpreter:
         "audio-out": "list audio output devices",
         "audio-in": "list audio input devices",
         "midi-out": "list MIDI output devices",
-        "vst list": "list available and instantiated VST plugins",
+        "vst list|open|close": "manage VST plugins and editors",
         "record start <file.wav>": "start recording to file",
         "record stop": "stop recording",
         "quit": "quit the session",
@@ -258,9 +261,20 @@ class CommandInterpreter:
         Returns:
             Formatted VST information
         """
-        if not args or args[0].lower() != "list":
-            return "usage: vst list"
+        if not args:
+            return "usage: vst list | vst open <track>/<fx> | vst close <track>/<fx>"
 
+        subcmd = args[0].lower()
+
+        if subcmd == "list":
+            return self._vst_list()
+        elif subcmd in ("open", "close"):
+            return self._vst_editor(subcmd, args[1:])
+        else:
+            return "usage: vst list | vst open <track>/<fx> | vst close <track>/<fx>"
+
+    def _vst_list(self) -> str:
+        """List available and instantiated VST plugins."""
         lines: list[str] = []
 
         plugins = vst_get_plugins_()
@@ -279,12 +293,13 @@ class CommandInterpreter:
         for track in tracks:
             track_name = track.get("name", "unknown")
             fxs = track.get("fxs", [])
-            for fx in fxs:
-                if fx.get("type") == "vst":
-                    extra = fx.get("extra", {})
+            for fx_info in fxs:
+                if fx_info.get("type") == "vst":
+                    extra_raw = fx_info.get("extra", "{}")
+                    extra = json.loads(extra_raw) if extra_raw else {}
                     plugin_name = extra.get("plugin", "unknown")
-                    fx_name = fx.get("name", "unnamed")
-                    instantiated.append(f"  {track_name}/{fx_name}: {plugin_name}")
+                    fx_name = fx_info.get("name", "unnamed")
+                    instantiated.append(f"  <{track_name}/{fx_name}>: {plugin_name}")
 
         lines.append(f"[Instantiated VST Effects: {len(instantiated)}]")
         if instantiated:
@@ -293,3 +308,28 @@ class CommandInterpreter:
             lines.append("  (none)")
 
         return "\n".join(lines)
+
+    def _vst_editor(self, action: str, args: list[str]) -> str:
+        """Open or close a VST plugin editor.
+
+        Args:
+            action: "open" or "close"
+            args: Command arguments, expecting ["<track>/<fx>"]
+
+        Returns:
+            Result message
+        """
+        if not args or "/" not in args[0]:
+            return f"usage: vst {action} <track>/<fx>"
+
+        track, fx = args[0].split("/", 1)
+
+        try:
+            if action == "open":
+                vst_open_editor_(track, fx)
+                return f"opened VST editor: {track}/{fx}"
+            else:
+                vst_close_editor_(track, fx)
+                return f"closed VST editor: {track}/{fx}"
+        except RuntimeError as e:
+            return f"error: {e}"

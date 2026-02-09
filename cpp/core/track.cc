@@ -135,6 +135,14 @@ const std::string& Track::GetTrackName() {
 
 Levels Track::GetLevels() const { return level_meter_.GetLevels(); }
 
+absl::Status Track::OpenVstEditor(const std::string& fx_name) {
+  return fx_stack_->OpenVstEditor(fx_name);
+}
+
+absl::Status Track::CloseVstEditor(const std::string& fx_name) {
+  return fx_stack_->CloseVstEditor(fx_name);
+}
+
 void Track::RenderAsync(SampleTick tick, const std::list<MidiEventAt>& events) {
   std::lock_guard<std::mutex> lock(work_mutex_);
 

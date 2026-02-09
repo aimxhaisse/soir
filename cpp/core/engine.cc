@@ -368,6 +368,24 @@ std::optional<Levels> Engine::GetTrackLevels(const std::string& name) {
   return std::nullopt;
 }
 
+absl::Status Engine::OpenVstEditor(const std::string& track_name,
+                                   const std::string& fx_name) {
+  std::scoped_lock<std::mutex> lock(tracks_mutex_);
+  auto it = tracks_.find(track_name);
+  if (it == tracks_.end())
+    return absl::NotFoundError("Track not found: " + track_name);
+  return it->second->OpenVstEditor(fx_name);
+}
+
+absl::Status Engine::CloseVstEditor(const std::string& track_name,
+                                    const std::string& fx_name) {
+  std::scoped_lock<std::mutex> lock(tracks_mutex_);
+  auto it = tracks_.find(track_name);
+  if (it == tracks_.end())
+    return absl::NotFoundError("Track not found: " + track_name);
+  return it->second->CloseVstEditor(fx_name);
+}
+
 absl::Status Engine::StartRecording(const std::string& file_path) {
   if (!audio_recorder_) {
     return absl::InternalError("AudioRecorder not initialized");

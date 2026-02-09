@@ -14,6 +14,12 @@
 #include "rt/runtime.hh"
 #include "vst/vst_host.hh"
 
+namespace soir {
+namespace vst {
+extern void PumpEvents();
+}  // namespace vst
+}  // namespace soir
+
 namespace py = pybind11;
 using namespace pybind11::literals;
 
@@ -345,6 +351,26 @@ void Bind::PyRt(py::module_& m) {
         "peak_left"_a = levels.peak_left, "peak_right"_a = levels.peak_right,
         "rms_left"_a = levels.rms_left, "rms_right"_a = levels.rms_right);
   });
+
+  rt.def("pump_ui_events_", []() { soir::vst::PumpEvents(); });
+
+  rt.def("vst_open_editor_",
+         [](const std::string& track, const std::string& fx) {
+           auto status = gDsp_->OpenVstEditor(track, fx);
+           if (!status.ok()) {
+             throw std::runtime_error(std::string(status.message()));
+           }
+           return true;
+         });
+
+  rt.def("vst_close_editor_",
+         [](const std::string& track, const std::string& fx) {
+           auto status = gDsp_->CloseVstEditor(track, fx);
+           if (!status.ok()) {
+             throw std::runtime_error(std::string(status.message()));
+           }
+           return true;
+         });
 
   rt.def("vst_get_plugins_", []() {
     std::vector<py::dict> result;

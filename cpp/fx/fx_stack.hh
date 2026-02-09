@@ -1,6 +1,7 @@
 #pragma once
 
 #include <absl/status/status.h>
+#include <absl/status/statusor.h>
 
 #include <list>
 #include <map>
@@ -18,7 +19,7 @@ class VstHost;
 
 namespace fx {
 
-// Represents a stack of ordered DSP fx.
+struct FxVst;
 class FxStack {
  public:
   FxStack(Controls* controls, vst::VstHost* vst_host);
@@ -34,7 +35,12 @@ class FxStack {
   void FastUpdate(const std::list<Fx::Settings> fx_settings);
   void Render(SampleTick tick, AudioBuffer& buffer);
 
+  absl::Status OpenVstEditor(const std::string& fx_name);
+  absl::Status CloseVstEditor(const std::string& fx_name);
+
  private:
+  absl::StatusOr<FxVst*> FindVstFx(const std::string& fx_name);
+
   Controls* controls_;
   vst::VstHost* vst_host_;
 

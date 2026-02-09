@@ -59,6 +59,9 @@ struct Track {
   const std::string& GetTrackName();
   Levels GetLevels() const;
 
+  absl::Status OpenVstEditor(const std::string& fx_name);
+  absl::Status CloseVstEditor(const std::string& fx_name);
+
   // Schedule an async render operation
   void RenderAsync(SampleTick tick, const std::list<MidiEventAt>& events);
 

@@ -6,6 +6,7 @@
 #include <map>
 #include <mutex>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "audio/audio_buffer.hh"
@@ -48,6 +49,7 @@ class VstPlugin {
   absl::Status OpenEditor(void* parent_window);
   absl::Status CloseEditor();
   bool IsEditorOpen();
+  std::pair<int, int> GetEditorSize() const;
 
   absl::StatusOr<std::vector<uint8_t>> SaveState();
   absl::Status LoadState(const std::vector<uint8_t>& state);
@@ -56,6 +58,7 @@ class VstPlugin {
   std::mutex mutex_;
   bool activated_ = false;
   bool editor_open_ = false;
+  std::pair<int, int> editor_size_ = {800, 600};
 
   VST3::Hosting::Module::Ptr module_;
   Steinberg::IPtr<Steinberg::Vst::IComponent> component_;
