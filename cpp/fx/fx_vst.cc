@@ -25,13 +25,13 @@ absl::Status FxVst::Init(const Fx::Settings& settings) {
     return absl::InvalidArgumentError("VST effect missing 'plugin' field");
   }
 
-  plugin_uid_ = doc["plugin"].GetString();
+  plugin_name_ = doc["plugin"].GetString();
 
   if (!vst_host_) {
     return absl::FailedPreconditionError("VST host not available");
   }
 
-  auto result = vst_host_->LoadPlugin(plugin_uid_);
+  auto result = vst_host_->LoadPlugin(plugin_name_);
   if (!result.ok()) {
     return result.status();
   }
@@ -46,7 +46,7 @@ absl::Status FxVst::Init(const Fx::Settings& settings) {
   ReloadParams();
   initialized_ = true;
 
-  LOG(INFO) << "Initialized VST effect: " << plugin_uid_;
+  LOG(INFO) << "Initialized VST effect: " << plugin_name_;
   return absl::OkStatus();
 }
 
@@ -63,8 +63,8 @@ bool FxVst::CanFastUpdate(const Fx::Settings& settings) {
     return false;
   }
 
-  std::string new_uid = doc["plugin"].GetString();
-  return new_uid == plugin_uid_;
+  std::string new_name = doc["plugin"].GetString();
+  return new_name == plugin_name_;
 }
 
 void FxVst::FastUpdate(const Fx::Settings& settings) {

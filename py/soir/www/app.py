@@ -10,7 +10,6 @@ from flask import Flask, abort, render_template
 from .docs import DocsCache, extract_module_docs
 from .renderer import create_markdown_renderer, render_module
 
-
 PUBLIC_MODULES = [
     "bpm",
     "ctrls",

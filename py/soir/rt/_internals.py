@@ -11,7 +11,6 @@ from soir.rt.errors import (
     NotInLoopException,
 )
 
-
 # Incremented at each buffer evaluation, used to remove loops and live
 # functions that are not part of the buffer anymore.
 eval_id_ = 0

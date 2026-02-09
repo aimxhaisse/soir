@@ -16,7 +16,6 @@ from soir.watcher import Watcher
 import soir._bindings as bindings
 import soir._bindings.logging as logging
 
-
 session_app = typer.Typer(help="Create and manage Soir sessions.")
 
 

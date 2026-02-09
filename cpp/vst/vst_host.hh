@@ -59,9 +59,10 @@ class VstHost {
 
   absl::Status ScanPlugins();
   std::map<std::string, PluginInfo> GetAvailablePlugins();
-  absl::StatusOr<PluginInfo> GetPlugin(const std::string& uid);
+  absl::StatusOr<PluginInfo> GetPlugin(const std::string& name);
 
-  absl::StatusOr<std::unique_ptr<VstPlugin>> LoadPlugin(const std::string& uid);
+  absl::StatusOr<std::unique_ptr<VstPlugin>> LoadPlugin(
+      const std::string& name);
 
   // Get the host context for plugin initialization.
   Steinberg::FUnknown* GetHostContext();

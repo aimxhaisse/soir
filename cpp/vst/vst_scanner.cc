@@ -111,7 +111,7 @@ absl::Status VstScanner::ProbePlugin(
       plugin_info.num_audio_inputs = 2;
       plugin_info.num_audio_outputs = 2;
 
-      (*plugins)[plugin_info.uid] = plugin_info;
+      (*plugins)[plugin_info.name] = plugin_info;
       LOG(INFO) << "Found VST plugin: " << plugin_info.name << " ("
                 << plugin_info.vendor << ")";
     }

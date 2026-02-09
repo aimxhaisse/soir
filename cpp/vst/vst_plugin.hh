@@ -33,8 +33,7 @@ class VstPlugin {
   VstPlugin();
   ~VstPlugin();
 
-  absl::Status Init(const std::string& path, const std::string& uid,
-                    Steinberg::FUnknown* host_context);
+  absl::Status Init(const std::string& path, Steinberg::FUnknown* host_context);
   absl::Status Shutdown();
   absl::Status Activate(int sample_rate, int block_size);
   absl::Status Deactivate();

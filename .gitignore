@@ -10,3 +10,4 @@ Dockerfile
 .*
 *.pyc
 lib/samples
+playground

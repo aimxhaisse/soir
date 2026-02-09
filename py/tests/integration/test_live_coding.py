@@ -42,15 +42,11 @@ log(str(_internals.get_live('kick').code))
 """
         self.engine.push_code(code)
 
-        self.assertTrue(
-            self.engine.wait_for_notification(
-                """\
+        self.assertTrue(self.engine.wait_for_notification("""\
     log('hello')
     pass
     log('world')
-"""
-            )
-        )
+"""))
 
         code2 = """
 @live()

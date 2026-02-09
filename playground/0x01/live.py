@@ -4,9 +4,6 @@
 # Experiments around Signatune.
 
 
-MODE = "live"
-
-
 @live()
 def setup():
     bpm.set(120)
@@ -15,24 +12,16 @@ def setup():
     ctrls.mk_lfo("x2", 0.25, low=0.1, high=0.6)
     ctrls.mk_lfo("x3", 0.02)
     ctrls.mk_lfo("x4", 0.01, low=0.1, high=0.4)
-    ctrls.mk_lfo("x5", 0.01, low=0.1, high=0.7)
+    ctrls.mk_lfo("x5", 0.01, low=0.25, high=1.0)
 
     tracks.setup(
         {
             "lead": tracks.mk_sampler(
-                volume=0.2,
-                fxs={
-                    "lpf": fx.mk_lpf(cutoff=ctrl("x5")),
-                    "chorus": fx.mk_chorus(
-                        time=ctrl("x1"), depth=ctrl("x2"), rate=ctrl("x3")
-                    ),
-                    "reverb": fx.mk_reverb(time=1.0, dry=0, wet=1),
-                },
+                volume=0.5,
             ),
-            "bass": tracks.mk_external(
-                audio_in="Scarlett 18i20 USB",
-                midi_out="Moog Minitaur",
-                audio_chans=[0, 1],
+            "pads": tracks.mk_sampler(
+                volume=0.4,
+                fxs={"reverb": fx.mk_reverb(time=2.0, dry=0.7, wet=1)},
             ),
         }
     )
@@ -85,30 +74,18 @@ signatune_4 = [
 ]
 
 
-@loop(track="bass", beats=1)
-def minitaur():
-    log("ok")
-    with midi.use_chan(1):
-        midi.note_on(30)
-        sleep(0.5)
-        midi.note_off(30)
-
-
 @loop(track="lead", beats=16)
 def lead():
-    return
     for pattern in [signatune_1, signatune_2, signatune_3, signatune_4]:
         slept = 0
-        i = 0
         for splay in pattern:
-            i += 1
             params = {
                 "start": splay["start"],
                 "end": splay["start"] + splay["dur"],
                 "pan": rnd.between(-0.1, 0.1),
             }
 
-            for rate in [1, 2, 4]:
+            for rate in [1]:
                 params["rate"] = rate
                 sp.play("dynasty-freaking-intro-120", **params)
 
@@ -117,3 +94,19 @@ def lead():
             slept += sleep_for
 
         sleep(4 - slept)
+
+
+@loop(track="pads", beats=16)
+def pads():
+    return
+    for pattern in [signatune_1, signatune_2, signatune_3, signatune_4]:
+        for i in range(16):
+            splay = pattern[0]
+            params = {
+                "start": splay["start"],
+                "end": splay["start"] + splay["dur"],
+                "pan": rnd.between(-0.1, 0.1),
+            }
+            params["rate"] = 2
+            sp.play("dynasty-freaking-intro-120", **params)
+            sleep(1 / 4)

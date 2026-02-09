@@ -353,7 +353,7 @@ void Bind::PyRt(py::module_& m) {
       return result;
     }
     auto plugins = vst_host->GetAvailablePlugins();
-    for (const auto& [uid, info] : plugins) {
+    for (const auto& [name, info] : plugins) {
       result.push_back(py::dict(
           "uid"_a = info.uid, "name"_a = info.name, "vendor"_a = info.vendor,
           "category"_a = info.category, "path"_a = info.path));

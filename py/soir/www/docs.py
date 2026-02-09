@@ -68,7 +68,7 @@ def extract_module_docs(module_path: str) -> ModuleDoc:
         if callable(obj):
             try:
                 signature = str(inspect.signature(obj))
-            except (ValueError, TypeError):
+            except ValueError, TypeError:
                 # Some builtin types (like exception classes) don't have
                 # accessible signatures in Python 3.14+
                 signature = None
@@ -100,7 +100,7 @@ def extract_module_docs(module_path: str) -> ModuleDoc:
                     try:
                         sig = inspect.signature(method_obj)
                         method_signature = str(sig)
-                    except (ValueError, TypeError):
+                    except ValueError, TypeError:
                         # Some builtin types don't have accessible signatures
                         method_signature = None
 

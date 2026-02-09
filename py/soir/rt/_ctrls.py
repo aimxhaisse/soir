@@ -13,7 +13,6 @@ from soir._bindings.rt import (
     controls_get_frequency_update_,
 )
 
-
 # Incremented at each buffer evaluation, used to remove controls
 # that aren't defined in the global scope anymore.
 #
