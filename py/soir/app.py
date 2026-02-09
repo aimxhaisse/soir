@@ -4,7 +4,6 @@ from soir.cli.samples import app as samples_app
 from soir.cli.session import session_app
 from soir.cli.www import www_app
 
-
 app = typer.Typer()
 
 

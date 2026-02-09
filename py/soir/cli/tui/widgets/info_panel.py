@@ -11,7 +11,6 @@ from typing import Any
 from textual.reactive import reactive
 from textual.widgets import Static
 
-
 # Color palette matching website CSS
 _COLOR_TEXT = "#b8c0cc"
 _COLOR_TEXT_DIM = "#4a5878"

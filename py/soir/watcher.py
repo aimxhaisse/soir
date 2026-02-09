@@ -16,7 +16,6 @@ import os
 from soir.config import Config
 import soir._bindings.logging as logging
 
-
 # This sends the updated code to the Soir runtime engine. The full
 # code of the entire live directory is expected.
 CodeUpdateCallback = Callable[[str], None]

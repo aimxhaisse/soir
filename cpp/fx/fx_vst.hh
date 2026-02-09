@@ -35,7 +35,7 @@ struct FxVst : public Fx {
   Fx::Settings settings_;
 
   std::unique_ptr<vst::VstPlugin> plugin_;
-  std::string plugin_uid_;
+  std::string plugin_name_;
 
   struct AutomatedParam {
     Parameter param;

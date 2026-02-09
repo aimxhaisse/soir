@@ -112,28 +112,28 @@ std::map<std::string, PluginInfo> VstHost::GetAvailablePlugins() {
   return plugins_;
 }
 
-absl::StatusOr<PluginInfo> VstHost::GetPlugin(const std::string& uid) {
+absl::StatusOr<PluginInfo> VstHost::GetPlugin(const std::string& name) {
   std::lock_guard<std::mutex> lock(mutex_);
 
-  auto it = plugins_.find(uid);
-  if (it == plugins_.end()) {
-    return absl::NotFoundError("Plugin not found: " + uid);
+  auto it = plugins_.find(name);
+  if (it != plugins_.end()) {
+    return it->second;
   }
 
-  return it->second;
+  return absl::NotFoundError("Plugin not found: " + name);
 }
 
 absl::StatusOr<std::unique_ptr<VstPlugin>> VstHost::LoadPlugin(
-    const std::string& uid) {
+    const std::string& name) {
   std::lock_guard<std::mutex> lock(mutex_);
 
-  auto it = plugins_.find(uid);
+  auto it = plugins_.find(name);
   if (it == plugins_.end()) {
-    return absl::NotFoundError("Plugin not found: " + uid);
+    return absl::NotFoundError("Plugin not found: " + name);
   }
 
   auto plugin = std::make_unique<VstPlugin>();
-  auto status = plugin->Init(it->second.path, uid, host_context_.get());
+  auto status = plugin->Init(it->second.path, host_context_.get());
   if (!status.ok()) {
     return status;
   }

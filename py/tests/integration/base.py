@@ -28,12 +28,10 @@ class SoirIntegrationTestCase(unittest.TestCase):
 
     def resetPythonInternals(self) -> None:
         """Reset internal state of Soir modules."""
-        self.engine.push_code(
-            """\
+        self.engine.push_code("""\
 reset()
 log("reset done")
-"""
-        )
+""")
         self.engine.wait_for_notification("reset done")
 
     def tearDown(self) -> None:
