@@ -66,9 +66,13 @@ package:
 
     tar -czf "${tarball}" -C .dist soir
 
+# Build Docker image (builder stage only, no www)
+docker-build:
+    docker build --target builder -t soir:latest .
+
 # Build Docker image for documentation website
 www-docker-build:
-    docker build --target runtime -t soir-www:latest .
+    docker build --target runtime-www -t soir-www:latest .
 
 # Run documentation website via docker-compose
 www-docker-up:
