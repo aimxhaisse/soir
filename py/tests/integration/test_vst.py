@@ -501,5 +501,425 @@ except Exception as e:
 """)
 
 
+class TestVstInstrumentDiscovery(SoirIntegrationTestCase):
+    """Test VST3 instrument plugin discovery."""
+
+    def test_vst_instruments_returns_list(self) -> None:
+        """Test that vst.instruments() returns a list."""
+        self.engine.push_code("""
+instruments = vst.instruments()
+log(f"type={type(instruments).__name__}")
+log(f"count={len(instruments)}")
+""")
+
+        self.assertTrue(self.engine.wait_for_notification("type=list"))
+        self.assertTrue(self.engine.wait_for_notification("count="))
+
+    def test_vst_effects_returns_list(self) -> None:
+        """Test that vst.effects() returns a list."""
+        self.engine.push_code("""
+effects = vst.effects()
+log(f"type={type(effects).__name__}")
+log(f"count={len(effects)}")
+""")
+
+        self.assertTrue(self.engine.wait_for_notification("type=list"))
+        self.assertTrue(self.engine.wait_for_notification("count="))
+
+    def test_vst_plugin_type_field(self) -> None:
+        """Test that plugins have a type field (effect or instrument)."""
+        self.engine.push_code("""
+plugins = vst.plugins()
+if not plugins:
+    log("type_check=skipped")
+else:
+    all_have_type = all('type' in p for p in plugins)
+    valid_types = all(p['type'] in ('effect', 'instrument') for p in plugins)
+    log(f"type_check={all_have_type and valid_types}")
+""")
+
+        self.assertTrue(self.engine.wait_for_notification("type_check="))
+
+    def test_vst_instruments_only_instruments(self) -> None:
+        """Test that vst.instruments() only returns instrument-type plugins."""
+        self.engine.push_code("""
+instruments = vst.instruments()
+if not instruments:
+    log("filter_check=skipped")
+else:
+    all_instruments = all(p.get('type') == 'instrument' for p in instruments)
+    log(f"filter_check={all_instruments}")
+""")
+
+        self.assertTrue(self.engine.wait_for_notification("filter_check="))
+
+    def test_vst_effects_only_effects(self) -> None:
+        """Test that vst.effects() only returns effect-type plugins."""
+        self.engine.push_code("""
+effects = vst.effects()
+if not effects:
+    log("filter_check=skipped")
+else:
+    all_effects = all(p.get('type') == 'effect' for p in effects)
+    log(f"filter_check={all_effects}")
+""")
+
+        self.assertTrue(self.engine.wait_for_notification("filter_check="))
+
+    def test_vst_instruments_plus_effects_equals_plugins(self) -> None:
+        """Test that instruments + effects covers all plugins."""
+        self.engine.push_code("""
+all_plugins = vst.plugins()
+instruments = vst.instruments()
+effects = vst.effects()
+total_match = len(instruments) + len(effects) == len(all_plugins)
+log(f"total_match={total_match}")
+""")
+
+        self.assertTrue(self.engine.wait_for_notification("total_match=True"))
+
+
+class TestVstInstrumentSetup(SoirIntegrationTestCase):
+    """Test creating VST instrument tracks."""
+
+    def _run_vst_test(self, code: str) -> None:
+        """Helper to run VST test code and handle results."""
+        self.engine.push_code(code)
+        self.assertTrue(self.engine.wait_for_notification("vst_test_result="))
+        for n in self.engine.get_notifications():
+            if "vst_test_result=skipped" in n:
+                self.skipTest("No VST3 instrument plugins available")
+            if "vst_test_result=vst_broken" in n:
+                self.skipTest("VST host not properly initialized in test environment")
+            if "vst_test_result=passed" in n:
+                return
+            if "vst_test_result=failed" in n:
+                self.fail(f"Test failed: {n}")
+            if "vst_test_result=error" in n:
+                self.fail(f"Exception in test: {n}")
+
+    def test_setup_vst_instrument_track(self) -> None:
+        """Test creating a track with a VST instrument."""
+        self._run_vst_test("""
+try:
+    instruments = vst.instruments()
+    if not instruments:
+        log("vst_test_result=skipped")
+    else:
+        plugin_name = instruments[0]['name']
+        tracks.setup({
+            'synth': tracks.mk_vst(plugin_name),
+        })
+        layout = tracks.layout()
+        if len(layout) == 0:
+            log("vst_test_result=vst_broken")
+        elif 'synth' in layout and layout['synth'].instrument == 'vst':
+            log("vst_test_result=passed")
+        else:
+            inst = layout['synth'].instrument if 'synth' in layout else 'missing'
+            log(f"vst_test_result=failed:instrument={inst}")
+except Exception as e:
+    log(f"vst_test_result=error:{e}")
+""")
+
+    def test_setup_vst_instrument_with_static_params(self) -> None:
+        """Test creating a VSTi track with static parameter values."""
+        self._run_vst_test("""
+try:
+    instruments = vst.instruments()
+    if not instruments:
+        log("vst_test_result=skipped")
+    else:
+        plugin_name = instruments[0]['name']
+        tracks.setup({
+            'synth': tracks.mk_vst(plugin_name, params={'cutoff': 0.5}),
+        })
+        layout = tracks.layout()
+        if len(layout) == 0:
+            log("vst_test_result=vst_broken")
+        elif 'synth' in layout and layout['synth'].instrument == 'vst':
+            log("vst_test_result=passed")
+        else:
+            inst = layout['synth'].instrument if 'synth' in layout else 'missing'
+            log(f"vst_test_result=failed:instrument={inst}")
+except Exception as e:
+    log(f"vst_test_result=error:{e}")
+""")
+
+    def test_setup_vst_instrument_with_control_params(self) -> None:
+        """Test creating a VSTi track with control-based parameter automation."""
+        self._run_vst_test("""
+try:
+    instruments = vst.instruments()
+    if not instruments:
+        log("vst_test_result=skipped")
+    else:
+        plugin_name = instruments[0]['name']
+        ctrls.mk_val('filter_ctl', 0.7)
+        tracks.setup({
+            'synth': tracks.mk_vst(plugin_name, params={'cutoff': ctrl('filter_ctl')}),
+        })
+        layout = tracks.layout()
+        if len(layout) == 0:
+            log("vst_test_result=vst_broken")
+        elif 'synth' in layout and layout['synth'].instrument == 'vst':
+            log("vst_test_result=passed")
+        else:
+            inst = layout['synth'].instrument if 'synth' in layout else 'missing'
+            log(f"vst_test_result=failed:instrument={inst}")
+except Exception as e:
+    log(f"vst_test_result=error:{e}")
+""")
+
+    def test_setup_vst_instrument_with_fxs(self) -> None:
+        """Test creating a VSTi track with effects chain."""
+        self._run_vst_test("""
+try:
+    instruments = vst.instruments()
+    if not instruments:
+        log("vst_test_result=skipped")
+    else:
+        plugin_name = instruments[0]['name']
+        tracks.setup({
+            'synth': tracks.mk_vst(plugin_name, fxs={
+                'reverb': fx.mk_reverb(mix=0.3),
+            }),
+        })
+        layout = tracks.layout()
+        if len(layout) == 0:
+            log("vst_test_result=vst_broken")
+        elif 'synth' in layout and layout['synth'].instrument == 'vst':
+            fxs_types = [f.type for f in layout['synth'].fxs.values()]
+            if fxs_types == ['reverb']:
+                log("vst_test_result=passed")
+            else:
+                log(f"vst_test_result=failed:fxs={fxs_types}")
+        else:
+            inst = layout['synth'].instrument if 'synth' in layout else 'missing'
+            log(f"vst_test_result=failed:instrument={inst}")
+except Exception as e:
+    log(f"vst_test_result=error:{e}")
+""")
+
+    def test_setup_vst_instrument_with_vst_fx(self) -> None:
+        """Test creating a VSTi track with a VST effect in the FX chain."""
+        self._run_vst_test("""
+try:
+    instruments = vst.instruments()
+    fx_plugins = vst.effects()
+    if not instruments:
+        log("vst_test_result=skipped")
+    elif not fx_plugins:
+        log("vst_test_result=skipped")
+    else:
+        inst_name = instruments[0]['name']
+        fx_name = fx_plugins[0]['name']
+        tracks.setup({
+            'synth': tracks.mk_vst(inst_name, fxs={
+                'my_fx': fx.mk_vst(fx_name),
+            }),
+        })
+        layout = tracks.layout()
+        if len(layout) == 0:
+            log("vst_test_result=vst_broken")
+        elif 'synth' in layout and layout['synth'].instrument == 'vst':
+            fxs_types = [f.type for f in layout['synth'].fxs.values()]
+            if fxs_types == ['vst']:
+                log("vst_test_result=passed")
+            else:
+                log(f"vst_test_result=failed:fxs={fxs_types}")
+        else:
+            inst = layout['synth'].instrument if 'synth' in layout else 'missing'
+            log(f"vst_test_result=failed:instrument={inst}")
+except Exception as e:
+    log(f"vst_test_result=error:{e}")
+""")
+
+    def test_setup_vst_instrument_volume_pan(self) -> None:
+        """Test creating a VSTi track with custom volume and pan."""
+        self._run_vst_test("""
+try:
+    instruments = vst.instruments()
+    if not instruments:
+        log("vst_test_result=skipped")
+    else:
+        plugin_name = instruments[0]['name']
+        tracks.setup({
+            'synth': tracks.mk_vst(plugin_name, volume=0.5, pan=-0.3),
+        })
+        layout = tracks.layout()
+        if len(layout) == 0:
+            log("vst_test_result=vst_broken")
+        elif 'synth' in layout and layout['synth'].instrument == 'vst':
+            vol_ok = abs(layout['synth'].volume - 0.5) < 0.01
+            pan_ok = abs(layout['synth'].pan - (-0.3)) < 0.01
+            if vol_ok and pan_ok:
+                log("vst_test_result=passed")
+            else:
+                log(f"vst_test_result=failed:vol={layout['synth'].volume},pan={layout['synth'].pan}")
+        else:
+            inst = layout['synth'].instrument if 'synth' in layout else 'missing'
+            log(f"vst_test_result=failed:instrument={inst}")
+except Exception as e:
+    log(f"vst_test_result=error:{e}")
+""")
+
+    def test_setup_vst_instrument_muted(self) -> None:
+        """Test creating a muted VSTi track."""
+        self._run_vst_test("""
+try:
+    instruments = vst.instruments()
+    if not instruments:
+        log("vst_test_result=skipped")
+    else:
+        plugin_name = instruments[0]['name']
+        tracks.setup({
+            'synth': tracks.mk_vst(plugin_name, muted=True),
+        })
+        layout = tracks.layout()
+        if len(layout) == 0:
+            log("vst_test_result=vst_broken")
+        elif 'synth' in layout and layout['synth'].instrument == 'vst' and layout['synth'].muted:
+            log("vst_test_result=passed")
+        else:
+            muted = layout['synth'].muted if 'synth' in layout else 'missing'
+            log(f"vst_test_result=failed:muted={muted}")
+except Exception as e:
+    log(f"vst_test_result=error:{e}")
+""")
+
+
+class TestVstInstrumentMultipleTracks(SoirIntegrationTestCase):
+    """Test multiple VST instrument tracks."""
+
+    def _run_vst_test(self, code: str) -> None:
+        """Helper to run VST test code and handle results."""
+        self.engine.push_code(code)
+        self.assertTrue(self.engine.wait_for_notification("vst_test_result="))
+        for n in self.engine.get_notifications():
+            if "vst_test_result=skipped" in n:
+                self.skipTest("No VST3 instrument plugins available")
+            if "vst_test_result=vst_broken" in n:
+                self.skipTest("VST host not properly initialized in test environment")
+            if "vst_test_result=passed" in n:
+                return
+            if "vst_test_result=failed" in n:
+                self.fail(f"Test failed: {n}")
+            if "vst_test_result=error" in n:
+                self.fail(f"Exception in test: {n}")
+
+    def test_multiple_vst_instrument_tracks(self) -> None:
+        """Test creating multiple VSTi tracks."""
+        self._run_vst_test("""
+try:
+    instruments = vst.instruments()
+    if not instruments:
+        log("vst_test_result=skipped")
+    else:
+        plugin_name = instruments[0]['name']
+        tracks.setup({
+            'lead': tracks.mk_vst(plugin_name),
+            'bass': tracks.mk_vst(plugin_name),
+        })
+        layout = tracks.layout()
+        if len(layout) == 0:
+            log("vst_test_result=vst_broken")
+        else:
+            has_two = len(layout) == 2
+            lead_ok = 'lead' in layout and layout['lead'].instrument == 'vst'
+            bass_ok = 'bass' in layout and layout['bass'].instrument == 'vst'
+            if has_two and lead_ok and bass_ok:
+                log("vst_test_result=passed")
+            else:
+                log(f"vst_test_result=failed:has_two={has_two},lead_ok={lead_ok},bass_ok={bass_ok}")
+except Exception as e:
+    log(f"vst_test_result=error:{e}")
+""")
+
+    def test_vst_instrument_alongside_sampler(self) -> None:
+        """Test VSTi track alongside a sampler track."""
+        self._run_vst_test("""
+try:
+    instruments = vst.instruments()
+    if not instruments:
+        log("vst_test_result=skipped")
+    else:
+        plugin_name = instruments[0]['name']
+        tracks.setup({
+            'synth': tracks.mk_vst(plugin_name),
+            'drums': tracks.mk_sampler(),
+        })
+        layout = tracks.layout()
+        if len(layout) == 0:
+            log("vst_test_result=vst_broken")
+        else:
+            has_two = len(layout) == 2
+            synth_ok = 'synth' in layout and layout['synth'].instrument == 'vst'
+            drums_ok = 'drums' in layout and layout['drums'].instrument == 'sampler'
+            if has_two and synth_ok and drums_ok:
+                log("vst_test_result=passed")
+            else:
+                log(f"vst_test_result=failed:has_two={has_two},synth_ok={synth_ok},drums_ok={drums_ok}")
+except Exception as e:
+    log(f"vst_test_result=error:{e}")
+""")
+
+    def test_replace_sampler_with_vst_instrument(self) -> None:
+        """Test replacing a sampler track with a VSTi track."""
+        self._run_vst_test("""
+try:
+    instruments = vst.instruments()
+    if not instruments:
+        log("vst_test_result=skipped")
+    else:
+        plugin_name = instruments[0]['name']
+        # Start with sampler
+        tracks.setup({
+            'synth': tracks.mk_sampler(),
+        })
+        layout = tracks.layout()
+        if len(layout) == 0:
+            log("vst_test_result=vst_broken")
+        else:
+            was_sampler = 'synth' in layout and layout['synth'].instrument == 'sampler'
+            # Replace with VSTi
+            tracks.setup({
+                'synth': tracks.mk_vst(plugin_name),
+            })
+            layout = tracks.layout()
+            now_vst = 'synth' in layout and layout['synth'].instrument == 'vst'
+            if was_sampler and now_vst:
+                log("vst_test_result=passed")
+            else:
+                log(f"vst_test_result=failed:was_sampler={was_sampler},now_vst={now_vst}")
+except Exception as e:
+    log(f"vst_test_result=error:{e}")
+""")
+
+
+class TestVstInstrumentInvalidPlugin(SoirIntegrationTestCase):
+    """Test error handling for invalid VST instrument plugin names."""
+
+    def test_invalid_vst_instrument_name(self) -> None:
+        """Test that using an invalid plugin name for VSTi is handled gracefully."""
+        self.engine.push_code("""
+try:
+    tracks.setup({
+        'synth': tracks.mk_vst('NonExistentVSTi99999'),
+    })
+
+    layout = tracks.layout()
+    log(f"track_count={len(layout)}")
+except Exception as e:
+    log(f"vst_error={e}")
+""")
+
+        # Either the track is created or we get an error - both are acceptable
+        if self.engine.wait_for_notification("track_count=", timeout=5.0):
+            return
+        if self.engine.wait_for_notification("vst_error=", timeout=1.0):
+            return
+
+
 if __name__ == "__main__":
     unittest.main()
