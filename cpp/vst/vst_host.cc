@@ -133,7 +133,8 @@ absl::StatusOr<std::unique_ptr<VstPlugin>> VstHost::LoadPlugin(
   }
 
   auto plugin = std::make_unique<VstPlugin>();
-  auto status = plugin->Init(it->second.path, host_context_.get());
+  auto status =
+      plugin->Init(it->second.path, host_context_.get(), it->second.type);
   if (!status.ok()) {
     return status;
   }

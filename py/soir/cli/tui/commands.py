@@ -15,9 +15,11 @@ from soir._bindings.rt import (
     get_midi_out_devices_,
     start_recording_,
     stop_recording_,
-    vst_close_editor_,
+    vst_close_fx_editor_,
+    vst_close_inst_editor_,
     vst_get_plugins_,
-    vst_open_editor_,
+    vst_open_fx_editor_,
+    vst_open_inst_editor_,
 )
 from soir.rt.sampler import packs as get_packs, samples as get_samples
 from textual.app import App
@@ -38,7 +40,7 @@ class CommandInterpreter:
         "audio-out": "list audio output devices",
         "audio-in": "list audio input devices",
         "midi-out": "list MIDI output devices",
-        "vst list|open|close": "manage VST plugins and editors",
+        "vst list|open|close|open-fx|close-fx": "manage VST plugins and editors",
         "record start <file.wav>": "start recording to file",
         "record stop": "stop recording",
         "quit": "quit the session",
@@ -261,26 +263,45 @@ class CommandInterpreter:
         Returns:
             Formatted VST information
         """
+        usage = (
+            "usage: vst list | vst open <track> | vst close <track> "
+            "| vst open-fx <track>/<fx> | vst close-fx <track>/<fx>"
+        )
         if not args:
-            return "usage: vst list | vst open <track>/<fx> | vst close <track>/<fx>"
+            return usage
 
         subcmd = args[0].lower()
 
         if subcmd == "list":
             return self._vst_list()
         elif subcmd in ("open", "close"):
-            return self._vst_editor(subcmd, args[1:])
+            return self._vst_inst_editor(subcmd, args[1:])
+        elif subcmd in ("open-fx", "close-fx"):
+            action = subcmd.replace("-fx", "")
+            return self._vst_fx_editor(action, args[1:])
         else:
-            return "usage: vst list | vst open <track>/<fx> | vst close <track>/<fx>"
+            return usage
 
     def _vst_list(self) -> str:
         """List available and instantiated VST plugins."""
         lines: list[str] = []
 
         plugins = vst_get_plugins_()
-        lines.append(f"[Available VST Plugins: {len(plugins)}]")
-        if plugins:
-            for p in plugins:
+        fx_plugins = [p for p in plugins if p.get("type") == "effect"]
+        inst_plugins = [p for p in plugins if p.get("type") == "instrument"]
+
+        lines.append(f"[Available VST Effects: {len(fx_plugins)}]")
+        if fx_plugins:
+            for p in fx_plugins:
+                lines.append(f"  {p['name']} ({p['vendor']})")
+        else:
+            lines.append("  (none found)")
+
+        lines.append("")
+
+        lines.append(f"[Available VST Instruments: {len(inst_plugins)}]")
+        if inst_plugins:
+            for p in inst_plugins:
                 lines.append(f"  {p['name']} ({p['vendor']})")
         else:
             lines.append("  (none found)")
@@ -289,9 +310,18 @@ class CommandInterpreter:
 
         info = self.engine.get_runtime_info()
         tracks: list[dict[str, Any]] = info.get("tracks", [])
-        instantiated: list[str] = []
+
+        inst_vsts: list[str] = []
+        fx_vsts: list[str] = []
         for track in tracks:
             track_name = track.get("name", "unknown")
+
+            if track.get("instrument") == "vst":
+                extra_raw = track.get("extra", "{}")
+                extra = json.loads(extra_raw) if extra_raw else {}
+                plugin_name = extra.get("plugin", "unknown")
+                inst_vsts.append(f"  <{track_name}>: {plugin_name}")
+
             fxs = track.get("fxs", [])
             for fx_info in fxs:
                 if fx_info.get("type") == "vst":
@@ -299,18 +329,51 @@ class CommandInterpreter:
                     extra = json.loads(extra_raw) if extra_raw else {}
                     plugin_name = extra.get("plugin", "unknown")
                     fx_name = fx_info.get("name", "unnamed")
-                    instantiated.append(f"  <{track_name}/{fx_name}>: {plugin_name}")
+                    fx_vsts.append(f"  <{track_name}/{fx_name}>: {plugin_name}")
 
-        lines.append(f"[Instantiated VST Effects: {len(instantiated)}]")
-        if instantiated:
-            lines.extend(instantiated)
+        lines.append(f"[Instantiated VST Instruments: {len(inst_vsts)}]")
+        if inst_vsts:
+            lines.extend(inst_vsts)
+        else:
+            lines.append("  (none)")
+
+        lines.append("")
+
+        lines.append(f"[Instantiated VST Effects: {len(fx_vsts)}]")
+        if fx_vsts:
+            lines.extend(fx_vsts)
         else:
             lines.append("  (none)")
 
         return "\n".join(lines)
 
-    def _vst_editor(self, action: str, args: list[str]) -> str:
-        """Open or close a VST plugin editor.
+    def _vst_inst_editor(self, action: str, args: list[str]) -> str:
+        """Open or close a VST instrument editor.
+
+        Args:
+            action: "open" or "close"
+            args: Command arguments, expecting ["<track>"]
+
+        Returns:
+            Result message
+        """
+        if not args:
+            return f"usage: vst {action} <track>"
+
+        track = args[0]
+
+        try:
+            if action == "open":
+                vst_open_inst_editor_(track)
+                return f"opened VST instrument editor: {track}"
+            else:
+                vst_close_inst_editor_(track)
+                return f"closed VST instrument editor: {track}"
+        except RuntimeError as e:
+            return f"error: {e}"
+
+    def _vst_fx_editor(self, action: str, args: list[str]) -> str:
+        """Open or close a VST FX editor.
 
         Args:
             action: "open" or "close"
@@ -320,16 +383,16 @@ class CommandInterpreter:
             Result message
         """
         if not args or "/" not in args[0]:
-            return f"usage: vst {action} <track>/<fx>"
+            return f"usage: vst {action}-fx <track>/<fx>"
 
         track, fx = args[0].split("/", 1)
 
         try:
             if action == "open":
-                vst_open_editor_(track, fx)
-                return f"opened VST editor: {track}/{fx}"
+                vst_open_fx_editor_(track, fx)
+                return f"opened VST FX editor: {track}/{fx}"
             else:
-                vst_close_editor_(track, fx)
-                return f"closed VST editor: {track}/{fx}"
+                vst_close_fx_editor_(track, fx)
+                return f"closed VST FX editor: {track}/{fx}"
         except RuntimeError as e:
             return f"error: {e}"

@@ -57,7 +57,8 @@ void Chorus::ReloadParams() {
   depth_.SetRange(0.0f, 1.0f);
 }
 
-void Chorus::Render(SampleTick tick, AudioBuffer& buffer) {
+void Chorus::Render(SampleTick tick, AudioBuffer& buffer,
+                    const std::list<MidiEventAt>& /*events*/) {
   std::lock_guard<std::mutex> lock(mutex_);
 
   auto lch = buffer.GetChannel(kLeftChannel);

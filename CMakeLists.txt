@@ -188,6 +188,7 @@ target_link_libraries(soir_fx
 
 add_library(soir_inst
     cpp/inst/external.cc
+    cpp/inst/inst_vst.cc
     cpp/inst/sampler.cc
 )
 
@@ -198,6 +199,7 @@ target_link_libraries(soir_inst
     soir_audio
     soir_core_utils
     soir_utils
+    soir_vst
     libremidi
     absl::log
     absl::status
@@ -228,10 +230,11 @@ elseif(UNIX)
     )
 endif()
 
-target_include_directories(soir_vst PUBLIC cpp ${vst3sdk_SOURCE_DIR})
+target_include_directories(soir_vst PUBLIC cpp ${vst3sdk_SOURCE_DIR} ${libremidi_SOURCE_DIR}/include)
 
 target_link_libraries(soir_vst
     soir_audio
+    libremidi
     sdk
     sdk_hosting
     absl::log

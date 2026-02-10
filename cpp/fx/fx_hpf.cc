@@ -70,7 +70,8 @@ float mapToFrequency(float normalized) {
 
 }  // namespace
 
-void HPF::Render(SampleTick tick, AudioBuffer& buffer) {
+void HPF::Render(SampleTick tick, AudioBuffer& buffer,
+                 const std::list<MidiEventAt>& /*events*/) {
   std::lock_guard<std::mutex> lock(mutex_);
 
   auto lch = buffer.GetChannel(kLeftChannel);

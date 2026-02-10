@@ -97,23 +97,30 @@ absl::Status VstScanner::ProbePlugin(
       plugin_info.name = info.name();
       plugin_info.vendor = info.vendor();
 
-      // Join subcategories with "|"
+      // Join subcategories with "|" and detect instrument type.
       auto subcats = info.subCategories();
       std::string categories;
+      bool is_instrument = false;
       for (size_t i = 0; i < subcats.size(); ++i) {
         if (i > 0) {
           categories += "|";
         }
         categories += subcats[i];
+        if (subcats[i] == "Instrument") {
+          is_instrument = true;
+        }
       }
       plugin_info.category = categories;
       plugin_info.path = bundle_path;
-      plugin_info.num_audio_inputs = 2;
+      plugin_info.num_audio_inputs = is_instrument ? 0 : 2;
       plugin_info.num_audio_outputs = 2;
+      plugin_info.type =
+          is_instrument ? VstPluginType::kVstInstrument : VstPluginType::kVstFx;
 
       (*plugins)[plugin_info.name] = plugin_info;
-      LOG(INFO) << "Found VST plugin: " << plugin_info.name << " ("
-                << plugin_info.vendor << ")";
+      LOG(INFO) << "Found VST " << (is_instrument ? "instrument" : "effect")
+                << ": " << plugin_info.name << " (" << plugin_info.vendor
+                << ")";
     }
   }
 

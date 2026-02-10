@@ -97,6 +97,10 @@ void Bind::PyRt(py::module_& m) {
           instrument = "external";
           break;
 
+        case inst::Type::VST:
+          instrument = "vst";
+          break;
+
         default:
           instrument = "unknown";
           break;
@@ -161,6 +165,8 @@ void Bind::PyRt(py::module_& m) {
         s.instrument_ = inst::Type::SAMPLER;
       } else if (instr == "external") {
         s.instrument_ = inst::Type::EXTERNAL;
+      } else if (instr == "vst") {
+        s.instrument_ = inst::Type::VST;
       } else {
         LOG(ERROR) << "Unknown instrument: " << instr;
         return false;
@@ -354,23 +360,39 @@ void Bind::PyRt(py::module_& m) {
 
   rt.def("pump_ui_events_", []() { soir::vst::PumpEvents(); });
 
-  rt.def("vst_open_editor_",
+  rt.def("vst_open_fx_editor_",
          [](const std::string& track, const std::string& fx) {
-           auto status = gDsp_->OpenVstEditor(track, fx);
+           auto status = gDsp_->OpenVstFxEditor(track, fx);
            if (!status.ok()) {
              throw std::runtime_error(std::string(status.message()));
            }
            return true;
          });
 
-  rt.def("vst_close_editor_",
+  rt.def("vst_close_fx_editor_",
          [](const std::string& track, const std::string& fx) {
-           auto status = gDsp_->CloseVstEditor(track, fx);
+           auto status = gDsp_->CloseVstFxEditor(track, fx);
            if (!status.ok()) {
              throw std::runtime_error(std::string(status.message()));
            }
            return true;
          });
+
+  rt.def("vst_open_inst_editor_", [](const std::string& track) {
+    auto status = gDsp_->OpenVstInstEditor(track);
+    if (!status.ok()) {
+      throw std::runtime_error(std::string(status.message()));
+    }
+    return true;
+  });
+
+  rt.def("vst_close_inst_editor_", [](const std::string& track) {
+    auto status = gDsp_->CloseVstInstEditor(track);
+    if (!status.ok()) {
+      throw std::runtime_error(std::string(status.message()));
+    }
+    return true;
+  });
 
   rt.def("vst_get_plugins_", []() {
     std::vector<py::dict> result;
@@ -380,9 +402,13 @@ void Bind::PyRt(py::module_& m) {
     }
     auto plugins = vst_host->GetAvailablePlugins();
     for (const auto& [name, info] : plugins) {
-      result.push_back(py::dict(
-          "uid"_a = info.uid, "name"_a = info.name, "vendor"_a = info.vendor,
-          "category"_a = info.category, "path"_a = info.path));
+      std::string type_str = (info.type == vst::VstPluginType::kVstInstrument)
+                                 ? "instrument"
+                                 : "effect";
+      result.push_back(py::dict("uid"_a = info.uid, "name"_a = info.name,
+                                "vendor"_a = info.vendor,
+                                "category"_a = info.category,
+                                "path"_a = info.path, "type"_a = type_str));
     }
     return result;
   });

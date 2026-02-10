@@ -27,3 +27,29 @@ def plugins() -> list[dict[str, str]]:
         List of plugin information dictionaries.
     """
     return cast(list[dict[str, str]], _rt.vst_get_plugins_())
+
+
+def instruments() -> list[dict[str, str]]:
+    """Get a list of available VST3 instrument plugins.
+
+    @public
+
+    Returns only plugins with type "instrument".
+
+    Returns:
+        List of instrument plugin information dictionaries.
+    """
+    return [p for p in plugins() if p.get("type") == "instrument"]
+
+
+def effects() -> list[dict[str, str]]:
+    """Get a list of available VST3 effect plugins.
+
+    @public
+
+    Returns only plugins with type "effect".
+
+    Returns:
+        List of effect plugin information dictionaries.
+    """
+    return [p for p in plugins() if p.get("type") == "effect"]
