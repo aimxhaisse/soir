@@ -17,7 +17,6 @@ tracks.setup({
 ```
 """
 
-import json
 from typing import Any
 
 from dataclasses import (
@@ -35,6 +34,7 @@ from soir.rt.ctrls import (
 from soir.rt._ctrls import (
     controls_registry_,
 )
+from soir.rt._helpers import serialize_parameters
 from soir.rt._internals import (
     assert_not_in_loop,
 )
@@ -167,7 +167,7 @@ def mk(
     t.volume = volume
     t.pan = pan
     t.fxs = fxs if fxs is not None else {}
-    t.extra = json.dumps(extra)
+    t.extra = serialize_parameters(extra)
 
     return t
 
