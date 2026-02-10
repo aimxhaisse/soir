@@ -223,6 +223,7 @@ if(APPLE)
     )
 elseif(UNIX)
     target_sources(soir_vst PRIVATE
+        cpp/vst/vst_editor_linux.cc
         ${vst3sdk_SOURCE_DIR}/public.sdk/source/vst/hosting/module_linux.cpp
     )
 endif()
