@@ -124,7 +124,8 @@ void FxVst::ReloadParams() {
   }
 }
 
-void FxVst::Render(SampleTick tick, AudioBuffer& buffer) {
+void FxVst::Render(SampleTick tick, AudioBuffer& buffer,
+                   const std::list<MidiEventAt>& events) {
   std::lock_guard<std::mutex> lock(mutex_);
 
   if (!initialized_ || !plugin_) {
@@ -136,7 +137,7 @@ void FxVst::Render(SampleTick tick, AudioBuffer& buffer) {
     plugin_->SetParameter(ap.vst_param_id, value);
   }
 
-  plugin_->Process(buffer);
+  plugin_->Process(buffer, events);
 }
 
 absl::Status FxVst::OpenEditor() {

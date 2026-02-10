@@ -58,7 +58,8 @@ void Reverb::ReloadParams() {
   wet_.SetRange(0.0f, 1.0f);
 }
 
-void Reverb::Render(SampleTick tick, AudioBuffer& buffer) {
+void Reverb::Render(SampleTick tick, AudioBuffer& buffer,
+                    const std::list<MidiEventAt>& /*events*/) {
   std::lock_guard<std::mutex> lock(mutex_);
 
   auto lch = buffer.GetChannel(kLeftChannel);

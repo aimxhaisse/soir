@@ -91,7 +91,8 @@ void FxStack::FastUpdate(const std::list<Fx::Settings> fx_settings) {
   order_.swap(order);
 }
 
-void FxStack::Render(SampleTick tick, AudioBuffer& buffer) {
+void FxStack::Render(SampleTick tick, AudioBuffer& buffer,
+                     const std::list<MidiEventAt>& events) {
   std::lock_guard<std::mutex> lock(mutex_);
 
   for (auto& name : order_) {
@@ -103,7 +104,7 @@ void FxStack::Render(SampleTick tick, AudioBuffer& buffer) {
     {
       const std::string trace_name = "fx::" + name;
       SOIR_TRACING_ZONE_COLOR_STR(trace_name, SOIR_ORANGE);
-      fx->second->Render(tick, buffer);
+      fx->second->Render(tick, buffer, events);
     }
 
     SOIR_TRACING_FRAME("fx::stack");

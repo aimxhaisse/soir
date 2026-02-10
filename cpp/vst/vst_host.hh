@@ -14,6 +14,8 @@
 namespace soir {
 namespace vst {
 
+enum class VstPluginType { kVstFx, kVstInstrument };
+
 struct PluginInfo {
   std::string uid;
   std::string name;
@@ -22,6 +24,7 @@ struct PluginInfo {
   std::string path;
   int num_audio_inputs;
   int num_audio_outputs;
+  VstPluginType type = VstPluginType::kVstFx;
 };
 
 class VstPlugin;

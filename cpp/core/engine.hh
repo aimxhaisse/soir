@@ -50,10 +50,12 @@ class Engine {
   Levels GetMasterLevels() const;
   std::optional<Levels> GetTrackLevels(const std::string& name);
 
-  absl::Status OpenVstEditor(const std::string& track_name,
-                             const std::string& fx_name);
-  absl::Status CloseVstEditor(const std::string& track_name,
-                              const std::string& fx_name);
+  absl::Status OpenVstFxEditor(const std::string& track_name,
+                               const std::string& fx_name);
+  absl::Status CloseVstFxEditor(const std::string& track_name,
+                                const std::string& fx_name);
+  absl::Status OpenVstInstEditor(const std::string& track_name);
+  absl::Status CloseVstInstEditor(const std::string& track_name);
 
   absl::Status StartRecording(const std::string& file_path);
   absl::Status StopRecording();

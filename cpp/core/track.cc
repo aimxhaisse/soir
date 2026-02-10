@@ -9,6 +9,14 @@
 #include "vst/vst_host.hh"
 
 namespace soir {
+namespace vst {
+
+extern void* CreateEditorWindow(int width, int height, const char* title);
+extern void ResizeEditorWindow(void* view, int width, int height);
+extern void ShowEditorWindow(void* view);
+extern void CloseEditorWindow(void* view);
+
+}  // namespace vst
 
 Track::Track() : track_buffer_(kBlockSize) {}
 
@@ -31,6 +39,12 @@ absl::Status Track::Init(const Settings& settings,
     case inst::Type::EXTERNAL: {
       settings_.instrument_ = inst::Type::EXTERNAL;
       inst_ = std::make_unique<inst::External>();
+      break;
+    }
+
+    case inst::Type::VST: {
+      settings_.instrument_ = inst::Type::VST;
+      inst_ = std::make_unique<inst::InstVst>(vst_host_);
       break;
     }
 
@@ -135,12 +149,63 @@ const std::string& Track::GetTrackName() {
 
 Levels Track::GetLevels() const { return level_meter_.GetLevels(); }
 
-absl::Status Track::OpenVstEditor(const std::string& fx_name) {
+absl::Status Track::OpenVstFxEditor(const std::string& fx_name) {
   return fx_stack_->OpenVstEditor(fx_name);
 }
 
-absl::Status Track::CloseVstEditor(const std::string& fx_name) {
+absl::Status Track::CloseVstFxEditor(const std::string& fx_name) {
   return fx_stack_->CloseVstEditor(fx_name);
+}
+
+absl::Status Track::OpenVstInstEditor() {
+  std::scoped_lock<std::mutex> lock(mutex_);
+
+  auto* vst_inst = dynamic_cast<inst::InstVst*>(inst_.get());
+  if (!vst_inst) {
+    return absl::FailedPreconditionError("Track instrument is not a VST");
+  }
+
+  auto* plugin = vst_inst->GetPlugin();
+  if (!plugin) {
+    return absl::FailedPreconditionError("VST plugin not loaded");
+  }
+
+  if (plugin->IsEditorOpen()) {
+    return absl::OkStatus();
+  }
+
+  auto* view = vst::CreateEditorWindow(800, 600, vst_inst->GetName().c_str());
+  if (!view) {
+    return absl::InternalError("Failed to create editor window");
+  }
+
+  auto status = plugin->OpenEditor(view);
+  if (!status.ok()) {
+    vst::CloseEditorWindow(view);
+    return status;
+  }
+
+  auto [w, h] = plugin->GetEditorSize();
+  vst::ResizeEditorWindow(view, w, h);
+  vst::ShowEditorWindow(view);
+
+  return absl::OkStatus();
+}
+
+absl::Status Track::CloseVstInstEditor() {
+  std::scoped_lock<std::mutex> lock(mutex_);
+
+  auto* vst_inst = dynamic_cast<inst::InstVst*>(inst_.get());
+  if (!vst_inst) {
+    return absl::FailedPreconditionError("Track instrument is not a VST");
+  }
+
+  auto* plugin = vst_inst->GetPlugin();
+  if (!plugin) {
+    return absl::OkStatus();
+  }
+
+  return plugin->CloseEditor();
 }
 
 void Track::RenderAsync(SampleTick tick, const std::list<MidiEventAt>& events) {
@@ -221,7 +286,7 @@ absl::Status Track::ProcessLoop() {
 
       {
         SOIR_TRACING_ZONE_COLOR("track::render::fx-stack", SOIR_PINK);
-        fx_stack_->Render(current_tick_, track_buffer_);
+        fx_stack_->Render(current_tick_, track_buffer_, current_events_);
       }
 
       level_meter_.Process(track_buffer_.GetChannel(kLeftChannel),

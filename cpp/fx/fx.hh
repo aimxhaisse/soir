@@ -2,10 +2,12 @@
 
 #include <absl/status/status.h>
 
+#include <list>
 #include <string>
 
 #include "audio/audio_buffer.hh"
 #include "core/common.hh"
+#include "core/midi_event.hh"
 
 namespace soir {
 namespace fx {
@@ -24,7 +26,8 @@ struct Fx {
   virtual absl::Status Init(const Settings& settings) = 0;
   virtual bool CanFastUpdate(const Settings& settings) = 0;
   virtual void FastUpdate(const Settings& settings) = 0;
-  virtual void Render(SampleTick tick, AudioBuffer& buffer) = 0;
+  virtual void Render(SampleTick tick, AudioBuffer& buffer,
+                      const std::list<MidiEventAt>& events) = 0;
 };
 
 }  // namespace fx

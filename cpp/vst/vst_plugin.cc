@@ -2,6 +2,9 @@
 
 #include <absl/log/log.h>
 
+#include <libremidi/message.hpp>
+
+#include "core/midi_event.hh"
 #include "pluginterfaces/gui/iplugview.h"
 #include "pluginterfaces/vst/ivstaudioprocessor.h"
 #include "pluginterfaces/vst/ivstmessage.h"
@@ -12,6 +15,43 @@ namespace vst {
 
 using namespace Steinberg;
 using namespace Steinberg::Vst;
+
+// EventList implementation.
+
+int32 PLUGIN_API EventList::getEventCount() { return events_.size(); }
+
+tresult PLUGIN_API EventList::getEvent(int32 index, Event& e) {
+  if (index < 0 || index >= static_cast<int32>(events_.size())) {
+    return kInvalidArgument;
+  }
+  e = events_[index];
+  return kResultOk;
+}
+
+tresult PLUGIN_API EventList::addEvent(Event& e) {
+  events_.push_back(e);
+  return kResultOk;
+}
+
+void EventList::Clear() { events_.clear(); }
+
+tresult PLUGIN_API EventList::queryInterface(const TUID iid, void** obj) {
+  if (FUnknownPrivate::iidEqual(iid, IEventList::iid) ||
+      FUnknownPrivate::iidEqual(iid, FUnknown::iid)) {
+    *obj = this;
+    addRef();
+    return kResultOk;
+  }
+  *obj = nullptr;
+  return kNoInterface;
+}
+
+uint32 PLUGIN_API EventList::addRef() { return ++ref_count_; }
+
+uint32 PLUGIN_API EventList::release() {
+  auto count = --ref_count_;
+  return count;
+}
 
 VstPlugin::VstPlugin()
     : activated_(false),
@@ -47,8 +87,10 @@ absl::Status VstPlugin::Shutdown() {
   return absl::OkStatus();
 }
 
-absl::Status VstPlugin::Init(const std::string& path, FUnknown* host_context) {
+absl::Status VstPlugin::Init(const std::string& path, FUnknown* host_context,
+                             VstPluginType type) {
   std::lock_guard<std::mutex> lock(mutex_);
+  type_ = type;
 
   std::string error;
   module_ = VST3::Hosting::Module::create(path, error);
@@ -150,13 +192,17 @@ absl::Status VstPlugin::Activate(int sample_rate, int block_size) {
   output_buffers_.channelBuffers32 = output_ptrs_;
   output_buffers_.silenceFlags = 0;
 
+  bool is_instrument = (type_ == VstPluginType::kVstInstrument);
+
   process_data_.processMode = kRealtime;
   process_data_.symbolicSampleSize = kSample32;
   process_data_.numSamples = block_size;
-  process_data_.numInputs = 1;
+  process_data_.numInputs = is_instrument ? 0 : 1;
   process_data_.numOutputs = 1;
-  process_data_.inputs = &input_buffers_;
+  process_data_.inputs = is_instrument ? nullptr : &input_buffers_;
   process_data_.outputs = &output_buffers_;
+  process_data_.inputEvents = &input_events_;
+  process_data_.outputEvents = &output_events_;
 
   activated_ = true;
   LOG(INFO) << "VST plugin activated at " << sample_rate << " Hz, "
@@ -182,7 +228,62 @@ absl::Status VstPlugin::Deactivate() {
   return absl::OkStatus();
 }
 
-void VstPlugin::Process(AudioBuffer& buffer) {
+void VstPlugin::PopulateEventList(SampleTick block_start_tick,
+                                  const std::list<MidiEventAt>& events) {
+  input_events_.Clear();
+  output_events_.Clear();
+
+  for (const auto& midi_event : events) {
+    const auto& msg = midi_event.Msg();
+    if (msg.bytes.empty()) {
+      continue;
+    }
+
+    Event vst_event{};
+    vst_event.busIndex = 0;
+    vst_event.ppqPosition = 0;
+    vst_event.flags = Event::kIsLive;
+
+    SampleTick offset = midi_event.Tick() - block_start_tick;
+    if (offset < 0) {
+      offset = 0;
+    }
+    vst_event.sampleOffset = static_cast<int32>(offset);
+
+    auto status = msg.get_message_type();
+    auto channel = static_cast<int16>(msg.get_channel());
+
+    if (status == libremidi::message_type::NOTE_ON) {
+      vst_event.type = Event::kNoteOnEvent;
+      vst_event.noteOn.channel = channel;
+      vst_event.noteOn.pitch = static_cast<int16>(msg.bytes[1]);
+      vst_event.noteOn.velocity = static_cast<float>(msg.bytes[2]) / 127.0f;
+      vst_event.noteOn.tuning = 0.0f;
+      vst_event.noteOn.length = 0;
+      vst_event.noteOn.noteId = -1;
+      input_events_.addEvent(vst_event);
+    } else if (status == libremidi::message_type::NOTE_OFF) {
+      vst_event.type = Event::kNoteOffEvent;
+      vst_event.noteOff.channel = channel;
+      vst_event.noteOff.pitch = static_cast<int16>(msg.bytes[1]);
+      vst_event.noteOff.velocity = static_cast<float>(msg.bytes[2]) / 127.0f;
+      vst_event.noteOff.noteId = -1;
+      vst_event.noteOff.tuning = 0.0f;
+      input_events_.addEvent(vst_event);
+    } else if (status == libremidi::message_type::POLY_PRESSURE) {
+      vst_event.type = Event::kPolyPressureEvent;
+      vst_event.polyPressure.channel = channel;
+      vst_event.polyPressure.pitch = static_cast<int16>(msg.bytes[1]);
+      vst_event.polyPressure.pressure =
+          static_cast<float>(msg.bytes[2]) / 127.0f;
+      vst_event.polyPressure.noteId = -1;
+      input_events_.addEvent(vst_event);
+    }
+  }
+}
+
+void VstPlugin::Process(AudioBuffer& buffer,
+                        const std::list<MidiEventAt>& events) {
   std::lock_guard<std::mutex> lock(mutex_);
 
   if (!activated_ || !processor_) {
@@ -193,8 +294,19 @@ void VstPlugin::Process(AudioBuffer& buffer) {
   auto* right_in = buffer.GetChannel(kRightChannel);
   auto size = buffer.Size();
 
-  std::copy(left_in, left_in + size, input_left_.begin());
-  std::copy(right_in, right_in + size, input_right_.begin());
+  bool is_instrument = (type_ == VstPluginType::kVstInstrument);
+
+  if (!is_instrument) {
+    std::copy(left_in, left_in + size, input_left_.begin());
+    std::copy(right_in, right_in + size, input_right_.begin());
+  }
+
+  // Compute block start tick from the first event or use 0.
+  SampleTick block_start_tick = 0;
+  if (!events.empty()) {
+    block_start_tick = events.front().Tick();
+  }
+  PopulateEventList(block_start_tick, events);
 
   process_data_.numSamples = size;
   processor_->process(process_data_);

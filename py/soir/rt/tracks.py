@@ -228,3 +228,30 @@ def mk_external(
         extra["audio_channels"] = audio_chans
 
     return mk("external", muted, volume, pan, fxs, extra=extra)
+
+
+def mk_vst(
+    plugin: str,
+    muted: bool | None = None,
+    volume: float | Control = 1.0,
+    pan: float | Control = 0.0,
+    params: dict[str, float | Control] | None = None,
+    fxs: dict[str, Fx] | None = None,
+) -> Track:
+    """Creates a new VST instrument track.
+
+    @public
+
+    Args:
+        plugin: The VST plugin name.
+        muted: The muted state.
+        volume: The volume in [0.0, 1.0].
+        pan: The pan in [-1.0, 1.0].
+        params: VST parameter automation map.
+        fxs: The effects to apply to the track, as an ordered dict.
+    """
+    extra: dict[str, Any] = {"plugin": plugin}
+    if params is not None:
+        extra["params"] = params
+
+    return mk("vst", muted, volume, pan, fxs, extra=extra)

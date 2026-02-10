@@ -33,7 +33,8 @@ class FxStack {
   // It's simple enough for now though.
   bool CanFastUpdate(const std::list<Fx::Settings> fx_settings);
   void FastUpdate(const std::list<Fx::Settings> fx_settings);
-  void Render(SampleTick tick, AudioBuffer& buffer);
+  void Render(SampleTick tick, AudioBuffer& buffer,
+              const std::list<MidiEventAt>& events);
 
   absl::Status OpenVstEditor(const std::string& fx_name);
   absl::Status CloseVstEditor(const std::string& fx_name);

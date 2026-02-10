@@ -19,6 +19,7 @@
 #include "core/sample_manager.hh"
 #include "fx/fx_stack.hh"
 #include "inst/external.hh"
+#include "inst/inst_vst.hh"
 #include "inst/instrument.hh"
 #include "inst/sampler.hh"
 #include "utils/config.hh"
@@ -59,8 +60,10 @@ struct Track {
   const std::string& GetTrackName();
   Levels GetLevels() const;
 
-  absl::Status OpenVstEditor(const std::string& fx_name);
-  absl::Status CloseVstEditor(const std::string& fx_name);
+  absl::Status OpenVstFxEditor(const std::string& fx_name);
+  absl::Status CloseVstFxEditor(const std::string& fx_name);
+  absl::Status OpenVstInstEditor();
+  absl::Status CloseVstInstEditor();
 
   // Schedule an async render operation
   void RenderAsync(SampleTick tick, const std::list<MidiEventAt>& events);

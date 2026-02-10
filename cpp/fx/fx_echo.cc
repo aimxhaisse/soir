@@ -62,7 +62,8 @@ void Echo::ReloadParams() {
   wet_.SetRange(0.0f, 1.0f);
 }
 
-void Echo::Render(SampleTick tick, AudioBuffer& buffer) {
+void Echo::Render(SampleTick tick, AudioBuffer& buffer,
+                  const std::list<MidiEventAt>& /*events*/) {
   std::lock_guard<std::mutex> lock(mutex_);
 
   auto lch = buffer.GetChannel(kLeftChannel);

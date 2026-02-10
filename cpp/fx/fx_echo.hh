@@ -14,7 +14,8 @@ struct Echo : public Fx {
   absl::Status Init(const Fx::Settings& settings) override;
   bool CanFastUpdate(const Fx::Settings& settings) override;
   void FastUpdate(const Fx::Settings& settings) override;
-  void Render(SampleTick tick, AudioBuffer& buffer) override;
+  void Render(SampleTick tick, AudioBuffer& buffer,
+              const std::list<MidiEventAt>& events) override;
 
  private:
   void ReloadParams();

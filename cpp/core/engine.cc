@@ -368,22 +368,50 @@ std::optional<Levels> Engine::GetTrackLevels(const std::string& name) {
   return std::nullopt;
 }
 
-absl::Status Engine::OpenVstEditor(const std::string& track_name,
-                                   const std::string& fx_name) {
+absl::Status Engine::OpenVstFxEditor(const std::string& track_name,
+                                     const std::string& fx_name) {
   std::scoped_lock<std::mutex> lock(tracks_mutex_);
+
   auto it = tracks_.find(track_name);
-  if (it == tracks_.end())
+  if (it == tracks_.end()) {
     return absl::NotFoundError("Track not found: " + track_name);
-  return it->second->OpenVstEditor(fx_name);
+  }
+
+  return it->second->OpenVstFxEditor(fx_name);
 }
 
-absl::Status Engine::CloseVstEditor(const std::string& track_name,
-                                    const std::string& fx_name) {
+absl::Status Engine::CloseVstFxEditor(const std::string& track_name,
+                                      const std::string& fx_name) {
   std::scoped_lock<std::mutex> lock(tracks_mutex_);
+
   auto it = tracks_.find(track_name);
-  if (it == tracks_.end())
+  if (it == tracks_.end()) {
     return absl::NotFoundError("Track not found: " + track_name);
-  return it->second->CloseVstEditor(fx_name);
+  }
+
+  return it->second->CloseVstFxEditor(fx_name);
+}
+
+absl::Status Engine::OpenVstInstEditor(const std::string& track_name) {
+  std::scoped_lock<std::mutex> lock(tracks_mutex_);
+
+  auto it = tracks_.find(track_name);
+  if (it == tracks_.end()) {
+    return absl::NotFoundError("Track not found: " + track_name);
+  }
+
+  return it->second->OpenVstInstEditor();
+}
+
+absl::Status Engine::CloseVstInstEditor(const std::string& track_name) {
+  std::scoped_lock<std::mutex> lock(tracks_mutex_);
+
+  auto it = tracks_.find(track_name);
+  if (it == tracks_.end()) {
+    return absl::NotFoundError("Track not found: " + track_name);
+  }
+
+  return it->second->CloseVstInstEditor();
 }
 
 absl::Status Engine::StartRecording(const std::string& file_path) {
