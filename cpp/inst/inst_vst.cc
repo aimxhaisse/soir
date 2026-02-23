@@ -102,7 +102,7 @@ void InstVst::Render(SampleTick tick, const std::list<MidiEventAt>& events,
     plugin_->SetParameter(ap.vst_param_id, value);
   }
 
-  plugin_->Process(buffer, events);
+  plugin_->Process(tick, buffer, events);
 }
 
 }  // namespace inst

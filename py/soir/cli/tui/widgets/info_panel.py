@@ -29,8 +29,6 @@ class InfoPanelWidget(Static):
     level_right = reactive(0.0)
     peak_left = reactive(0.0)
     peak_right = reactive(0.0)
-    streaming_url: reactive[str] = reactive("")
-
     def __init__(self, session_path: Path) -> None:
         """Initialize the info panel widget.
 
@@ -140,14 +138,6 @@ class InfoPanelWidget(Static):
             f"[{_COLOR_TEXT_DIM}]beat[/{_COLOR_TEXT_DIM}]    "
             f"[{_COLOR_TEXT}]{self.current_beat}[/{_COLOR_TEXT}]",
         ]
-
-        if self.streaming_url:
-            stats.append(
-                f"[{_COLOR_TEXT_DIM}]stream[/{_COLOR_TEXT_DIM}]  "
-                f"[{_COLOR_ACCENT} link={self.streaming_url}]"
-                f"{self.streaming_url}"
-                f"[/{_COLOR_ACCENT}]"
-            )
 
         # Level meters with dB readout
         left_meter = self._render_meter(self.level_left, self.peak_left)

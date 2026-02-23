@@ -169,9 +169,23 @@ absl::Status VstPlugin::Activate(int sample_rate, int block_size) {
     return absl::InternalError("Failed to setup processing");
   }
 
+  bool is_instrument = (type_ == VstPluginType::kVstInstrument);
+
+  component_->activateBus(MediaTypes::kAudio, BusDirections::kOutput, 0, true);
+  if (is_instrument) {
+    component_->activateBus(MediaTypes::kEvent, BusDirections::kInput, 0, true);
+  } else {
+    component_->activateBus(MediaTypes::kAudio, BusDirections::kInput, 0, true);
+  }
+
   result = component_->setActive(true);
   if (result != kResultOk) {
     return absl::InternalError("Failed to activate component");
+  }
+
+  result = processor_->setProcessing(true);
+  if (result != kResultOk) {
+    return absl::InternalError("Failed to start processing");
   }
 
   input_left_.resize(block_size);
@@ -191,8 +205,6 @@ absl::Status VstPlugin::Activate(int sample_rate, int block_size) {
   output_buffers_.numChannels = 2;
   output_buffers_.channelBuffers32 = output_ptrs_;
   output_buffers_.silenceFlags = 0;
-
-  bool is_instrument = (type_ == VstPluginType::kVstInstrument);
 
   process_data_.processMode = kRealtime;
   process_data_.symbolicSampleSize = kSample32;
@@ -217,6 +229,8 @@ absl::Status VstPlugin::Deactivate() {
   if (!activated_) {
     return absl::OkStatus();
   }
+
+  processor_->setProcessing(false);
 
   if (component_) {
     component_->setActive(false);
@@ -282,7 +296,7 @@ void VstPlugin::PopulateEventList(SampleTick block_start_tick,
   }
 }
 
-void VstPlugin::Process(AudioBuffer& buffer,
+void VstPlugin::Process(SampleTick tick, AudioBuffer& buffer,
                         const std::list<MidiEventAt>& events) {
   std::lock_guard<std::mutex> lock(mutex_);
 
@@ -301,12 +315,7 @@ void VstPlugin::Process(AudioBuffer& buffer,
     std::copy(right_in, right_in + size, input_right_.begin());
   }
 
-  // Compute block start tick from the first event or use 0.
-  SampleTick block_start_tick = 0;
-  if (!events.empty()) {
-    block_start_tick = events.front().Tick();
-  }
-  PopulateEventList(block_start_tick, events);
+  PopulateEventList(tick, events);
 
   process_data_.numSamples = size;
   processor_->process(process_data_);

@@ -125,11 +125,6 @@ class SoirTuiApp(App[None]):
                     "[#5b9a6d]Engine started successfully[/#5b9a6d]",
                 )
 
-                cfg = self.engine_manager.config
-                if cfg and cfg.dsp.enable_streaming:
-                    url = f"http://localhost:{cfg.dsp.streaming_port}/stream.opus"
-                    info_panel = self.query_one(InfoPanelWidget)
-                    self.call_from_thread(setattr, info_panel, "streaming_url", url)
             else:
                 self.call_from_thread(setattr, self, "engine_status", "error")
                 self.call_from_thread(
@@ -173,6 +168,15 @@ class SoirTuiApp(App[None]):
 
             except Exception:
                 time.sleep(0.5)
+
+    def watch_engine_status(self, status: str) -> None:
+        """React to engine status changes on the event loop."""
+        if status != "running":
+            return
+        cfg = self.engine_manager.config
+        if cfg and cfg.dsp.enable_streaming:
+            url = f"http://localhost:{cfg.dsp.streaming_port}/stream.opus"
+            self.query_one(HeaderWidget).streaming_url = url
 
     def _pump_ui_events(self) -> None:
         """Pump platform UI events so native windows (e.g. VST editors) render."""

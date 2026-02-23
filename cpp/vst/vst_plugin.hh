@@ -69,7 +69,8 @@ class VstPlugin {
   absl::Status Activate(int sample_rate, int block_size);
   absl::Status Deactivate();
 
-  void Process(AudioBuffer& buffer, const std::list<MidiEventAt>& events);
+  void Process(SampleTick tick, AudioBuffer& buffer,
+               const std::list<MidiEventAt>& events);
 
   VstPluginType GetType() const { return type_; }
 
