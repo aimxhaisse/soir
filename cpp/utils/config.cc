@@ -58,6 +58,34 @@ nlohmann::json Config::GetNode(const std::string& path) const {
   return node;
 }
 
+bool Config::HasNode(const std::string& path) const {
+  if (path.empty()) {
+    return true;
+  }
+
+  auto node = data_;
+  size_t start = 0;
+
+  while (start < path.size()) {
+    size_t dot = path.find('.', start);
+    std::string key = (dot == std::string::npos)
+                          ? path.substr(start)
+                          : path.substr(start, dot - start);
+
+    if (!node.is_object() || !node.contains(key)) {
+      return false;
+    }
+    node = node[key];
+
+    if (dot == std::string::npos) {
+      break;
+    }
+    start = dot + 1;
+  }
+
+  return true;
+}
+
 std::string Config::ExpandEnvironmentVariables(const std::string& input) {
   std::regex env_var_pattern("\\$(\\w+(_\\w+)*)");
   std::string result = input;

@@ -137,7 +137,7 @@ void FxVst::Render(SampleTick tick, AudioBuffer& buffer,
     plugin_->SetParameter(ap.vst_param_id, value);
   }
 
-  plugin_->Process(buffer, events);
+  plugin_->Process(tick, buffer, events);
 }
 
 absl::Status FxVst::OpenEditor() {

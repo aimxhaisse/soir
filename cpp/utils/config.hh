@@ -19,6 +19,14 @@ class Config {
     return GetNode(path).get<T>();
   }
 
+  template <typename T>
+  T GetOrDefault(const std::string& path, T default_value) const {
+    if (!HasNode(path)) {
+      return default_value;
+    }
+    return GetNode(path).get<T>();
+  }
+
   static Config FromJson(const nlohmann::json& json);
   static absl::StatusOr<Config> FromPath(const std::string& path);
   static std::string ExpandEnvironmentVariables(const std::string& input);
@@ -28,6 +36,7 @@ class Config {
   Config(const nlohmann::json& json, FromJsonTag);
 
   nlohmann::json GetNode(const std::string& path) const;
+  bool HasNode(const std::string& path) const;
 
   nlohmann::json data_;
 };

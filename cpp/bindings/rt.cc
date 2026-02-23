@@ -143,7 +143,8 @@ void Bind::PyRt(py::module_& m) {
       result.push_back(
           py::dict("name"_a = track.name_, "muted"_a = track.muted_,
                    "volume"_a = track.volume_.Raw(), "pan"_a = track.pan_.Raw(),
-                   "instrument"_a = instrument, "fxs"_a = fxs));
+                   "instrument"_a = instrument, "extra"_a = track.extra_,
+                   "fxs"_a = fxs));
     }
 
     return result;
