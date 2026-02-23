@@ -54,8 +54,6 @@ static constexpr int kNumChannels = 2;
 static constexpr int kLeftChannel = 0;
 static constexpr int kRightChannel = 1;
 static constexpr float kPI = 3.14159265358979323846f;
-static constexpr float kVorbisQuality = 1.0f;
-
 // Processing block and timing constants
 // Size of a processing block (~10ms). This is also the resolution at
 // which we perform control parameter updates (100 times per second),

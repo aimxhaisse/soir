@@ -180,4 +180,4 @@ def start_server(
     print(f"Starting Soir documentation server at {url}")
     print("Press Ctrl+C to stop the server")
 
-    app.run(host=host, port=port, debug=dev)
+    app.run(host=host, port=port, debug=dev, threaded=True)

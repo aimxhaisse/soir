@@ -69,6 +69,24 @@ FetchContent_Declare(
     GIT_TAG v3.8.0_build_66
 )
 
+FetchContent_Declare(
+    ogg
+    GIT_REPOSITORY https://github.com/xiph/ogg.git
+    GIT_TAG v1.3.5
+)
+
+FetchContent_Declare(
+    opus
+    GIT_REPOSITORY https://github.com/xiph/opus.git
+    GIT_TAG v1.5.2
+)
+
+FetchContent_Declare(
+    cpp-httplib
+    GIT_REPOSITORY https://github.com/yhirose/cpp-httplib.git
+    GIT_TAG v0.18.3
+)
+
 set(BUILD_GMOCK OFF CACHE BOOL "" FORCE)    # gtest
 set(BUILD_EXAMPLES OFF CACHE BOOL "" FORCE) # audiofile
 set(BUILD_TESTS OFF CACHE BOOL "" FORCE)    # audiofile
@@ -83,7 +101,7 @@ set(SMTG_ADD_VST3_HOSTING_SAMPLES OFF CACHE BOOL "" FORCE)
 set(SMTG_RUN_VST_VALIDATOR OFF CACHE BOOL "" FORCE)
 set(SMTG_CREATE_PLUGIN_LINK OFF CACHE BOOL "" FORCE)
 
-FetchContent_MakeAvailable(pybind11 nlohmann_json abseil-cpp googletest miniaudio audiofile libremidi rapidjson vst3sdk)
+FetchContent_MakeAvailable(pybind11 nlohmann_json abseil-cpp googletest miniaudio audiofile libremidi rapidjson vst3sdk ogg opus cpp-httplib)
 
 # make sure pybind targets our environment
 
@@ -116,14 +134,20 @@ target_link_libraries(soir_utils
 
 add_library(soir_audio
     cpp/audio/audio_buffer.cc
+    cpp/audio/audio_http_server.cc
     cpp/audio/audio_output.cc
     cpp/audio/audio_recorder.cc
+    cpp/audio/audio_stream.cc
+    cpp/audio/ogg_opus_encoder.cc
 )
 
-target_include_directories(soir_audio PUBLIC cpp ${miniaudio_SOURCE_DIR} ${audiofile_SOURCE_DIR})
+target_include_directories(soir_audio PUBLIC cpp ${miniaudio_SOURCE_DIR} ${audiofile_SOURCE_DIR} ${opus_SOURCE_DIR}/include ${ogg_SOURCE_DIR}/include ${cpp-httplib_SOURCE_DIR})
+target_include_directories(soir_audio PUBLIC ${ogg_BINARY_DIR}/include)
 
 target_link_libraries(soir_audio
     soir_dsp
+    ogg
+    opus
     absl::log
     absl::status
     absl::statusor
