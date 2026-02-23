@@ -2,7 +2,9 @@
 
 #include <absl/log/log.h>
 
+#include "audio/audio_http_server.hh"
 #include "audio/audio_recorder.hh"
+#include "audio/audio_stream.hh"
 #include "vst/vst_host.hh"
 
 namespace soir {
@@ -17,6 +19,8 @@ absl::Status Engine::Init(const utils::Config& config) {
   current_tick_ = 0;
 
   audio_output_enabled_ = config.Get<bool>("dsp.enable_output");
+  enable_streaming_ = config.Get<bool>("dsp.enable_streaming");
+  streaming_port_ = config.Get<int>("dsp.streaming_port");
 
   audio_output_ = std::make_unique<audio::AudioOutput>();
   if (audio_output_enabled_) {
@@ -57,6 +61,8 @@ absl::Status Engine::Init(const utils::Config& config) {
   }
 
   audio_recorder_ = std::make_unique<AudioRecorder>();
+  audio_stream_ = std::make_unique<audio::AudioStream>();
+  http_server_ = std::make_unique<audio::AudioHttpServer>();
 
   return absl::OkStatus();
 }
@@ -89,11 +95,26 @@ absl::Status Engine::Start() {
     }
   }
 
+  if (enable_streaming_) {
+    auto status = StartStreaming();
+    if (!status.ok()) {
+      LOG(WARNING) << "Failed to start audio streaming: " << status;
+    } else {
+      status = http_server_->Start(audio_stream_.get(), "0.0.0.0", streaming_port_);
+      if (!status.ok()) {
+        LOG(WARNING) << "Failed to start audio HTTP server: " << status;
+      }
+    }
+  }
+
   return absl::OkStatus();
 }
 
 absl::Status Engine::Stop() {
   LOG(INFO) << "Stopping engine";
+
+  http_server_->Stop().IgnoreError();
+  StopStreaming().IgnoreError();
 
   if (audio_output_.get() != nullptr && audio_output_enabled_) {
     auto status = audio_output_->Stop();
@@ -443,6 +464,35 @@ absl::Status Engine::StopRecording() {
   }
 
   LOG(INFO) << "Stopped recording";
+  return absl::OkStatus();
+}
+
+absl::Status Engine::StartStreaming() {
+  if (streaming_active_) {
+    return absl::OkStatus();
+  }
+
+  auto status = audio_stream_->Init(kSampleRate, kNumChannels);
+  if (!status.ok()) {
+    return status;
+  }
+
+  RegisterConsumer(audio_stream_.get());
+  streaming_active_ = true;
+
+  LOG(INFO) << "Started audio streaming";
+  return absl::OkStatus();
+}
+
+absl::Status Engine::StopStreaming() {
+  if (!streaming_active_) {
+    return absl::OkStatus();
+  }
+
+  RemoveConsumer(audio_stream_.get());
+  streaming_active_ = false;
+
+  LOG(INFO) << "Stopped audio streaming";
   return absl::OkStatus();
 }
 
