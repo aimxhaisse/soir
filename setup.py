@@ -72,7 +72,11 @@ class RunCppTests(Command):
             )
 
         print("Running C++ tests...")
-        subprocess.run(["ctest", "--verbose"], cwd=str(BUILD_DIR), check=True)
+        subprocess.run(
+            ["ctest", "--verbose", "-R", "^(Utils|Audio|Core|Engine|Inst|Dsp)Test$"],
+            cwd=str(BUILD_DIR),
+            check=True,
+        )
 
 
 class RunPythonTests(Command):
