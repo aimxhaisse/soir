@@ -101,7 +101,7 @@ def layout() -> dict[str, Track]:
                         extra=fx_dict.get("extra"),
                     )
                 params[k] = fxs_dict
-            elif isinstance(v, str) and k not in ["name", "instrument"]:
+            elif isinstance(v, str) and k not in ["name", "instrument", "extra"]:
                 # Translate control names back to Control objects
                 params[k] = controls_registry_[v]
             else:
