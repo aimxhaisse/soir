@@ -59,7 +59,7 @@ VstPlugin::VstPlugin()
       input_ptrs_{nullptr, nullptr},
       output_ptrs_{nullptr, nullptr} {}
 
-VstPlugin::~VstPlugin() = default;
+VstPlugin::~VstPlugin() { Shutdown().IgnoreError(); }
 
 absl::Status VstPlugin::Shutdown() {
   std::lock_guard<std::mutex> lock(mutex_);
