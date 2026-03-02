@@ -1,6 +1,7 @@
 """Integration tests for controls system (ctrls module)."""
 
 import time
+from typing import Any, ClassVar
 
 from .base import SoirIntegrationTestCase
 
@@ -8,7 +9,7 @@ from .base import SoirIntegrationTestCase
 class TestControls(SoirIntegrationTestCase):
     """Test ctrls module for creating and managing controls."""
 
-    config_overrides = {"initial_bpm": 600}
+    config_overrides: ClassVar[dict[str, Any]] = {"initial_bpm": 600}
 
     def test_controls_basic(self) -> None:
         """Test creating controls in @live() function."""

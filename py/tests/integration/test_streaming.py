@@ -3,6 +3,7 @@
 import http.client
 import socket
 import time
+from typing import Any, ClassVar
 
 from .base import SoirIntegrationTestCase
 
@@ -17,7 +18,7 @@ def _wait_for_port(host: str, port: int, timeout: float = 10.0) -> bool:
         try:
             with socket.create_connection((host, port), timeout=0.5):
                 return True
-        except (ConnectionRefusedError, OSError):
+        except ConnectionRefusedError, OSError:
             time.sleep(0.05)
     return False
 
@@ -25,7 +26,7 @@ def _wait_for_port(host: str, port: int, timeout: float = 10.0) -> bool:
 class TestStreaming(SoirIntegrationTestCase):
     """Tests for the Ogg/Opus HTTP streaming server."""
 
-    config_overrides = {
+    config_overrides: ClassVar[dict[str, Any]] = {
         "enable_streaming": True,
         "streaming_port": _STREAMING_PORT,
     }

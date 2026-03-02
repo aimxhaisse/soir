@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 3.15)
 
 set(CMAKE_POLICY_VERSION_MINIMUM 3.5)
 
+set(CMAKE_C_COMPILER /usr/bin/clang)
+set(CMAKE_CXX_COMPILER /usr/bin/clang++)
+
 project(soir_core LANGUAGES CXX)
 
 if(APPLE)
@@ -58,12 +61,6 @@ FetchContent_Declare(
 )
 
 FetchContent_Declare(
-    rapidjson
-    GIT_REPOSITORY https://github.com/Tencent/rapidjson.git
-    GIT_TAG v1.1.0
-)
-
-FetchContent_Declare(
     vst3sdk
     GIT_REPOSITORY https://github.com/steinbergmedia/vst3sdk.git
     GIT_TAG v3.8.0_build_66
@@ -91,18 +88,20 @@ set(BUILD_GMOCK OFF CACHE BOOL "" FORCE)    # gtest
 set(BUILD_EXAMPLES OFF CACHE BOOL "" FORCE) # audiofile
 set(BUILD_TESTS OFF CACHE BOOL "" FORCE)    # audiofile, ogg
 set(OPUS_BUILD_TESTING OFF CACHE BOOL "" FORCE) # opus
-set(RAPIDJSON_BUILD_DOC OFF CACHE BOOL "" FORCE)
-set(RAPIDJSON_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
-set(RAPIDJSON_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 
 # VST3 SDK options
-set(SMTG_ADD_VSTGUI OFF CACHE BOOL "" FORCE)
 set(SMTG_ADD_VST3_PLUGINS_SAMPLES OFF CACHE BOOL "" FORCE)
 set(SMTG_ADD_VST3_HOSTING_SAMPLES OFF CACHE BOOL "" FORCE)
 set(SMTG_RUN_VST_VALIDATOR OFF CACHE BOOL "" FORCE)
 set(SMTG_CREATE_PLUGIN_LINK OFF CACHE BOOL "" FORCE)
 
-FetchContent_MakeAvailable(pybind11 nlohmann_json abseil-cpp googletest miniaudio audiofile libremidi rapidjson vst3sdk ogg opus cpp-httplib)
+FetchContent_MakeAvailable(pybind11 nlohmann_json abseil-cpp googletest miniaudio audiofile libremidi vst3sdk ogg opus cpp-httplib)
+
+# vstgui's iplatformtaskexecutor.h uses uint64_t without including <cstdint>;
+# force-include it for all vstgui_standalone compilation units.
+if(TARGET vstgui_standalone)
+    target_compile_options(vstgui_standalone PRIVATE "-include" "cstdint")
+endif()
 
 # make sure pybind targets our environment
 
@@ -169,12 +168,12 @@ add_library(soir_core_utils
 )
 
 target_include_directories(soir_core_utils PUBLIC cpp ${audiofile_SOURCE_DIR} ${libremidi_SOURCE_DIR}/include)
-target_include_directories(soir_core_utils SYSTEM PUBLIC ${rapidjson_SOURCE_DIR}/include)
 
 target_link_libraries(soir_core_utils
     soir_audio
     soir_dsp
     soir_utils
+    nlohmann_json::nlohmann_json
     libremidi
     pybind11::pybind11
     absl::log
@@ -218,12 +217,12 @@ add_library(soir_inst
 )
 
 target_include_directories(soir_inst PUBLIC cpp ${audiofile_SOURCE_DIR} ${libremidi_SOURCE_DIR}/include ${miniaudio_SOURCE_DIR})
-target_include_directories(soir_inst SYSTEM PUBLIC ${rapidjson_SOURCE_DIR}/include)
 
 target_link_libraries(soir_inst
     soir_audio
     soir_core_utils
     soir_utils
+    nlohmann_json::nlohmann_json
     soir_vst
     libremidi
     absl::log

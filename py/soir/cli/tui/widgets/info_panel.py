@@ -29,6 +29,7 @@ class InfoPanelWidget(Static):
     level_right = reactive(0.0)
     peak_left = reactive(0.0)
     peak_right = reactive(0.0)
+
     def __init__(self, session_path: Path) -> None:
         """Initialize the info panel widget.
 

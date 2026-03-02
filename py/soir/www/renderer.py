@@ -116,9 +116,7 @@ def render_module(module_data: ModuleDoc, md: Markdown) -> dict[str, Any]:
     """
     module_doc_html = render_description(module_data.parsed, md)
 
-    members_rendered = []
-    for member in module_data.members:
-        members_rendered.append(render_member(member, md))
+    members_rendered = [render_member(member, md) for member in module_data.members]
 
     return {
         "name": module_data.name,

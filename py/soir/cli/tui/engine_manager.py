@@ -10,8 +10,7 @@ from pathlib import Path
 from typing import Any
 
 import soir._bindings as bindings
-import soir._bindings.logging as logging
-import soir._bindings.rt as rt
+from soir._bindings import logging, rt
 from soir.config import Config
 from soir.watcher import Watcher
 
@@ -84,12 +83,13 @@ class EngineManager:
                 logging.info("Watcher started successfully")
 
                 self._running = True
-                return True, "Engine started successfully"
 
-            except Exception as e:
+            except Exception as e:  # noqa: BLE001 - initialization worker must catch all errors
                 error_msg = f"Unexpected error during initialization: {e}"
                 logging.error(error_msg)
                 return False, error_msg
+            else:
+                return True, "Engine started successfully"
 
     def stop(self) -> None:
         """Stop the engine and watcher."""
@@ -105,7 +105,7 @@ class EngineManager:
             if self._running:
                 try:
                     logging.shutdown()
-                except Exception:
+                except Exception:  # noqa: BLE001, S110 - silently ignore shutdown errors
                     pass
 
             self._running = False
@@ -128,16 +128,16 @@ class EngineManager:
                 bpm = rt.get_bpm_()
                 beat = rt.get_beat_()
                 devices = rt.get_audio_out_devices_()
-
+            except Exception as e:  # noqa: BLE001 - C++ bindings can raise any exception
+                logging.error(f"Failed to get runtime info: {e}")
+                return {"tracks": [], "bpm": 0.0, "beat": 0.0, "output_devices": []}
+            else:
                 return {
                     "tracks": tracks if tracks else [],
                     "bpm": bpm if bpm else 0.0,
                     "beat": beat if beat else 0.0,
                     "output_devices": devices if devices else [],
                 }
-            except Exception as e:
-                logging.error(f"Failed to get runtime info: {e}")
-                return {"tracks": [], "bpm": 0.0, "beat": 0.0, "output_devices": []}
 
     def is_running(self) -> bool:
         """Check if the engine is currently running.

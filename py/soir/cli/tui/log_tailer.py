@@ -51,7 +51,7 @@ class LogTailer:
                     self._tail_file(self.current_file)
 
                 time.sleep(0.1)
-            except Exception:
+            except Exception:  # noqa: BLE001 - log tailing loop must not crash
                 time.sleep(1.0)
 
     def stop(self) -> None:
@@ -89,7 +89,5 @@ class LogTailer:
                 for line in lines:
                     self.callback(line.rstrip())
 
-        except FileNotFoundError:
-            pass
-        except Exception:
+        except OSError:
             pass

@@ -14,8 +14,8 @@ with midi.use_chan(1):
 """
 
 from soir._bindings.rt import (
-    midi_note_on_,
     midi_note_off_,
+    midi_note_on_,
     schedule_,
 )
 from soir.rt._internals import (

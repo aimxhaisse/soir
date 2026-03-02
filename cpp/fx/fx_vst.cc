@@ -1,7 +1,8 @@
 #include "fx/fx_vst.hh"
 
 #include <absl/log/log.h>
-#include <rapidjson/document.h>
+
+#include <nlohmann/json.hpp>
 
 #include "core/common.hh"
 
@@ -23,18 +24,17 @@ FxVst::FxVst(Controls* controls, vst::VstHost* vst_host)
 absl::Status FxVst::Init(const Fx::Settings& settings) {
   settings_ = settings;
 
-  rapidjson::Document doc;
-  doc.Parse(settings_.extra_.c_str());
-  if (doc.HasParseError()) {
+  auto doc = nlohmann::json::parse(settings_.extra_, nullptr, false);
+  if (doc.is_discarded()) {
     return absl::InvalidArgumentError("Failed to parse JSON: " +
                                       settings_.extra_);
   }
 
-  if (!doc.HasMember("plugin")) {
+  if (!doc.contains("plugin")) {
     return absl::InvalidArgumentError("VST effect missing 'plugin' field");
   }
 
-  plugin_name_ = doc["plugin"].GetString();
+  plugin_name_ = doc["plugin"].get<std::string>();
 
   if (!vst_host_) {
     return absl::FailedPreconditionError("VST host not available");
@@ -66,13 +66,12 @@ bool FxVst::CanFastUpdate(const Fx::Settings& settings) {
     return false;
   }
 
-  rapidjson::Document doc;
-  doc.Parse(settings.extra_.c_str());
-  if (doc.HasParseError() || !doc.HasMember("plugin")) {
+  auto doc = nlohmann::json::parse(settings.extra_, nullptr, false);
+  if (doc.is_discarded() || !doc.contains("plugin")) {
     return false;
   }
 
-  std::string new_name = doc["plugin"].GetString();
+  std::string new_name = doc["plugin"].get<std::string>();
   return new_name == plugin_name_;
 }
 
@@ -86,36 +85,30 @@ void FxVst::FastUpdate(const Fx::Settings& settings) {
 }
 
 void FxVst::ReloadParams() {
-  rapidjson::Document doc;
-  doc.Parse(settings_.extra_.c_str());
-  if (doc.HasParseError()) {
+  auto doc = nlohmann::json::parse(settings_.extra_, nullptr, false);
+  if (doc.is_discarded()) {
     LOG(ERROR) << "Failed to parse JSON: " << settings_.extra_;
     return;
   }
 
   automated_params_.clear();
 
-  if (!doc.HasMember("params") || !plugin_) {
+  if (!doc.contains("params") || !plugin_) {
     return;
   }
 
   auto vst_params = plugin_->GetParameters();
-  const auto& params = doc["params"];
 
-  for (auto it = params.MemberBegin(); it != params.MemberEnd(); ++it) {
-    std::string param_name = it->name.GetString();
-
+  for (auto& [param_name, ref] : doc["params"].items()) {
     auto vst_it = vst_params.find(param_name);
     if (vst_it != vst_params.end()) {
       AutomatedParam ap;
       ap.vst_param_id = vst_it->second.id;
 
-      // Build Parameter from the Value directly
-      const rapidjson::Value& ref = it->value;
-      if (ref.IsString()) {
-        ap.param.SetControl(controls_, ref.GetString());
-      } else if (ref.IsNumber()) {
-        ap.param.SetConstant(static_cast<float>(ref.GetDouble()));
+      if (ref.is_string()) {
+        ap.param.SetControl(controls_, ref.get<std::string>());
+      } else if (ref.is_number()) {
+        ap.param.SetConstant(static_cast<float>(ref.get<double>()));
       }
       ap.param.SetRange(0.0f, 1.0f);
 

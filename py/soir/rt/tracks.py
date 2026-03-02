@@ -17,19 +17,16 @@ tracks.setup({
 ```
 """
 
-from typing import Any
-
 from dataclasses import (
-    dataclass,
     asdict,
+    dataclass,
     field,
 )
+from typing import Any
+
 from soir._bindings.rt import (
     get_tracks_,
     setup_tracks_,
-)
-from soir.rt.ctrls import (
-    Control,
 )
 from soir.rt._ctrls import (
     controls_registry_,
@@ -37,6 +34,9 @@ from soir.rt._ctrls import (
 from soir.rt._helpers import serialize_parameters
 from soir.rt._internals import (
     assert_not_in_loop,
+)
+from soir.rt.ctrls import (
+    Control,
 )
 from soir.rt.fx import Fx
 

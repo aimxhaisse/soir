@@ -20,7 +20,7 @@ print(f"Drums peak: L={drums.peak_left:.3f} R={drums.peak_right:.3f}")
 
 from dataclasses import dataclass
 
-from soir._bindings.rt import get_master_levels_, get_track_levels_, get_track_level_
+from soir._bindings.rt import get_master_levels_, get_track_level_, get_track_levels_
 from soir.rt.errors import TrackNotFoundException
 
 

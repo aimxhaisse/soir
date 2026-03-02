@@ -108,29 +108,28 @@ Sample* Sampler::GetSample(const std::string& pack, const std::string& name) {
 }
 
 void Sampler::PlaySampleParameters::FromJson(Controls* controls,
-                                             const rapidjson::Value& json,
+                                             const nlohmann::json& json,
                                              PlaySampleParameters* p) {
   // Offsets
-  if (json.HasMember("start")) {
-    p->start_ = json["start"].GetDouble();
+  if (json.contains("start")) {
+    p->start_ = json["start"].get<double>();
   }
-  if (json.HasMember("end")) {
-    p->end_ = json["end"].GetDouble();
+  if (json.contains("end")) {
+    p->end_ = json["end"].get<double>();
   }
 
   // Pan
-  if (json.HasMember("pan")) {
-    if (json["pan"].IsString()) {
-      const std::string pan = json["pan"].GetString();
-      p->pan_.SetControl(controls, pan);
+  if (json.contains("pan")) {
+    if (json["pan"].is_string()) {
+      p->pan_.SetControl(controls, json["pan"].get<std::string>());
     } else {
-      p->pan_.SetConstant(json["pan"].GetDouble());
+      p->pan_.SetConstant(json["pan"].get<double>());
     }
   }
 
   // Playback rate
-  if (json.HasMember("rate")) {
-    p->rate_ = json["rate"].GetDouble();
+  if (json.contains("rate")) {
+    p->rate_ = json["rate"].get<double>();
 
     // This is a trick, if the rate is negative, we want to play the
     // sample backward. As we already handle inverted start/end to do
@@ -147,37 +146,34 @@ void Sampler::PlaySampleParameters::FromJson(Controls* controls,
   }
 
   // Envelope
-  if (json.HasMember("attack")) {
-    p->attack_ = json["attack"].GetDouble();
+  if (json.contains("attack")) {
+    p->attack_ = json["attack"].get<double>();
   }
-  if (json.HasMember("decay")) {
-    p->decay_ = json["decay"].GetDouble();
+  if (json.contains("decay")) {
+    p->decay_ = json["decay"].get<double>();
   }
-  if (json.HasMember("level")) {
-    p->level_ = json["level"].GetDouble();
+  if (json.contains("level")) {
+    p->level_ = json["level"].get<double>();
   }
-  if (json.HasMember("release")) {
-    p->release_ = json["release"].GetDouble();
+  if (json.contains("release")) {
+    p->release_ = json["release"].get<double>();
   }
 
   // Amplitude
-  if (json.HasMember("amp")) {
-    if (json["amp"].IsString()) {
-      const std::string amp = json["amp"].GetString();
-      p->amp_.SetControl(controls, amp);
+  if (json.contains("amp")) {
+    if (json["amp"].is_string()) {
+      p->amp_.SetControl(controls, json["amp"].get<std::string>());
     } else {
-      p->amp_.SetConstant(json["amp"].GetDouble());
+      p->amp_.SetConstant(json["amp"].get<double>());
     }
   }
 }
 
 void Sampler::HandleSysex(const MidiSysexInstruction& sysex) {
-  rapidjson::Document params;
+  auto params = nlohmann::json::parse(sysex.json_payload, nullptr, false);
 
-  params.Parse(sysex.json_payload.c_str());
-
-  auto pack = params["pack"].GetString();
-  auto name = params["name"].GetString();
+  auto pack = params["pack"].get<std::string>();
+  auto name = params["name"].get<std::string>();
 
   switch (sysex.type) {
     case MidiSysexType::SAMPLER_PLAY: {

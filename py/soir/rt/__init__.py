@@ -34,11 +34,7 @@ from collections.abc import Callable
 from typing import Any
 
 import soir as soir
-
-from soir.rt import _ctrls
-from soir.rt import _internals
-from soir.rt._internals import Loop_
-from soir.rt import _system
+from soir.rt import _ctrls, _internals, _system
 from soir.rt import bpm as bpm
 from soir.rt import ctrls as ctrls
 from soir.rt import errors as errors
@@ -50,6 +46,7 @@ from soir.rt import sampler as sampler
 from soir.rt import system as system
 from soir.rt import tracks as tracks
 from soir.rt import vst as vst
+from soir.rt._internals import Loop_
 
 # Alias for backwards compatibility
 sys = system

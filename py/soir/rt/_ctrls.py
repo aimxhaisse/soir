@@ -3,15 +3,13 @@ import json
 import math
 from collections.abc import Callable
 
-from soir.rt import _internals
-from soir.rt import errors
-
 from soir._bindings.rt import (
-    schedule_,
+    controls_get_frequency_update_,
     get_bpm_,
     midi_sysex_update_controls_,
-    controls_get_frequency_update_,
+    schedule_,
 )
+from soir.rt import _internals, errors
 
 # Incremented at each buffer evaluation, used to remove controls
 # that aren't defined in the global scope anymore.
@@ -22,12 +20,12 @@ eval_id_ = 0
 
 
 in_update_loop_ = False
-controls_registry_: dict[str, "Control_"] = {}
+controls_registry_: dict[str, Control_] = {}
 
 
 def _reset() -> None:
     """Helper to reset controls state for unit tests mostly."""
-    global eval_id_, in_update_loop_, controls_registry_
+    global eval_id_, in_update_loop_
 
     eval_id_ = 0
     in_update_loop_ = False
@@ -226,14 +224,13 @@ def post_eval_() -> None:
     # cover all cases if updating this code.
 
     for name, ctrl in controls_registry_.items():
-        if ctrl.scope_ == Control_.Scope.GLOBAL:
-            if eval_id_ != ctrl.scope_global_eval_id_:
-                # Here it means, last time we created this control,
-                # it was on a different global eval id, so in a prio
-                # eval: this means the control is not defined anymore
-                # in the global scope and we can remove it.
-                delete.append(name)
-                continue
+        if ctrl.scope_ == Control_.Scope.GLOBAL and eval_id_ != ctrl.scope_global_eval_id_:
+            # Here it means, last time we created this control,
+            # it was on a different global eval id, so in a prio
+            # eval: this means the control is not defined anymore
+            # in the global scope and we can remove it.
+            delete.append(name)
+            continue
         if ctrl.scope_ == Control_.Scope.LIVE:
             live = _internals.get_live(ctrl.scope_live_name_)
             if not live or live.eval_at != ctrl.scope_live_eval_at_:

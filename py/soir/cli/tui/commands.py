@@ -6,9 +6,8 @@ commands from the TUI command shell.
 
 import asyncio
 import json
-from typing import Any
+from typing import Any, ClassVar
 
-from soir.cli.tui.engine_manager import EngineManager
 from soir._bindings.rt import (
     get_audio_in_devices_,
     get_audio_out_devices_,
@@ -21,7 +20,9 @@ from soir._bindings.rt import (
     vst_open_fx_editor_,
     vst_open_inst_editor_,
 )
-from soir.rt.sampler import packs as get_packs, samples as get_samples
+from soir.cli.tui.engine_manager import EngineManager
+from soir.rt.sampler import packs as get_packs
+from soir.rt.sampler import samples as get_samples
 from textual.app import App
 
 
@@ -32,7 +33,7 @@ class CommandInterpreter:
     within the TUI for controlling and inspecting the Soir engine.
     """
 
-    COMMANDS = {
+    COMMANDS: ClassVar[dict[str, str]] = {
         "help": "show available commands",
         "status": "show engine status",
         "tracks": "list tracks",
@@ -292,8 +293,7 @@ class CommandInterpreter:
 
         lines.append(f"[Available VST Effects: {len(fx_plugins)}]")
         if fx_plugins:
-            for p in fx_plugins:
-                lines.append(f"  {p['name']} ({p['vendor']})")
+            lines.extend(f"  {p['name']} ({p['vendor']})" for p in fx_plugins)
         else:
             lines.append("  (none found)")
 
@@ -301,8 +301,7 @@ class CommandInterpreter:
 
         lines.append(f"[Available VST Instruments: {len(inst_plugins)}]")
         if inst_plugins:
-            for p in inst_plugins:
-                lines.append(f"  {p['name']} ({p['vendor']})")
+            lines.extend(f"  {p['name']} ({p['vendor']})" for p in inst_plugins)
         else:
             lines.append("  (none found)")
 

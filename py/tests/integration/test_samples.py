@@ -12,7 +12,6 @@ import wave
 from pathlib import Path
 
 import click.exceptions
-
 from soir.cli.samples import (
     create_pack,
     get_samples_from_directory,

@@ -5,10 +5,9 @@ import unittest
 from pathlib import Path
 from unittest.mock import Mock, patch
 
-from watchdog import events
-
 from soir.config import Config
 from soir.watcher import LiveCodeUpdateHandler, Watcher, reload_code
+from watchdog import events
 
 
 class TestReloadCode(unittest.TestCase):

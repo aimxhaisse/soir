@@ -1,8 +1,8 @@
 #pragma once
 
 #include <pybind11/stl.h>
-#include <rapidjson/document.h>
 
+#include <nlohmann/json.hpp>
 #include <optional>
 #include <variant>
 
@@ -38,7 +38,8 @@ class Parameter {
   ParameterRaw Raw() const;
 
   static Parameter FromPyDict(Controls* c, py::dict& p, const char* n);
-  static Parameter FromJSON(Controls* c, rapidjson::Document& p, const char* n);
+  static Parameter FromJSON(Controls* c, const nlohmann::json& p,
+                            const char* n);
 
  private:
   void Reset();

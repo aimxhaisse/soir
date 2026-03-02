@@ -4,11 +4,10 @@ This module provides an interactive command shell with input and output
 display for executing soir-specific commands.
 """
 
+from soir.cli.tui.commands import CommandInterpreter
 from textual.app import ComposeResult
 from textual.containers import Container
 from textual.widgets import Input, RichLog
-
-from soir.cli.tui.commands import CommandInterpreter
 
 
 class CommandShellWidget(Container):
@@ -61,7 +60,7 @@ class CommandShellWidget(Container):
                 result = self.interpreter.execute(command)
                 if result:
                     output.write(result)
-            except Exception as e:
+            except Exception as e:  # noqa: BLE001 - must catch user code errors for display
                 output.write(f"[#c95757]Error: {e}[/#c95757]")
         else:
             output.write("[#c9a857]Command interpreter not initialized[/#c9a857]")

@@ -140,9 +140,8 @@ absl::Status OggOpusEncoder::Encode(const float* pcm, int frame_size,
   }
 
   uint8_t packet_buffer[4000];
-  int encoded_bytes =
-      opus_encode_float(encoder_.get(), pcm, frame_size, packet_buffer,
-                        sizeof(packet_buffer));
+  int encoded_bytes = opus_encode_float(encoder_.get(), pcm, frame_size,
+                                        packet_buffer, sizeof(packet_buffer));
   if (encoded_bytes < 0) {
     return absl::InternalError("Opus encoding failed: " +
                                std::string(opus_strerror(encoded_bytes)));
@@ -201,8 +200,7 @@ absl::Status OggOpusEncoder::WriteOggPages(std::vector<uint8_t>* output,
       break;
     }
 
-    output->insert(output->end(), page.header,
-                   page.header + page.header_len);
+    output->insert(output->end(), page.header, page.header + page.header_len);
     output->insert(output->end(), page.body, page.body + page.body_len);
   }
 

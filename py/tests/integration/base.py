@@ -6,8 +6,9 @@ import unittest
 from pathlib import Path
 from typing import Any
 
-from .soir_test_base import SoirTestEngine
 from soir._bindings import logging
+
+from .soir_test_base import SoirTestEngine
 
 
 class SoirIntegrationTestCase(unittest.TestCase):

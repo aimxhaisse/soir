@@ -10,7 +10,6 @@ class SoirException(Exception):
     @public
     """
 
-    pass
 
 
 class NotInLoopException(SoirException):
@@ -24,7 +23,6 @@ class NotInLoopException(SoirException):
     the global scope.
     """
 
-    pass
 
 
 class InLoopException(SoirException):
@@ -37,7 +35,6 @@ class InLoopException(SoirException):
     exception is raised if such code is called from a loop.
     """
 
-    pass
 
 
 class NotInControlLoopException(SoirException):
@@ -50,7 +47,6 @@ class NotInControlLoopException(SoirException):
     is instrumented from outside of the Soir control loop.
     """
 
-    pass
 
 
 class UnknownMidiTrackException(SoirException):
@@ -63,7 +59,6 @@ class UnknownMidiTrackException(SoirException):
     used.
     """
 
-    pass
 
 
 class ControlNotFoundException(SoirException):
@@ -76,7 +71,6 @@ class ControlNotFoundException(SoirException):
     control is used.
     """
 
-    pass
 
 
 class ConfigurationError(SoirException):
@@ -88,7 +82,6 @@ class ConfigurationError(SoirException):
     such as the SOIR_DIR environment variable not being set.
     """
 
-    pass
 
 
 class SamplePackNotFoundException(SoirException):
@@ -102,7 +95,6 @@ class SamplePackNotFoundException(SoirException):
     packs.
     """
 
-    pass
 
 
 class TrackNotFoundException(SoirException):
@@ -114,4 +106,3 @@ class TrackNotFoundException(SoirException):
     information for a track that doesn't exist.
     """
 
-    pass

@@ -12,7 +12,6 @@ from pathlib import Path
 from typing import Any
 
 from jinja2 import Environment, FileSystemLoader
-
 from soir._bindings import Soir, logging
 
 
@@ -100,7 +99,7 @@ class SoirTestEngine:
                 new_lines = f.readlines()
                 self._last_read_position = f.tell()
                 return new_lines
-        except Exception as e:
+        except OSError as e:
             print(f"Error reading log file: {e}")
             return []
 

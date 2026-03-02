@@ -1,12 +1,12 @@
 #pragma once
 
 #include <absl/status/status.h>
-#include <rapidjson/document.h>
 
 #include <libremidi/libremidi.hpp>
 #include <list>
 #include <map>
 #include <memory>
+#include <nlohmann/json.hpp>
 
 #include "audio/audio_buffer.hh"
 #include "core/adsr.hh"
@@ -57,7 +57,7 @@ class Sampler : public Instrument {
     float release_ = 0.0f;
     Parameter amp_ = 1.0f;
 
-    static void FromJson(Controls* controls, const rapidjson::Value& v,
+    static void FromJson(Controls* controls, const nlohmann::json& v,
                          PlaySampleParameters* p);
   };
 

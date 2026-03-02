@@ -2,6 +2,7 @@
 
 import time
 from pathlib import Path
+from typing import Any, ClassVar
 
 import soundfile as sf  # type: ignore[import-untyped]
 
@@ -11,7 +12,7 @@ from .base import SoirIntegrationTestCase
 class TestAudioRecording(SoirIntegrationTestCase):
     """Test sys.record() audio recording functionality."""
 
-    config_overrides = {"initial_bpm": 600}
+    config_overrides: ClassVar[dict[str, Any]] = {"initial_bpm": 600}
 
     def test_basic_recording_file_creation(self) -> None:
         """Test that sys.record() creates a WAV file."""
