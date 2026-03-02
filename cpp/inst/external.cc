@@ -2,7 +2,8 @@
 
 #include <absl/log/log.h>
 #include <absl/status/status.h>
-#include <rapidjson/document.h>
+
+#include <nlohmann/json.hpp>
 
 #include "core/common.hh"
 
@@ -127,17 +128,16 @@ absl::Status External::GetMidiDevices(
 absl::Status External::ParseAndValidateSettings(
     const std::string& settings, std::optional<std::string>* midi_out_device,
     std::optional<std::string>* audio_in_device, std::vector<int>* channels) {
-  rapidjson::Document params;
-  params.Parse(settings.c_str());
+  auto params = nlohmann::json::parse(settings, nullptr, false);
 
-  if (params.HasMember("midi_out") && params["midi_out"].IsString()) {
-    *midi_out_device = params["midi_out"].GetString();
+  if (params.contains("midi_out") && params["midi_out"].is_string()) {
+    *midi_out_device = params["midi_out"].get<std::string>();
   } else {
     *midi_out_device = std::nullopt;
   }
 
-  if (params.HasMember("audio_in") && params["audio_in"].IsString()) {
-    *audio_in_device = params["audio_in"].GetString();
+  if (params.contains("audio_in") && params["audio_in"].is_string()) {
+    *audio_in_device = params["audio_in"].get<std::string>();
   } else {
     *audio_in_device = std::nullopt;
   }
@@ -148,24 +148,24 @@ absl::Status External::ParseAndValidateSettings(
   }
 
   if (audio_in_device->has_value()) {
-    if (!params.HasMember("audio_channels") ||
-        !params["audio_channels"].IsArray()) {
+    if (!params.contains("audio_channels") ||
+        !params["audio_channels"].is_array()) {
       return absl::InvalidArgumentError(
           "audio_channels required when audio_in is set");
     }
 
-    auto audio_chans = params["audio_channels"].GetArray();
-    if (audio_chans.Size() != 2) {
+    const auto& audio_chans = params["audio_channels"];
+    if (audio_chans.size() != 2) {
       return absl::InvalidArgumentError(
           "audio_channels must have exactly 2 elements [L, R]");
     }
 
     channels->clear();
-    for (rapidjson::SizeType i = 0; i < audio_chans.Size(); ++i) {
-      if (!audio_chans[i].IsInt()) {
+    for (const auto& chan : audio_chans) {
+      if (!chan.is_number_integer()) {
         return absl::InvalidArgumentError("Audio channels must be integers");
       }
-      channels->push_back(audio_chans[i].GetInt());
+      channels->push_back(chan.get<int>());
     }
   }
 

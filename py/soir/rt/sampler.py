@@ -22,17 +22,20 @@ def kick(beats=4):
 ```
 """
 
-from dataclasses import dataclass
-from typing import Any, Callable
-
 import json
+from collections.abc import Callable
+from dataclasses import dataclass
+from typing import Any
 
 from soir._bindings.rt import (
-    midi_sysex_sample_play_,
-    midi_sysex_sample_stop_,
     get_packs_,
     get_samples_,
+    midi_sysex_sample_play_,
+    midi_sysex_sample_stop_,
     schedule_,
+)
+from soir.rt._helpers import (
+    serialize_parameters,
 )
 from soir.rt._internals import (
     assert_in_loop,
@@ -44,12 +47,9 @@ from soir.rt.ctrls import (
 from soir.rt.errors import (
     SamplePackNotFoundException,
 )
-from soir.rt._helpers import (
-    serialize_parameters,
-)
 
 
-def new(pack_name: str) -> "Sampler":
+def new(pack_name: str) -> Sampler:
     """Creates a new sampler with samples from the designated pack.
 
     @public
@@ -213,10 +213,7 @@ def samples(pack_name: str) -> list[Sample]:
     Returns:
         The list of samples from the sample pack.
     """
-    result = []
-    for s in get_samples_(pack_name):
-        result.append(Sample(name=s, pack=pack_name, path="", duration=0.0))
-    return result
+    return [Sample(name=s, pack=pack_name, path="", duration=0.0) for s in get_samples_(pack_name)]
 
 
 class Kit:

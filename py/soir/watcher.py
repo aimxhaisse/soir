@@ -9,12 +9,13 @@ handle cleanups whenever some code is deleted. It can't know what was
 deleted if we only send partial diffs.
 """
 
-from typing import Callable
-from watchdog import events, observers
 import os
+from collections.abc import Callable
 
+from watchdog import events, observers
+
+from soir._bindings import logging
 from soir.config import Config
-import soir._bindings.logging as logging
 
 # This sends the updated code to the Soir runtime engine. The full
 # code of the entire live directory is expected.
@@ -30,9 +31,7 @@ def reload_code(cb: CodeUpdateCallback, directory: str) -> None:
     """Reloads the entire codebase from the given directory."""
     files: list[str] = []
     for root, _, dir_files in os.walk(directory):
-        for file in dir_files:
-            if is_eligible_file(file):
-                files.append(os.path.join(root, file))
+        files.extend(os.path.join(root, file) for file in dir_files if is_eligible_file(file))
 
     contents: str = ""
     for file in sorted(files):
@@ -53,13 +52,13 @@ class LiveCodeUpdateHandler(events.FileSystemEventHandler):
     def on_modified(self, event: events.FileSystemEvent) -> None:
         """Called when a file is modified."""
         if not event.is_directory and is_eligible_file(str(event.src_path)):
-            logging.info(f"Detected modification in {str(event.src_path)}")
+            logging.info(f"Detected modification in {event.src_path!s}")
             reload_code(self.cb, self.directory)
 
     def on_created(self, event: events.FileSystemEvent) -> None:
         """Called when a file is created."""
         if not event.is_directory and is_eligible_file(str(event.src_path)):
-            logging.info(f"Detected creation of {str(event.src_path)}")
+            logging.info(f"Detected creation of {event.src_path!s}")
             reload_code(self.cb, self.directory)
 
 

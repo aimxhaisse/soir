@@ -1,7 +1,8 @@
 #include "inst/inst_vst.hh"
 
 #include <absl/log/log.h>
-#include <rapidjson/document.h>
+
+#include <nlohmann/json.hpp>
 
 #include "core/common.hh"
 
@@ -16,17 +17,16 @@ absl::Status InstVst::Init(const std::string& settings,
   controls_ = controls;
   settings_json_ = settings;
 
-  rapidjson::Document doc;
-  doc.Parse(settings.c_str());
-  if (doc.HasParseError()) {
+  auto doc = nlohmann::json::parse(settings, nullptr, false);
+  if (doc.is_discarded()) {
     return absl::InvalidArgumentError("Failed to parse JSON: " + settings);
   }
 
-  if (!doc.HasMember("plugin")) {
+  if (!doc.contains("plugin")) {
     return absl::InvalidArgumentError("VST instrument missing 'plugin' field");
   }
 
-  plugin_name_ = doc["plugin"].GetString();
+  plugin_name_ = doc["plugin"].get<std::string>();
 
   if (!vst_host_) {
     return absl::FailedPreconditionError("VST host not available");
@@ -52,35 +52,30 @@ absl::Status InstVst::Init(const std::string& settings,
 }
 
 void InstVst::ReloadParams() {
-  rapidjson::Document doc;
-  doc.Parse(settings_json_.c_str());
-  if (doc.HasParseError()) {
+  auto doc = nlohmann::json::parse(settings_json_, nullptr, false);
+  if (doc.is_discarded()) {
     LOG(ERROR) << "Failed to parse JSON: " << settings_json_;
     return;
   }
 
   automated_params_.clear();
 
-  if (!doc.HasMember("params") || !plugin_) {
+  if (!doc.contains("params") || !plugin_) {
     return;
   }
 
   auto vst_params = plugin_->GetParameters();
-  const auto& params = doc["params"];
 
-  for (auto it = params.MemberBegin(); it != params.MemberEnd(); ++it) {
-    std::string param_name = it->name.GetString();
-
+  for (auto& [param_name, ref] : doc["params"].items()) {
     auto vst_it = vst_params.find(param_name);
     if (vst_it != vst_params.end()) {
       AutomatedParam ap;
       ap.vst_param_id = vst_it->second.id;
 
-      const rapidjson::Value& ref = it->value;
-      if (ref.IsString()) {
-        ap.param.SetControl(controls_, ref.GetString());
-      } else if (ref.IsNumber()) {
-        ap.param.SetConstant(static_cast<float>(ref.GetDouble()));
+      if (ref.is_string()) {
+        ap.param.SetControl(controls_, ref.get<std::string>());
+      } else if (ref.is_number()) {
+        ap.param.SetConstant(static_cast<float>(ref.get<double>()));
       }
       ap.param.SetRange(0.0f, 1.0f);
 

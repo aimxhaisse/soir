@@ -1,10 +1,10 @@
 from collections.abc import Callable
 
 from soir._bindings.rt import (
-    schedule_,
     get_beat_,
-    log_,
     get_code_,
+    log_,
+    schedule_,
 )
 from soir.rt.errors import (
     InLoopException,
@@ -29,13 +29,13 @@ def _reset() -> None:
 # Decorator API for @loop
 
 
-loop_registry_: dict[str, "Loop_"] = {}
-current_loop_: "Loop_ | None" = None
+loop_registry_: dict[str, Loop_] = {}
+current_loop_: Loop_ | None = None
 
 
 def _reset_loop() -> None:
     """Helper to reset loop state for integration tests."""
-    global current_loop_, loop_registry_
+    global current_loop_
 
     current_loop_ = None
     loop_registry_.clear()
@@ -85,7 +85,7 @@ class Loop_:
             try:
                 self.eval_at = get_beat_()
                 self.func()
-            except Exception as e:
+            except Exception as e:  # noqa: BLE001 - user loop code can raise anything
                 err = e
             current_loop_ = None
             schedule_(self.beats, _loop)
@@ -189,13 +189,13 @@ def get_loop(name: str) -> Loop_ | None:
 # Decorator API for @live
 
 
-live_registry_: dict[str, "Live_"] = {}
-current_live_: "Live_ | None" = None
+live_registry_: dict[str, Live_] = {}
+current_live_: Live_ | None = None
 
 
 def _reset_live() -> None:
     """Helper to reset live state for integration tests."""
-    global current_live_, live_registry_
+    global current_live_
 
     current_live_ = None
     live_registry_.clear()
@@ -251,7 +251,7 @@ class Live_:
         func = self.func
         try:
             func()
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001 - user live code can raise anything
             err = e
         current_live_ = None
         if err:

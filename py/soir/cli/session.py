@@ -1,20 +1,19 @@
 import os
 import os.path
-from pathlib import Path
-import signal
-import typer
-from typing import Any
-import threading
 import shutil
+import signal
+import threading
+from pathlib import Path
+from typing import Any
 
+import soir._bindings as bindings
+import typer
+from soir._bindings import logging
 from soir.config import (
     Config,
     get_soir_dir,
 )
 from soir.watcher import Watcher
-
-import soir._bindings as bindings
-import soir._bindings.logging as logging
 
 session_app = typer.Typer(help="Create and manage Soir sessions.")
 

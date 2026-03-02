@@ -4,12 +4,11 @@ from collections.abc import Generator
 
 import pytest
 from flask.testing import FlaskClient
-
 from soir.www.app import create_app
 
 
 @pytest.fixture
-def client() -> Generator[FlaskClient, None, None]:
+def client() -> Generator[FlaskClient]:
     """Create test client."""
     app = create_app()
     app.config["TESTING"] = True

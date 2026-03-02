@@ -5,7 +5,7 @@ in real-time.
 
 from collections.abc import Callable
 
-import soir.rt._ctrls as _ctrls
+from soir.rt import _ctrls
 
 
 class Control(_ctrls.Control_):

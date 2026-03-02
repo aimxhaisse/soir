@@ -1,12 +1,14 @@
 """Integration tests for @loop() decorator functionality."""
 
+from typing import Any, ClassVar
+
 from .base import SoirIntegrationTestCase
 
 
 class TestLoops(SoirIntegrationTestCase):
     """Test @loop() decorator and loop execution."""
 
-    config_overrides = {"initial_bpm": 600}
+    config_overrides: ClassVar[dict[str, Any]] = {"initial_bpm": 600}
 
     def test_basic_loop(self) -> None:
         """Test that @loop() decorated functions execute repeatedly."""

@@ -10,11 +10,11 @@ import shutil
 import subprocess
 import tarfile
 import tempfile
+import urllib.error
 import urllib.request
 from dataclasses import dataclass
 
 import typer
-
 from soir.config import get_soir_dir
 
 app = typer.Typer(help="Sample packs management commands", no_args_is_help=True)
@@ -60,7 +60,7 @@ def load_available_packs() -> dict[str, Pack]:
                     author=pack["author"],
                 )
             return packs
-    except Exception:
+    except (OSError, json.JSONDecodeError, KeyError):
         return {}
 
 
@@ -137,17 +137,19 @@ def is_ffmpeg_installed() -> bool:
             ["ffmpeg", "-version"],
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
+            check=False,
         )
 
         ffprobe_result = subprocess.run(
             ["ffprobe", "-version"],
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
+            check=False,
         )
-
-        return ffmpeg_result.returncode == 0 and ffprobe_result.returncode == 0
     except FileNotFoundError:
         return False
+    else:
+        return ffmpeg_result.returncode == 0 and ffprobe_result.returncode == 0
 
 
 def get_samples_from_directory(directory: str) -> list[dict[str, str]]:
@@ -201,6 +203,7 @@ def check_audio_properties(file_path: str) -> tuple[bool, int, int]:
             ],
             capture_output=True,
             text=True,
+            check=False,
         )
 
         if result.returncode != 0:
@@ -216,7 +219,7 @@ def check_audio_properties(file_path: str) -> tuple[bool, int, int]:
             return needs_conversion, sample_rate, channels
         else:
             return True, 0, 0
-    except Exception:
+    except (FileNotFoundError, ValueError, IndexError):
         return True, 0, 0
 
 
@@ -228,7 +231,7 @@ def convert_audio_to_wav(file_path: str) -> None:
     """
     output_temp = f"{file_path}.temp.wav"
     try:
-        needs_conversion, sample_rate, channels = check_audio_properties(file_path)
+        needs_conversion, sample_rate, _channels = check_audio_properties(file_path)
 
         if not needs_conversion:
             typer.echo("Already at 48kHz, skipping conversion")
@@ -240,6 +243,7 @@ def convert_audio_to_wav(file_path: str) -> None:
             ["ffmpeg", "-i", file_path, "-ar", "48000", output_temp],
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
+            check=False,
         )
 
         if result.returncode == 0:
@@ -249,10 +253,10 @@ def convert_audio_to_wav(file_path: str) -> None:
             if os.path.exists(output_temp):
                 os.remove(output_temp)
             typer.echo(f"Warning: Failed to convert {file_path}")
-    except Exception as e:
+    except OSError as e:
         if os.path.exists(output_temp):
             os.remove(output_temp)
-        typer.echo(f"Error converting {file_path}: {str(e)}")
+        typer.echo(f"Error converting {file_path}: {e!s}")
 
 
 def remove_pack_files(pack_name: str, samples_dir: str) -> None:
@@ -420,15 +424,15 @@ def create_pack(
 
             typer.echo(f"Tarball created at {tarball_path}")
 
-    except Exception as e:
-        typer.echo(f"Error creating sample pack: {str(e)}")
+    except (OSError, ValueError, tarfile.TarError) as e:
+        typer.echo(f"Error creating sample pack: {e!s}")
         raise typer.Exit(1)
 
 
 def _is_local_tarball(source: str) -> bool:
     """Check if source is a local tarball file."""
     return os.path.isfile(source) and (
-        source.endswith(".tar.gz") or source.endswith(".tgz")
+        source.endswith((".tar.gz", ".tgz"))
     )
 
 
@@ -441,7 +445,7 @@ def _get_registry_url(pack_name: str, registry_path: str) -> str | None:
                 if pack["name"] == pack_name:
                     url = pack.get("url")
                     return str(url) if url else None
-    except Exception:
+    except (OSError, json.JSONDecodeError, KeyError):
         pass
     return None
 
@@ -474,7 +478,7 @@ def install_pack(
         try:
             pack_name = get_pack_name_from_tarball(source)
         except (tarfile.TarError, ValueError) as e:
-            typer.echo(f"Error reading tarball: {str(e)}")
+            typer.echo(f"Error reading tarball: {e!s}")
             raise typer.Exit(1)
         tarball_path = source
     else:
@@ -519,8 +523,8 @@ def install_pack(
             os.remove(tarball_path)
 
         typer.echo(f"Sample pack '{pack_name}' installed successfully.")
-    except Exception as e:
-        typer.echo(f"Error installing sample pack: {str(e)}")
+    except (OSError, tarfile.TarError, ValueError, urllib.error.URLError) as e:
+        typer.echo(f"Error installing sample pack: {e!s}")
         raise typer.Exit(1)
 
 
@@ -544,8 +548,8 @@ def remove_pack(
     try:
         remove_pack_files(pack_name, samples_dir)
         typer.echo(f"Sample pack '{pack_name}' removed successfully.")
-    except Exception as e:
-        typer.echo(f"Error removing sample pack: {str(e)}")
+    except OSError as e:
+        typer.echo(f"Error removing sample pack: {e!s}")
         raise typer.Exit(1)
 
 

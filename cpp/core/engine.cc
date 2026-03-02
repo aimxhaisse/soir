@@ -100,7 +100,8 @@ absl::Status Engine::Start() {
     if (!status.ok()) {
       LOG(WARNING) << "Failed to start audio streaming: " << status;
     } else {
-      status = http_server_->Start(audio_stream_.get(), "0.0.0.0", streaming_port_);
+      status =
+          http_server_->Start(audio_stream_.get(), "0.0.0.0", streaming_port_);
       if (!status.ok()) {
         LOG(WARNING) << "Failed to start audio HTTP server: " << status;
       }

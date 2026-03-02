@@ -28,7 +28,7 @@ def record_(file_path: str) -> bool:
     Returns:
         True if recording started/continued successfully, False otherwise.
     """
-    global eval_id_, current_recording_file_, recording_eval_id_
+    global current_recording_file_, recording_eval_id_
 
     # If we're recording to a different file, start new recording
     if current_recording_file_ != file_path:

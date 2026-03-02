@@ -37,8 +37,8 @@ absl::Status AudioStream::Init(int sample_rate, int channels, int bitrate) {
 
   initialized_ = true;
 
-  LOG(INFO) << "Audio stream initialized: " << sample_rate << "Hz, "
-            << channels << " channels, " << bitrate << " bps";
+  LOG(INFO) << "Audio stream initialized: " << sample_rate << "Hz, " << channels
+            << " channels, " << bitrate << " bps";
 
   return absl::OkStatus();
 }
@@ -65,8 +65,7 @@ absl::Status AudioStream::PushAudioBuffer(AudioBuffer& buffer) {
   size_t samples_per_frame = static_cast<size_t>(frame_size_ * channels_);
   while (accumulator_.size() >= samples_per_frame) {
     std::vector<uint8_t> encoded;
-    auto status =
-        encoder_->Encode(accumulator_.data(), frame_size_, &encoded);
+    auto status = encoder_->Encode(accumulator_.data(), frame_size_, &encoded);
     if (!status.ok()) {
       LOG(WARNING) << "Failed to encode audio frame: " << status;
       break;
@@ -101,8 +100,7 @@ std::vector<uint8_t> AudioStream::GetHeaderPages() const {
   return encoder_->GetHeaderPages();
 }
 
-AudioStream::ReadResult AudioStream::Read(size_t offset,
-                                          int timeout_ms) const {
+AudioStream::ReadResult AudioStream::Read(size_t offset, int timeout_ms) const {
   std::unique_lock<std::mutex> lock(buffer_mutex_);
 
   // If caller is caught up, wait for new data.
@@ -117,9 +115,8 @@ AudioStream::ReadResult AudioStream::Read(size_t offset,
   }
 
   // If offset fell behind the ring buffer, skip forward.
-  size_t earliest = (write_pos_ > ring_capacity_)
-                        ? (write_pos_ - ring_capacity_)
-                        : 0;
+  size_t earliest =
+      (write_pos_ > ring_capacity_) ? (write_pos_ - ring_capacity_) : 0;
   if (offset < earliest) {
     offset = earliest;
   }

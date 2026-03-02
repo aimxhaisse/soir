@@ -7,7 +7,8 @@ parsing docstrings, and building structured documentation data.
 import importlib
 import inspect
 
-from docstring_parser import Docstring, parse as parse_docstring
+from docstring_parser import Docstring
+from docstring_parser import parse as parse_docstring
 from pydantic import BaseModel, ConfigDict, Field
 
 

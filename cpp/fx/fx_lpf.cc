@@ -41,10 +41,8 @@ void LPF::FastUpdate(const Fx::Settings& settings) {
 }
 
 void LPF::ReloadParams() {
-  rapidjson::Document doc;
-
-  doc.Parse(settings_.extra_.c_str());
-  if (doc.HasParseError()) {
+  auto doc = nlohmann::json::parse(settings_.extra_, nullptr, false);
+  if (doc.is_discarded()) {
     LOG(ERROR) << "Failed to parse JSON: " << settings_.extra_;
     return;
   }

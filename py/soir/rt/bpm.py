@@ -9,9 +9,9 @@ in real-time.
 """
 
 from soir._bindings.rt import (
-    set_bpm_,
-    get_bpm_,
     get_beat_,
+    get_bpm_,
+    set_bpm_,
 )
 from soir.rt._internals import (
     assert_not_in_loop,

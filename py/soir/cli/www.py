@@ -1,5 +1,4 @@
 import typer
-
 from soir.www.app import start_server
 
 www_app = typer.Typer(help="Run web sever.")

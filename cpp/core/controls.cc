@@ -1,7 +1,8 @@
 #include "core/controls.hh"
 
 #include <absl/log/log.h>
-#include <rapidjson/document.h>
+
+#include <nlohmann/json.hpp>
 
 #include "core/midi_sysex.hh"
 
@@ -78,10 +79,9 @@ void Controls::ProcessEvent(MidiEventAt& event_at) {
   }
 
   std::map<std::string, float> values;
-  rapidjson::Document params;
-  params.Parse(sysex.json_payload.c_str());
-  for (auto& k : params["knobs"].GetObject()) {
-    values[k.name.GetString()] = k.value.GetDouble();
+  auto params = nlohmann::json::parse(sysex.json_payload, nullptr, false);
+  for (auto& [name, value] : params["knobs"].items()) {
+    values[name] = value.get<float>();
   }
 
   std::unique_lock<std::shared_mutex> lock(mutex_);

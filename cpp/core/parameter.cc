@@ -96,29 +96,20 @@ Parameter Parameter::FromPyDict(Controls* c, py::dict& p, const char* n) {
   return param;
 }
 
-Parameter Parameter::FromJSON(Controls* c, rapidjson::Document& p,
+Parameter Parameter::FromJSON(Controls* c, const nlohmann::json& p,
                               const char* n) {
   Parameter param;
 
-  if (!p.HasMember(n)) {
+  if (!p.contains(n)) {
     return param;
   }
 
-  // Unsafe, we assume we always have a value here.
-  const rapidjson::Value& ref = p[n];
+  const auto& ref = p[n];
 
-  if (ref.IsString()) {
-    param.SetControl(c, ref.GetString());
-  } else if (ref.IsUint()) {
-    param.SetConstant(static_cast<float>(ref.GetUint()));
-  } else if (ref.IsInt()) {
-    param.SetConstant(static_cast<float>(ref.GetInt()));
-  } else if (ref.IsUint64()) {
-    param.SetConstant(static_cast<float>(ref.GetUint64()));
-  } else if (ref.IsInt64()) {
-    param.SetConstant(static_cast<float>(ref.GetInt64()));
-  } else {
-    param.SetConstant(static_cast<float>(ref.GetDouble()));
+  if (ref.is_string()) {
+    param.SetControl(c, ref.get<std::string>());
+  } else if (ref.is_number()) {
+    param.SetConstant(ref.get<float>());
   }
 
   // Bool not handled yet.

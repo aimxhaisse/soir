@@ -4,7 +4,7 @@ This module provides the header widget that displays the application
 name and version at the top of the TUI.
 """
 
-from importlib.metadata import version
+from importlib.metadata import PackageNotFoundError, version
 
 from textual.reactive import reactive
 from textual.widgets import Static
@@ -20,7 +20,7 @@ class HeaderWidget(Static):
         super().__init__()
         try:
             self.version = version("Soir")
-        except Exception:
+        except PackageNotFoundError:
             self.version = "unknown"
 
     def render(self) -> str:
@@ -40,9 +40,7 @@ class HeaderWidget(Static):
         version_text = f"v{self.version}"
         width = self.size.width
 
-        stream_right = (
-            f"stream  {self.streaming_url}" if self.streaming_url else ""
-        )
+        stream_right = f"stream  {self.streaming_url}" if self.streaming_url else ""
 
         lines = []
         for i, line in enumerate(ascii_art):

@@ -49,7 +49,7 @@ class Config(BaseModel):
     live: LiveConfig = Field()
 
     @classmethod
-    def load_from_path(cls, path: str | Path) -> "Config":
+    def load_from_path(cls, path: str | Path) -> Config:
         """Load configuration from a JSON file.
 
         Args:

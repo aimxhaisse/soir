@@ -6,12 +6,7 @@ all widgets and manages the engine lifecycle.
 
 import time
 from pathlib import Path
-
-from textual.app import App, ComposeResult
-from textual.binding import Binding
-from textual.containers import Horizontal, Vertical
-from textual.reactive import reactive
-from textual.widgets import Footer
+from typing import ClassVar
 
 from soir._bindings.rt import pump_ui_events_
 from soir.cli.tui.commands import CommandInterpreter
@@ -22,6 +17,11 @@ from soir.cli.tui.widgets.header import HeaderWidget
 from soir.cli.tui.widgets.info_panel import InfoPanelWidget
 from soir.cli.tui.widgets.log_viewer import LogViewerWidget
 from soir.rt import levels
+from textual.app import App, ComposeResult
+from textual.binding import Binding
+from textual.containers import Horizontal, Vertical
+from textual.reactive import reactive
+from textual.widgets import Footer
 
 
 class SoirTuiApp(App[None]):
@@ -29,7 +29,7 @@ class SoirTuiApp(App[None]):
 
     CSS_PATH = "app.tcss"
 
-    BINDINGS = [
+    BINDINGS: ClassVar[list[Binding]] = [
         Binding("ctrl+c", "quit", "Quit"),
         Binding("ctrl+l", "focus_logs", "Focus Logs"),
         Binding("ctrl+k", "focus_command", "Focus Command"),
@@ -136,7 +136,7 @@ class SoirTuiApp(App[None]):
                     command_shell.write_output, f"[#c95757]Error: {message}[/#c95757]"
                 )
 
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001 - worker thread must catch all unexpected errors
             self.call_from_thread(setattr, self, "engine_status", "error")
             self.call_from_thread(self.notify, f"Unexpected error: {e}", "error")
 
@@ -150,7 +150,7 @@ class SoirTuiApp(App[None]):
         if self.log_tailer:
             try:
                 self.log_tailer.start()
-            except Exception as e:
+            except Exception as e:  # noqa: BLE001 - worker thread must catch all unexpected errors
                 self.call_from_thread(self.notify, f"Log tailing error: {e}", "warning")
 
     def _update_info_panel(self) -> None:
@@ -166,7 +166,7 @@ class SoirTuiApp(App[None]):
 
                 time.sleep(0.1)
 
-            except Exception:
+            except Exception:  # noqa: BLE001 - info panel update loop must not crash
                 time.sleep(0.5)
 
     def watch_engine_status(self, status: str) -> None:
@@ -182,7 +182,7 @@ class SoirTuiApp(App[None]):
         """Pump platform UI events so native windows (e.g. VST editors) render."""
         try:
             pump_ui_events_()
-        except Exception:
+        except Exception:  # noqa: BLE001, S110 - silently ignore VST UI pump errors
             pass
 
     def action_focus_logs(self) -> None:
