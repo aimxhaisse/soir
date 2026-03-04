@@ -3,10 +3,15 @@
         "enable_output": true,
         "block_size": 4096,
         "sample_directory": "./lib/samples",
-        "sample_packs": ["mxs-samples"]
+        "sample_packs": ["mxs-samples"],
+	"streaming": true
     },
     "live": {
         "directory": ".",
         "initial_bpm": 130
+    },
+    "cast": {
+	"enabled": true,
+	"port": 5002
     }
 }
