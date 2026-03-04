@@ -31,7 +31,9 @@ def reload_code(cb: CodeUpdateCallback, directory: str) -> None:
     """Reloads the entire codebase from the given directory."""
     files: list[str] = []
     for root, _, dir_files in os.walk(directory):
-        files.extend(os.path.join(root, file) for file in dir_files if is_eligible_file(file))
+        files.extend(
+            os.path.join(root, file) for file in dir_files if is_eligible_file(file)
+        )
 
     contents: str = ""
     for file in sorted(files):

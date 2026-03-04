@@ -338,6 +338,7 @@ pybind11_add_module(_bindings
     cpp/bindings/logger.cc
     cpp/bindings/rt.cc
     cpp/bindings/soir.cc
+    cpp/bindings/state.cc
     cpp/core/soir.cc
     cpp/rt/runtime.cc
 )
@@ -347,6 +348,7 @@ target_include_directories(_bindings PRIVATE cpp)
 target_link_libraries(_bindings PRIVATE
     soir_engine
     soir_utils
+    nlohmann_json::nlohmann_json
     absl::status
     absl::statusor
     absl::log

@@ -213,7 +213,10 @@ def samples(pack_name: str) -> list[Sample]:
     Returns:
         The list of samples from the sample pack.
     """
-    return [Sample(name=s, pack=pack_name, path="", duration=0.0) for s in get_samples_(pack_name)]
+    return [
+        Sample(name=s, pack=pack_name, path="", duration=0.0)
+        for s in get_samples_(pack_name)
+    ]
 
 
 class Kit:

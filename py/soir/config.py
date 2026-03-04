@@ -45,8 +45,15 @@ class Config(BaseModel):
         streaming_port: int = Field(default=5001)
         block_size: int = Field(default=4096)
 
+    class CastConfig(BaseModel):
+        """Cast configuration."""
+
+        enabled: bool = Field(default=False)
+        port: int = Field(default=5002)
+
     dsp: DspConfig = Field()
     live: LiveConfig = Field()
+    cast: CastConfig = Field(default_factory=CastConfig)
 
     @classmethod
     def load_from_path(cls, path: str | Path) -> Config:

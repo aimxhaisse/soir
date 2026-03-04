@@ -7,6 +7,7 @@
 #include <signal.h>
 
 #include <libremidi/libremidi.hpp>
+#include <nlohmann/json.hpp>
 
 #include "bindings/rt.hh"
 #include "core/midi_event.hh"
@@ -209,6 +210,8 @@ absl::Status Runtime::Run() {
 
       SOIR_TRACING_FRAME("rt::frame");
     }
+
+    UpdateSnapshot();
   }
 
   // Clear code here to explicitly delete python functions references,
@@ -303,6 +306,85 @@ absl::Status Runtime::PushCodeUpdate(const std::string& code) {
 
 void Runtime::SetForceKillAtShutdown(bool force) {
   force_kill_at_shutdown_ = force;
+}
+
+void Runtime::UpdateSnapshot() {
+  std::list<Track::Settings> track_settings;
+  dsp_->GetTracks(&track_settings);
+
+  auto raw_to_json = [](const ParameterRaw& raw) -> nlohmann::json {
+    return std::visit([](const auto& v) -> nlohmann::json { return v; }, raw);
+  };
+
+  nlohmann::json j;
+  j["bpm"] = bpm_;
+  j["beat"] = static_cast<double>(current_beat_) / 1'000'000.0;
+
+  auto& jt = j["tracks"] = nlohmann::json::array();
+  for (const auto& t : track_settings) {
+    nlohmann::json track;
+    track["name"] = t.name_;
+    track["muted"] = t.muted_;
+    track["volume"] = raw_to_json(t.volume_.Raw());
+    track["pan"] = raw_to_json(t.pan_.Raw());
+    switch (t.instrument_) {
+      case inst::Type::SAMPLER:
+        track["instrument"] = "sampler";
+        break;
+      case inst::Type::EXTERNAL:
+        track["instrument"] = "external";
+        break;
+      case inst::Type::VST:
+        track["instrument"] = "vst";
+        break;
+      default:
+        track["instrument"] = "unknown";
+        break;
+    }
+    auto& jfx = track["fxs"] = nlohmann::json::array();
+    for (const auto& fx : t.fxs_) {
+      nlohmann::json f;
+      f["name"] = fx.name_;
+      switch (fx.type_) {
+        case fx::Type::CHORUS:
+          f["type"] = "chorus";
+          break;
+        case fx::Type::REVERB:
+          f["type"] = "reverb";
+          break;
+        case fx::Type::LPF:
+          f["type"] = "lpf";
+          break;
+        case fx::Type::HPF:
+          f["type"] = "hpf";
+          break;
+        case fx::Type::VST:
+          f["type"] = "vst";
+          break;
+        default:
+          f["type"] = "unknown";
+          break;
+      }
+      jfx.push_back(f);
+    }
+    jt.push_back(track);
+  }
+
+  auto lvl = dsp_->GetMasterLevels();
+  j["master_levels"] = {
+      {"peak_left", lvl.peak_left},
+      {"peak_right", lvl.peak_right},
+      {"rms_left", lvl.rms_left},
+      {"rms_right", lvl.rms_right},
+  };
+
+  std::scoped_lock lock(snapshot_mutex_);
+  snapshot_json_ = j.dump();
+}
+
+std::string Runtime::GetSnapshotJson() {
+  std::scoped_lock lock(snapshot_mutex_);
+  return snapshot_json_;
 }
 
 }  // namespace rt

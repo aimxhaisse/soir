@@ -60,7 +60,7 @@ def load_available_packs() -> dict[str, Pack]:
                     author=pack["author"],
                 )
             return packs
-    except (OSError, json.JSONDecodeError, KeyError):
+    except OSError, json.JSONDecodeError, KeyError:
         return {}
 
 
@@ -219,7 +219,7 @@ def check_audio_properties(file_path: str) -> tuple[bool, int, int]:
             return needs_conversion, sample_rate, channels
         else:
             return True, 0, 0
-    except (FileNotFoundError, ValueError, IndexError):
+    except FileNotFoundError, ValueError, IndexError:
         return True, 0, 0
 
 
@@ -431,9 +431,7 @@ def create_pack(
 
 def _is_local_tarball(source: str) -> bool:
     """Check if source is a local tarball file."""
-    return os.path.isfile(source) and (
-        source.endswith((".tar.gz", ".tgz"))
-    )
+    return os.path.isfile(source) and (source.endswith((".tar.gz", ".tgz")))
 
 
 def _get_registry_url(pack_name: str, registry_path: str) -> str | None:
@@ -445,7 +443,7 @@ def _get_registry_url(pack_name: str, registry_path: str) -> str | None:
                 if pack["name"] == pack_name:
                     url = pack.get("url")
                     return str(url) if url else None
-    except (OSError, json.JSONDecodeError, KeyError):
+    except OSError, json.JSONDecodeError, KeyError:
         pass
     return None
 

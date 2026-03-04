@@ -224,7 +224,10 @@ def post_eval_() -> None:
     # cover all cases if updating this code.
 
     for name, ctrl in controls_registry_.items():
-        if ctrl.scope_ == Control_.Scope.GLOBAL and eval_id_ != ctrl.scope_global_eval_id_:
+        if (
+            ctrl.scope_ == Control_.Scope.GLOBAL
+            and eval_id_ != ctrl.scope_global_eval_id_
+        ):
             # Here it means, last time we created this control,
             # it was on a different global eval id, so in a prio
             # eval: this means the control is not defined anymore
