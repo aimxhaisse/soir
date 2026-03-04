@@ -84,7 +84,7 @@ class EngineManager:
 
                 self._running = True
 
-            except Exception as e:  # noqa: BLE001 - initialization worker must catch all errors
+            except Exception as e:  # noqa: BLE001
                 error_msg = f"Unexpected error during initialization: {e}"
                 logging.error(error_msg)
                 return False, error_msg
@@ -105,7 +105,7 @@ class EngineManager:
             if self._running:
                 try:
                     logging.shutdown()
-                except Exception:  # noqa: BLE001, S110 - silently ignore shutdown errors
+                except Exception:  # noqa: BLE001, S110
                     pass
 
             self._running = False
@@ -128,7 +128,7 @@ class EngineManager:
                 bpm = rt.get_bpm_()
                 beat = rt.get_beat_()
                 devices = rt.get_audio_out_devices_()
-            except Exception as e:  # noqa: BLE001 - C++ bindings can raise any exception
+            except Exception as e:  # noqa: BLE001
                 logging.error(f"Failed to get runtime info: {e}")
                 return {"tracks": [], "bpm": 0.0, "beat": 0.0, "output_devices": []}
             else:

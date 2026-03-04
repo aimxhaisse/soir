@@ -60,7 +60,7 @@ class CommandShellWidget(Container):
                 result = self.interpreter.execute(command)
                 if result:
                     output.write(result)
-            except Exception as e:  # noqa: BLE001 - must catch user code errors for display
+            except Exception as e:  # noqa: BLE001
                 output.write(f"[#c95757]Error: {e}[/#c95757]")
         else:
             output.write("[#c9a857]Command interpreter not initialized[/#c9a857]")

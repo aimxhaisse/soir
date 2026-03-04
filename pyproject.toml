@@ -35,6 +35,9 @@ include = ["soir*"]
     "static/**/*",
     "templates/*.html",
 ]
+"soir.cast" = [
+    "templates/*.html",
+]
 
 [project.optional-dependencies]
 dev = [

@@ -1,19 +1,13 @@
-import os
-import os.path
 import shutil
 import signal
 import threading
 from pathlib import Path
 from typing import Any
 
-import soir._bindings as bindings
 import typer
-from soir._bindings import logging
-from soir.config import (
-    Config,
-    get_soir_dir,
-)
-from soir.watcher import Watcher
+from soir.cast import CastServer
+from soir.cli.tui.engine_manager import EngineManager
+from soir.config import get_soir_dir
 
 session_app = typer.Typer(help="Create and manage Soir sessions.")
 
@@ -47,53 +41,31 @@ def _run_tui(path: Path, verbose: bool) -> None:
 
 def _run_blocking(path: Path, verbose: bool) -> None:
     """Run session with blocking CLI interface (legacy mode)."""
-    os.chdir(str(path))
+    engine_manager = EngineManager(path, verbose)
+    success, message = engine_manager.initialize()
 
-    cfg_path = "etc/config.json"
-    log_path = "var/log"
-
-    logging.init(log_path, max_files=25, verbose=verbose)
-    logging.info("Starting Soir live session")
-
-    if not os.path.exists(cfg_path):
-        logging.error(f"Config file not found at {cfg_path}")
-        typer.echo(f"Error: Config file not found at {cfg_path}", err=True)
+    if not success:
+        typer.echo(f"Error: {message}", err=True)
         raise typer.Exit(1)
 
-    cfg = Config.load_from_path(cfg_path)
-    soir = bindings.Soir()
-
-    if not soir.init(cfg_path):
-        logging.error("Failed to initialize Soir")
-        typer.echo("Error: Failed to initialize Soir", err=True)
-        raise typer.Exit(1)
-
-    if not soir.start():
-        logging.error("Failed to start Soir")
-        typer.echo("Error: Failed to start Soir", err=True)
-        raise typer.Exit(1)
-    logging.info("Soir started successfully")
-
-    watcher = Watcher(cfg, lambda code: soir.update_code(code))
-    watcher.start()
-    logging.info("Watcher started successfully")
+    cast_server: CastServer | None = None
+    if engine_manager.config and engine_manager.config.cast.enabled:
+        cast_server = CastServer(engine_manager.config)
+        cast_server.start()
 
     shutdown_event = threading.Event()
 
     def signal_handler(signum: int, frame: Any) -> None:
-        logging.info(f"Received signal {signum}, shutting down...")
         shutdown_event.set()
 
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
 
-    logging.info("Soir is running. Press Ctrl-C to stop.")
     shutdown_event.wait()
 
-    watcher.stop()
-    soir.stop()
-
-    logging.shutdown()
+    if cast_server:
+        cast_server.stop()
+    engine_manager.stop()
 
 
 @session_app.command()

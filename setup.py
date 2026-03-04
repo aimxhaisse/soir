@@ -57,7 +57,7 @@ class RunCppTests(Command):
     """Command to run C++ tests without rebuilding."""
 
     description = "Run C++ tests"
-    user_options = []
+    user_options: list = []  # noqa: RUF012
 
     def initialize_options(self):
         pass
@@ -83,7 +83,7 @@ class RunPythonTests(Command):
     """Command to run Python tests using pytest."""
 
     description = "Run Python tests"
-    user_options = []
+    user_options: list = []  # noqa: RUF012
 
     def initialize_options(self):
         pass

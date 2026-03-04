@@ -11,5 +11,9 @@
   "live": {
     "directory": ".",
     "initial_bpm": {{ initial_bpm | default(120) }}
+  },
+  "cast": {
+    "enabled": {{ cast_enabled | default(false) | lower }},
+    "port": {{ cast_port | default(5002) }}
   }
 }

@@ -4,7 +4,7 @@ import shutil
 import tempfile
 import unittest
 from pathlib import Path
-from typing import Any
+from typing import Any, ClassVar
 
 from soir._bindings import logging
 
@@ -14,9 +14,9 @@ from .soir_test_base import SoirTestEngine
 class SoirIntegrationTestCase(unittest.TestCase):
     """Base class for all Soir integration tests."""
 
-    config_overrides: dict[str, Any] | None = None
-    debug_notifications: bool = False
-    debug_logging: bool = False
+    config_overrides: ClassVar[dict[str, Any] | None] = None
+    debug_notifications: ClassVar[bool] = False
+    debug_logging: ClassVar[bool] = False
 
     def setUp(self) -> None:
         """Set up test engine before each test."""

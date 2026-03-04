@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>soir</title>
+<style>* { margin: 0; padding: 0; } body { background: #000; overflow: hidden; }</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+{% if streaming_url %}
+<audio autoplay>
+  <source src="{{ streaming_url }}" type="audio/ogg; codecs=opus">
+</audio>
+{% endif %}
+<script>
+const canvas = document.getElementById('c');
+const gl = canvas.getContext('webgl');
+
+function resize() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  gl.viewport(0, 0, canvas.width, canvas.height);
+}
+window.addEventListener('resize', resize);
+resize();
+
+const VS = `
+attribute vec2 p;
+void main() { gl_Position = vec4(p, 0.0, 1.0); }
+`;
+
+const FS = `
+precision highp float;
+uniform vec2  iRes;
+uniform float iTime;
+uniform float iBeat;
+uniform float iBpm;
+uniform float iPulse;
+uniform float iLevelL;
+uniform float iLevelR;
+
+#define PI 3.14159265359
+#define TAU 6.28318530718
+
+mat2 rot(float a) { float c=cos(a),s=sin(a); return mat2(c,-s,s,c); }
+
+float hash(vec2 p) {
+  p = fract(p * vec2(127.1, 311.7));
+  p += dot(p, p + 19.19);
+  return fract(p.x * p.y);
+}
+
+float fbm(vec2 p) {
+  float v = 0.0, a = 0.5;
+  for (int i = 0; i < 5; i++) {
+    v += a * (sin(p.x) * sin(p.y));
+    p = rot(0.37) * p * 2.0 + vec2(iTime * 0.07, iTime * 0.05);
+    a *= 0.5;
+  }
+  return v;
+}
+
+void main() {
+  vec2 uv = (gl_FragCoord.xy - iRes * 0.5) / min(iRes.x, iRes.y);
+
+  float t   = iTime * 0.4;
+  float beat = iBeat;
+  float pulse = iPulse;
+  float lvl   = (iLevelL + iLevelR) * 0.5;
+
+  /* polar */
+  float r = length(uv);
+  float a = atan(uv.y, uv.x);
+
+  /* domain warp */
+  vec2 q = vec2(fbm(uv + t), fbm(uv + vec2(1.7, 9.2) + t * 0.8));
+  vec2 wuv = uv + 0.5 * q;
+
+  float wr = length(wuv);
+  float wa = atan(wuv.y, wuv.x);
+
+  /* rings */
+  float rings = sin(wr * 14.0 - t * 3.0 + beat * TAU) * 0.5 + 0.5;
+  rings *= exp(-wr * 1.5);
+
+  /* spokes */
+  float spokes = sin(wa * 6.0 + t * 0.7) * 0.5 + 0.5;
+  spokes = pow(spokes, 3.0);
+
+  /* beat flash */
+  float flash = pulse * (1.0 - r * 2.0);
+  flash = max(flash, 0.0);
+
+  /* level glow at center */
+  float glow = lvl * 0.8 * exp(-r * 4.0);
+
+  float v = rings * spokes * 2.0 + flash * 0.6 + glow;
+
+  /* palette: deep blue → violet → cyan */
+  vec3 c1 = vec3(0.02, 0.05, 0.18);
+  vec3 c2 = vec3(0.48, 0.18, 0.72);
+  vec3 c3 = vec3(0.30, 0.82, 0.90);
+
+  vec3 col = mix(c1, c2, clamp(v, 0.0, 1.0));
+  col      = mix(col, c3, clamp(v - 1.0, 0.0, 1.0));
+  col     += flash * vec3(0.6, 0.5, 1.0);
+  col     += glow  * vec3(0.3, 0.9, 1.0);
+
+  /* vignette */
+  col *= 1.0 - smoothstep(0.7, 1.4, r);
+
+  gl_FragColor = vec4(col, 1.0);
+}
+`;
+
+function compile(type, src) {
+  const s = gl.createShader(type);
+  gl.shaderSource(s, src);
+  gl.compileShader(s);
+  return s;
+}
+
+const prog = gl.createProgram();
+gl.attachShader(prog, compile(gl.VERTEX_SHADER, VS));
+gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, FS));
+gl.linkProgram(prog);
+gl.useProgram(prog);
+
+const buf = gl.createBuffer();
+gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+const loc = gl.getAttribLocation(prog, 'p');
+gl.enableVertexAttribArray(loc);
+gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+
+const uRes   = gl.getUniformLocation(prog, 'iRes');
+const uTime  = gl.getUniformLocation(prog, 'iTime');
+const uBeat  = gl.getUniformLocation(prog, 'iBeat');
+const uBpm   = gl.getUniformLocation(prog, 'iBpm');
+const uPulse = gl.getUniformLocation(prog, 'iPulse');
+const uLvlL  = gl.getUniformLocation(prog, 'iLevelL');
+const uLvlR  = gl.getUniformLocation(prog, 'iLevelR');
+
+let state = { bpm: 120, beat: 0, master_levels: { peak_left: 0, peak_right: 0 } };
+let lastFrac = 0, pulse = 0;
+const start = performance.now();
+
+const es = new EventSource('/events');
+es.onmessage = e => { try { state = JSON.parse(e.data); } catch (_) {} };
+
+function frame() {
+  requestAnimationFrame(frame);
+
+  const frac = state.beat % 1;
+  if (frac < lastFrac) pulse = 1.0;
+  lastFrac = frac;
+  pulse *= 0.88;
+
+  const lvl = state.master_levels || {};
+  const t = (performance.now() - start) / 1000;
+
+  gl.uniform2f(uRes, canvas.width, canvas.height);
+  gl.uniform1f(uTime, t);
+  gl.uniform1f(uBeat, frac);
+  gl.uniform1f(uBpm, state.bpm);
+  gl.uniform1f(uPulse, pulse);
+  gl.uniform1f(uLvlL, lvl.peak_left || 0);
+  gl.uniform1f(uLvlR, lvl.peak_right || 0);
+
+  gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+}
+
+frame();
+</script>
+</body>
+</html>

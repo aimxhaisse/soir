@@ -4,11 +4,14 @@ This module provides the main Textual application that orchestrates
 all widgets and manages the engine lifecycle.
 """
 
+import json
 import time
 from pathlib import Path
 from typing import ClassVar
 
+from soir import _bindings
 from soir._bindings.rt import pump_ui_events_
+from soir.cast import CastServer
 from soir.cli.tui.commands import CommandInterpreter
 from soir.cli.tui.engine_manager import EngineManager
 from soir.cli.tui.log_tailer import LogTailer
@@ -16,7 +19,6 @@ from soir.cli.tui.widgets.command_shell import CommandShellWidget
 from soir.cli.tui.widgets.header import HeaderWidget
 from soir.cli.tui.widgets.info_panel import InfoPanelWidget
 from soir.cli.tui.widgets.log_viewer import LogViewerWidget
-from soir.rt import levels
 from textual.app import App, ComposeResult
 from textual.binding import Binding
 from textual.containers import Horizontal, Vertical
@@ -29,7 +31,7 @@ class SoirTuiApp(App[None]):
 
     CSS_PATH = "app.tcss"
 
-    BINDINGS: ClassVar[list[Binding]] = [
+    BINDINGS: ClassVar[list[Binding | tuple[str, str] | tuple[str, str, str]]] = [
         Binding("ctrl+c", "quit", "Quit"),
         Binding("ctrl+l", "focus_logs", "Focus Logs"),
         Binding("ctrl+k", "focus_command", "Focus Command"),
@@ -52,6 +54,7 @@ class SoirTuiApp(App[None]):
         self.engine_manager = EngineManager(self.session_path, verbose)
         self.log_tailer: LogTailer | None = None
         self.command_interpreter: CommandInterpreter | None = None
+        self.cast_server: CastServer | None = None
         self._shutting_down = False
 
     def compose(self) -> ComposeResult:
@@ -97,6 +100,8 @@ class SoirTuiApp(App[None]):
             self.command_interpreter.stop_recording()
         if self.log_tailer:
             self.log_tailer.stop()
+        if self.cast_server:
+            self.cast_server.stop()
         self.engine_manager.stop()
         self.exit()
 
@@ -106,6 +111,8 @@ class SoirTuiApp(App[None]):
             self.command_interpreter.stop_recording()
         if self.log_tailer:
             self.log_tailer.stop()
+        if self.cast_server:
+            self.cast_server.stop()
         self.engine_manager.stop()
 
     def _start_engine(self) -> None:
@@ -114,6 +121,11 @@ class SoirTuiApp(App[None]):
             success, message = self.engine_manager.initialize()
 
             if success:
+                cfg = self.engine_manager.config
+                if cfg and cfg.cast.enabled:
+                    self.cast_server = CastServer(cfg)
+                    self.cast_server.start()
+
                 self.call_from_thread(setattr, self, "engine_status", "running")
                 self.call_from_thread(
                     self.notify, "Engine started successfully", "information"
@@ -136,7 +148,7 @@ class SoirTuiApp(App[None]):
                     command_shell.write_output, f"[#c95757]Error: {message}[/#c95757]"
                 )
 
-        except Exception as e:  # noqa: BLE001 - worker thread must catch all unexpected errors
+        except Exception as e:  # noqa: BLE001
             self.call_from_thread(setattr, self, "engine_status", "error")
             self.call_from_thread(self.notify, f"Unexpected error: {e}", "error")
 
@@ -150,7 +162,7 @@ class SoirTuiApp(App[None]):
         if self.log_tailer:
             try:
                 self.log_tailer.start()
-            except Exception as e:  # noqa: BLE001 - worker thread must catch all unexpected errors
+            except Exception as e:  # noqa: BLE001
                 self.call_from_thread(self.notify, f"Log tailing error: {e}", "warning")
 
     def _update_info_panel(self) -> None:
@@ -160,8 +172,7 @@ class SoirTuiApp(App[None]):
         while not self._shutting_down:
             try:
                 if self.engine_manager.is_running():
-                    info = self.engine_manager.get_runtime_info()
-                    info["levels"] = levels.get_master_levels()
+                    info = json.loads(_bindings.state.get_snapshot_())
                     self.call_from_thread(info_panel.update_from_engine, info)
 
                 time.sleep(0.1)
@@ -174,7 +185,9 @@ class SoirTuiApp(App[None]):
         if status != "running":
             return
         cfg = self.engine_manager.config
-        if cfg and cfg.dsp.enable_streaming:
+        if cfg and cfg.cast.enabled:
+            self.query_one(HeaderWidget).cast_url = f"http://localhost:{cfg.cast.port}"
+        elif cfg and cfg.dsp.enable_streaming:
             url = f"http://localhost:{cfg.dsp.streaming_port}/stream.opus"
             self.query_one(HeaderWidget).streaming_url = url
 

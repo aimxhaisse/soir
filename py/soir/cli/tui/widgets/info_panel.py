@@ -173,19 +173,19 @@ class InfoPanelWidget(Static):
         self.current_bpm = info.get("bpm", 0.0)
         self.current_beat = int(info.get("beat", 0))
 
-        levels = info.get("levels")
+        levels = info.get("master_levels")
         if levels:
-            self.level_left = levels.peak_left
-            self.level_right = levels.peak_right
+            self.level_left = levels["peak_left"]
+            self.level_right = levels["peak_right"]
 
             # Update peak hold with decay
-            if levels.peak_left > self._peak_hold_left:
-                self._peak_hold_left = levels.peak_left
+            if levels["peak_left"] > self._peak_hold_left:
+                self._peak_hold_left = levels["peak_left"]
             else:
                 self._peak_hold_left *= self._peak_decay
 
-            if levels.peak_right > self._peak_hold_right:
-                self._peak_hold_right = levels.peak_right
+            if levels["peak_right"] > self._peak_hold_right:
+                self._peak_hold_right = levels["peak_right"]
             else:
                 self._peak_hold_right *= self._peak_decay
 

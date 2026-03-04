@@ -10,6 +10,7 @@ class Bind {
   static void PySoir(pybind11::module_& m);
   static void PyLogger(pybind11::module_& m);
   static void PyRt(pybind11::module_& m);
+  static void PyState(pybind11::module_& m);
 };
 
 }  // namespace bindings

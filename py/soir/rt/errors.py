@@ -11,7 +11,6 @@ class SoirException(Exception):
     """
 
 
-
 class NotInLoopException(SoirException):
     """Raised when trying to execute code outside of a live context.
 
@@ -22,7 +21,6 @@ class NotInLoopException(SoirException):
     instructions. This exception is raised if such code is called from
     the global scope.
     """
-
 
 
 class InLoopException(SoirException):
@@ -36,7 +34,6 @@ class InLoopException(SoirException):
     """
 
 
-
 class NotInControlLoopException(SoirException):
     """Raised when trying to use a control outside of a control loop.
 
@@ -46,7 +43,6 @@ class NotInControlLoopException(SoirException):
     orchestrated by the engine. This exception is raised if a control
     is instrumented from outside of the Soir control loop.
     """
-
 
 
 class UnknownMidiTrackException(SoirException):
@@ -60,7 +56,6 @@ class UnknownMidiTrackException(SoirException):
     """
 
 
-
 class ControlNotFoundException(SoirException):
     """Raised when trying to use an unknown control.
 
@@ -72,7 +67,6 @@ class ControlNotFoundException(SoirException):
     """
 
 
-
 class ConfigurationError(SoirException):
     """Raised when there is a configuration error.
 
@@ -81,7 +75,6 @@ class ConfigurationError(SoirException):
     This exception is raised when required configuration is missing,
     such as the SOIR_DIR environment variable not being set.
     """
-
 
 
 class SamplePackNotFoundException(SoirException):
@@ -96,7 +89,6 @@ class SamplePackNotFoundException(SoirException):
     """
 
 
-
 class TrackNotFoundException(SoirException):
     """Raised when trying to access a non-existing track.
 
@@ -105,4 +97,3 @@ class TrackNotFoundException(SoirException):
     This exception is raised when trying to get levels or other
     information for a track that doesn't exist.
     """
-

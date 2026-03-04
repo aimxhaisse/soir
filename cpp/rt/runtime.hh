@@ -91,10 +91,13 @@ class Runtime {
                  const std::string& payload);
 
   std::string GetCode() const;
+  std::string GetSnapshotJson();
 
   void SetForceKillAtShutdown(bool force);
 
  private:
+  void UpdateSnapshot();
+
   std::thread thread_;
 
   Engine* dsp_;
@@ -116,6 +119,9 @@ class Runtime {
   absl::Time current_time_;
   float bpm_ = 120.0;
   uint64_t beat_us_ = 0;
+
+  std::mutex snapshot_mutex_;
+  std::string snapshot_json_;
 };
 
 }  // namespace rt
