@@ -20,7 +20,7 @@ absl::Status Engine::Init(const utils::Config& config) {
 
   audio_output_enabled_ = config.Get<bool>("dsp.enable_output");
   enable_streaming_ = config.GetOrDefault<bool>("dsp.enable_streaming", false);
-  streaming_port_ = config.GetOrDefault<int>("dsp.streaming_port", 8080);
+  streaming_port_ = config.GetOrDefault<int>("dsp.streaming_port", 5001);
 
   audio_output_ = std::make_unique<audio::AudioOutput>();
   if (audio_output_enabled_) {

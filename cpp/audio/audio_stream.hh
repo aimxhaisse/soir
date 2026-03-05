@@ -26,6 +26,9 @@ class AudioStream : public SampleConsumer {
   // Get the Ogg/Opus header bytes that must be sent first to each client.
   std::vector<uint8_t> GetHeaderPages() const;
 
+  // Get the current write position for live-stream clients to start from.
+  size_t GetCurrentOffset() const;
+
   // Read encoded audio data from the ring buffer starting at offset.
   // Blocks up to timeout_ms if no new data is available.
   struct ReadResult {

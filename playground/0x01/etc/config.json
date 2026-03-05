@@ -1,10 +1,10 @@
 {
     "dsp": {
-        "enable_output": true,
+        "enable_output": false,
         "block_size": 4096,
         "sample_directory": "./lib/samples",
         "sample_packs": ["mxs-samples"],
-	"streaming": true
+	"enable_streaming": true
     },
     "live": {
         "directory": ".",
