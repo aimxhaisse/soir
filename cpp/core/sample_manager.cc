@@ -8,7 +8,7 @@
 namespace soir {
 
 absl::Status SampleManager::Init(const utils::Config& config) {
-  directory_ = config.Get<std::string>("dsp.sample_directory");
+  directory_ = config.GetOrDefault<std::string>("dsp.sample_directory", "");
   if (directory_.empty()) {
     LOG(WARNING) << "No sample directory specified in config";
     return absl::OkStatus();
@@ -19,7 +19,8 @@ absl::Status SampleManager::Init(const utils::Config& config) {
                                " does not exists");
   }
 
-  auto packs = config.Get<std::vector<std::string>>("dsp.sample_packs");
+  auto packs =
+      config.GetOrDefault<std::vector<std::string>>("dsp.sample_packs", {});
 
   for (const auto& pack : packs) {
     auto status = LoadPack(pack);

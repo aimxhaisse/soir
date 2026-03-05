@@ -8,8 +8,7 @@
 #include "absl/status/status.h"
 #include "absl/status/statusor.h"
 #include "core/common.hh"
-
-struct ma_device;
+#include "miniaudio.h"
 
 namespace soir {
 
@@ -35,7 +34,8 @@ class AudioOutput : public SampleConsumer {
   AudioOutput();
   ~AudioOutput();
 
-  absl::Status Init(int sample_rate, int channels, int buffer_size);
+  absl::Status Init(int sample_rate, int channels, int buffer_size,
+                    const std::string& device_name = "");
   absl::Status Start();
   absl::Status Stop();
 
@@ -46,7 +46,10 @@ class AudioOutput : public SampleConsumer {
   std::vector<float> audio_buffer_;
 
  private:
+  ma_context context_;
+  bool context_initialized_ = false;
   ma_device* device_ = nullptr;
+  ma_device_id selected_device_id_;
   bool initialized_ = false;
 };
 

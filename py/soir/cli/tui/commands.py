@@ -42,6 +42,7 @@ class CommandInterpreter:
         "audio-in": "list audio input devices",
         "midi-out": "list MIDI output devices",
         "vst list|open|close|open-fx|close-fx": "manage VST plugins and editors",
+        "set-audio-out <name|index>": "select audio output device",
         "record start <file.wav>": "start recording to file",
         "record stop": "stop recording",
         "quit": "quit the session",
@@ -83,6 +84,8 @@ class CommandInterpreter:
             return self._packs()
         elif cmd == "audio-out":
             return self._audio_out()
+        elif cmd == "set-audio-out":
+            return self._set_audio_out(parts[1:])
         elif cmd == "audio-in":
             return self._audio_in()
         elif cmd == "midi-out":
@@ -177,6 +180,34 @@ class CommandInterpreter:
                 f"{d['id']}: {d['name']}{default_marker} ({d.get('channels', '?')}ch)"
             )
         return "\n".join(lines)
+
+    def _set_audio_out(self, args: list[str]) -> str:
+        """Set the audio output device.
+
+        Args:
+            args: Command arguments (device name or index, or "default")
+
+        Returns:
+            Result message
+        """
+        if not args:
+            return "usage: set-audio-out <name|index|default>"
+
+        arg = " ".join(args)
+
+        if arg.lower() == "default":
+            device_name = ""
+        elif arg.isdigit():
+            idx = int(arg)
+            devices = get_audio_out_devices_()
+            if idx >= len(devices):
+                return f"invalid device index: {idx}"
+            device_name = devices[idx]["name"]
+        else:
+            device_name = arg
+
+        success, message = self.engine.set_audio_output_device(device_name)
+        return message
 
     def _audio_in(self) -> str:
         """List audio input devices.

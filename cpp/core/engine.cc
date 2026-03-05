@@ -21,10 +21,13 @@ absl::Status Engine::Init(const utils::Config& config) {
   audio_output_enabled_ = config.Get<bool>("dsp.enable_output");
   enable_streaming_ = config.GetOrDefault<bool>("dsp.enable_streaming", false);
   streaming_port_ = config.GetOrDefault<int>("dsp.streaming_port", 5001);
+  audio_output_device_ =
+      config.GetOrDefault<std::string>("dsp.audio_output_device", "");
 
   audio_output_ = std::make_unique<audio::AudioOutput>();
   if (audio_output_enabled_) {
-    auto status = audio_output_->Init(kSampleRate, kNumChannels, kBlockSize);
+    auto status = audio_output_->Init(kSampleRate, kNumChannels, kBlockSize,
+                                      audio_output_device_);
     if (!status.ok()) {
       LOG(ERROR) << "Failed to initialize audio output: " << status;
       return status;
@@ -465,6 +468,42 @@ absl::Status Engine::StopRecording() {
   }
 
   LOG(INFO) << "Stopped recording";
+  return absl::OkStatus();
+}
+
+absl::Status Engine::ReloadAudioOutput(const std::string& device_name) {
+  if (!audio_output_enabled_) {
+    return absl::FailedPreconditionError("Audio output is disabled");
+  }
+
+  std::scoped_lock<std::mutex> reload_lock(audio_reload_mutex_);
+
+  RemoveConsumer(audio_output_.get());
+
+  auto status = audio_output_->Stop();
+  if (!status.ok()) {
+    LOG(WARNING) << "Failed to stop audio output during reload: " << status;
+  }
+
+  audio_output_ = std::make_unique<audio::AudioOutput>();
+
+  status = audio_output_->Init(kSampleRate, kNumChannels, kBlockSize, device_name);
+  if (!status.ok()) {
+    LOG(ERROR) << "Failed to initialize new audio output: " << status;
+    return status;
+  }
+
+  status = audio_output_->Start();
+  if (!status.ok()) {
+    LOG(ERROR) << "Failed to start new audio output: " << status;
+    return status;
+  }
+
+  RegisterConsumer(audio_output_.get());
+  audio_output_device_ = device_name;
+
+  LOG(INFO) << "Audio output reloaded: "
+            << (device_name.empty() ? "(system default)" : device_name);
   return absl::OkStatus();
 }
 

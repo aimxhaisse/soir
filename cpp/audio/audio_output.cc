@@ -1,10 +1,8 @@
-#include "audio/audio_output.hh"
-
 #define MINIAUDIO_IMPLEMENTATION
+#include "audio/audio_output.hh"
 
 #include "absl/log/log.h"
 #include "audio/audio_buffer.hh"
-#include "miniaudio.h"
 
 namespace soir {
 namespace audio {
@@ -135,9 +133,13 @@ AudioOutput::~AudioOutput() {
     ma_device_uninit(device_);
   }
   delete device_;
+  if (context_initialized_) {
+    ma_context_uninit(&context_);
+  }
 }
 
-absl::Status AudioOutput::Init(int sample_rate, int channels, int buffer_size) {
+absl::Status AudioOutput::Init(int sample_rate, int channels, int buffer_size,
+                               const std::string& device_name) {
   ma_device_config config = ma_device_config_init(ma_device_type_playback);
   config.playback.format = ma_format_f32;
   config.playback.channels = channels;
@@ -146,7 +148,43 @@ absl::Status AudioOutput::Init(int sample_rate, int channels, int buffer_size) {
   config.pUserData = this;
   config.periodSizeInFrames = buffer_size;
 
-  if (ma_device_init(NULL, &config, device_) != MA_SUCCESS) {
+  if (!device_name.empty()) {
+    if (ma_context_init(nullptr, 0, nullptr, &context_) == MA_SUCCESS) {
+      context_initialized_ = true;
+
+      ma_device_info* playback_infos;
+      ma_uint32 playback_count;
+      ma_device_info* capture_infos;
+      ma_uint32 capture_count;
+      bool found = false;
+
+      if (ma_context_get_devices(&context_, &playback_infos, &playback_count,
+                                 &capture_infos, &capture_count) == MA_SUCCESS) {
+        for (ma_uint32 i = 0; i < playback_count; i++) {
+          if (std::string(playback_infos[i].name).find(device_name) !=
+              std::string::npos) {
+            selected_device_id_ = playback_infos[i].id;
+            config.playback.pDeviceID = &selected_device_id_;
+            found = true;
+            LOG(INFO) << "Selected audio output device: "
+                      << playback_infos[i].name;
+            break;
+          }
+        }
+      }
+
+      if (!found) {
+        LOG(WARNING) << "Audio output device not found: " << device_name
+                     << ", falling back to system default";
+      }
+    } else {
+      LOG(WARNING) << "Failed to enumerate audio devices, using system default";
+    }
+  }
+
+  // Use the same context for device init (or NULL to let miniaudio create one)
+  ma_context* pContext = context_initialized_ ? &context_ : nullptr;
+  if (ma_device_init(pContext, &config, device_) != MA_SUCCESS) {
     return absl::InternalError("Failed to initialize audio device");
   }
 
