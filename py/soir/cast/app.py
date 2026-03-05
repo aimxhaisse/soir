@@ -6,7 +6,7 @@ Serves a minimal WebGL visualizer and an SSE stream of engine state.
 import time
 from collections.abc import Generator
 from pathlib import Path
-from threading import Thread
+from threading import Event, Thread
 
 from flask import Flask, Response, render_template
 from werkzeug.serving import BaseWSGIServer, make_server
@@ -15,7 +15,7 @@ from soir import _bindings
 from soir.config import Config
 
 
-def _make_flask_app(config: Config) -> Flask:
+def _make_flask_app(config: Config, stop_event: Event) -> Flask:
     app = Flask(__name__, template_folder=str(Path(__file__).parent / "templates"))
 
     streaming_url = (
@@ -39,7 +39,7 @@ def _make_flask_app(config: Config) -> Flask:
     def events() -> Response:
         def stream() -> Generator[str]:
             last = None
-            while True:
+            while not stop_event.is_set():
                 current = _bindings.state.get_snapshot_()
                 if current != last:
                     yield f"data: {current}\n\n"
@@ -58,14 +58,16 @@ class CastServer:
         self._config = config
         self._server: BaseWSGIServer | None = None
         self._thread: Thread | None = None
+        self._stop_event = Event()
 
     def start(self) -> None:
-        app = _make_flask_app(self._config)
+        app = _make_flask_app(self._config, self._stop_event)
         self._server = make_server("0.0.0.0", self._config.cast.port, app)
         self._thread = Thread(target=self._server.serve_forever, daemon=True)
         self._thread.start()
 
     def stop(self) -> None:
+        self._stop_event.set()
         if self._server:
             self._server.shutdown()
         if self._thread:
