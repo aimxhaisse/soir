@@ -100,6 +100,11 @@ std::vector<uint8_t> AudioStream::GetHeaderPages() const {
   return encoder_->GetHeaderPages();
 }
 
+size_t AudioStream::GetCurrentOffset() const {
+  std::lock_guard<std::mutex> lock(buffer_mutex_);
+  return write_pos_;
+}
+
 AudioStream::ReadResult AudioStream::Read(size_t offset, int timeout_ms) const {
   std::unique_lock<std::mutex> lock(buffer_mutex_);
 

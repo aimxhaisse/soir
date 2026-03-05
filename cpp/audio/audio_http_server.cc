@@ -19,10 +19,14 @@ absl::Status AudioHttpServer::Start(AudioStream* stream,
 
   server_ = std::make_unique<httplib::Server>();
 
-  server_->Get("/stream.opus", [stream](const httplib::Request&,
+  server_->Get("/stream.opus", [stream](const httplib::Request& req,
                                         httplib::Response& res) {
+    // Live stream: ignore any Range header. httplib's range validation fails
+    // for chunked responses with no content-length, returning 416. Since this
+    // is a live stream, range seeking makes no sense.
+    const_cast<httplib::Request&>(req).ranges.clear();
     auto header_pages = stream->GetHeaderPages();
-    size_t client_offset = 0;
+    size_t client_offset = stream->GetCurrentOffset();
     bool headers_sent = false;
 
     res.set_chunked_content_provider(
