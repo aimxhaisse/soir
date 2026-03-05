@@ -32,7 +32,7 @@ absl::Status Runtime::Init(const utils::Config& config, Engine* dsp) {
 
   dsp_ = dsp;
   current_time_ = absl::Now();
-  SetBPM(config.Get<uint16_t>("live.initial_bpm"));
+  SetBPM(config.GetOrDefault<uint16_t>("live.initial_bpm", 120));
 
   Beat();
 

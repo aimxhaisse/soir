@@ -3,15 +3,28 @@
 <head>
 <meta charset="UTF-8">
 <title>soir</title>
-<style>* { margin: 0; padding: 0; } body { background: #000; overflow: hidden; }</style>
+<style>
+* { margin: 0; padding: 0; }
+body { background: #000; overflow: hidden; }
+#overlay {
+  position: fixed; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(0,0,0,0.85);
+  cursor: pointer; z-index: 10;
+  color: #fff; font-family: monospace; font-size: 1.1rem; letter-spacing: 0.1em;
+  user-select: none;
+}
+#overlay span { border: 1px solid rgba(255,255,255,0.4); padding: 0.6em 1.4em; }
+</style>
 </head>
 <body>
 <canvas id="c"></canvas>
 {% if streaming_url %}
-<audio autoplay>
+<audio id="audio" preload="none">
   <source src="{{ streaming_url }}" type="audio/ogg; codecs=opus">
 </audio>
 {% endif %}
+<div id="overlay"><span>click to start</span></div>
 <script>
 const canvas = document.getElementById('c');
 const gl = canvas.getContext('webgl');
@@ -171,6 +184,15 @@ function frame() {
 }
 
 frame();
+
+const overlay = document.getElementById('overlay');
+overlay.addEventListener('click', () => {
+  overlay.style.display = 'none';
+  {% if streaming_url %}
+  const audio = document.getElementById('audio');
+  audio.play().catch(() => {});
+  {% endif %}
+}, { once: true });
 </script>
 </body>
 </html>

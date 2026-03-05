@@ -62,6 +62,8 @@ class Engine {
   absl::Status StartRecording(const std::string& file_path);
   absl::Status StopRecording();
 
+  absl::Status ReloadAudioOutput(const std::string& device_name);
+
  private:
   absl::Status Run();
   void SetTicks(std::list<MidiEventAt>& events);
@@ -87,6 +89,8 @@ class Engine {
   bool audio_output_enabled_ = false;
   bool enable_streaming_ = false;
   int streaming_port_ = 5001;
+  std::string audio_output_device_;
+  std::mutex audio_reload_mutex_;
   std::unique_ptr<audio::AudioOutput> audio_output_;
   std::unique_ptr<AudioRecorder> audio_recorder_;
   std::unique_ptr<audio::AudioStream> audio_stream_;

@@ -10,20 +10,22 @@ from pathlib import Path
 from typing import ClassVar
 
 from soir import _bindings
-from soir._bindings.rt import pump_ui_events_
+from soir._bindings.rt import get_audio_out_devices_, pump_ui_events_
 from soir.cast import CastServer
 from soir.cli.tui.commands import CommandInterpreter
 from soir.cli.tui.engine_manager import EngineManager
 from soir.cli.tui.log_tailer import LogTailer
+from soir.cli.tui.widgets.audio_device import AudioDeviceWidget
 from soir.cli.tui.widgets.command_shell import CommandShellWidget
 from soir.cli.tui.widgets.header import HeaderWidget
 from soir.cli.tui.widgets.info_panel import InfoPanelWidget
 from soir.cli.tui.widgets.log_viewer import LogViewerWidget
 from textual.app import App, ComposeResult
 from textual.binding import Binding
-from textual.containers import Horizontal, Vertical
+from textual.containers import Container, Horizontal, Vertical
 from textual.reactive import reactive
-from textual.widgets import Footer
+from textual.screen import ModalScreen
+from textual.widgets import Footer, ListItem, ListView
 
 
 class SoirTuiApp(App[None]):
@@ -69,6 +71,7 @@ class SoirTuiApp(App[None]):
                 yield CommandShellWidget()
             with Vertical(id="right-pane"):
                 yield InfoPanelWidget(self.session_path)
+                yield AudioDeviceWidget()
         yield LogViewerWidget()
         yield Footer()
 
@@ -125,6 +128,12 @@ class SoirTuiApp(App[None]):
                 if cfg and cfg.cast.enabled:
                     self.cast_server = CastServer(cfg)
                     self.cast_server.start()
+
+                initial_device = cfg.dsp.audio_output_device if cfg else ""
+                device_widget = self.query_one(AudioDeviceWidget)
+                self.call_from_thread(
+                    setattr, device_widget, "current_device", initial_device
+                )
 
                 self.call_from_thread(setattr, self, "engine_status", "running")
                 self.call_from_thread(
@@ -208,3 +217,113 @@ class SoirTuiApp(App[None]):
         command_shell = self.query_one(CommandShellWidget)
         command_input = command_shell.query_one("#command-input")
         command_input.focus()
+
+    def action_pick_audio_out(self) -> None:
+        """Open audio output device picker modal."""
+        devices = get_audio_out_devices_()
+        if not devices:
+            self.notify("No audio output devices found", severity="warning")
+            return
+
+        def on_picked(device_name: str | None) -> None:
+            if device_name is None:
+                return
+
+            def do_reload() -> None:
+                success, message = self.engine_manager.set_audio_output_device(
+                    device_name
+                )
+                color = "#5b9a6d" if success else "#c95757"
+                severity = "information" if success else "error"
+                self.call_from_thread(self.notify, message, severity=severity)
+                shell = self.query_one(CommandShellWidget)
+                self.call_from_thread(
+                    shell.write_output, f"[{color}]{message}[/{color}]"
+                )
+                if success:
+                    widget = self.query_one(AudioDeviceWidget)
+                    self.call_from_thread(
+                        setattr, widget, "current_device", device_name
+                    )
+
+            self.run_worker(do_reload, thread=True, name="audio-reload")
+
+        self.push_screen(AudioOutPickerScreen(devices), on_picked)
+
+
+class AudioOutPickerScreen(ModalScreen[str | None]):
+    """Modal screen for picking an audio output device."""
+
+    CSS = """
+    AudioOutPickerScreen {
+        align: center middle;
+    }
+
+    #picker-container {
+        width: 60;
+        height: auto;
+        max-height: 20;
+        border: solid #2a3040;
+        background: #12161f;
+        padding: 1 2;
+    }
+
+    #picker-title {
+        color: #b8c0cc;
+        text-align: center;
+        height: 1;
+        margin-bottom: 1;
+    }
+
+    ListView {
+        background: #12161f;
+        border: none;
+    }
+
+    ListItem {
+        background: #12161f;
+        color: #b8c0cc;
+        padding: 0 1;
+    }
+
+    ListItem:hover {
+        background: #1a2030;
+    }
+
+    ListView > ListItem.--highlight {
+        background: #2a3040;
+        color: #7ba3d1;
+    }
+    """
+
+    def __init__(self, devices: list[dict]) -> None:
+        super().__init__()
+        self._devices = devices
+
+    def compose(self) -> ComposeResult:
+        with Container(id="picker-container"):
+            from textual.widgets import Label
+
+            yield Label("Select Audio Output Device", id="picker-title")
+            items = [ListItem(Label("(system default)"))]
+            for d in self._devices:
+                marker = " *" if d.get("is_default", False) else ""
+                items.append(ListItem(Label(f"{d['name']}{marker}")))
+            yield ListView(*items)
+
+    def on_key(self, event: object) -> None:
+        from textual.events import Key
+
+        if isinstance(event, Key) and event.key == "escape":
+            self.dismiss(None)
+
+    def on_list_view_selected(self, event: ListView.Selected) -> None:
+        idx = event.list_view.index
+        if idx is None:
+            self.dismiss(None)
+            return
+        if idx == 0:
+            self.dismiss("")
+        else:
+            device = self._devices[idx - 1]
+            self.dismiss(device["name"])

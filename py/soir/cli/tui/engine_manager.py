@@ -139,6 +139,29 @@ class EngineManager:
                     "output_devices": devices if devices else [],
                 }
 
+    def set_audio_output_device(self, device_name: str) -> tuple[bool, str]:
+        """Set the audio output device and persist to config.
+
+        Args:
+            device_name: Device name substring to match, or empty for system default
+
+        Returns:
+            Tuple of (success, message)
+        """
+        with self._lock:
+            if not self._running:
+                return False, "engine not running"
+            self.config.dsp.audio_output_device = device_name
+            try:
+                self.config.save_to_path("etc/config.json")
+            except OSError as e:
+                return False, f"failed to write config: {e}"
+            success = rt.set_audio_out_device_(device_name)
+            if not success:
+                return False, "engine rejected device"
+            label = device_name if device_name else "(system default)"
+            return True, f"audio output: {label}"
+
     def is_running(self) -> bool:
         """Check if the engine is currently running.
 

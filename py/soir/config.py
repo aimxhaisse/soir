@@ -35,6 +35,7 @@ class Config(BaseModel):
         """Live configuration."""
 
         directory: str = Field(default=".")
+        initial_bpm: int = Field(default=120)
 
     class DspConfig(BaseModel):
         """DSP configuration."""
@@ -44,6 +45,9 @@ class Config(BaseModel):
         streaming_bitrate: int = Field(default=128000)
         streaming_port: int = Field(default=5001)
         block_size: int = Field(default=4096)
+        audio_output_device: str = Field(default="")
+        sample_directory: str = Field(default="")
+        sample_packs: list[str] = Field(default_factory=list)
 
     class CastConfig(BaseModel):
         """Cast configuration."""
@@ -67,3 +71,12 @@ class Config(BaseModel):
         """
         with open(path) as f:
             return cls.model_validate_json(f.read())
+
+    def save_to_path(self, path: str | Path) -> None:
+        """Save configuration to a JSON file.
+
+        Args:
+            path: Path to write the JSON configuration file
+        """
+        with open(path, "w") as f:
+            f.write(self.model_dump_json(indent=4))
