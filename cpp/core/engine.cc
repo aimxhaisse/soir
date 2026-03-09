@@ -477,7 +477,8 @@ absl::Status Engine::ReloadAudioOutput(const std::string& device_name) {
 
   audio_output_ = std::make_unique<audio::AudioOutput>();
 
-  status = audio_output_->Init(kSampleRate, kNumChannels, kBlockSize, device_name);
+  status =
+      audio_output_->Init(kSampleRate, kNumChannels, kBlockSize, device_name);
   if (!status.ok()) {
     LOG(ERROR) << "Failed to initialize new audio output: " << status;
     return status;

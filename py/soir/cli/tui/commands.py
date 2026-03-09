@@ -206,7 +206,7 @@ class CommandInterpreter:
         else:
             device_name = arg
 
-        success, message = self.engine.set_audio_output_device(device_name)
+        _success, message = self.engine.set_audio_output_device(device_name)
         return message
 
     def _audio_in(self) -> str:

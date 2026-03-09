@@ -151,6 +151,7 @@ class EngineManager:
         with self._lock:
             if not self._running:
                 return False, "engine not running"
+            assert self.config is not None
             self.config.dsp.audio_output_device = device_name
             try:
                 self.config.save_to_path("etc/config.json")

@@ -1,5 +1,8 @@
 """Audio device widget for Soir TUI."""
 
+from typing import cast
+
+from soir.cli.tui.app import SoirTuiApp
 from textual.reactive import reactive
 from textual.widgets import Static
 
@@ -18,4 +21,4 @@ class AudioDeviceWidget(Static):
         )
 
     def on_click(self) -> None:
-        self.app.action_pick_audio_out()
+        cast(SoirTuiApp, self.app).action_pick_audio_out()

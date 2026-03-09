@@ -4,44 +4,67 @@
 
 Soir is a Live Coding Environment for Music Creation featuring:
 - Real-time audio synthesis and processing
-- C++ audio engine (soir_core) with Python bindings via pybind11
+- C++ audio engine with Python bindings via pybind11
 - Python frontend with CLI (typer), TUI (textual), and web interface (Flask)
-- DSP effects, samplers, MIDI support, and live coding capabilities
+- DSP effects, samplers, MIDI support, VST plugin hosting, and live coding capabilities
 
 ## Repository Structure
 
 ```
-nocturne/
+soir/
 ├── cpp/                    # C++ source code
-│   ├── audio/              # Audio I/O, buffers, recording
-│   ├── bindings/           # pybind11 Python bindings
-│   ├── core/               # Engine, tracks, MIDI, samples
-│   ├── dsp/                # Filters, LFOs, reverb, delay
-│   ├── fx/                 # Effects stack (chorus, echo, etc.)
-│   ├── inst/               # Instruments (sampler, MIDI)
+│   ├── audio/              # Audio I/O, buffers, PCM streams, recording
+│   ├── bindings/           # pybind11 Python bindings (rt, pcm, logger, soir, state)
+│   ├── core/               # Engine, tracks, ADSR, MIDI, parameters, samples
+│   ├── dsp/                # Filters, LFOs, reverb, delay, chorus, biquad
+│   ├── fx/                 # Effects stack (chorus, echo, HPF, LPF, reverb, VST)
+│   ├── inst/               # Instruments (sampler, external MIDI, VST)
 │   ├── rt/                 # Runtime system
-│   ├── utils/              # Config, logging, tools
+│   ├── utils/              # Config, logging, fast_random, tools
+│   ├── vst/                # VST host, plugin wrapper, scanner, platform editors
 │   └── tests/              # C++ unit tests (GoogleTest)
+│       ├── audio/          # audio_buffer_test, audio_output_test
+│       ├── core/           # core_test, engine_test
+│       ├── dsp/            # delay_test, effects_test, filters_test, tools_test
+│       ├── inst/           # sampler_test
+│       └── utils/          # config_test, tools_test
 ├── py/                     # Python package
-│   ├── soir/               # Main package
+│   ├── soir/               # Main package (version 0.11.0)
+│   │   ├── cast/           # Cast server for real-time JSON API
 │   │   ├── cli/            # CLI commands
 │   │   │   ├── samples.py  # Sample pack management
 │   │   │   ├── session.py  # Session management
-│   │   │   ├── tui/        # Terminal UI (textual)
-│   │   │   └── www.py      # Web server command
-│   │   ├── rt/             # Runtime Python API
+│   │   │   ├── utils.py    # CLI utilities
+│   │   │   ├── www.py      # Web server command
+│   │   │   └── tui/        # Terminal UI (textual)
+│   │   │       ├── app.py          # Main TUI application (SoirTuiApp)
+│   │   │       ├── commands.py     # Command interpreter
+│   │   │       ├── engine_manager.py
+│   │   │       └── widgets/        # Custom Textual widgets
+│   │   ├── rt/             # Runtime Python API (user-facing)
+│   │   │   ├── bpm.py, ctrls.py, errors.py, fx.py
+│   │   │   ├── levels.py, midi.py, rnd.py, sampler.py
+│   │   │   ├── system.py, tracks.py, vst.py
+│   │   │   └── _ctrls.py, _helpers.py, _internals.py, _system.py
 │   │   ├── www/            # Flask web application
-│   │   ├── app.py          # Main entry point (typer)
-│   │   ├── config.py       # Configuration management
+│   │   ├── app.py          # Typer CLI entry point
+│   │   ├── config.py       # Pydantic configuration models
 │   │   └── watcher.py      # File watching for live coding
 │   └── tests/              # Python tests (pytest)
-│       ├── integration/    # Integration tests
-│       └── test_*.py       # Unit tests
+│       ├── integration/    # Integration tests (full session tests)
+│       └── test_*.py       # Unit tests (config, watcher, www)
 ├── bin/                    # Executable wrapper scripts
+│   └── soir                # Sets SOIR_DIR, runs python -Xgil=0 -m soir.app
+├── etc/                    # Default configuration files
+│   ├── config.default.json # Default engine configuration
+│   └── live.default.py     # Default live coding template
 ├── build/                  # CMake build output (gitignored)
+├── designs/                # Design documents (e.g. VST3.md)
+├── lib/                    # Library resources
+├── playground/             # Experimental/demo code (excluded from linting)
 ├── CMakeLists.txt          # C++ build configuration
 ├── justfile                # Build and development commands
-├── pyproject.toml          # Python package configuration
+├── pyproject.toml          # Python package configuration (version 1.0.0)
 └── setup.py                # Custom build script (CMake integration)
 ```
 
@@ -51,7 +74,7 @@ nocturne/
 
 ```bash
 # Initial setup
-just setup                  # Install Python 3.14t and sync dependencies
+just setup                  # Install Python 3.14.2t and sync dependencies
 
 # Run Python code
 uv run python script.py
@@ -72,25 +95,36 @@ uv run soir www             # Start web interface
 All commands use `just` (justfile):
 
 ```bash
-just                        # List all available commands
-just setup                  # Install Python 3.14t + dependencies
-just build                  # Build C++ extension with tests
-just test                   # Run all tests (C++ + Python)
-just test-unit              # Run unit tests only
-just test-integration       # Run integration tests only
-just test-integration "BPM*" # Run specific integration test pattern
-just check                  # Format and lint (black, ruff, mypy, clang-format, clang-tidy)
-just clean                  # Remove build artifacts
-just package                # Create distributable package
+just                          # List all available commands
+just setup                    # Install Python 3.14.2t + sync dependencies
+just build                    # Build C++ extension and install dev dependencies
+just test                     # Run all tests (C++ unit + Python unit + integration)
+just test-unit                # Run C++ tests (GoogleTest) + Python unit tests
+just test-integration         # Run integration tests
+just test-integration "BPM*"  # Run integration tests matching a pattern
+just check                    # Format and lint (black, ruff, mypy, clang-format)
+just clean                    # Remove build artifacts, .venv, __pycache__, *.so
+just package                  # Create distributable tar.gz package
+just docker-build             # Build Docker image (builder stage)
+just www-docker-build         # Build Docker image for documentation website
+just www-docker-up            # Run documentation website via docker-compose
+just www-docker-down          # Stop documentation website
+```
+
+**After any code change, always run:**
+```bash
+just build    # if C++ was changed
+just check    # always
+just test     # always
 ```
 
 ## Testing
 
 ### C++ Tests
-- Framework: GoogleTest
+- Framework: GoogleTest v1.17.0
 - Tests in: `cpp/tests/`
 - Run: `just test-unit` or `uv run python setup.py run_cpp_tests`
-- Categories: audio, core, dsp, inst, utils
+- Test executables: `utils_test`, `audio_test`, `core_test`, `engine_test`, `inst_test`, `dsp_test`
 
 ### Python Tests
 - Framework: pytest
@@ -103,44 +137,56 @@ just package                # Create distributable package
 
 ### C++
 - Standard: C++17
-- Style: Google C++ Style Guide (see `.clang-format`)
+- Style: Google C++ Style Guide (see `.clang-format`: BasedOnStyle=Google, Standard=c++20)
 - Naming:
   - `snake_case` for variables and functions
   - `CamelCase` for classes
+  - Private members: `snake_case_` with trailing underscore (e.g. `attackMs_`)
+  - `UPPERCASE` for enum values
   - Files: `.hh` headers, `.cc` implementation
-- Error handling: `absl::Status`, `absl::StatusOr`
-- Namespaces: `soir::{component}` (separate lines)
-- No inline implementation in headers
+- Error handling: `absl::Status`, `absl::StatusOr`; pattern: `if (!status.ok()) { LOG(ERROR) << "..."; return status; }`
+- Logging: abseil logging — `LOG(INFO)`, `LOG(ERROR)`, `LOG(WARNING)`
+- Namespaces: `namespace soir { ... }  // namespace soir` (nested: `namespace soir::vst`)
+- Headers: `#pragma once`, no inline implementation (trivial getters excepted)
 - Files in CMakeLists.txt: alphabetical order
 
 ### Python
-- Standard: Python 3.14.0 (requires free-threaded build)
-- Type hints: Required, use native types (no `typing` imports)
+- Standard: Python 3.14.2 (free-threaded build, `-Xgil=0`)
+- Type hints: required, use native types — `str | Path`, `list[str]`, `dict[str, T]` (no `typing.Union/List/Dict`)
+- Imports: always at the top of the file; never use `TYPE_CHECKING` guards — import directly and use `cast()` when needed for type narrowing
 - Naming: `snake_case` functions/variables, `CamelCase` classes
-- Docstrings: Google style (Args/Returns/Raises)
+- Docstrings: Google style (Args/Returns/Raises sections)
 - Line length: 88 characters (black)
 - Import order: stdlib → third-party → project
-- Error handling: Custom exceptions from `soir.rt.errors`
+- Error handling: custom exceptions from `soir.rt.errors`
+- mypy: strict mode enabled
 
 ## Key Technologies
 
 ### C++ Dependencies (via CMake FetchContent)
-- pybind11 3.0.1: Python bindings
-- abseil-cpp: Core utilities, status handling
-- nlohmann/json: JSON parsing
-- googletest: Unit testing
-- miniaudio: Audio I/O
-- AudioFile: Audio file reading
-- libremidi: MIDI support
-- rapidjson: Fast JSON parsing
+- pybind11 3.0.1 — Python bindings
+- abseil-cpp 20250814.1 — Core utilities, status handling, logging
+- nlohmann/json 3.12.0 — JSON parsing
+- googletest 1.17.0 — Unit testing
+- miniaudio 0.11.23 — Audio I/O
+- AudioFile 1.1.4 — Audio file reading
+- libremidi 5.3.1 — MIDI support
+- VST3 SDK 3.8.0_build_66 — VST plugin hosting
+- ogg 1.3.5 — Ogg format support
+- opus 1.5.2 — Opus codec
+- cpp-httplib 0.18.3 — HTTP client/server
 
 ### Python Dependencies
-- typer: CLI framework
-- flask: Web framework
-- pygments: Syntax highlighting
-- pydantic: Data validation
-- watchdog: File system monitoring
-- pytest: Testing framework
+- typer — CLI framework
+- textual — Terminal UI framework
+- flask + gunicorn — Web framework and WSGI server
+- pydantic — Configuration models and data validation
+- pygments — Syntax highlighting
+- watchdog — File system monitoring
+- pdoc, markdown, markdown-it-py — Documentation and markdown parsing
+- docstring-parser — Docstring parsing for runtime API
+- soundfile — Audio file I/O (tests)
+- pytest, pytest-flask, pytest-timeout — Testing
 
 ## Development Workflow
 
@@ -152,10 +198,12 @@ just package                # Create distributable package
 
 ## Important Notes
 
-- Python 3.14.0 required (free-threaded build with `-Xgil=0`)
+- Python 3.14.2 required (free-threaded build with `-Xgil=0`)
 - Virtual environment in `.venv/` managed by uv
-- Never run plain `python` - always use `uv run python`
+- Never run plain `python` — always use `uv run python`
 - C++ builds to `build/cmake/` directory
-- Bindings output: `py/soir/_bindings.cpython-314t-darwin.so`
-- The `bin/soir` wrapper disables GIL for thread safety
+- Bindings output: `py/soir/_bindings.cpython-314t-{platform}.so`
+- The `bin/soir` wrapper sets `SOIR_DIR` and disables the GIL
 - Integration tests require audio configuration
+- `playground/` is excluded from ruff linting
+- Always run `just build` (if C++ changed), `just check`, and `just test` after proposing changes
