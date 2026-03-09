@@ -8,10 +8,9 @@
 #include <optional>
 #include <thread>
 
-#include "audio/audio_http_server.hh"
 #include "audio/audio_output.hh"
 #include "audio/audio_recorder.hh"
-#include "audio/audio_stream.hh"
+#include "audio/pcm_stream.hh"
 #include "core/common.hh"
 #include "core/controls.hh"
 #include "core/level_meter.hh"
@@ -64,11 +63,11 @@ class Engine {
 
   absl::Status ReloadAudioOutput(const std::string& device_name);
 
+  audio::PcmStream* GetPcmStream();
+
  private:
   absl::Status Run();
   void SetTicks(std::list<MidiEventAt>& events);
-  absl::Status StartStreaming();
-  absl::Status StopStreaming();
 
   // Helper to print some statistics about CPU usage.
   void Stats(const absl::Time& next_block_at,
@@ -87,15 +86,11 @@ class Engine {
   // enabled. They are fed with audio samples from the DSP engine.
   std::mutex consumers_mutex_;
   bool audio_output_enabled_ = false;
-  bool enable_streaming_ = false;
-  int streaming_port_ = 5001;
   std::string audio_output_device_;
   std::mutex audio_reload_mutex_;
   std::unique_ptr<audio::AudioOutput> audio_output_;
   std::unique_ptr<AudioRecorder> audio_recorder_;
-  std::unique_ptr<audio::AudioStream> audio_stream_;
-  std::unique_ptr<audio::AudioHttpServer> http_server_;
-  bool streaming_active_ = false;
+  std::unique_ptr<audio::PcmStream> pcm_stream_;
   std::list<SampleConsumer*> consumers_;
 
   // Tracks are created/updated by the Runtime engine, and locked

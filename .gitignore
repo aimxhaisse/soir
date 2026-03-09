@@ -11,3 +11,6 @@ Dockerfile
 *.pyc
 lib/samples
 playground
+CPackConfig.cmake
+CPackSourceConfig.cmake
+_deps

@@ -11,4 +11,5 @@ PYBIND11_MODULE(_bindings, m, py::mod_gil_not_used()) {
   soir::bindings::Bind::PySoir(m);
   soir::bindings::Bind::PyRt(m);
   soir::bindings::Bind::PyState(m);
+  soir::bindings::Bind::PyPcm(m);
 }
