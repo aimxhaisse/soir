@@ -4,17 +4,135 @@
 <meta charset="UTF-8">
 <title>soir</title>
 <style>
-* { margin: 0; padding: 0; }
-body { background: #000; overflow: hidden; }
-#overlay {
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #000; overflow: hidden; font-family: 'Courier New', monospace; }
+#c { display: block; position: fixed; inset: 0; }
+
+/* ── HUD ── */
+#hud {
   position: fixed; inset: 0;
+  pointer-events: none;
+  color: rgba(255, 200, 70, 0.9);
+  font-size: 11px;
+  letter-spacing: 0.07em;
+}
+
+/* top-left logo */
+#logo {
+  position: absolute; top: 14px; left: 18px;
+  font-size: 20px; font-weight: bold; letter-spacing: 0.35em;
+  color: rgba(255, 220, 90, 1);
+  text-shadow: 0 0 10px rgba(255, 160, 0, 0.9), 0 0 28px rgba(255, 100, 0, 0.4);
+}
+#live-badge {
+  position: absolute; top: 20px; left: 82px;
+  font-size: 8px; letter-spacing: 0.2em;
+  color: rgba(255, 100, 80, 0.8);
+  text-shadow: 0 0 6px rgba(255, 80, 50, 0.7);
+}
+
+/* top-right transport */
+#transport {
+  position: absolute; top: 12px; right: 18px;
+  text-align: right;
+}
+#bpm-val {
+  font-size: 38px; line-height: 1; letter-spacing: 0.02em;
+  color: rgba(255, 220, 90, 1);
+  text-shadow: 0 0 12px rgba(255, 160, 0, 0.8);
+}
+#bpm-label { font-size: 8px; color: rgba(255,200,70,0.4); margin-top: 1px; }
+#beat-dots { margin-top: 6px; display: flex; justify-content: flex-end; gap: 5px; }
+.bdot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: rgba(255, 200, 70, 0.18);
+  border: 1px solid rgba(255, 200, 70, 0.25);
+  transition: background 0.04s, box-shadow 0.04s;
+}
+.bdot.on {
+  background: rgba(255, 200, 70, 0.95);
+  box-shadow: 0 0 7px rgba(255, 180, 0, 1), 0 0 14px rgba(255, 120, 0, 0.5);
+}
+
+/* track panel */
+#tracks {
+  position: absolute; top: 90px; left: 18px;
+  max-width: 300px;
+  max-height: calc(100vh - 160px);
+  overflow: hidden;
+}
+#tracks-title {
+  font-size: 8px; letter-spacing: 0.2em;
+  color: rgba(255, 200, 70, 0.3);
+  border-bottom: 1px solid rgba(255, 200, 70, 0.12);
+  padding-bottom: 4px; margin-bottom: 6px;
+}
+.track-row {
+  display: flex; align-items: center; gap: 6px;
+  padding: 3px 0;
+  border-bottom: 1px solid rgba(255, 200, 70, 0.06);
+}
+.t-name {
+  width: 72px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  color: rgba(255, 210, 80, 0.9);
+}
+.t-inst {
+  width: 46px; font-size: 9px;
+  color: rgba(255, 200, 70, 0.4);
+}
+.t-vol-wrap {
+  width: 52px; height: 3px;
+  background: rgba(255, 200, 70, 0.12); border-radius: 2px;
+}
+.t-vol-fill { height: 100%; border-radius: 2px; background: rgba(255, 200, 70, 0.65); }
+.t-pan {
+  font-size: 9px; width: 24px; text-align: center;
+  color: rgba(255, 200, 70, 0.4);
+}
+.t-muted { font-size: 9px; color: rgba(255, 80, 60, 0.8); }
+.t-fx { font-size: 9px; color: rgba(255, 200, 70, 0.3); }
+
+/* master VU at bottom */
+#vu-wrap {
+  position: absolute; bottom: 18px; left: 18px; right: 18px;
+  display: flex; flex-direction: column; gap: 4px;
+}
+.vu-row { display: flex; align-items: center; gap: 8px; }
+.vu-label { font-size: 8px; color: rgba(255,200,70,0.4); width: 8px; }
+.vu-track {
+  flex: 1; height: 3px;
+  background: rgba(255, 200, 70, 0.08); border-radius: 2px; overflow: hidden;
+}
+.vu-fill {
+  height: 100%; width: 0%; border-radius: 2px;
+  background: linear-gradient(to right,
+    rgba(80, 220, 120, 0.8) 0%,
+    rgba(255, 210, 50, 0.9) 60%,
+    rgba(255, 60, 40, 1) 100%);
+  transition: width 0.04s linear;
+}
+.vu-peak {
+  font-size: 8px; width: 30px; text-align: right;
+  color: rgba(255, 200, 70, 0.4);
+}
+
+/* overlay */
+#overlay {
+  position: fixed; inset: 0; z-index: 20;
   display: flex; align-items: center; justify-content: center;
-  background: rgba(0,0,0,0.85);
-  cursor: pointer; z-index: 10;
-  color: #fff; font-family: monospace; font-size: 1.1rem; letter-spacing: 0.1em;
+  background: rgba(0, 0, 0, 0.9);
+  cursor: pointer;
+  color: rgba(255, 200, 70, 0.9);
   user-select: none;
 }
-#overlay span { border: 1px solid rgba(255,255,255,0.4); padding: 0.6em 1.4em; }
+#overlay span {
+  border: 1px solid rgba(255, 200, 70, 0.3);
+  padding: 0.6em 1.6em;
+  font-family: 'Courier New', monospace;
+  font-size: 0.85rem;
+  letter-spacing: 0.25em;
+  text-shadow: 0 0 14px rgba(255, 160, 0, 0.8);
+}
 </style>
 </head>
 <body>
@@ -24,13 +142,50 @@ body { background: #000; overflow: hidden; }
   <source src="{{ streaming_url }}" type="audio/ogg; codecs=opus">
 </audio>
 {% endif %}
-<div id="overlay"><span>click to start</span></div>
+
+<div id="hud">
+  <div id="logo">soir</div>
+  <div id="live-badge">&#9679; live</div>
+
+  <div id="transport">
+    <div id="bpm-val">120</div>
+    <div id="bpm-label">BPM</div>
+    <div id="beat-dots">
+      <div class="bdot" id="d0"></div>
+      <div class="bdot" id="d1"></div>
+      <div class="bdot" id="d2"></div>
+      <div class="bdot" id="d3"></div>
+    </div>
+  </div>
+
+  <div id="tracks">
+    <div id="tracks-title">TRACKS</div>
+    <div id="tracks-list"></div>
+  </div>
+
+  <div id="vu-wrap">
+    <div class="vu-row">
+      <span class="vu-label">L</span>
+      <div class="vu-track"><div class="vu-fill" id="vu-l"></div></div>
+      <span class="vu-peak" id="vu-l-val">-</span>
+    </div>
+    <div class="vu-row">
+      <span class="vu-label">R</span>
+      <div class="vu-track"><div class="vu-fill" id="vu-r"></div></div>
+      <span class="vu-peak" id="vu-r-val">-</span>
+    </div>
+  </div>
+</div>
+
+<div id="overlay"><span>&#9654; click to start</span></div>
+
 <script>
+// ── WebGL ──
 const canvas = document.getElementById('c');
 const gl = canvas.getContext('webgl');
 
 function resize() {
-  canvas.width = window.innerWidth;
+  canvas.width  = window.innerWidth;
   canvas.height = window.innerHeight;
   gl.viewport(0, 0, canvas.width, canvas.height);
 }
@@ -42,6 +197,8 @@ attribute vec2 p;
 void main() { gl_Position = vec4(p, 0.0, 1.0); }
 `;
 
+// Voronoi crystal plasma — amber / gold / fire palette
+// Completely different from the original polar-rings / blue design.
 const FS = `
 precision highp float;
 uniform vec2  iRes;
@@ -52,81 +209,107 @@ uniform float iPulse;
 uniform float iLevelL;
 uniform float iLevelR;
 
-#define PI 3.14159265359
+#define PI  3.14159265359
 #define TAU 6.28318530718
 
 mat2 rot(float a) { float c=cos(a),s=sin(a); return mat2(c,-s,s,c); }
 
-float hash(vec2 p) {
-  p = fract(p * vec2(127.1, 311.7));
-  p += dot(p, p + 19.19);
-  return fract(p.x * p.y);
+vec2 hash2(vec2 p) {
+  p = vec2(dot(p,vec2(127.1,311.7)), dot(p,vec2(269.5,183.3)));
+  return fract(sin(p) * 18.5453);
 }
 
-float fbm(vec2 p) {
-  float v = 0.0, a = 0.5;
-  for (int i = 0; i < 5; i++) {
-    v += a * (sin(p.x) * sin(p.y));
-    p = rot(0.37) * p * 2.0 + vec2(iTime * 0.07, iTime * 0.05);
-    a *= 0.5;
+// Animated Voronoi — returns (nearest-dist, 2nd-nearest-dist)
+vec2 voronoi(vec2 p, float t) {
+  vec2 i = floor(p);
+  vec2 f = fract(p);
+  float d1 = 8.0, d2 = 8.0;
+  for (int y = -1; y <= 1; y++) {
+    for (int x = -1; x <= 1; x++) {
+      vec2 g  = vec2(float(x), float(y));
+      vec2 o  = hash2(i + g);
+      o = 0.5 + 0.5 * sin(t + TAU * o);
+      vec2 r  = g + o - f;
+      float d = dot(r, r);
+      if (d < d1) { d2 = d1; d1 = d; }
+      else if (d < d2) { d2 = d; }
+    }
   }
-  return v;
+  return vec2(sqrt(d1), sqrt(d2));
 }
 
 void main() {
-  vec2 uv = (gl_FragCoord.xy - iRes * 0.5) / min(iRes.x, iRes.y);
-
-  float t   = iTime * 0.4;
-  float beat = iBeat;
+  vec2 uv  = (gl_FragCoord.xy - iRes * 0.5) / min(iRes.x, iRes.y);
+  float t  = iTime * 0.25;
+  float lvl = (iLevelL + iLevelR) * 0.5;
   float pulse = iPulse;
-  float lvl   = (iLevelL + iLevelR) * 0.5;
 
-  /* polar */
+  // multi-scale domain-warped voronoi
+  vec2 p1 = rot(t * 0.08) * uv * 2.8;
+  vec2 p2 = rot(-t * 0.13) * uv * 5.2 + vec2(t * 0.3, t * 0.2);
+  vec2 p3 = uv * 1.4 + vec2(-t * 0.15, t * 0.18);
+
+  vec2 v1 = voronoi(p1, t * 0.9);
+  vec2 v2 = voronoi(p2, t * 1.3);
+  vec2 v3 = voronoi(p3, t * 0.6);
+
+  // cell edge = difference between 1st and 2nd nearest
+  float e1 = v1.y - v1.x;
+  float e2 = v2.y - v2.x;
+  float e3 = v3.y - v3.x;
+
+  float edge = smoothstep(0.0, 0.08, e1) * 0.55
+             + smoothstep(0.0, 0.05, e2) * 0.30
+             + smoothstep(0.0, 0.10, e3) * 0.15;
+  edge = 1.0 - edge;   // invert: bright edges
+
+  // cell interior brightness
+  float cell = (1.0 - v1.x * 0.7) * 0.4
+             + (1.0 - v2.x * 0.5) * 0.35
+             + (1.0 - v3.x * 0.9) * 0.25;
+
   float r = length(uv);
-  float a = atan(uv.y, uv.x);
 
-  /* domain warp */
-  vec2 q = vec2(fbm(uv + t), fbm(uv + vec2(1.7, 9.2) + t * 0.8));
-  vec2 wuv = uv + 0.5 * q;
+  // radial beat pulse
+  float ripple = sin(r * 12.0 - iTime * 3.5 + iBeat * TAU) * 0.5 + 0.5;
+  ripple *= exp(-r * 2.2);
 
-  float wr = length(wuv);
-  float wa = atan(wuv.y, wuv.x);
+  // level glow at centre
+  float glow = lvl * exp(-r * 3.5);
 
-  /* rings */
-  float rings = sin(wr * 14.0 - t * 3.0 + beat * TAU) * 0.5 + 0.5;
-  rings *= exp(-wr * 1.5);
+  float v = cell * 0.5 + edge * 0.55 + ripple * 0.25 * (1.0 + lvl)
+          + pulse * exp(-r * 2.0) * 0.6 + glow * 0.7;
 
-  /* spokes */
-  float spokes = sin(wa * 6.0 + t * 0.7) * 0.5 + 0.5;
-  spokes = pow(spokes, 3.0);
+  // amber / gold / fire palette
+  vec3 dark   = vec3(0.03, 0.01, 0.00);
+  vec3 ember  = vec3(0.55, 0.15, 0.01);
+  vec3 amber  = vec3(0.88, 0.42, 0.03);
+  vec3 gold   = vec3(1.00, 0.84, 0.22);
+  vec3 white  = vec3(1.00, 0.96, 0.82);
 
-  /* beat flash */
-  float flash = pulse * (1.0 - r * 2.0);
-  flash = max(flash, 0.0);
+  vec3 col = mix(dark,  ember, smoothstep(0.00, 0.25, v));
+  col      = mix(col,   amber, smoothstep(0.20, 0.50, v));
+  col      = mix(col,   gold,  smoothstep(0.45, 0.75, v));
+  col      = mix(col,   white, smoothstep(0.72, 0.95, v));
 
-  /* level glow at center */
-  float glow = lvl * 0.8 * exp(-r * 4.0);
+  // beat flash tint
+  col += pulse * vec3(0.7, 0.35, 0.05) * max(0.0, 1.0 - r * 1.8);
 
-  float v = rings * spokes * 2.0 + flash * 0.6 + glow;
+  // level-driven cyan accent at centre
+  col += glow * vec3(0.1, 0.6, 0.9) * 0.5;
 
-  /* palette: deep blue → violet → cyan */
-  vec3 c1 = vec3(0.02, 0.05, 0.18);
-  vec3 c2 = vec3(0.48, 0.18, 0.72);
-  vec3 c3 = vec3(0.30, 0.82, 0.90);
+  // vignette
+  col *= 1.0 - smoothstep(0.62, 1.35, r);
 
-  vec3 col = mix(c1, c2, clamp(v, 0.0, 1.0));
-  col      = mix(col, c3, clamp(v - 1.0, 0.0, 1.0));
-  col     += flash * vec3(0.6, 0.5, 1.0);
-  col     += glow  * vec3(0.3, 0.9, 1.0);
-
-  /* vignette */
-  col *= 1.0 - smoothstep(0.7, 1.4, r);
+  // subtle scanlines
+  float scan = 0.93 + 0.07 * (0.5 + 0.5 * sin(gl_FragCoord.y * PI * 0.5));
+  col *= scan;
 
   gl_FragColor = vec4(col, 1.0);
 }
 `;
 
-function compile(type, src) {
+function compileShader(type, src) {
   const s = gl.createShader(type);
   gl.shaderSource(s, src);
   gl.compileShader(s);
@@ -134,17 +317,17 @@ function compile(type, src) {
 }
 
 const prog = gl.createProgram();
-gl.attachShader(prog, compile(gl.VERTEX_SHADER, VS));
-gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, FS));
+gl.attachShader(prog, compileShader(gl.VERTEX_SHADER, VS));
+gl.attachShader(prog, compileShader(gl.FRAGMENT_SHADER, FS));
 gl.linkProgram(prog);
 gl.useProgram(prog);
 
 const buf = gl.createBuffer();
 gl.bindBuffer(gl.ARRAY_BUFFER, buf);
 gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
-const loc = gl.getAttribLocation(prog, 'p');
-gl.enableVertexAttribArray(loc);
-gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+const aLoc = gl.getAttribLocation(prog, 'p');
+gl.enableVertexAttribArray(aLoc);
+gl.vertexAttribPointer(aLoc, 2, gl.FLOAT, false, 0, 0);
 
 const uRes   = gl.getUniformLocation(prog, 'iRes');
 const uTime  = gl.getUniformLocation(prog, 'iTime');
@@ -154,13 +337,80 @@ const uPulse = gl.getUniformLocation(prog, 'iPulse');
 const uLvlL  = gl.getUniformLocation(prog, 'iLevelL');
 const uLvlR  = gl.getUniformLocation(prog, 'iLevelR');
 
-let state = { bpm: 120, beat: 0, master_levels: { peak_left: 0, peak_right: 0 } };
+// ── State ──
+let state = {
+  bpm: 120, beat: 0, tracks: [],
+  master_levels: { peak_left: 0, peak_right: 0, rms_left: 0, rms_right: 0 }
+};
 let lastFrac = 0, pulse = 0;
-const start = performance.now();
+const startTime = performance.now();
 
 const es = new EventSource('/events');
-es.onmessage = e => { try { state = JSON.parse(e.data); } catch (_) {} };
+es.onmessage = e => {
+  try {
+    state = JSON.parse(e.data);
+    updateHUD();
+  } catch (_) {}
+};
 
+// ── HUD elements ──
+const bpmEl      = document.getElementById('bpm-val');
+const tracksList = document.getElementById('tracks-list');
+const vuLEl      = document.getElementById('vu-l');
+const vuREl      = document.getElementById('vu-r');
+const vuLVal     = document.getElementById('vu-l-val');
+const vuRVal     = document.getElementById('vu-r-val');
+const dots       = [0, 1, 2, 3].map(i => document.getElementById('d' + i));
+
+let lastTracksSig = '';
+let lastBeatInt   = -1;
+
+function dbLabel(v) {
+  if (v <= 0) return '-inf';
+  const db = 20 * Math.log10(v);
+  return (db >= 0 ? '+' : '') + db.toFixed(1);
+}
+
+function updateHUD() {
+  bpmEl.textContent = Math.round(state.bpm);
+
+  const ml = state.master_levels || {};
+  const pL = Math.min((ml.peak_left  || 0) * 100, 100);
+  const pR = Math.min((ml.peak_right || 0) * 100, 100);
+  vuLEl.style.width = pL + '%';
+  vuREl.style.width = pR + '%';
+  vuLVal.textContent = dbLabel(ml.peak_left  || 0);
+  vuRVal.textContent = dbLabel(ml.peak_right || 0);
+
+  // only re-render tracks when something changed
+  const sig = JSON.stringify(state.tracks || []);
+  if (sig !== lastTracksSig) {
+    lastTracksSig = sig;
+    renderTracks(state.tracks || []);
+  }
+}
+
+function renderTracks(tracks) {
+  tracksList.innerHTML = '';
+  tracks.forEach(t => {
+    const vol = typeof t.volume === 'number' ? Math.min(Math.max(t.volume, 0), 1) : 1;
+    const pan = typeof t.pan   === 'number' ? t.pan : 0;
+    const panStr = pan === 0 ? 'C' : (pan > 0 ? 'R' + pan.toFixed(1) : 'L' + Math.abs(pan).toFixed(1));
+    const fxStr  = (t.fxs && t.fxs.length) ? t.fxs.map(f => f.type).join(' ') : '';
+    const row = document.createElement('div');
+    row.className = 'track-row';
+    row.innerHTML =
+      '<span class="t-name">'     + (t.name || '?') + '</span>' +
+      '<span class="t-inst">'     + (t.instrument || '') + '</span>' +
+      '<div class="t-vol-wrap"><div class="t-vol-fill" style="width:' + (vol * 100) + '%"></div></div>' +
+      '<span class="t-pan">'      + panStr + '</span>' +
+      (t.muted ? '<span class="t-muted">mute</span>' : '') +
+      (fxStr   ? '<span class="t-fx">' + fxStr + '</span>' : '');
+    tracksList.appendChild(row);
+  });
+}
+
+// ── Render loop ──
 function frame() {
   requestAnimationFrame(frame);
 
@@ -169,29 +419,35 @@ function frame() {
   lastFrac = frac;
   pulse *= 0.88;
 
-  const lvl = state.master_levels || {};
-  const t = (performance.now() - start) / 1000;
+  // beat dot
+  const bi = Math.floor(state.beat) % 4;
+  if (bi !== lastBeatInt) {
+    dots.forEach((d, i) => d.classList.toggle('on', i === bi));
+    lastBeatInt = bi;
+  }
 
-  gl.uniform2f(uRes, canvas.width, canvas.height);
-  gl.uniform1f(uTime, t);
-  gl.uniform1f(uBeat, frac);
-  gl.uniform1f(uBpm, state.bpm);
+  const lvl = state.master_levels || {};
+  const t   = (performance.now() - startTime) / 1000;
+
+  gl.uniform2f(uRes,   canvas.width, canvas.height);
+  gl.uniform1f(uTime,  t);
+  gl.uniform1f(uBeat,  frac);
+  gl.uniform1f(uBpm,   state.bpm);
   gl.uniform1f(uPulse, pulse);
-  gl.uniform1f(uLvlL, lvl.peak_left || 0);
-  gl.uniform1f(uLvlR, lvl.peak_right || 0);
+  gl.uniform1f(uLvlL,  lvl.peak_left  || 0);
+  gl.uniform1f(uLvlR,  lvl.peak_right || 0);
 
   gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 }
 
 frame();
 
-const overlay = document.getElementById('overlay');
-overlay.addEventListener('click', () => {
-  overlay.style.display = 'none';
-  {% if streaming_url %}
-  const audio = document.getElementById('audio');
-  audio.play().catch(() => {});
-  {% endif %}
+// ── Click to start ──
+document.getElementById('overlay').addEventListener('click', () => {
+  document.getElementById('overlay').style.display = 'none';
+{% if streaming_url %}
+  document.getElementById('audio').play().catch(() => {});
+{% endif %}
 }, { once: true });
 </script>
 </body>
