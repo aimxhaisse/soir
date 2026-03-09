@@ -296,7 +296,7 @@ class AudioOutPickerScreen(ModalScreen[str | None]):
     }
     """
 
-    def __init__(self, devices: list[dict]) -> None:
+    def __init__(self, devices: list[dict[str, str]]) -> None:
         super().__init__()
         self._devices = devices
 

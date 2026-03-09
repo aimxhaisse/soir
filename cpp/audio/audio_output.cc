@@ -159,7 +159,8 @@ absl::Status AudioOutput::Init(int sample_rate, int channels, int buffer_size,
       bool found = false;
 
       if (ma_context_get_devices(&context_, &playback_infos, &playback_count,
-                                 &capture_infos, &capture_count) == MA_SUCCESS) {
+                                 &capture_infos,
+                                 &capture_count) == MA_SUCCESS) {
         for (ma_uint32 i = 0; i < playback_count; i++) {
           if (std::string(playback_infos[i].name).find(device_name) !=
               std::string::npos) {
