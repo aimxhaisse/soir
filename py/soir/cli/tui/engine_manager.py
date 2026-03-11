@@ -139,11 +139,12 @@ class EngineManager:
                     "output_devices": devices if devices else [],
                 }
 
-    def set_audio_output_device(self, device_name: str) -> tuple[bool, str]:
+    def set_audio_output_device(self, device: str) -> tuple[bool, str]:
         """Set the audio output device and persist to config.
 
         Args:
-            device_name: Device name substring to match, or empty for system default
+            device: "none" to disable, "default" for system default, or a
+                device name substring for a specific device.
 
         Returns:
             Tuple of (success, message)
@@ -152,16 +153,15 @@ class EngineManager:
             if not self._running:
                 return False, "engine not running"
             assert self.config is not None
-            self.config.dsp.audio_output_device = device_name
+            self.config.dsp.audio_output_device = device
             try:
                 self.config.save_to_path("etc/config.json")
             except OSError as e:
                 return False, f"failed to write config: {e}"
-            success = rt.set_audio_out_device_(device_name)
+            success = rt.set_audio_out_device_(device)
             if not success:
                 return False, "engine rejected device"
-            label = device_name if device_name else "(system default)"
-            return True, f"audio output: {label}"
+            return True, f"audio output: {device}"
 
     def is_running(self) -> bool:
         """Check if the engine is currently running.

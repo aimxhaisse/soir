@@ -18,13 +18,16 @@ absl::Status Engine::Init(const utils::Config& config) {
   current_tick_ = 0;
 
   audio_output_enabled_ = config.Get<bool>("dsp.enable_output");
-  audio_output_device_ =
+  const std::string raw_device =
       config.GetOrDefault<std::string>("dsp.audio_output_device", "");
+  audio_output_device_ = raw_device.empty() ? "default" : raw_device;
 
   audio_output_ = std::make_unique<audio::AudioOutput>();
   if (audio_output_enabled_) {
+    const std::string miniaudio_device =
+        (audio_output_device_ == "default") ? "" : audio_output_device_;
     auto status = audio_output_->Init(kSampleRate, kNumChannels, kBlockSize,
-                                      audio_output_device_);
+                                      miniaudio_device);
     if (!status.ok()) {
       LOG(ERROR) << "Failed to initialize audio output: " << status;
       return status;
@@ -461,40 +464,47 @@ absl::Status Engine::StopRecording() {
   return absl::OkStatus();
 }
 
-absl::Status Engine::ReloadAudioOutput(const std::string& device_name) {
-  if (!audio_output_enabled_) {
-    return absl::FailedPreconditionError("Audio output is disabled");
-  }
-
+absl::Status Engine::SetAudioOutput(const std::string& device) {
   std::scoped_lock<std::mutex> reload_lock(audio_reload_mutex_);
 
-  RemoveConsumer(audio_output_.get());
-
-  auto status = audio_output_->Stop();
-  if (!status.ok()) {
-    LOG(WARNING) << "Failed to stop audio output during reload: " << status;
+  if (audio_output_enabled_) {
+    RemoveConsumer(audio_output_.get());
+    auto stop_status = audio_output_->Stop();
+    if (!stop_status.ok()) {
+      LOG(WARNING) << "Failed to stop audio output during reload: "
+                   << stop_status;
+    }
   }
+
+  if (device == "none") {
+    audio_output_enabled_ = false;
+    LOG(INFO) << "Audio output disabled";
+    return absl::OkStatus();
+  }
+
+  // "default" means let miniaudio pick; pass "" to signal that.
+  const std::string miniaudio_device = (device == "default") ? "" : device;
 
   audio_output_ = std::make_unique<audio::AudioOutput>();
 
-  status =
-      audio_output_->Init(kSampleRate, kNumChannels, kBlockSize, device_name);
+  auto status = audio_output_->Init(kSampleRate, kNumChannels, kBlockSize,
+                                    miniaudio_device);
   if (!status.ok()) {
-    LOG(ERROR) << "Failed to initialize new audio output: " << status;
+    LOG(ERROR) << "Failed to initialize audio output: " << status;
     return status;
   }
 
   status = audio_output_->Start();
   if (!status.ok()) {
-    LOG(ERROR) << "Failed to start new audio output: " << status;
+    LOG(ERROR) << "Failed to start audio output: " << status;
     return status;
   }
 
   RegisterConsumer(audio_output_.get());
-  audio_output_device_ = device_name;
+  audio_output_device_ = device;
+  audio_output_enabled_ = true;
 
-  LOG(INFO) << "Audio output reloaded: "
-            << (device_name.empty() ? "(system default)" : device_name);
+  LOG(INFO) << "Audio output set: " << device;
   return absl::OkStatus();
 }
 
