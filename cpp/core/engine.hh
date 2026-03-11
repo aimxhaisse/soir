@@ -61,7 +61,9 @@ class Engine {
   absl::Status StartRecording(const std::string& file_path);
   absl::Status StopRecording();
 
-  absl::Status ReloadAudioOutput(const std::string& device_name);
+  // Reload the audio output device. Use "none" to disable, "default" for
+  // the system default, or a device name substring for a specific device.
+  absl::Status SetAudioOutput(const std::string& device);
 
   audio::PcmStream* GetPcmStream();
 

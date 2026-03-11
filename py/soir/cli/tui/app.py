@@ -129,7 +129,9 @@ class SoirTuiApp(App[None]):
                     self.cast_server = CastServer(cfg)
                     self.cast_server.start()
 
-                initial_device = cfg.dsp.audio_output_device if cfg else ""
+                initial_device = cfg.dsp.audio_output_device if cfg else "default"
+                if not initial_device:
+                    initial_device = "default"
                 device_widget = self.query_one(AudioDeviceWidget)
                 self.call_from_thread(
                     setattr, device_widget, "current_device", initial_device
@@ -221,18 +223,13 @@ class SoirTuiApp(App[None]):
     def action_pick_audio_out(self) -> None:
         """Open audio output device picker modal."""
         devices = get_audio_out_devices_()
-        if not devices:
-            self.notify("No audio output devices found", severity="warning")
-            return
 
-        def on_picked(device_name: str | None) -> None:
-            if device_name is None:
+        def on_picked(device: str | None) -> None:
+            if device is None:
                 return
 
             def do_reload() -> None:
-                success, message = self.engine_manager.set_audio_output_device(
-                    device_name
-                )
+                success, message = self.engine_manager.set_audio_output_device(device)
                 color = "#5b9a6d" if success else "#c95757"
                 severity = "information" if success else "error"
                 self.call_from_thread(self.notify, message, severity=severity)
@@ -242,9 +239,7 @@ class SoirTuiApp(App[None]):
                 )
                 if success:
                     widget = self.query_one(AudioDeviceWidget)
-                    self.call_from_thread(
-                        setattr, widget, "current_device", device_name
-                    )
+                    self.call_from_thread(setattr, widget, "current_device", device)
 
             self.run_worker(do_reload, thread=True, name="audio-reload")
 
@@ -305,7 +300,10 @@ class AudioOutPickerScreen(ModalScreen[str | None]):
             from textual.widgets import Label
 
             yield Label("Select Audio Output Device", id="picker-title")
-            items = [ListItem(Label("(system default)"))]
+            items = [
+                ListItem(Label("none")),
+                ListItem(Label("default")),
+            ]
             for d in self._devices:
                 marker = " *" if d.get("is_default", False) else ""
                 items.append(ListItem(Label(f"{d['name']}{marker}")))
@@ -323,7 +321,9 @@ class AudioOutPickerScreen(ModalScreen[str | None]):
             self.dismiss(None)
             return
         if idx == 0:
-            self.dismiss("")
+            self.dismiss("none")
+        elif idx == 1:
+            self.dismiss("default")
         else:
-            device = self._devices[idx - 1]
+            device = self._devices[idx - 2]
             self.dismiss(device["name"])

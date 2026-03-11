@@ -185,28 +185,29 @@ class CommandInterpreter:
         """Set the audio output device.
 
         Args:
-            args: Command arguments (device name or index, or "default")
+            args: Command arguments (device name or index, "default", or "none")
 
         Returns:
             Result message
         """
         if not args:
-            return "usage: set-audio-out <name|index|default>"
+            return "usage: set-audio-out <name|index|default|none>"
 
         arg = " ".join(args)
 
-        if arg.lower() == "default":
-            device_name = ""
+        device: str
+        if arg.lower() in ("none", "default"):
+            device = arg.lower()
         elif arg.isdigit():
             idx = int(arg)
             devices = get_audio_out_devices_()
             if idx >= len(devices):
                 return f"invalid device index: {idx}"
-            device_name = devices[idx]["name"]
+            device = devices[idx]["name"]
         else:
-            device_name = arg
+            device = arg
 
-        _success, message = self.engine.set_audio_output_device(device_name)
+        _success, message = self.engine.set_audio_output_device(device)
         return message
 
     def _audio_in(self) -> str:

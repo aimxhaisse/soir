@@ -5,7 +5,7 @@
         "streaming_bitrate": 128000,
         "streaming_port": 5001,
         "block_size": 4096,
-        "audio_output_device": "Scarlett 18i20 3rd Gen Line Output 9+10",
+        "audio_output_device": "none",
         "sample_directory": "./lib/samples",
         "sample_packs": [
             "mxs-samples"

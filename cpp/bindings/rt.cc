@@ -309,8 +309,8 @@ void Bind::PyRt(py::module_& m) {
     return devices;
   });
 
-  rt.def("set_audio_out_device_", [](const std::string& device_name) -> bool {
-    auto status = gDsp_->ReloadAudioOutput(device_name);
+  rt.def("set_audio_out_device_", [](const std::string& device) -> bool {
+    auto status = gDsp_->SetAudioOutput(device);
     if (!status.ok()) {
       LOG(ERROR) << "Failed to set audio output device: " << status;
       return false;
