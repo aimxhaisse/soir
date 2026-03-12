@@ -64,6 +64,10 @@ package:
 
     .dist/soir/bin/soir --help > /dev/null
 
+    # There are multiple copies of the Python binary but we only need
+    # to keep one (win ~300m that way).
+    rm -f .dist/soir/.venv/bin/python?*
+
     tar -czf "${tarball}" -C .dist soir
 
 # Build Docker image (builder stage only, no www)
