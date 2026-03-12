@@ -21,6 +21,9 @@ absl::Status Engine::Init(const utils::Config& config) {
   const std::string raw_device =
       config.GetOrDefault<std::string>("dsp.audio_output_device", "");
   audio_output_device_ = raw_device.empty() ? "default" : raw_device;
+  if (audio_output_device_ == "none") {
+    audio_output_enabled_ = false;
+  }
 
   audio_output_ = std::make_unique<audio::AudioOutput>();
   if (audio_output_enabled_) {
