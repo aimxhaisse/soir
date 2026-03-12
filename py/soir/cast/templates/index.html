@@ -137,11 +137,6 @@ body { background: #000; overflow: hidden; font-family: 'Courier New', monospace
 </head>
 <body>
 <canvas id="c"></canvas>
-{% if streaming_url %}
-<audio id="audio" preload="none">
-  <source src="{{ streaming_url }}" type="audio/ogg; codecs=opus">
-</audio>
-{% endif %}
 
 <div id="hud">
   <div id="logo">soir</div>
@@ -445,9 +440,37 @@ frame();
 // ── Click to start ──
 document.getElementById('overlay').addEventListener('click', () => {
   document.getElementById('overlay').style.display = 'none';
-{% if streaming_url %}
-  document.getElementById('audio').play().catch(() => {});
-{% endif %}
+
+  const audioCtx = new AudioContext({ sampleRate: 48000 });
+  let nextTime = 0;
+  const SAMPLE_RATE = 48000;
+  const NUM_CHANNELS = 2;
+
+  const ws = new WebSocket('ws://' + location.host + '/pcm');
+  ws.binaryType = 'arraybuffer';
+
+  ws.onmessage = (event) => {
+    const raw = new Float32Array(event.data);
+    const numFrames = raw.length / NUM_CHANNELS;
+    if (numFrames === 0) return;
+
+    const buffer = audioCtx.createBuffer(NUM_CHANNELS, numFrames, SAMPLE_RATE);
+    const left  = buffer.getChannelData(0);
+    const right = buffer.getChannelData(1);
+    for (let i = 0; i < numFrames; i++) {
+      left[i]  = raw[i * 2];
+      right[i] = raw[i * 2 + 1];
+    }
+
+    const source = audioCtx.createBufferSource();
+    source.buffer = buffer;
+    source.connect(audioCtx.destination);
+
+    const now = audioCtx.currentTime;
+    if (nextTime < now + 0.05) nextTime = now + 0.05;
+    source.start(nextTime);
+    nextTime += numFrames / SAMPLE_RATE;
+  };
 }, { once: true });
 </script>
 </body>

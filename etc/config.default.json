@@ -1,7 +1,7 @@
 {
     "dsp": {
         "enable_output": true,
-        "enable_streaming": false,
+        "enable_streaming": true,
         "streaming_bitrate": 128000,
         "streaming_port": 5001,
         "block_size": 4096,
