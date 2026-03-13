@@ -46,7 +46,7 @@ def _make_flask_app(config: Config, stop_event: Event) -> Flask:
         return Response(stream(), mimetype="text/event-stream")
 
     @sock.route("/pcm")
-    def pcm(ws: object) -> None:  # type: ignore[type-arg]
+    def pcm(ws: object) -> None:
         offset = _bindings.pcm.get_current_offset_()
         while not stop_event.is_set():
             data, offset = _bindings.pcm.read_(offset)
@@ -67,7 +67,9 @@ class CastServer:
 
     def start(self) -> None:
         app = _make_flask_app(self._config, self._stop_event)
-        self._server = make_server("0.0.0.0", self._config.cast.port, app, threaded=True)
+        self._server = make_server(
+            "0.0.0.0", self._config.cast.port, app, threaded=True
+        )
         self._thread = Thread(target=self._server.serve_forever, daemon=True)
         self._thread.start()
 
