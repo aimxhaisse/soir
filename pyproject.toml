@@ -70,6 +70,14 @@ warn_return_any = true
 warn_unused_configs = true
 
 [[tool.mypy.overrides]]
+module = "flask_sock"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "soir.cast.*"
+disallow_untyped_decorators = false
+
+[[tool.mypy.overrides]]
 module = "soir._bindings"
 ignore_missing_imports = true
 
