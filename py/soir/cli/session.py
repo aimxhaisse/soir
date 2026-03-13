@@ -87,7 +87,7 @@ def mk(name: str) -> None:
         (session_path / "var" / "log").mkdir(parents=True)
 
         soir_dir = get_soir_dir()
-        config_template = Path(soir_dir) / "etc" / "config.default.json"
+        config_template = Path(soir_dir) / "etc" / "config.json"
         live_template = Path(soir_dir) / "etc" / "live.default.py"
 
         shutil.copy(config_template, session_path / "etc" / "config.json")

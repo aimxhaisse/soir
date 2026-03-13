@@ -11,7 +11,7 @@ from typing import Any
 
 import soir._bindings as bindings
 from soir._bindings import logging, rt
-from soir.config import Config
+from soir.config import Config, is_session
 from soir.watcher import Watcher
 
 
@@ -75,12 +75,13 @@ class EngineManager:
 
                 logging.info("Soir started successfully")
 
-                soir_engine = self.soir
-                self.watcher = Watcher(
-                    self.config, lambda code: soir_engine.update_code(code)
-                )
-                self.watcher.start()
-                logging.info("Watcher started successfully")
+                if is_session(self.session_path):
+                    soir_engine = self.soir
+                    self.watcher = Watcher(
+                        self.config, lambda code: soir_engine.update_code(code)
+                    )
+                    self.watcher.start()
+                    logging.info("Watcher started successfully")
 
                 self._running = True
 
