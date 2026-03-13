@@ -13,6 +13,30 @@ from pydantic import BaseModel, Field
 from soir.rt.errors import ConfigurationError
 
 
+def is_session(path: Path) -> bool:
+    """Determine whether a given path is a Soir session directory.
+
+    A session directory is any directory that is NOT the global SOIR_DIR.
+    Both a session and SOIR_DIR contain an 'etc/config.json', so we cannot
+    rely on file structure alone to tell them apart. Instead, we use the
+    invariant that 'session mk' always creates sessions outside of SOIR_DIR,
+    making the two mutually exclusive by construction.
+
+    This means: if the path resolves to SOIR_DIR, we are running from the
+    global configuration (no session). Any other path is treated as a session.
+
+    Args:
+        path: The directory path to test.
+
+    Returns:
+        True if path is a session directory, False if it is SOIR_DIR.
+
+    Raises:
+        ConfigurationError: If SOIR_DIR is not set.
+    """
+    return path.resolve() != Path(get_soir_dir()).resolve()
+
+
 def get_soir_dir() -> str:
     """Get the SOIR_DIR environment variable.
 
@@ -58,6 +82,19 @@ class Config(BaseModel):
     dsp: DspConfig = Field()
     live: LiveConfig = Field()
     cast: CastConfig = Field(default_factory=CastConfig)
+
+    @classmethod
+    def load_global(cls) -> Config:
+        """Load the global configuration from SOIR_DIR.
+
+        Returns:
+            Validated Config instance from $SOIR_DIR/etc/config.json
+
+        Raises:
+            ConfigurationError: If SOIR_DIR is not set or config file not found
+        """
+        soir_dir = get_soir_dir()
+        return cls.load_from_path(Path(soir_dir) / "etc" / "config.json")
 
     @classmethod
     def load_from_path(cls, path: str | Path) -> Config:

@@ -56,7 +56,7 @@ soir/
 ├── bin/                    # Executable wrapper scripts
 │   └── soir                # Sets SOIR_DIR, runs python -Xgil=0 -m soir.app
 ├── etc/                    # Default configuration files
-│   ├── config.default.json # Default engine configuration
+│   ├── config.json         # Global engine configuration
 │   └── live.default.py     # Default live coding template
 ├── build/                  # CMake build output (gitignored)
 ├── designs/                # Design documents (e.g. VST3.md)
