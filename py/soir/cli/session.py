@@ -69,16 +69,17 @@ def _run_blocking(path: Path, verbose: bool) -> None:
 
 
 @session_app.command()
-def mk(name: str) -> None:
+def mk(name: Path) -> None:
     """Create a new session directory structure."""
-    if not name or "/" in name or "\\" in name or name.startswith("."):
+    session_path = Path(name)
+    session_name = session_path.name
+
+    if not session_name or session_name.startswith("."):
         typer.echo("Error: Invalid session name.", err=True)
         raise typer.Exit(1)
 
-    session_path = Path(name)
-
     if session_path.exists():
-        typer.echo(f"Error: Session '{name}' already exists.", err=True)
+        typer.echo(f"Error: Session '{session_name}' already exists.", err=True)
         raise typer.Exit(1)
 
     try:
@@ -93,7 +94,7 @@ def mk(name: str) -> None:
         shutil.copy(config_template, session_path / "etc" / "config.json")
         shutil.copy(live_template, session_path / "live.py")
 
-        typer.echo(f"Session '{name}' created at {session_path}")
+        typer.echo(f"Session '{session_name}' created at {session_path}")
     except (OSError, FileNotFoundError) as e:
         typer.echo(f"Error: {e}", err=True)
         raise typer.Exit(1)
