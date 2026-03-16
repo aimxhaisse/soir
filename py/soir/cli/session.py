@@ -34,7 +34,13 @@ def run(path: Path, verbose: bool = False, no_tui: bool = False) -> None:
 def _run_tui(path: Path, verbose: bool) -> None:
     """Run session with TUI interface."""
     from soir.cli.tui import SoirTuiApp
+    from soir.cli.tui.engine_manager import redirect_python_io_to_tty
 
+    # Redirect Python I/O to /dev/tty before Textual starts so that it captures
+    # the tty fd instead of fd 1. When the engine later calls
+    # logging.init(redirect_stdio=True), freopen() on fd 1 sends C++ output to
+    # the log file without touching Textual's render target.
+    redirect_python_io_to_tty()
     app = SoirTuiApp(path, verbose)
     app.run()
 
