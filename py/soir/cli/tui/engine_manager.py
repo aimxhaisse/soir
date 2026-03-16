@@ -10,16 +10,16 @@ import threading
 from pathlib import Path
 from typing import Any
 
-_STDOUT_FD = 1
-_STDERR_FD = 2
-
 import soir._bindings as bindings
 from soir._bindings import logging, rt
 from soir.config import Config, get_soir_dir, is_session
 from soir.watcher import Watcher
 
+_STDOUT_FD = 1
+_STDERR_FD = 2
 
-def _redirect_python_io_to_tty() -> None:
+
+def redirect_python_io_to_tty() -> None:
     # Before we call logging.init(redirect_stdio=True), the C++ side will
     # freopen() fd 1 and fd 2 to the log file. Python's sys.stdout holds
     # fd 1 directly, so any print() after that point would silently go to
@@ -28,6 +28,17 @@ def _redirect_python_io_to_tty() -> None:
     # in BEFORE the freopen happens, so Python I/O remains on the terminal.
     # When there is no controlling terminal (e.g. in tests or CI) the open
     # will fail with OSError — we skip the redirect safely in that case.
+    #
+    # This must be called before any framework (e.g. Textual) captures
+    # sys.__stdout__, otherwise the framework will hold a reference to fd 1
+    # and its output will be redirected to the log file when freopen() runs.
+    # If stdout was already redirected away from fd 1 (idempotency guard),
+    # skip to avoid opening a second tty handle.
+    try:
+        if sys.stdout.fileno() != _STDOUT_FD:
+            return
+    except (AttributeError, OSError):
+        pass
     _tty_path = "CONOUT$" if sys.platform == "win32" else "/dev/tty"
     try:
         # Intentionally not using a context manager: the file must stay open
@@ -89,7 +100,7 @@ class EngineManager:
                 cfg_path = "etc/config.json"
                 log_path = "var/log"
 
-                _redirect_python_io_to_tty()
+                redirect_python_io_to_tty()
                 logging.init(
                     log_path, max_files=25, verbose=self.verbose, redirect_stdio=True
                 )
