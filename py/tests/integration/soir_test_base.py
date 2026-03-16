@@ -51,7 +51,9 @@ class SoirTestEngine:
         self._notifications: list[str] = []
         self._notification_index = 0
 
-        logging.init(str(self.log_dir), max_files=100, verbose=False)
+        logging.init(
+            str(self.log_dir), max_files=100, verbose=False, redirect_stdio=False
+        )
 
         config_file = self._generate_config(config_overrides or {})
         if not self.soir.init(str(config_file)):

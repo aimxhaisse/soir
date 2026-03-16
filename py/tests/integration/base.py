@@ -1,18 +1,36 @@
-"""Base test class for Soir integration tests."""
+"""Base test classes for Soir integration tests."""
 
+import json
+import os
 import shutil
 import tempfile
 import unittest
 from pathlib import Path
 from typing import Any, ClassVar
 
-from soir._bindings import logging
-
 from .soir_test_base import SoirTestEngine
 
+_PROJECT_ROOT = Path(__file__).parent.parent.parent.parent
 
-class SoirIntegrationTestCase(unittest.TestCase):
-    """Base class for all Soir integration tests."""
+_STANDALONE_TEST_CONFIG = {
+    "dsp": {
+        "enable_output": False,
+        "enable_streaming": False,
+        "streaming_bitrate": 128000,
+        "streaming_port": 5001,
+        "block_size": 4096,
+        "sample_directory": str(_PROJECT_ROOT / "lib" / "samples"),
+        "sample_packs": [],
+    },
+    "live": {
+        "directory": ".",
+        "initial_bpm": 120,
+    },
+}
+
+
+class SoirSessionTestCase(unittest.TestCase):
+    """Base class for engine-level integration tests using push_code."""
 
     config_overrides: ClassVar[dict[str, Any] | None] = None
     debug_notifications: ClassVar[bool] = False
@@ -54,6 +72,32 @@ log("reset done")
                     print(f.read())
             print("=" * 80)
 
-        logging.shutdown()
+        shutil.rmtree(self.temp_dir, ignore_errors=True)
 
+
+class SoirStandaloneTestCase(unittest.TestCase):
+    """Base class for CLI tests that use EngineManager.initialize_standalone().
+
+    Sets up a temporary SOIR_DIR skeleton with etc/config.json and var/log/,
+    isolated from the real installation. SOIR_DIR is restored after each test.
+    """
+
+    def setUp(self) -> None:
+        """Set up isolated SOIR_DIR skeleton before each test."""
+        self.temp_dir = tempfile.mkdtemp()
+        soir_dir = Path(self.temp_dir)
+        (soir_dir / "etc").mkdir()
+        (soir_dir / "var" / "log").mkdir(parents=True)
+        (soir_dir / "etc" / "config.json").write_text(
+            json.dumps(_STANDALONE_TEST_CONFIG)
+        )
+        self._saved_soir_dir: str | None = os.environ.get("SOIR_DIR")
+        os.environ["SOIR_DIR"] = str(soir_dir)
+
+    def tearDown(self) -> None:
+        """Restore SOIR_DIR and clean up temp directory after each test."""
+        if self._saved_soir_dir is not None:
+            os.environ["SOIR_DIR"] = self._saved_soir_dir
+        else:
+            os.environ.pop("SOIR_DIR", None)
         shutil.rmtree(self.temp_dir, ignore_errors=True)

@@ -9,7 +9,6 @@
 #include "pluginterfaces/vst/ivstaudioprocessor.h"
 #include "pluginterfaces/vst/ivstmessage.h"
 #include "public.sdk/source/vst/utility/stringconvert.h"
-
 namespace soir {
 namespace vst {
 

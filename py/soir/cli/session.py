@@ -41,8 +41,8 @@ def _run_tui(path: Path, verbose: bool) -> None:
 
 def _run_blocking(path: Path, verbose: bool) -> None:
     """Run session with blocking CLI interface (legacy mode)."""
-    engine_manager = EngineManager(path, verbose)
-    success, message = engine_manager.initialize()
+    engine_manager = EngineManager(verbose)
+    success, message = engine_manager.initialize_session(path)
 
     if not success:
         typer.echo(f"Error: {message}", err=True)

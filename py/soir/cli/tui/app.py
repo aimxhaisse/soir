@@ -53,7 +53,7 @@ class SoirTuiApp(App[None]):
         super().__init__()
         self.session_path = session_path.resolve()
         self.verbose = verbose
-        self.engine_manager = EngineManager(self.session_path, verbose)
+        self.engine_manager = EngineManager(verbose)
         self.log_tailer: LogTailer | None = None
         self.command_interpreter: CommandInterpreter | None = None
         self.cast_server: CastServer | None = None
@@ -121,7 +121,7 @@ class SoirTuiApp(App[None]):
     def _start_engine(self) -> None:
         """Worker to start the Soir engine (runs in thread)."""
         try:
-            success, message = self.engine_manager.initialize()
+            success, message = self.engine_manager.initialize_session(self.session_path)
 
             if success:
                 cfg = self.engine_manager.config

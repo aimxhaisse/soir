@@ -1,9 +1,9 @@
 """Integration tests for tracks setup and management (tracks module)."""
 
-from .base import SoirIntegrationTestCase
+from .base import SoirSessionTestCase
 
 
-class TestTracksSetup(SoirIntegrationTestCase):
+class TestTracksSetup(SoirSessionTestCase):
     """Test tracks.setup() for creating and managing tracks."""
 
     def test_setup_tracks_empty(self) -> None:

@@ -1,9 +1,9 @@
 """Integration tests for BPM API."""
 
-from .base import SoirIntegrationTestCase
+from .base import SoirSessionTestCase
 
 
-class TestBPM(SoirIntegrationTestCase):
+class TestBPM(SoirSessionTestCase):
     """Test BPM get and set functionality."""
 
     def test_get_bpm_ok(self) -> None:

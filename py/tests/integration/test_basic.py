@@ -1,9 +1,9 @@
 """Basic integration tests for log() function and notifications."""
 
-from .base import SoirIntegrationTestCase
+from .base import SoirSessionTestCase
 
 
-class TestBasicLog(SoirIntegrationTestCase):
+class TestBasicLog(SoirSessionTestCase):
     """Test basic log() functionality."""
 
     def test_basic_log_ok(self) -> None:

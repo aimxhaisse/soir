@@ -6,10 +6,10 @@ from typing import Any, ClassVar
 
 import soundfile as sf  # type: ignore[import-untyped]
 
-from .base import SoirIntegrationTestCase
+from .base import SoirSessionTestCase
 
 
-class TestAudioRecording(SoirIntegrationTestCase):
+class TestAudioRecording(SoirSessionTestCase):
     """Test sys.record() audio recording functionality."""
 
     config_overrides: ClassVar[dict[str, Any]] = {"initial_bpm": 600}

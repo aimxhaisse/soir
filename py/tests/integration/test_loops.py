@@ -2,10 +2,10 @@
 
 from typing import Any, ClassVar
 
-from .base import SoirIntegrationTestCase
+from .base import SoirSessionTestCase
 
 
-class TestLoops(SoirIntegrationTestCase):
+class TestLoops(SoirSessionTestCase):
     """Test @loop() decorator and loop execution."""
 
     config_overrides: ClassVar[dict[str, Any]] = {"initial_bpm": 600}
