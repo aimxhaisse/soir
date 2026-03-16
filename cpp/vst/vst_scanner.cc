@@ -6,7 +6,6 @@
 
 #include "pluginterfaces/vst/ivstaudioprocessor.h"
 #include "public.sdk/source/vst/hosting/module.h"
-
 namespace soir {
 namespace vst {
 
@@ -78,7 +77,8 @@ absl::Status VstScanner::ProbePlugin(
     const std::string& bundle_path,
     std::map<std::string, PluginInfo>* plugins) {
   std::string error;
-  auto module = VST3::Hosting::Module::create(bundle_path, error);
+  std::shared_ptr<VST3::Hosting::Module> module =
+      VST3::Hosting::Module::create(bundle_path, error);
   if (!module) {
     return absl::InternalError("Failed to load module: " + error);
   }

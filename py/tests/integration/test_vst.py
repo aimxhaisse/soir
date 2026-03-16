@@ -13,10 +13,10 @@ requirements are not met.
 
 import unittest
 
-from .base import SoirIntegrationTestCase
+from .base import SoirSessionTestCase
 
 
-class TestVstPluginDiscovery(SoirIntegrationTestCase):
+class TestVstPluginDiscovery(SoirSessionTestCase):
     """Test VST3 plugin discovery and listing."""
 
     def test_vst_plugins_returns_list(self) -> None:
@@ -60,7 +60,7 @@ log(f"consistent={same_count}")
         self.assertTrue(self.engine.wait_for_notification("consistent=True"))
 
 
-class TestVstEffectSetup(SoirIntegrationTestCase):
+class TestVstEffectSetup(SoirSessionTestCase):
     """Test adding VST effects to tracks.
 
     These tests require VST plugins to be installed and the VST host to be
@@ -192,7 +192,7 @@ except Exception as e:
 """)
 
 
-class TestVstEffectChain(SoirIntegrationTestCase):
+class TestVstEffectChain(SoirSessionTestCase):
     """Test VST effects in effect chains."""
 
     def _run_vst_test(self, code: str) -> None:
@@ -337,7 +337,7 @@ except Exception as e:
 """)
 
 
-class TestVstEffectReordering(SoirIntegrationTestCase):
+class TestVstEffectReordering(SoirSessionTestCase):
     """Test reordering effects including VST plugins."""
 
     def test_reorder_vst_in_chain(self) -> None:
@@ -394,7 +394,7 @@ except Exception as e:
                 self.fail(f"Exception in test: {n}")
 
 
-class TestVstInvalidPlugin(SoirIntegrationTestCase):
+class TestVstInvalidPlugin(SoirSessionTestCase):
     """Test error handling for invalid VST plugin names."""
 
     def test_invalid_plugin_name(self) -> None:
@@ -421,7 +421,7 @@ except Exception as e:
             return  # Test passes - error was handled gracefully
 
 
-class TestVstMultipleTracks(SoirIntegrationTestCase):
+class TestVstMultipleTracks(SoirSessionTestCase):
     """Test VST effects across multiple tracks."""
 
     def _run_vst_test(self, code: str) -> None:
@@ -501,7 +501,7 @@ except Exception as e:
 """)
 
 
-class TestVstInstrumentDiscovery(SoirIntegrationTestCase):
+class TestVstInstrumentDiscovery(SoirSessionTestCase):
     """Test VST3 instrument plugin discovery."""
 
     def test_vst_instruments_returns_list(self) -> None:
@@ -579,7 +579,7 @@ log(f"total_match={total_match}")
         self.assertTrue(self.engine.wait_for_notification("total_match=True"))
 
 
-class TestVstInstrumentSetup(SoirIntegrationTestCase):
+class TestVstInstrumentSetup(SoirSessionTestCase):
     """Test creating VST instrument tracks."""
 
     def _run_vst_test(self, code: str) -> None:
@@ -789,7 +789,7 @@ except Exception as e:
 """)
 
 
-class TestVstInstrumentMultipleTracks(SoirIntegrationTestCase):
+class TestVstInstrumentMultipleTracks(SoirSessionTestCase):
     """Test multiple VST instrument tracks."""
 
     def _run_vst_test(self, code: str) -> None:
@@ -897,7 +897,7 @@ except Exception as e:
 """)
 
 
-class TestVstInstrumentInvalidPlugin(SoirIntegrationTestCase):
+class TestVstInstrumentInvalidPlugin(SoirSessionTestCase):
     """Test error handling for invalid VST instrument plugin names."""
 
     def test_invalid_vst_instrument_name(self) -> None:

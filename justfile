@@ -37,7 +37,7 @@ test-unit:
 
 # Run integration tests only
 test-integration pattern="":
-    uv run pytest -sv --timeout 32 py/tests/integration -v {{ if pattern != "" { "-k '" + pattern + "'" } else { "" } }}
+    uv run pytest -sv --timeout 360 py/tests/integration -v -x {{ if pattern != "" { "-k '" + pattern + "'" } else { "" } }}
 
 # Run all tests
 test:

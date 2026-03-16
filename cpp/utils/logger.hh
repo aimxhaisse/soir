@@ -27,10 +27,15 @@ class Logger {
   static Logger& Instance();
 
   absl::Status Init(const std::string& log_dir, size_t max_files = 25,
-                    bool verbose = false);
+                    bool verbose = false, bool redirect_stdio = false);
   absl::Status Shutdown();
 
   bool IsInitialized() const { return initialized_; }
+  const std::string& GetLogDir() const { return log_dir_; }
+  const std::string& GetSessionUid() const { return session_uid_; }
+
+  // Returns a timestamp string in the format "YYYYMMDD-HHMMSS".
+  static std::string MakeTimestamp();
 
  private:
   Logger() = default;
@@ -39,7 +44,14 @@ class Logger {
   Logger(const Logger&) = delete;
   Logger& operator=(const Logger&) = delete;
 
+  static std::string GenerateUid();
+  static void RotateEngineLogFiles(const std::string& log_dir,
+                                   size_t max_files);
+
   bool initialized_ = false;
+  std::string log_dir_;
+  std::string session_uid_;
+  size_t max_files_ = 25;
   std::unique_ptr<FileSink> file_sink_;
 };
 

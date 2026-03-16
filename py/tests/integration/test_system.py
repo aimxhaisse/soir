@@ -1,9 +1,9 @@
 """Integration tests for system module device enumeration."""
 
-from .base import SoirIntegrationTestCase
+from .base import SoirSessionTestCase
 
 
-class TestSystemDevices(SoirIntegrationTestCase):
+class TestSystemDevices(SoirSessionTestCase):
     """Test system module device enumeration functions."""
 
     def test_audio_out_devices(self) -> None:

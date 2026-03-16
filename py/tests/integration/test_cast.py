@@ -9,7 +9,7 @@ from typing import Any, ClassVar
 from soir.cast import CastServer
 from soir.config import Config
 
-from .base import SoirIntegrationTestCase
+from .base import SoirSessionTestCase
 
 _CAST_PORT = 15002
 
@@ -26,7 +26,7 @@ def _wait_for_port(host: str, port: int, timeout: float = 10.0) -> bool:
     return False
 
 
-class TestCastServer(SoirIntegrationTestCase):
+class TestCastServer(SoirSessionTestCase):
     """Tests for the CastServer HTTP server."""
 
     config_overrides: ClassVar[dict[str, Any]] = {"initial_bpm": 120}

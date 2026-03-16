@@ -1,9 +1,9 @@
 """Integration tests for @live decorator functionality."""
 
-from .base import SoirIntegrationTestCase
+from .base import SoirSessionTestCase
 
 
-class TestLiveCoding(SoirIntegrationTestCase):
+class TestLiveCoding(SoirSessionTestCase):
     """Test @live() decorator and live code reloading."""
 
     def test_basic_live(self) -> None:

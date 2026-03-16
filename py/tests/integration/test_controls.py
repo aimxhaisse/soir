@@ -3,10 +3,10 @@
 import time
 from typing import Any, ClassVar
 
-from .base import SoirIntegrationTestCase
+from .base import SoirSessionTestCase
 
 
-class TestControls(SoirIntegrationTestCase):
+class TestControls(SoirSessionTestCase):
     """Test ctrls module for creating and managing controls."""
 
     config_overrides: ClassVar[dict[str, Any]] = {"initial_bpm": 600}

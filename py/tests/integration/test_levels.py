@@ -1,9 +1,9 @@
 """Integration tests for levels API."""
 
-from .base import SoirIntegrationTestCase
+from .base import SoirSessionTestCase
 
 
-class TestLevels(SoirIntegrationTestCase):
+class TestLevels(SoirSessionTestCase):
     """Test level metering functionality."""
 
     def test_get_master_levels(self) -> None:

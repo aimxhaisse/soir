@@ -15,15 +15,17 @@ void Bind::PyLogger(py::module_& m) {
 
   logging.def(
       "init",
-      [](const std::string& log_dir, size_t max_files, bool verbose) {
-        auto status =
-            utils::Logger::Instance().Init(log_dir, max_files, verbose);
+      [](const std::string& log_dir, size_t max_files, bool verbose,
+         bool redirect_stdio) {
+        auto status = utils::Logger::Instance().Init(log_dir, max_files,
+                                                     verbose, redirect_stdio);
         if (!status.ok()) {
           throw std::runtime_error("Failed to initialize logger: " +
                                    std::string(status.message()));
         }
       },
       py::arg("log_dir"), py::arg("max_files") = 25, py::arg("verbose") = false,
+      py::arg("redirect_stdio") = false,
       "Initialize logger with directory, optional max files, and verbose flag");
 
   logging.def(

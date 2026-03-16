@@ -114,11 +114,16 @@ class SamplesTestBase(unittest.TestCase):
         registry = self.samples_dir / "registry.json"
         registry.write_text('{"packs": []}')
 
+        self._saved_soir_dir: str | None = os.environ.get("SOIR_DIR")
         os.environ["SOIR_DIR"] = str(self.soir_dir)
 
     def tearDown(self) -> None:
         """Clean up test environment."""
         shutil.rmtree(self.tmpdir, ignore_errors=True)
+        if self._saved_soir_dir is not None:
+            os.environ["SOIR_DIR"] = self._saved_soir_dir
+        else:
+            os.environ.pop("SOIR_DIR", None)
 
     def create_sample_audio_dir(self) -> str:
         """Create a directory with test audio files.
