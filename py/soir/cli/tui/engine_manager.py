@@ -37,7 +37,7 @@ def redirect_python_io_to_tty() -> None:
     try:
         if sys.stdout.fileno() != _STDOUT_FD:
             return
-    except (AttributeError, OSError):
+    except AttributeError, OSError:
         pass
     _tty_path = "CONOUT$" if sys.platform == "win32" else "/dev/tty"
     try:

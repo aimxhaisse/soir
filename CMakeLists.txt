@@ -270,6 +270,7 @@ if(APPLE)
 elseif(UNIX)
     target_link_libraries(soir_vst
         dl
+        X11
     )
 endif()
 

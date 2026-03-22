@@ -5,17 +5,9 @@
 #include <nlohmann/json.hpp>
 
 #include "core/common.hh"
+#include "vst/vst_editor.hh"
 
 namespace soir {
-namespace vst {
-
-extern void* CreateEditorWindow(int width, int height, const char* title);
-extern void ResizeEditorWindow(void* view, int width, int height);
-extern void ShowEditorWindow(void* view);
-extern void CloseEditorWindow(void* view);
-
-}  // namespace vst
-
 namespace fx {
 
 FxVst::FxVst(Controls* controls, vst::VstHost* vst_host)
@@ -140,29 +132,33 @@ absl::Status FxVst::OpenEditor() {
     return absl::FailedPreconditionError("Plugin not loaded");
   }
 
-  if (editor_window_) {
+  // Close any existing plugin attachment before (re)opening, so that
+  // repeated open calls and user-closed windows are handled uniformly.
+  if (plugin_->IsEditorOpen()) {
     plugin_->CloseEditor();
-    editor_window_.reset();
   }
 
-  auto* view = vst::CreateEditorWindow(800, 600, plugin_name_.c_str());
-  if (!view) {
-    return absl::InternalError("Failed to create editor window");
+  LOG(INFO) << "Opening VST FX editor: " << plugin_name_;
+
+  // Reuse the existing window if available to avoid destroying Wine child
+  // windows embedded by plugins such as yabridge.
+  if (!editor_window_) {
+    editor_window_ = vst::EditorWindow::Create(800, 600, plugin_name_.c_str());
+    if (!editor_window_) {
+      return absl::InternalError("Failed to create editor window");
+    }
   }
 
-  auto status = plugin_->OpenEditor(view);
+  auto status = plugin_->OpenEditor(editor_window_->NativeHandle());
   if (!status.ok()) {
-    vst::CloseEditorWindow(view);
     return status;
   }
 
   auto [w, h] = plugin_->GetEditorSize();
-  vst::ResizeEditorWindow(view, w, h);
+  editor_window_->Resize(w, h);
+  editor_window_->Show();
 
-  editor_window_ = std::unique_ptr<void, std::function<void(void*)>>(
-      view, [](void* v) { vst::CloseEditorWindow(v); });
-
-  vst::ShowEditorWindow(view);
+  LOG(INFO) << "VST FX editor opened: " << plugin_name_;
   return absl::OkStatus();
 }
 
@@ -173,8 +169,11 @@ absl::Status FxVst::CloseEditor() {
     return absl::OkStatus();
   }
 
+  LOG(INFO) << "Closing VST FX editor: " << plugin_name_;
   auto status = plugin_->CloseEditor();
-  editor_window_.reset();
+  if (editor_window_) {
+    editor_window_->Hide();
+  }
   return status;
 }
 
