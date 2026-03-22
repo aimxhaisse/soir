@@ -11,6 +11,7 @@ and a properly initialized VST host. Tests will be skipped if these
 requirements are not met.
 """
 
+import os
 import unittest
 
 from .base import SoirSessionTestCase
@@ -919,6 +920,108 @@ except Exception as e:
             return
         if self.engine.wait_for_notification("vst_error=", timeout=1.0):
             return
+
+
+class TestVstEditorOpenClose(SoirSessionTestCase):
+    """Test VST editor open/close/reopen lifecycle.
+
+    These tests require an X11 display and at least one VST plugin to be
+    installed. They verify that the editor can be opened, closed, and
+    reopened without errors.
+    """
+
+    def _skip_if_no_display(self) -> None:
+        """Skip the test if no X11 display is available."""
+        if not os.environ.get("DISPLAY"):
+            self.skipTest("No X11 display available (DISPLAY not set)")
+
+    def test_fx_editor_open_close_reopen(self) -> None:
+        """Test that a VST FX editor can be opened, closed, and reopened."""
+        self._skip_if_no_display()
+
+        self.engine.push_code("""
+from soir._bindings import rt as _rt
+
+try:
+    effects = vst.effects()
+    if not effects:
+        log("editor_test=skipped:no_fx_plugins")
+    else:
+        plugin_name = effects[0]['name']
+        tracks.setup({
+            'synth': tracks.mk('sampler', fxs={
+                'vst_fx': fx.mk_vst(plugin_name),
+            }),
+        })
+        layout = tracks.layout()
+        if not layout or 'synth' not in layout:
+            log("editor_test=skipped:vst_broken")
+        else:
+            _rt.vst_open_fx_editor_('synth', 'vst_fx')
+            _rt.vst_close_fx_editor_('synth', 'vst_fx')
+            _rt.vst_open_fx_editor_('synth', 'vst_fx')
+            log("editor_test=done")
+except Exception as e:
+    log(f"editor_test=error:{e}")
+""")
+
+        result = self.engine.wait_for_notification("editor_test=", timeout=15.0)
+        self.assertTrue(result)
+        notifications = self.engine.get_notifications()
+        if any("editor_test=skipped" in n for n in notifications):
+            self.skipTest("VST FX prerequisites not available")
+        if any("editor_test=error" in n for n in notifications):
+            self.fail(next(n for n in notifications if "editor_test=error" in n))
+
+        # Verify the open/close/reopen sequence was logged. All three events
+        # were emitted before editor_test=done so they are in get_notifications().
+        opened = [n for n in notifications if "VST FX editor opened:" in n]
+        closed = [n for n in notifications if "Closing VST FX editor:" in n]
+        self.assertEqual(len(opened), 2, "Expected 2 open events (open + reopen)")
+        self.assertEqual(len(closed), 1, "Expected 1 close event")
+
+    def test_inst_editor_open_close_reopen(self) -> None:
+        """Test that a VST instrument editor can be opened, closed, and reopened."""
+        self._skip_if_no_display()
+
+        self.engine.push_code("""
+from soir._bindings import rt as _rt
+
+try:
+    insts = vst.instruments()
+    if not insts:
+        log("inst_editor_test=skipped:no_instruments")
+    else:
+        plugin_name = insts[0]['name']
+        tracks.setup({
+            'synth': tracks.mk_vst(plugin_name),
+        })
+        layout = tracks.layout()
+        if not layout or 'synth' not in layout:
+            log("inst_editor_test=skipped:vst_broken")
+        else:
+            _rt.vst_open_inst_editor_('synth')
+            _rt.vst_close_inst_editor_('synth')
+            _rt.vst_open_inst_editor_('synth')
+            log("inst_editor_test=done")
+except Exception as e:
+    log(f"inst_editor_test=error:{e}")
+""")
+
+        result = self.engine.wait_for_notification("inst_editor_test=", timeout=15.0)
+        self.assertTrue(result)
+        notifications = self.engine.get_notifications()
+        if any("inst_editor_test=skipped" in n for n in notifications):
+            self.skipTest("VST instrument prerequisites not available")
+        if any("inst_editor_test=error" in n for n in notifications):
+            self.fail(next(n for n in notifications if "inst_editor_test=error" in n))
+
+        # Verify the open/close/reopen sequence was logged. All three events
+        # were emitted before inst_editor_test=done so they are in get_notifications().
+        opened = [n for n in notifications if "VST instrument editor opened:" in n]
+        closed = [n for n in notifications if "Closing VST instrument editor:" in n]
+        self.assertEqual(len(opened), 2, "Expected 2 open events (open + reopen)")
+        self.assertEqual(len(closed), 1, "Expected 1 close event")
 
 
 if __name__ == "__main__":

@@ -9,14 +9,6 @@
 #include "vst/vst_host.hh"
 
 namespace soir {
-namespace vst {
-
-extern void* CreateEditorWindow(int width, int height, const char* title);
-extern void ResizeEditorWindow(void* view, int width, int height);
-extern void ShowEditorWindow(void* view);
-extern void CloseEditorWindow(void* view);
-
-}  // namespace vst
 
 Track::Track() : track_buffer_(kBlockSize) {}
 
@@ -170,25 +162,34 @@ absl::Status Track::OpenVstInstEditor() {
     return absl::FailedPreconditionError("VST plugin not loaded");
   }
 
+  // Close any existing plugin attachment before (re)opening, so that
+  // repeated open calls and user-closed windows are handled uniformly.
   if (plugin->IsEditorOpen()) {
-    return absl::OkStatus();
+    plugin->CloseEditor().IgnoreError();
   }
 
-  auto* view = vst::CreateEditorWindow(800, 600, vst_inst->GetName().c_str());
-  if (!view) {
-    return absl::InternalError("Failed to create editor window");
+  LOG(INFO) << "Opening VST instrument editor: " << vst_inst->GetName();
+
+  // Reuse the existing window if available to avoid destroying Wine child
+  // windows embedded by plugins such as yabridge.
+  if (!inst_editor_window_) {
+    inst_editor_window_ =
+        vst::EditorWindow::Create(800, 600, vst_inst->GetName().c_str());
+    if (!inst_editor_window_) {
+      return absl::InternalError("Failed to create editor window");
+    }
   }
 
-  auto status = plugin->OpenEditor(view);
+  auto status = plugin->OpenEditor(inst_editor_window_->NativeHandle());
   if (!status.ok()) {
-    vst::CloseEditorWindow(view);
     return status;
   }
 
   auto [w, h] = plugin->GetEditorSize();
-  vst::ResizeEditorWindow(view, w, h);
-  vst::ShowEditorWindow(view);
+  inst_editor_window_->Resize(w, h);
+  inst_editor_window_->Show();
 
+  LOG(INFO) << "VST instrument editor opened: " << vst_inst->GetName();
   return absl::OkStatus();
 }
 
@@ -205,7 +206,12 @@ absl::Status Track::CloseVstInstEditor() {
     return absl::OkStatus();
   }
 
-  return plugin->CloseEditor();
+  LOG(INFO) << "Closing VST instrument editor: " << vst_inst->GetName();
+  auto status = plugin->CloseEditor();
+  if (inst_editor_window_) {
+    inst_editor_window_->Hide();
+  }
+  return status;
 }
 
 void Track::RenderAsync(SampleTick tick, const std::list<MidiEventAt>& events) {

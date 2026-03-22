@@ -23,6 +23,7 @@
 #include "inst/instrument.hh"
 #include "inst/sampler.hh"
 #include "utils/config.hh"
+#include "vst/vst_editor.hh"
 
 namespace soir {
 namespace vst {
@@ -99,6 +100,13 @@ struct Track {
   std::list<MidiEventAt> current_events_;
   AudioBuffer track_buffer_;
   LevelMeter level_meter_;
+  // inst_editor_window_ is declared last so it is the first member destroyed
+  // by ~Track(). ~Track() calls Stop() before any member destructor runs;
+  // Stop() calls inst_->Stop() which terminates the Wine host and unloads the
+  // plugin .so. By the time inst_editor_window_'s destructor runs
+  // (XDestroyWindow + XCloseDisplay), Wine is already gone so no DestroyNotify
+  // handler runs and the display is private to this window.
+  std::unique_ptr<vst::EditorWindow> inst_editor_window_;
 };
 
 }  // namespace soir

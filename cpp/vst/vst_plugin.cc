@@ -2,6 +2,10 @@
 
 #include <absl/log/log.h>
 
+#ifdef __linux__
+#include <dlfcn.h>
+#endif
+
 #include <libremidi/message.hpp>
 
 #include "core/midi_event.hh"
@@ -114,6 +118,27 @@ absl::Status VstPlugin::Init(const std::string& path, FUnknown* host_context,
   if (!component_) {
     return absl::NotFoundError("No audio effect component found in plugin");
   }
+
+#ifdef __linux__
+  // Mark the plugin .so as non-deletable so that dlclose() only decrements
+  // the reference count without unmapping the code. Bridge libraries such as
+  // yabridge spawn background threads that may still be running when
+  // Shutdown() calls dlclose(); RTLD_NODELETE keeps the code mapped for the
+  // lifetime of the process, preventing use-after-free crashes in those
+  // threads.
+  //
+  // On Linux the VST3 SDK dlopen()s the .so inside the .vst3 bundle, not the
+  // bundle path itself, so RTLD_NOLOAD with the bundle path returns null.
+  // Instead we obtain the real .so path by calling dladdr() on the component's
+  // vtable pointer, which always lives in the plugin .so's read-only data.
+  {
+    void* vtable = *reinterpret_cast<void**>(component_.get());
+    ::Dl_info dl_info{};
+    if (::dladdr(vtable, &dl_info) && dl_info.dli_fname) {
+      ::dlopen(dl_info.dli_fname, RTLD_NOLOAD | RTLD_NODELETE | RTLD_LAZY);
+    }
+  }
+#endif
 
   auto result = component_->initialize(host_context);
   if (result != kResultOk) {
@@ -406,7 +431,11 @@ absl::Status VstPlugin::OpenEditor(void* parent_window) {
     editor_size_ = {rect.right - rect.left, rect.bottom - rect.top};
   }
 
+#if defined(__APPLE__)
   auto result = view_->attached(parent_window, kPlatformTypeNSView);
+#else
+  auto result = view_->attached(parent_window, kPlatformTypeX11EmbedWindowID);
+#endif
   if (result != kResultOk) {
     view_ = nullptr;
     return absl::InternalError("Failed to attach editor view");

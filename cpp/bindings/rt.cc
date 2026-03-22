@@ -12,13 +12,8 @@
 #include "core/track.hh"
 #include "inst/external.hh"
 #include "rt/runtime.hh"
+#include "vst/vst_editor.hh"
 #include "vst/vst_host.hh"
-
-namespace soir {
-namespace vst {
-extern void PumpEvents();
-}  // namespace vst
-}  // namespace soir
 
 namespace py = pybind11;
 using namespace pybind11::literals;
@@ -368,7 +363,7 @@ void Bind::PyRt(py::module_& m) {
         "rms_left"_a = levels.rms_left, "rms_right"_a = levels.rms_right);
   });
 
-  rt.def("pump_ui_events_", []() { soir::vst::PumpEvents(); });
+  rt.def("pump_ui_events_", []() { soir::vst::EditorWindow::PumpEvents(); });
 
   rt.def("vst_open_fx_editor_",
          [](const std::string& track, const std::string& fx) {

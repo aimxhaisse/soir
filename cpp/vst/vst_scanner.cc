@@ -6,6 +6,7 @@
 
 #include "pluginterfaces/vst/ivstaudioprocessor.h"
 #include "public.sdk/source/vst/hosting/module.h"
+#include "vst/vst_editor.hh"
 namespace soir {
 namespace vst {
 

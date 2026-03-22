@@ -1,10 +1,7 @@
 #import <Cocoa/Cocoa.h>
 
-#include <absl/log/log.h>
+#include "vst/vst_editor_macos.hh"
 
-#include "vst/vst_plugin.hh"
-
-// Objective-C class must be at global scope.
 @interface VstEditorWindow : NSWindow
 @end
 
@@ -23,45 +20,23 @@
 namespace soir {
 namespace vst {
 
-namespace {
+MacOsEditorWindow::MacOsEditorWindow(void* retained_view)
+    : view_(retained_view) {}
 
-bool app_initialized_ = false;
-
-void EnsureAppInitialized() {
-  if (app_initialized_) {
-    return;
-  }
-  app_initialized_ = true;
-  [NSApplication sharedApplication];
-  [NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
-}
-
-}  // namespace
-
-void* CreateEditorWindow(int width, int height, const char* title) {
-  EnsureAppInitialized();
+MacOsEditorWindow::~MacOsEditorWindow() {
   @autoreleasepool {
-    NSRect frame = NSMakeRect(0, 0, width, height);
-
-    VstEditorWindow* window = [[VstEditorWindow alloc]
-        initWithContentRect:frame
-                  styleMask:NSWindowStyleMaskTitled |
-                            NSWindowStyleMaskClosable |
-                            NSWindowStyleMaskMiniaturizable
-                    backing:NSBackingStoreBuffered
-                      defer:NO];
-
-    [window setTitle:[NSString stringWithUTF8String:title]];
-    [window center];
-    [window setReleasedWhenClosed:NO];
-
-    return (__bridge_retained void*)[window contentView];
+    NSView* nsview = (__bridge_transfer NSView*)view_;
+    [[nsview window] close];
   }
 }
 
-void ResizeEditorWindow(void* view, int width, int height) {
+void* MacOsEditorWindow::NativeHandle() {
+  return view_;
+}
+
+void MacOsEditorWindow::Resize(int width, int height) {
   @autoreleasepool {
-    NSView* nsview = (__bridge NSView*)view;
+    NSView* nsview = (__bridge NSView*)view_;
     NSWindow* window = [nsview window];
     NSRect frame = [window frame];
     NSRect content = NSMakeRect(0, 0, width, height);
@@ -72,24 +47,55 @@ void ResizeEditorWindow(void* view, int width, int height) {
   }
 }
 
-void ShowEditorWindow(void* view) {
+void MacOsEditorWindow::Show() {
   @autoreleasepool {
-    NSView* nsview = (__bridge NSView*)view;
+    NSView* nsview = (__bridge NSView*)view_;
     NSWindow* window = [nsview window];
     [NSApp activateIgnoringOtherApps:YES];
     [window makeKeyAndOrderFront:nil];
   }
 }
 
-void CloseEditorWindow(void* view) {
+void MacOsEditorWindow::GetSize(int* width, int* height) {
   @autoreleasepool {
-    NSView* nsview = (__bridge_transfer NSView*)view;
-    NSWindow* window = [nsview window];
-    [window close];
+    NSView* nsview = (__bridge NSView*)view_;
+    NSRect frame = [nsview frame];
+    *width = static_cast<int>(frame.size.width);
+    *height = static_cast<int>(frame.size.height);
   }
 }
 
-void PumpEvents() {
+void MacOsEditorWindow::Hide() {
+  @autoreleasepool {
+    NSView* nsview = (__bridge NSView*)view_;
+    [[nsview window] orderOut:nil];
+  }
+}
+
+std::unique_ptr<EditorWindow> EditorWindow::Create(int width, int height,
+                                                   const char* title) {
+  @autoreleasepool {
+    [NSApplication sharedApplication];
+    [NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
+
+    NSRect frame = NSMakeRect(0, 0, width, height);
+    VstEditorWindow* window = [[VstEditorWindow alloc]
+        initWithContentRect:frame
+                  styleMask:NSWindowStyleMaskTitled | NSWindowStyleMaskClosable |
+                            NSWindowStyleMaskMiniaturizable
+                    backing:NSBackingStoreBuffered
+                      defer:NO];
+
+    [window setTitle:[NSString stringWithUTF8String:title]];
+    [window center];
+    [window setReleasedWhenClosed:NO];
+
+    void* retained_view = (__bridge_retained void*)[window contentView];
+    return std::make_unique<MacOsEditorWindow>(retained_view);
+  }
+}
+
+void EditorWindow::PumpEvents() {
   @autoreleasepool {
     NSEvent* event;
     while ((event = [NSApp nextEventMatchingMask:NSEventMaskAny
@@ -98,15 +104,6 @@ void PumpEvents() {
                                          dequeue:YES])) {
       [NSApp sendEvent:event];
     }
-  }
-}
-
-void GetEditorWindowSize(void* view, int* width, int* height) {
-  @autoreleasepool {
-    NSView* nsview = (__bridge NSView*)view;
-    NSRect frame = [nsview frame];
-    *width = static_cast<int>(frame.size.width);
-    *height = static_cast<int>(frame.size.height);
   }
 }
 
