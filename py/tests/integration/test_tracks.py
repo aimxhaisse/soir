@@ -6,6 +6,8 @@ from .base import SoirSessionTestCase
 class TestTracksSetup(SoirSessionTestCase):
     """Test tracks.setup() for creating and managing tracks."""
 
+    debug_notifications = True
+
     def test_setup_tracks_empty(self) -> None:
         """Test that empty track setup returns empty dict."""
         self.engine.push_code("""

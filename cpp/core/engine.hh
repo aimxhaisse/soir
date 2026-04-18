@@ -4,8 +4,8 @@
 
 #include <condition_variable>
 #include <list>
+#include <map>
 #include <mutex>
-#include <optional>
 #include <thread>
 
 #include "audio/audio_output.hh"
@@ -49,7 +49,7 @@ class Engine {
   SampleManager& GetSampleManager();
 
   Levels GetMasterLevels() const;
-  std::optional<Levels> GetTrackLevels(const std::string& name);
+  std::map<std::string, Levels> GetAllTrackLevels();
 
   absl::Status OpenVstFxEditor(const std::string& track_name,
                                const std::string& fx_name);

@@ -380,13 +380,13 @@ SampleManager& Engine::GetSampleManager() { return *sample_manager_; }
 
 Levels Engine::GetMasterLevels() const { return master_meter_.GetLevels(); }
 
-std::optional<Levels> Engine::GetTrackLevels(const std::string& name) {
+std::map<std::string, Levels> Engine::GetAllTrackLevels() {
   std::scoped_lock<std::mutex> lock(tracks_mutex_);
-  auto it = tracks_.find(name);
-  if (it != tracks_.end()) {
-    return it->second->GetLevels();
+  std::map<std::string, Levels> result;
+  for (const auto& it : tracks_) {
+    result[it.first] = it.second->GetLevels();
   }
-  return std::nullopt;
+  return result;
 }
 
 absl::Status Engine::OpenVstFxEditor(const std::string& track_name,
