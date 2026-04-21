@@ -345,11 +345,10 @@ void Bind::PyRt(py::module_& m) {
     if (it == all.end()) {
       return py::none();
     }
-    return py::dict(
-        "peak_left"_a = it->second.peak_left,
-        "peak_right"_a = it->second.peak_right,
-        "rms_left"_a = it->second.rms_left,
-        "rms_right"_a = it->second.rms_right);
+    return py::dict("peak_left"_a = it->second.peak_left,
+                    "peak_right"_a = it->second.peak_right,
+                    "rms_left"_a = it->second.rms_left,
+                    "rms_right"_a = it->second.rms_right);
   });
 
   rt.def("get_master_levels_", []() {

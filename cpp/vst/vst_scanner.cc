@@ -98,8 +98,7 @@ absl::Status VstScanner::ProbePlugin(
   // background threads (e.g. JUCE message thread) may still be running.
   for (auto& ci : factory.classInfos()) {
     if (ci.category() == kVstAudioEffectClass) {
-      auto comp =
-          factory.createInstance<Steinberg::Vst::IComponent>(ci.ID());
+      auto comp = factory.createInstance<Steinberg::Vst::IComponent>(ci.ID());
       if (comp) {
         void* vtable = *reinterpret_cast<void**>(comp.get());
         ::Dl_info dl_info{};

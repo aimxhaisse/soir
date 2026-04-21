@@ -3,6 +3,7 @@
 
 #include <fstream>
 #include <memory>
+#include <mutex>
 #include <string>
 
 #include "absl/log/log_sink.h"
@@ -19,6 +20,7 @@ class FileSink : public absl::LogSink {
   void Send(const absl::LogEntry& entry) override;
 
  private:
+  std::mutex mutex_;
   std::ofstream log_file_;
 };
 
