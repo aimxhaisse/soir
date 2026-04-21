@@ -67,11 +67,28 @@ VstPlugin::~VstPlugin() { Shutdown().IgnoreError(); }
 absl::Status VstPlugin::Shutdown() {
   std::lock_guard<std::mutex> lock(mutex_);
 
+  // Per VST3 spec, call removed() before releasing the view.
+  if (view_) {
+    view_->removed();
+    view_ = nullptr;
+    editor_open_ = false;
+  }
+
   if (activated_) {
     if (component_) {
       component_->setActive(false);
     }
     activated_ = false;
+  }
+
+  // Per VST3 spec, disconnect connection points before calling terminate().
+  if (component_ && controller_) {
+    FUnknownPtr<IConnectionPoint> comp_cp(component_);
+    FUnknownPtr<IConnectionPoint> ctrl_cp(controller_);
+    if (comp_cp && ctrl_cp) {
+      comp_cp->disconnect(ctrl_cp);
+      ctrl_cp->disconnect(comp_cp);
+    }
   }
 
   if (controller_) {
@@ -84,7 +101,6 @@ absl::Status VstPlugin::Shutdown() {
   }
 
   processor_ = nullptr;
-  view_ = nullptr;
   module_ = nullptr;
 
   return absl::OkStatus();

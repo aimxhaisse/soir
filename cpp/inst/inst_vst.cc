@@ -51,6 +51,18 @@ absl::Status InstVst::Init(const std::string& settings,
   return absl::OkStatus();
 }
 
+absl::Status InstVst::Stop() {
+  std::lock_guard<std::mutex> lock(mutex_);
+  if (plugin_) {
+    plugin_->CloseEditor().IgnoreError();
+    plugin_->Deactivate().IgnoreError();
+    plugin_->Shutdown().IgnoreError();
+    plugin_.reset();
+  }
+  initialized_ = false;
+  return absl::OkStatus();
+}
+
 void InstVst::ReloadParams() {
   auto doc = nlohmann::json::parse(settings_json_, nullptr, false);
   if (doc.is_discarded()) {

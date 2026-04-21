@@ -19,6 +19,7 @@ class InstVst : public Instrument {
 
   absl::Status Init(const std::string& settings, SampleManager* sample_manager,
                     Controls* controls) override;
+  absl::Status Stop() override;
   void Render(SampleTick tick, const std::list<MidiEventAt>& events,
               AudioBuffer& buffer) override;
   Type GetType() const override { return Type::VST; }

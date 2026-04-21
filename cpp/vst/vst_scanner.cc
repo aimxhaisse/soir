@@ -4,6 +4,10 @@
 
 #include <filesystem>
 
+#ifdef __linux__
+#include <dlfcn.h>
+#endif
+
 #include "pluginterfaces/vst/ivstaudioprocessor.h"
 #include "public.sdk/source/vst/hosting/module.h"
 #include "vst/vst_editor.hh"
@@ -88,6 +92,25 @@ absl::Status VstScanner::ProbePlugin(
   if (!factory.get()) {
     return absl::InternalError("Failed to get factory");
   }
+
+#ifdef __linux__
+  // Pin the plugin .so against unload so that ModuleExit is not called while
+  // background threads (e.g. JUCE message thread) may still be running.
+  for (auto& ci : factory.classInfos()) {
+    if (ci.category() == kVstAudioEffectClass) {
+      auto comp =
+          factory.createInstance<Steinberg::Vst::IComponent>(ci.ID());
+      if (comp) {
+        void* vtable = *reinterpret_cast<void**>(comp.get());
+        ::Dl_info dl_info{};
+        if (::dladdr(vtable, &dl_info) && dl_info.dli_fname) {
+          ::dlopen(dl_info.dli_fname, RTLD_NOLOAD | RTLD_NODELETE | RTLD_LAZY);
+        }
+      }
+      break;
+    }
+  }
+#endif
 
   for (auto& info : factory.classInfos()) {
     if (info.category() == kVstAudioEffectClass) {
