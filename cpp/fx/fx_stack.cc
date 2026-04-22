@@ -124,19 +124,29 @@ absl::StatusOr<FxVst*> FxStack::FindVstFx(const std::string& fx_name) {
 }
 
 absl::Status FxStack::OpenVstEditor(const std::string& fx_name) {
-  std::lock_guard<std::mutex> lock(mutex_);
-
-  auto result = FindVstFx(fx_name);
-  if (!result.ok()) return result.status();
-  return (*result)->OpenEditor();
+  FxVst* vst_fx = nullptr;
+  {
+    std::lock_guard<std::mutex> lock(mutex_);
+    auto result = FindVstFx(fx_name);
+    if (!result.ok()) {
+      return result.status();
+    }
+    vst_fx = *result;
+  }
+  return vst_fx->OpenEditor();
 }
 
 absl::Status FxStack::CloseVstEditor(const std::string& fx_name) {
-  std::lock_guard<std::mutex> lock(mutex_);
-
-  auto result = FindVstFx(fx_name);
-  if (!result.ok()) return result.status();
-  return (*result)->CloseEditor();
+  FxVst* vst_fx = nullptr;
+  {
+    std::lock_guard<std::mutex> lock(mutex_);
+    auto result = FindVstFx(fx_name);
+    if (!result.ok()) {
+      return result.status();
+    }
+    vst_fx = *result;
+  }
+  return vst_fx->CloseEditor();
 }
 
 }  // namespace fx

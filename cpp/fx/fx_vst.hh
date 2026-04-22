@@ -16,6 +16,7 @@ namespace fx {
 
 struct FxVst : public Fx {
   FxVst(Controls* controls, vst::VstHost* vst_host);
+  ~FxVst();
 
   absl::Status Init(const Fx::Settings& settings) override;
   bool CanFastUpdate(const Fx::Settings& settings) override;

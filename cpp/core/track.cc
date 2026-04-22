@@ -162,8 +162,8 @@ absl::Status Track::OpenVstInstEditor() {
     return absl::FailedPreconditionError("VST plugin not loaded");
   }
 
-  // Close any existing plugin attachment before (re)opening, so that
-  // repeated open calls and user-closed windows are handled uniformly.
+  // Reset the open flag before re-attaching so the state is consistent if
+  // OpenVstInstEditor is called without a preceding CloseVstInstEditor.
   if (plugin->IsEditorOpen()) {
     plugin->CloseEditor().IgnoreError();
   }

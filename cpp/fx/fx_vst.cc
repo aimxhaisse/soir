@@ -13,6 +13,15 @@ namespace fx {
 FxVst::FxVst(Controls* controls, vst::VstHost* vst_host)
     : controls_(controls), vst_host_(vst_host), initialized_(false) {}
 
+FxVst::~FxVst() {
+  if (plugin_ && initialized_) {
+    try {
+      plugin_->Deactivate().IgnoreError();
+    } catch (...) {
+    }
+  }
+}
+
 absl::Status FxVst::Init(const Fx::Settings& settings) {
   settings_ = settings;
 
@@ -132,8 +141,8 @@ absl::Status FxVst::OpenEditor() {
     return absl::FailedPreconditionError("Plugin not loaded");
   }
 
-  // Close any existing plugin attachment before (re)opening, so that
-  // repeated open calls and user-closed windows are handled uniformly.
+  // Reset the open flag before re-attaching so the state is consistent if
+  // OpenEditor is called without a preceding CloseEditor.
   if (plugin_->IsEditorOpen()) {
     plugin_->CloseEditor();
   }

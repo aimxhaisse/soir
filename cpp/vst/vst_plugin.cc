@@ -67,14 +67,27 @@ VstPlugin::~VstPlugin() { Shutdown().IgnoreError(); }
 absl::Status VstPlugin::Shutdown() {
   std::lock_guard<std::mutex> lock(mutex_);
 
-  // Per VST3 spec, call removed() before releasing the view.
+  // Per VST3 spec, call removed() before releasing the view. The bridge
+  // process may have already exited (e.g. X11 error killed it), in which
+  // case removed() throws std::system_error (EOF on the socket). Catch it
+  // here so the exception never escapes into the noexcept destructor chain.
   if (view_) {
-    view_->removed();
-    view_ = nullptr;
+    auto view = std::move(view_);
     editor_open_ = false;
+    try {
+      view->removed();
+    } catch (const std::exception& e) {
+      LOG(WARNING) << "VST view removal failed (bridge may have exited): "
+                   << e.what();
+    } catch (...) {
+      LOG(WARNING) << "VST view removal failed with unknown exception";
+    }
   }
 
   if (activated_) {
+    if (processor_) {
+      processor_->setProcessing(false);
+    }
     if (component_) {
       component_->setActive(false);
     }
@@ -437,6 +450,16 @@ absl::Status VstPlugin::OpenEditor(void* parent_window) {
     return absl::FailedPreconditionError("No edit controller available");
   }
 
+  // If the view is already attached, just mark it as open. The caller handles
+  // showing the X11 window. Reusing the existing view avoids spawning a second
+  // Wine/bridge process before the first has finished cleanup, which races on
+  // shared X11 resources and causes BadWindow → socket EOF → std::system_error
+  // in a yabridge background thread → terminate().
+  if (view_) {
+    editor_open_ = true;
+    return absl::OkStatus();
+  }
+
   view_ = controller_->createView(ViewType::kEditor);
   if (!view_) {
     return absl::NotFoundError("Plugin does not have an editor");
@@ -464,11 +487,10 @@ absl::Status VstPlugin::OpenEditor(void* parent_window) {
 absl::Status VstPlugin::CloseEditor() {
   std::lock_guard<std::mutex> lock(mutex_);
 
-  if (view_) {
-    view_->removed();
-    view_ = nullptr;
-  }
-
+  // Do not call view_->removed() here: that tears down the Wine/bridge process,
+  // which may still be cleaning up when the editor is reopened, causing a race
+  // on X11 resources. The view stays attached; Shutdown() calls removed() when
+  // the plugin is truly being destroyed.
   editor_open_ = false;
   return absl::OkStatus();
 }
