@@ -8,10 +8,17 @@ back on at import time unless the flag is set.
 import os
 import sys
 import sysconfig
+from typing import Any
 
 import typer
 
-from soir.app import app
+try:
+    from soir.app import app as _app
+
+    _import_error: ImportError | None = None
+except ImportError as e:
+    _app: Any = None  # type: ignore[no-redef]
+    _import_error = e
 
 
 def _require_free_threaded() -> None:
@@ -36,10 +43,30 @@ def _reexec_without_gil() -> None:
     )
 
 
+def _check_native_dependencies() -> None:
+    if _import_error is None:
+        return
+    msg = str(_import_error)
+    if "cannot open shared object file" in msg:
+        lib = msg.split(":", 1)[0].strip()
+        typer.echo(
+            f"Soir failed to load a required system library: {lib}\n\n"
+            "Install the JACK audio runtime via your package manager:\n"
+            "  Debian/Ubuntu:   sudo apt install libjack-jackd2-0\n"
+            "  Fedora/RHEL:     sudo dnf install jack-audio-connection-kit\n"
+            "  Arch:            sudo pacman -S jack2  (or pipewire-jack)",
+            err=True,
+        )
+    else:
+        typer.echo(f"Failed to import Soir engine: {msg}", err=True)
+    raise typer.Exit(1)
+
+
 def main() -> None:
     _require_free_threaded()
     _reexec_without_gil()
-    app()
+    _check_native_dependencies()
+    _app()
 
 
 if __name__ == "__main__":
