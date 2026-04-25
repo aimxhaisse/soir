@@ -8,7 +8,8 @@
 namespace soir {
 
 absl::Status SampleManager::Init(const utils::Config& config) {
-  directory_ = config.GetOrDefault<std::string>("dsp.sample_directory", "");
+  directory_ = utils::Config::ExpandEnvironmentVariables(
+      config.GetOrDefault<std::string>("dsp.sample_directory", ""));
   if (directory_.empty()) {
     LOG(WARNING) << "No sample directory specified in config";
     return absl::OkStatus();

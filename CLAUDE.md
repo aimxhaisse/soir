@@ -47,16 +47,17 @@ soir/
 │   │   │   ├── system.py, tracks.py, vst.py
 │   │   │   └── _ctrls.py, _helpers.py, _internals.py, _system.py
 │   │   ├── www/            # Flask web application
+│   │   ├── _data/          # Wheel-packaged resources (etc/, lib/samples symlinks)
+│   │   ├── _launcher.py    # Console-script entry: re-exec under -Xgil=0, free-threaded check
+│   │   ├── _resources.py   # Resources class for read-only wheel paths
 │   │   ├── app.py          # Typer CLI entry point
-│   │   ├── config.py       # Pydantic configuration models
+│   │   ├── config.py       # Pydantic configuration models, $SOIR_HOME bootstrap
 │   │   └── watcher.py      # File watching for live coding
 │   └── tests/              # Python tests (pytest)
 │       ├── integration/    # Integration tests (full session tests)
 │       └── test_*.py       # Unit tests (config, watcher, www)
-├── bin/                    # Executable wrapper scripts
-│   └── soir                # Sets SOIR_DIR, runs python -Xgil=0 -m soir.app
-├── etc/                    # Default configuration files
-│   ├── config.json         # Global engine configuration
+├── etc/                    # Default configuration files (also exposed via py/soir/_data/etc symlink)
+│   ├── config.json         # Global engine configuration ($SOIR_HOME-aware paths)
 │   └── live.default.py     # Default live coding template
 ├── build/                  # CMake build output (gitignored)
 ├── designs/                # Design documents (e.g. VST3.md)
@@ -85,10 +86,10 @@ uv run soir                 # Show help
 uv run soir session mk demo # Create new session
 uv run soir session run demo # Run session
 uv run soir www             # Start web interface
-
-# Or use the wrapper script
-./bin/soir session run demo
 ```
+
+After `pip install` / `uv tool install` of the wheel, the `soir` console
+script re-execs under `-Xgil=0` automatically (see `py/soir/_launcher.py`).
 
 ## Build System
 
@@ -104,11 +105,7 @@ just test-integration         # Run integration tests
 just test-integration "BPM*"  # Run integration tests matching a pattern
 just check                    # Format and lint (black, ruff, mypy, clang-format)
 just clean                    # Remove build artifacts, .venv, __pycache__, *.so
-just package                  # Create distributable tar.gz package
-just docker-build             # Build Docker image (builder stage)
-just www-docker-build         # Build Docker image for documentation website
-just www-docker-up            # Run documentation website via docker-compose
-just www-docker-down          # Stop documentation website
+just wheel                    # Build a cp314t wheel into dist/
 ```
 
 **After any code change, always run:**
@@ -194,7 +191,7 @@ just test     # always
 2. **Build** if C++ changed: `just build`
 3. **Format/lint**: `just check`
 4. **Test**: `just test` or specific test commands
-5. **Run**: `uv run soir session run <path>` or `./bin/soir session run <path>`
+5. **Run**: `uv run soir session run <path>`
 
 ## Important Notes
 
@@ -203,7 +200,7 @@ just test     # always
 - Never run plain `python` — always use `uv run python`
 - C++ builds to `build/cmake/` directory
 - Bindings output: `py/soir/_bindings.cpython-314t-{platform}.so`
-- The `bin/soir` wrapper sets `SOIR_DIR` and disables the GIL
+- `$SOIR_HOME` (default: platformdirs user-data dir) holds user state — installed sample packs, per-user config. Tests set this env var to an isolated temp dir. The C++ engine expands `$SOIR_HOME` in path-typed config values via `Config::ExpandEnvironmentVariables`.
 - Integration tests require audio configuration
 - `playground/` is excluded from ruff linting
 - Always run `just build` (if C++ changed), `just check`, and `just test` after proposing changes

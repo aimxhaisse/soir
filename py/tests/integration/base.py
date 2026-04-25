@@ -80,26 +80,26 @@ log("reset done")
 class SoirStandaloneTestCase(unittest.TestCase):
     """Base class for CLI tests that use EngineManager.initialize_standalone().
 
-    Sets up a temporary SOIR_DIR skeleton with etc/config.json and var/log/,
-    isolated from the real installation. SOIR_DIR is restored after each test.
+    Sets up a temporary SOIR_HOME skeleton with etc/config.json and var/log/,
+    isolated from the real installation. SOIR_HOME is restored after each test.
     """
 
     def setUp(self) -> None:
-        """Set up isolated SOIR_DIR skeleton before each test."""
+        """Set up isolated SOIR_HOME skeleton before each test."""
         self.temp_dir = tempfile.mkdtemp()
-        soir_dir = Path(self.temp_dir)
-        (soir_dir / "etc").mkdir()
-        (soir_dir / "var" / "log").mkdir(parents=True)
-        (soir_dir / "etc" / "config.json").write_text(
+        soir_home = Path(self.temp_dir)
+        (soir_home / "etc").mkdir()
+        (soir_home / "var" / "log").mkdir(parents=True)
+        (soir_home / "etc" / "config.json").write_text(
             json.dumps(_STANDALONE_TEST_CONFIG)
         )
-        self._saved_soir_dir: str | None = os.environ.get("SOIR_DIR")
-        os.environ["SOIR_DIR"] = str(soir_dir)
+        self._saved_soir_home: str | None = os.environ.get("SOIR_HOME")
+        os.environ["SOIR_HOME"] = str(soir_home)
 
     def tearDown(self) -> None:
-        """Restore SOIR_DIR and clean up temp directory after each test."""
-        if self._saved_soir_dir is not None:
-            os.environ["SOIR_DIR"] = self._saved_soir_dir
+        """Restore SOIR_HOME and clean up temp directory after each test."""
+        if self._saved_soir_home is not None:
+            os.environ["SOIR_HOME"] = self._saved_soir_home
         else:
-            os.environ.pop("SOIR_DIR", None)
+            os.environ.pop("SOIR_HOME", None)
         shutil.rmtree(self.temp_dir, ignore_errors=True)

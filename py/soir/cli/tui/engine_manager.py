@@ -12,7 +12,7 @@ from typing import Any
 
 import soir._bindings as bindings
 from soir._bindings import logging, rt
-from soir.config import Config, get_soir_dir, is_session
+from soir.config import Config, get_soir_home, is_session
 from soir.watcher import Watcher
 
 _STDOUT_FD = 1
@@ -82,7 +82,7 @@ class EngineManager:
         """Initialize the engine and watcher from a session directory.
 
         Changes the working directory to session_path and starts the
-        file watcher for live coding if the path is a session (not SOIR_DIR).
+        file watcher for live coding if the path is a session (not SOIR_HOME).
 
         Args:
             session_path: Path to the session directory containing
@@ -144,7 +144,7 @@ class EngineManager:
                 return True, "Engine started successfully"
 
     def initialize_standalone(self) -> tuple[bool, str]:
-        """Initialize the engine from the global SOIR_DIR configuration.
+        """Initialize the engine from the global $SOIR_HOME configuration.
 
         Does not change the working directory and does not start a watcher.
         Intended for one-shot CLI commands that need engine access outside
@@ -157,9 +157,9 @@ class EngineManager:
         """
         with self._lock:
             try:
-                soir_dir = Path(get_soir_dir())
-                cfg_path = str(soir_dir / "etc" / "config.json")
-                log_path = str(soir_dir / "var" / "log")
+                home = get_soir_home()
+                cfg_path = str(home / "etc" / "config.json")
+                log_path = str(home / "var" / "log")
 
                 Path(log_path).mkdir(parents=True, exist_ok=True)
                 self._saved_stdout_fd = os.dup(_STDOUT_FD)

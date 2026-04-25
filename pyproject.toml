@@ -24,6 +24,7 @@ dependencies = [
     "pytest-timeout>=2.4.0",
     "pip>=25.3",
     "textual>=7.0.0",
+    "platformdirs>=4.3.0",
 ]
 
 [tool.setuptools.packages.find]
@@ -31,6 +32,12 @@ where = ["py"]
 include = ["soir*"]
 
 [tool.setuptools.package-data]
+"soir" = [
+    "_data/etc/*",
+    "_data/lib/samples/*.json",
+    "_data/lib/samples/default/*.json",
+    "_data/lib/samples/default/*.wav",
+]
 "soir.www" = [
     "content/*.md",
     "static/**/*",
@@ -52,7 +59,7 @@ dev = [
 ]
 
 [project.scripts]
-soir = "soir.app:app"
+soir = "soir._launcher:main"
 
 [tool.black]
 line-length = 88
@@ -68,6 +75,7 @@ python_version = "3.14"
 strict = true
 warn_return_any = true
 warn_unused_configs = true
+exclude = ["py/soir/_data/"]
 
 [[tool.mypy.overrides]]
 module = "flask_sock"

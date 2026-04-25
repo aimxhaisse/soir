@@ -15,7 +15,8 @@ import urllib.request
 from dataclasses import dataclass
 
 import typer
-from soir.config import get_soir_dir
+from soir import _resources
+from soir.config import get_soir_home
 
 app = typer.Typer(help="Sample packs management commands", no_args_is_help=True)
 
@@ -36,17 +37,13 @@ class Pack:
 
 
 def load_available_packs() -> dict[str, Pack]:
-    """Load the sample packs registry from SOIR_DIR/lib/samples/registry.json.
+    """Load the sample packs registry shipped inside the wheel.
 
     Returns:
         Dictionary mapping pack names to Pack objects
-
-    Raises:
-        ConfigurationError: If SOIR_DIR is not set
     """
-    soir_dir = get_soir_dir()
-    registry_path = os.path.join(soir_dir, "lib", "samples", "registry.json")
-    if not os.path.exists(registry_path):
+    registry_path = _resources.resources.samples_registry_path
+    if not registry_path.exists():
         return {}
 
     try:
@@ -65,16 +62,12 @@ def load_available_packs() -> dict[str, Pack]:
 
 
 def get_installed_packs() -> dict[str, Pack]:
-    """Get installed packs from the samples directory.
+    """Get installed packs from $SOIR_HOME/lib/samples.
 
     Returns:
         Dictionary mapping pack names to Pack objects
-
-    Raises:
-        ConfigurationError: If SOIR_DIR is not set
     """
-    soir_dir = get_soir_dir()
-    samples_dir = os.path.join(soir_dir, "lib", "samples")
+    samples_dir = os.path.join(get_soir_home(), "lib", "samples")
     if not os.path.exists(samples_dir):
         return {}
 
@@ -334,15 +327,13 @@ def create_pack(
 
     Converts samples to the correct format and organizes them into a pack.
     """
-    soir_dir = get_soir_dir()
-
     if not os.path.isdir(input_dir):
         typer.echo(f"Error: Input directory '{input_dir}' does not exist")
         raise typer.Exit(1)
 
     pack_name = name if name else os.path.basename(os.path.abspath(input_dir))
 
-    samples_dir = os.path.join(soir_dir, "lib", "samples")
+    samples_dir = os.path.join(get_soir_home(), "lib", "samples")
     output_dir = os.path.join(samples_dir, pack_name)
 
     if os.path.abspath(input_dir) == os.path.abspath(output_dir):
@@ -463,8 +454,7 @@ def install_pack(
         source: Pack name from registry or path to local tarball
         force: Force reinstallation even if already installed
     """
-    soir_dir = get_soir_dir()
-    samples_dir = os.path.join(soir_dir, "lib", "samples")
+    samples_dir = os.path.join(get_soir_home(), "lib", "samples")
     if not os.path.exists(samples_dir):
         os.makedirs(samples_dir)
 
@@ -486,7 +476,7 @@ def install_pack(
             typer.echo(f"Error: Sample pack '{pack_name}' not found in registry.")
             raise typer.Exit(1)
 
-        registry_path = os.path.join(samples_dir, "registry.json")
+        registry_path = str(_resources.resources.samples_registry_path)
         pack_url = _get_registry_url(pack_name, registry_path) or ""
         if not pack_url:
             typer.echo(f"Error: URL for '{pack_name}' not found in registry.")
@@ -535,8 +525,7 @@ def remove_pack(
     Args:
         pack_name: Name of the sample pack to remove
     """
-    soir_dir = get_soir_dir()
-    samples_dir = os.path.join(soir_dir, "lib", "samples")
+    samples_dir = os.path.join(get_soir_home(), "lib", "samples")
     installed_packs = get_installed_packs()
 
     if pack_name not in installed_packs:
@@ -562,9 +551,7 @@ def pack_info(
     Args:
         pack_name: Name of the sample pack
     """
-    soir_dir = get_soir_dir()
-
-    samples_dir = os.path.join(soir_dir, "lib", "samples")
+    samples_dir = os.path.join(get_soir_home(), "lib", "samples")
     installed_packs = get_installed_packs()
     available_packs = load_available_packs()
 

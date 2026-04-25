@@ -5,9 +5,9 @@ from pathlib import Path
 from typing import Any
 
 import typer
+from soir import _resources
 from soir.cast import CastServer
 from soir.cli.tui.engine_manager import EngineManager
-from soir.config import get_soir_dir
 
 session_app = typer.Typer(help="Create and manage Soir sessions.")
 
@@ -93,12 +93,10 @@ def mk(name: Path) -> None:
         (session_path / "lib" / "samples").mkdir(parents=True)
         (session_path / "var" / "log").mkdir(parents=True)
 
-        soir_dir = get_soir_dir()
-        config_template = Path(soir_dir) / "etc" / "config.json"
-        live_template = Path(soir_dir) / "etc" / "live.default.py"
-
-        shutil.copy(config_template, session_path / "etc" / "config.json")
-        shutil.copy(live_template, session_path / "live.py")
+        shutil.copy(
+            _resources.resources.config_path, session_path / "etc" / "config.json"
+        )
+        shutil.copy(_resources.resources.live_template_path, session_path / "live.py")
 
         typer.echo(f"Session '{session_name}' created at {session_path}")
     except (OSError, FileNotFoundError) as e:
