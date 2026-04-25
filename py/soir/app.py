@@ -4,8 +4,9 @@ from soir.cli.samples import app as samples_app
 from soir.cli.session import session_app
 from soir.cli.vst import vst_app
 from soir.cli.www import www_app
+from soir.config import ensure_soir_home
 
-app = typer.Typer()
+app = typer.Typer(no_args_is_help=True)
 
 
 app.add_typer(samples_app, name="samples")
@@ -14,10 +15,9 @@ app.add_typer(vst_app, name="vst")
 app.add_typer(www_app, name="www")
 
 
-@app.callback(invoke_without_command=True)
+@app.callback()
 def main(ctx: typer.Context) -> None:
-    if ctx.invoked_subcommand is None:
-        typer.echo(ctx.get_help())
+    ensure_soir_home()
 
 
 if __name__ == "__main__":

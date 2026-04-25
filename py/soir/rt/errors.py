@@ -72,8 +72,8 @@ class ConfigurationError(SoirException):
 
     @public
 
-    This exception is raised when required configuration is missing,
-    such as the SOIR_DIR environment variable not being set.
+    This exception is raised when required configuration is missing
+    or invalid.
     """
 
 

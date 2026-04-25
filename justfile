@@ -44,44 +44,8 @@ test:
     just test-unit
     just test-integration
 
-# Create a distributable package
-package:
-    #!/usr/bin/env bash
-    set -e
-
-    version=$(grep '^version =' pyproject.toml | awk '{print $3}' | tr -d '"')
-    tarball="soir-${version}-{{arch()}}-{{os()}}.tar.gz"
-
-    rm -rf .dist
-    mkdir -p .dist/soir
-
-    cp -rL .venv .dist/soir
-
-    cp -R etc bin .dist/soir/
-    python_home=$(.venv/bin/python -c "import sys; print(sys.base_prefix)")
-    mkdir -p .dist/soir/.venv/lib
-    cp "$python_home"/lib/libpython3.14t.* .dist/soir/.venv/lib/ 2>/dev/null || true
-
-    .dist/soir/bin/soir --help > /dev/null
-
-    # There are multiple copies of the Python binary but we only need
-    # to keep one (win ~300m that way).
-    rm -f .dist/soir/.venv/bin/python?*
-
-    tar -czf "${tarball}" -C .dist soir
-
-# Build Docker image (builder stage only, no www)
-docker-build:
-    docker build --target builder -t soir:latest .
-
-# Build Docker image for documentation website
-www-docker-build:
-    docker build --target runtime-www -t soir-www:latest .
-
-# Run documentation website via docker-compose
-www-docker-up:
-    docker compose up -d
-
-# Stop documentation website
-www-docker-down:
-    docker compose down
+# Build a wheel for the current platform + interpreter
+wheel:
+    rm -rf dist/
+    uv build --wheel
+    @ls -lh dist/

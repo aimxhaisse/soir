@@ -11,7 +11,10 @@ import unittest
 import wave
 from pathlib import Path
 
+from unittest.mock import patch
+
 import click.exceptions
+from soir import _resources
 from soir.cli.samples import (
     create_pack,
     get_samples_from_directory,
@@ -105,25 +108,31 @@ class SamplesTestBase(unittest.TestCase):
     def setUp(self) -> None:
         """Set up test environment."""
         self.tmpdir = tempfile.mkdtemp()
-        self.soir_dir = Path(self.tmpdir) / "soir"
-        self.soir_dir.mkdir()
+        self.soir_home = Path(self.tmpdir) / "soir"
+        self.soir_home.mkdir()
 
-        self.samples_dir = self.soir_dir / "lib" / "samples"
+        self.samples_dir = self.soir_home / "lib" / "samples"
         self.samples_dir.mkdir(parents=True)
 
         registry = self.samples_dir / "registry.json"
         registry.write_text('{"packs": []}')
 
-        self._saved_soir_dir: str | None = os.environ.get("SOIR_DIR")
-        os.environ["SOIR_DIR"] = str(self.soir_dir)
+        self._saved_soir_home: str | None = os.environ.get("SOIR_HOME")
+        os.environ["SOIR_HOME"] = str(self.soir_home)
+
+        self._resources_patcher = patch.object(
+            _resources, "resources", _resources.Resources(self.soir_home)
+        )
+        self._resources_patcher.start()
 
     def tearDown(self) -> None:
         """Clean up test environment."""
+        self._resources_patcher.stop()
         shutil.rmtree(self.tmpdir, ignore_errors=True)
-        if self._saved_soir_dir is not None:
-            os.environ["SOIR_DIR"] = self._saved_soir_dir
+        if self._saved_soir_home is not None:
+            os.environ["SOIR_HOME"] = self._saved_soir_home
         else:
-            os.environ.pop("SOIR_DIR", None)
+            os.environ.pop("SOIR_HOME", None)
 
     def create_sample_audio_dir(self) -> str:
         """Create a directory with test audio files.
@@ -131,7 +140,7 @@ class SamplesTestBase(unittest.TestCase):
         Returns:
             Path to directory with test audio files
         """
-        audio_dir = Path(self.soir_dir) / "test_audio"
+        audio_dir = self.soir_home / "test_audio"
         audio_dir.mkdir()
 
         create_test_audio_file(str(audio_dir / "kick.wav"), 44100)
@@ -215,7 +224,7 @@ class SamplesMkTest(SamplesTestBase):
             bundle=True,
         )
 
-        tarball_path = os.path.join(self.soir_dir, "lib", "bundled-pack.tar.gz")
+        tarball_path = os.path.join(self.soir_home, "lib", "bundled-pack.tar.gz")
         self.assertTrue(os.path.exists(tarball_path))
 
         with tarfile.open(tarball_path, "r:gz") as tar:
@@ -225,7 +234,7 @@ class SamplesMkTest(SamplesTestBase):
 
     def test_samples_mk_name_collision(self) -> None:
         """Test that creating a pack with duplicate sample names fails."""
-        audio_dir = Path(self.soir_dir) / "collision_test"
+        audio_dir = Path(self.soir_home) / "collision_test"
         audio_dir.mkdir()
 
         create_test_audio_file(str(audio_dir / "kick_01.wav"))
@@ -249,7 +258,7 @@ class SamplesMkTest(SamplesTestBase):
             bundle=False,
         )
 
-        second_audio_dir = Path(self.soir_dir) / "second_audio"
+        second_audio_dir = Path(self.soir_home) / "second_audio"
         second_audio_dir.mkdir()
         create_test_audio_file(str(second_audio_dir / "bass.wav"))
 
@@ -380,7 +389,7 @@ class SamplesInstallTest(SamplesTestBase):
             bundle=True,
         )
 
-        tarball_path = os.path.join(self.soir_dir, "lib", "remote-pack.tar.gz")
+        tarball_path = os.path.join(self.soir_home, "lib", "remote-pack.tar.gz")
 
         registry_data = [
             {

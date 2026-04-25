@@ -6,50 +6,83 @@ Pydantic, then serialized to JSON and passed to the C++ engine.
 """
 
 import os
+import shutil
 from pathlib import Path
 
+from platformdirs import user_data_dir
 from pydantic import BaseModel, Field
 
-from soir.rt.errors import ConfigurationError
+from soir import _resources
 
 
 def is_session(path: Path) -> bool:
     """Determine whether a given path is a Soir session directory.
 
-    A session directory is any directory that is NOT the global SOIR_DIR.
-    Both a session and SOIR_DIR contain an 'etc/config.json', so we cannot
+    A session directory is any directory that is NOT the global SOIR_HOME.
+    Both a session and SOIR_HOME contain an 'etc/config.json', so we cannot
     rely on file structure alone to tell them apart. Instead, we use the
-    invariant that 'session mk' always creates sessions outside of SOIR_DIR,
+    invariant that 'session mk' always creates sessions outside of SOIR_HOME,
     making the two mutually exclusive by construction.
 
-    This means: if the path resolves to SOIR_DIR, we are running from the
+    This means: if the path resolves to SOIR_HOME, we are running from the
     global configuration (no session). Any other path is treated as a session.
 
     Args:
         path: The directory path to test.
 
     Returns:
-        True if path is a session directory, False if it is SOIR_DIR.
-
-    Raises:
-        ConfigurationError: If SOIR_DIR is not set.
+        True if path is a session directory, False if it is SOIR_HOME.
     """
-    return path.resolve() != Path(get_soir_dir()).resolve()
+    return path.resolve() != get_soir_home().resolve()
 
 
-def get_soir_dir() -> str:
-    """Get the SOIR_DIR environment variable.
+def get_soir_home() -> Path:
+    """Resolve the user-data directory.
+
+    Honors the `SOIR_HOME` environment variable if set; otherwise falls
+    back to the platform's user data directory.
 
     Returns:
-        The SOIR_DIR path
-
-    Raises:
-        ConfigurationError: If SOIR_DIR is not set
+        Path to the Soir home directory.
     """
-    soir_dir = os.getenv("SOIR_DIR")
-    if not soir_dir:
-        raise ConfigurationError("SOIR_DIR environment variable not set")
-    return soir_dir
+    env = os.getenv("SOIR_HOME")
+    if env:
+        return Path(env)
+    return Path(user_data_dir("soir"))
+
+
+def ensure_soir_home() -> Path:
+    """First-run bootstrap of $SOIR_HOME.
+
+    Creates the directory layout, seeds the default config from the
+    package-shipped resources, and exports SOIR_HOME into the process
+    environment so the C++ extension's getenv() sees it.
+
+    Returns:
+        Path to the resolved Soir home directory.
+    """
+    home = get_soir_home()
+    home.mkdir(parents=True, exist_ok=True)
+    os.environ["SOIR_HOME"] = str(home)
+
+    etc = home / "etc"
+    etc.mkdir(exist_ok=True)
+    config_path = etc / "config.json"
+    if not config_path.exists():
+        shutil.copy(_resources.resources.config_path, config_path)
+
+    samples = home / "lib" / "samples"
+    samples.mkdir(parents=True, exist_ok=True)
+
+    (home / "var" / "log").mkdir(parents=True, exist_ok=True)
+
+    default_pack_json = samples / "default.pack.json"
+    default_pack_src = _resources.resources.default_pack_dir
+    if not default_pack_json.exists() and default_pack_src.exists():
+        shutil.copytree(default_pack_src, samples / "default")
+        shutil.copy(default_pack_src / "default.pack.json", default_pack_json)
+
+    return home
 
 
 class Config(BaseModel):
@@ -84,20 +117,16 @@ class Config(BaseModel):
     cast: CastConfig = Field(default_factory=CastConfig)
 
     @classmethod
-    def load_global(cls) -> Config:
-        """Load the global configuration from SOIR_DIR.
+    def load_global(cls) -> "Config":
+        """Load the global configuration from $SOIR_HOME.
 
         Returns:
-            Validated Config instance from $SOIR_DIR/etc/config.json
-
-        Raises:
-            ConfigurationError: If SOIR_DIR is not set or config file not found
+            Validated Config instance from $SOIR_HOME/etc/config.json
         """
-        soir_dir = get_soir_dir()
-        return cls.load_from_path(Path(soir_dir) / "etc" / "config.json")
+        return cls.load_from_path(get_soir_home() / "etc" / "config.json")
 
     @classmethod
-    def load_from_path(cls, path: str | Path) -> Config:
+    def load_from_path(cls, path: str | Path) -> "Config":
         """Load configuration from a JSON file.
 
         Args:
