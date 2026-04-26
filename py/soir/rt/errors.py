@@ -97,3 +97,13 @@ class TrackNotFoundException(SoirException):
     This exception is raised when trying to get levels or other
     information for a track that doesn't exist.
     """
+
+
+class VSTNotFoundException(SoirException):
+    """Raised when trying to refer to a non-existing VST plug-in.
+
+    @public
+
+    This exception is raised when trying to load or require a VST3
+    effect or instrument.
+    """
