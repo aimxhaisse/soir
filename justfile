@@ -33,7 +33,7 @@ build:
 # Run unit tests only
 test-unit:
     uv run python setup.py run_cpp_tests
-    uv run pytest py/tests/test_config.py py/tests/test_watcher.py py/tests/test_www.py -v
+    uv run pytest py/tests/test_config.py py/tests/test_vst.py py/tests/test_watcher.py py/tests/test_www.py -v
 
 # Run integration tests only
 test-integration pattern="":

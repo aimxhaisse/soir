@@ -9,7 +9,8 @@ Plugins are automatically scanned when the engine starts.
 from typing import cast
 
 from soir._bindings import rt as _rt
-from soir._errors import VSTNotFoundException
+
+from soir.rt import errors
 
 
 def plugins() -> list[dict[str, str]]:
@@ -39,10 +40,10 @@ def require(name: str) -> None:
         VSTNotFoundException: raised when the VST does not exist.
     """
     for p in plugins():
-        if p.get('name') == name:
+        if p.get("name") == name:
             return
 
-    raise VSTNotFoundException
+    raise errors.VSTNotFoundException
 
 
 def instruments() -> list[dict[str, str]]:
