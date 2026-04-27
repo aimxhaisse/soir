@@ -21,6 +21,7 @@ PUBLIC_MODULES = [
     "sampler",
     "system",
     "tracks",
+    "vst",
 ]
 
 

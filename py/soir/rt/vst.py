@@ -1,7 +1,5 @@
 """VST3 plugin management.
 
-@public
-
 This module provides functions to list and interact with VST3 plugins.
 Plugins are automatically scanned when the engine starts.
 """
@@ -19,11 +17,12 @@ def plugins() -> list[dict[str, str]]:
     @public
 
     Returns a list of dictionaries with plugin information:
-    - uid: Unique identifier for the plugin
-    - name: Display name of the plugin
-    - vendor: Plugin vendor/manufacturer
-    - category: Plugin category (e.g., "Fx|EQ")
-    - path: Path to the plugin bundle
+
+    - uid: unique identifier for the plugin
+    - name: display name of the plugin
+    - vendor: plugin vendor/manufacturer
+    - category: plugin category (e.g., "Fx|EQ")
+    - path: path to the plugin bundle
 
     Returns:
         List of plugin information dictionaries.
