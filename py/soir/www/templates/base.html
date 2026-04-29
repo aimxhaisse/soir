@@ -6,6 +6,7 @@
     <title>soir - {% block title %}{{ title | lower }}{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/pygments.css') }}">
+    {% block extra_head %}{% endblock %}
 </head>
 <body>
     <a href="#main" class="skip-link">Skip to content</a>

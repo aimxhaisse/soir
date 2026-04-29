@@ -6,7 +6,7 @@ import time
 from pathlib import Path
 from typing import Any
 
-from flask import Flask, abort, render_template
+from flask import Flask, abort, jsonify, render_template
 
 from .docs import DocsCache, extract_module_docs
 from .renderer import create_markdown_renderer, render_module
@@ -33,6 +33,54 @@ def mk_docs(app: Flask, cache: DocsCache) -> None:
         cache.set(module_name, docs)
         app.logger.info(f"  ✓ Generated docs for {module_name}")
     app.logger.info(f"Documentation generated for {len(cache)} modules")
+
+
+def _build_search_index(cache: DocsCache) -> list[dict[str, str]]:
+    """Build a flat search index from all cached module docs."""
+    index: list[dict[str, str]] = []
+    # Core module
+    core_docs = extract_module_docs("soir.rt")
+    for member in core_docs.members:
+        index.append(
+            {
+                "name": member.name,
+                "type": member.type,
+                "url": f"/reference/core#{member.name}",
+                "module": "core",
+            }
+        )
+    # Public modules
+    for module_name in PUBLIC_MODULES:
+        module_data = cache.get(module_name)
+        if module_data is None:
+            continue
+        index.append(
+            {
+                "name": module_name,
+                "type": "module",
+                "url": f"/reference/{module_name}",
+                "module": module_name,
+            }
+        )
+        for member in module_data.members:
+            index.append(
+                {
+                    "name": member.name,
+                    "type": member.type,
+                    "url": f"/reference/{module_name}#{member.name}",
+                    "module": module_name,
+                }
+            )
+            for method in member.methods:
+                index.append(
+                    {
+                        "name": f"{member.name}.{method.name}",
+                        "type": "method",
+                        "url": f"/reference/{module_name}#{member.name}",
+                        "module": module_name,
+                    }
+                )
+    return index
 
 
 def create_app() -> Flask:
@@ -90,6 +138,13 @@ def create_app() -> Flask:
             members=module_rendered["members"],
             toc_sections=module_rendered["toc_sections"],
         )
+
+    @app.route("/search-index.json")
+    def search_index() -> Any:
+        """Serve the search index as JSON."""
+        cache = app.extensions["docs_cache"]
+        index = _build_search_index(cache)
+        return jsonify(index)
 
     @app.route("/reference/<path:module_path>")
     def reference_module(module_path: str) -> str:
