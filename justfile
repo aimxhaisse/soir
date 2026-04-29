@@ -3,6 +3,8 @@ _default:
 
 # Create virtual environment and install Python
 setup:
+    #!/usr/bin/env bash
+
     uv python install 3.14.2t
     uv venv --python 3.14.2t --relocatable
 
