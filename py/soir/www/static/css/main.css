@@ -627,6 +627,114 @@ blockquote > p:last-of-type {
   outline-offset: -2px;
 }
 
+/* Search */
+.search-section {
+  position: relative;
+  margin-top: 4vmin;
+  margin-bottom: 6vmin;
+}
+
+#search-input {
+  background: var(--text-color-5);
+  border: 1px solid transparent;
+  border-radius: 8px;
+  color: var(--text-color);
+  font-family: var(--fontstack);
+  font-size: 120%;
+  padding: 0.7em 1em;
+  width: 100%;
+  transition: border-color 0.2s;
+}
+
+#search-input::placeholder {
+  color: var(--text-color-60);
+}
+
+#search-input:focus {
+  outline: none;
+  border-color: var(--link-color);
+}
+
+.search-results {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  left: 0;
+  width: 100%;
+  max-height: 400px;
+  overflow-y: auto;
+  background: var(--bg-color);
+  border: 1px solid var(--text-color-5);
+  border-radius: 8px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-4px);
+  transition: opacity 0.15s, transform 0.15s, visibility 0.15s;
+  z-index: 100;
+}
+
+.search-results.visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.search-result {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.6em 1em;
+  text-decoration: none;
+  border-bottom: 1px solid var(--text-color-5);
+  transition: background 0.1s;
+}
+
+.search-result:last-child {
+  border-bottom: none;
+}
+
+.search-result:hover,
+.search-result.active {
+  background: var(--text-color-5);
+}
+
+.search-result-name {
+  font-family: var(--fontstack-mono);
+  font-size: 90%;
+  color: var(--code-color);
+}
+
+.search-result-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  font-size: 75%;
+  opacity: var(--opacity-medium);
+}
+
+.search-result-type {
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 80%;
+}
+
+.search-result-module {
+  opacity: var(--opacity-high);
+}
+
+.search-no-results {
+  padding: 1em;
+  text-align: center;
+  opacity: var(--opacity-medium);
+  font-size: 90%;
+}
+
+@media (max-width: 640px) {
+  #search-input {
+    font-size: 100%;
+  }
+}
+
 /* Mobile TOC - visible on smaller screens */
 .toc-mobile {
   display: none;

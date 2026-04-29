@@ -1,5 +1,9 @@
 {% extends "base.html" %}
 
+{% block extra_head %}
+<script src="{{ url_for('static', filename='js/search.js') }}" defer></script>
+{% endblock %}
+
 {% block content %}
 <article class="reference-content">
     <h1>reference</h1>
@@ -27,6 +31,11 @@
     </nav>
 
     <div class="reference-main-content">
+        <div class="search-section">
+            <input type="text" id="search-input" placeholder="Search functions, classes, modules..." autocomplete="off" aria-label="Search documentation">
+            <div id="search-results" class="search-results" role="listbox" aria-label="Search results"></div>
+        </div>
+
         <div id="philosophy" class="member-section">
             <h2 class="section-header">PHILOSOPHY</h2>
             <div class="module-doc">
