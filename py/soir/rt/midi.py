@@ -1,8 +1,5 @@
 """
-The **midi** module provides a way to communicate with external
-synthesizers.
-
-@public
+The **midi** module provides a way to communicate with external synthesizers.
 
 ``` python
 with midi.use_chan(1):

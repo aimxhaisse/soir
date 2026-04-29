@@ -2,6 +2,14 @@
 
 {% block content %}
 <article class="page-content">
-  {{ content | safe }}
+  {% if h1 %}
+  {{ h1 | safe }}
+  {% endif %}
+  {% if toc_sections %}
+  {% include "_toc.html" %}
+  {% endif %}
+  <div class="page-main-content">
+    {{ content | safe }}
+  </div>
 </article>
 {% endblock %}

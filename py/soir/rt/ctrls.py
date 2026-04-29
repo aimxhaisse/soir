@@ -1,6 +1,5 @@
 """
-The **ctrls** module contains facilities to control settings of soir
-in real-time.
+The **ctrls** module contains helpers to control parameters in real-time.
 """
 
 from collections.abc import Callable

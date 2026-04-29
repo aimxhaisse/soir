@@ -1,12 +1,5 @@
 """
-The **rnd** module provides facilities to introduce randomness in the
-composition.
-
-@public
-
-``` python
-rnd.between(1, 10)
-```
+The **rnd** module provides facilities to introduce randomness in the composition.
 """
 
 import random

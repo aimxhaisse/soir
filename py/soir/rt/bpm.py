@@ -1,11 +1,10 @@
 """
+The **bpm** module can be used to manipulate the clock of soir.
 
 The **bpm** module provides a way to set the tempo of the current
 session. The tempo is a global setting that affects all loops and
 samples, it is measured in beats per minute (BPM) and can be adjusted
 in real-time.
-
-# Reference
 """
 
 from soir._bindings.rt import (

@@ -5,8 +5,6 @@ and effects. Once a track is created, loops can be scheduled on
 it. Tracks can be added & removed in real-time using the `setup()`
 function, existing tracks are untouched.
 
-@public
-
 ```python
 tracks.setup({
     'bass': tracks.mk_sampler(fxs={

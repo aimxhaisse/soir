@@ -1,8 +1,5 @@
 """
-The sampler module can be used on loops running on tracks with
-instrument type set to `sampler`.
-
-@public
+The sampler can be used on tracks with instrument type set to `sampler`.
 
 The **sampler** module provides a way to load samples and play them
 inside loops in an intuitive way. Once instantiated, a `Sampler` can
@@ -20,6 +17,7 @@ def kick(beats=4):
     s.play('kick')
     sleep(1)
 ```
+
 """
 
 import json

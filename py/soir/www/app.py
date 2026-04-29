@@ -1,5 +1,6 @@
 """Flask web application for serving Soir documentation."""
 
+import re
 import threading
 import time
 from pathlib import Path
@@ -38,7 +39,7 @@ def create_app() -> Flask:
     app = Flask(__name__)
 
     @app.template_filter("truncate_toc")
-    def truncate_toc(text: str, max_total: int = 14) -> str:
+    def truncate_toc(text: str, max_total: int = 24) -> str:
         if len(text) <= max_total:
             return text
         return text[: max_total - 3] + "..."
@@ -52,20 +53,20 @@ def create_app() -> Flask:
     @app.route("/")
     def home() -> str:
         """Render the home page."""
-        content = render_markdown("home.md")
-        return render_template("page.html", content=content, title="Home")
+        content, h1, toc_sections = render_markdown("home.md")
+        return render_template("page.html", content=content, title="Home", h1=h1, toc_sections=toc_sections)
 
     @app.route("/quickstart")
     def quickstart() -> str:
         """Render the quickstart page."""
-        content = render_markdown("quickstart.md")
-        return render_template("page.html", content=content, title="Quickstart")
+        content, h1, toc_sections = render_markdown("quickstart.md")
+        return render_template("page.html", content=content, title="Quickstart", h1=h1, toc_sections=toc_sections)
 
     @app.route("/examples")
     def examples() -> str:
         """Render the examples page."""
-        content = render_markdown("examples.md")
-        return render_template("page.html", content=content, title="Examples")
+        content, h1, toc_sections = render_markdown("examples.md")
+        return render_template("page.html", content=content, title="Examples", h1=h1, toc_sections=toc_sections)
 
     @app.route("/reference")
     def reference() -> str:
@@ -87,6 +88,7 @@ def create_app() -> Flask:
             modules=PUBLIC_MODULES,
             doc=module_rendered["doc"],
             members=module_rendered["members"],
+            toc_sections=module_rendered["toc_sections"],
         )
 
     @app.route("/reference/<path:module_path>")
@@ -138,17 +140,48 @@ def create_app() -> Flask:
             500,
         )
 
-    def render_markdown(filename: str) -> Any:
+    def render_markdown(
+        filename: str,
+    ) -> tuple[str, str | None, list[dict[str, Any]] | None]:
         content_dir = Path(__file__).parent / "content"
         file_path = content_dir / filename
 
         if not file_path.exists():
-            return "<p>Content coming soon.</p>"
+            return "<p>Content coming soon.</p>", None, None
 
         with open(file_path, "r", encoding="utf-8") as f:
             markdown_text = f.read()
 
-        return app.extensions["markdown"].convert(markdown_text)
+        md = create_markdown_renderer()
+        html = md.convert(markdown_text)
+
+        # Build TOC sections from markdown tokens for shared template
+        toc_sections: list[dict[str, Any]] | None = None
+        if md.toc_tokens:
+            toc_sections = []
+            for token in md.toc_tokens:
+                if token["level"] == 2:
+                    section: dict[str, Any] = {
+                        "title": token["name"],
+                        "href": f"#{token['id']}",
+                        "items": [],
+                    }
+                    for child in token.get("children", []):
+                        section["items"].append(
+                            {
+                                "name": child["name"],
+                                "href": f"#{child['id']}",
+                            }
+                        )
+                    toc_sections.append(section)
+
+        # Extract first <h1> so it can be placed before the TOC
+        h1_match = re.search(r"<h1[^>]*>.*?</h1>", html, re.DOTALL)
+        h1 = h1_match.group(0) if h1_match else None
+        if h1:
+            html = html.replace(h1, "", 1)
+
+        return html, h1, toc_sections
 
     return app
 

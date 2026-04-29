@@ -1,8 +1,6 @@
 """
-The **system** module provides access to low-level facilities
-of the soir engine.
+The **system** module provides access to low-level facilities of the soir engine.
 
-@public
 """
 
 from dataclasses import dataclass

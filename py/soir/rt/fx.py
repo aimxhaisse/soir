@@ -1,10 +1,10 @@
 """
+The **fx** module contains DSP effects that can be attached to tracks.
+
 The `fx` module provides a set of audio effects that can be applied to
 tracks in the soir engine. Each track can have a set of effects with
 corresponding parameters, which are typically defined using the
 `tracks.setup()` function.
-
-@public
 
 ```python
 tracks.setup({
