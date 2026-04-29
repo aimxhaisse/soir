@@ -1,20 +1,16 @@
-{% if members and members|length > 0 %}
+{% if toc_sections and toc_sections|length > 0 %}
 {# Desktop TOC - sticky sidebar #}
 <nav class="toc toc-inline" id="toc" aria-label="Table of contents">
-    {% if doc %}
+    {% for section in toc_sections %}
     <div class="toc-section">
-        <h4><a href="#overview">Overview</a></h4>
-    </div>
-    {% endif %}
-
-    {% for type, group in members|groupby('type') %}
-    <div class="toc-section">
-        <h4><a href="#section-{{ type }}">{{ type|capitalize }}</a></h4>
+        <h4><a href="{{ section.href }}">{{ section.title }}</a></h4>
+        {% if section['items'] %}
         <ul>
-            {% for member in group %}
-            <li><a href="#{{ member.name }}" title="{{ member.name }}">{{ member.name|truncate_toc }}</a></li>
+            {% for item in section['items'] %}
+            <li><a href="{{ item.href }}" title="{{ item.name }}">{{ item.name|truncate_toc }}</a></li>
             {% endfor %}
         </ul>
+        {% endif %}
     </div>
     {% endfor %}
 </nav>
@@ -22,13 +18,10 @@
 {# Mobile TOC - always visible on small screens #}
 <nav class="toc toc-mobile" aria-label="Table of contents">
     <ul>
-        {% if doc %}
-        <li><a href="#overview">Overview</a></li>
-        {% endif %}
-        {% for type, group in members|groupby('type') %}
-        <li><a href="#section-{{ type }}">{{ type|capitalize }}</a></li>
-        {% for member in group %}
-        <li><a href="#{{ member.name }}">{{ member.name|truncate_toc }}</a></li>
+        {% for section in toc_sections %}
+        <li><a href="{{ section.href }}">{{ section.title }}</a></li>
+        {% for item in section['items'] %}
+        <li><a href="{{ item.href }}">{{ item.name|truncate_toc }}</a></li>
         {% endfor %}
         {% endfor %}
     </ul>

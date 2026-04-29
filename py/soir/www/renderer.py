@@ -4,6 +4,8 @@ This module handles rendering parsed documentation into HTML,
 including syntax highlighting and markdown conversion.
 """
 
+from itertools import groupby
+from operator import itemgetter
 from typing import Any, cast
 
 from docstring_parser import Docstring
@@ -118,10 +120,31 @@ def render_module(module_data: ModuleDoc, md: Markdown) -> dict[str, Any]:
 
     members_rendered = [render_member(member, md) for member in module_data.members]
 
+    # Build unified TOC sections for shared template
+    toc_sections: list[dict[str, Any]] = []
+    if module_doc_html:
+        toc_sections.append(
+            {"title": "Overview", "href": "#overview", "items": []}
+        )
+
+    members_by_type = sorted(members_rendered, key=itemgetter("type"))
+    for type_name, group in groupby(members_by_type, key=itemgetter("type")):
+        toc_sections.append(
+            {
+                "title": type_name.capitalize() + "s",
+                "href": f"#section-{type_name}",
+                "items": [
+                    {"name": member["name"], "href": f"#{member['name']}"}
+                    for member in group
+                ],
+            }
+        )
+
     return {
         "name": module_data.name,
         "doc": module_doc_html,
         "members": members_rendered,
+        "toc_sections": toc_sections,
     }
 
 
@@ -136,12 +159,16 @@ def create_markdown_renderer() -> Markdown:
             "codehilite",
             "tables",
             "fenced_code",
+            "toc",
         ],
         extension_configs={
             "codehilite": {
                 "css_class": "highlight",
                 "guess_lang": False,
                 "linenums": False,
-            }
+            },
+            "toc": {
+                "toc_depth": "2-6",
+            },
         },
     )

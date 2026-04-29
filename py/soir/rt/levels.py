@@ -1,8 +1,6 @@
 """
 Level metering for tracks and master output.
 
-@public
-
 The **levels** module provides access to audio level metering for both
 individual tracks and the master output. Levels include peak amplitude
 (with hold/decay) and RMS values for left and right channels.

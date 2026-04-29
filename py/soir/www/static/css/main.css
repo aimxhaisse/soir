@@ -404,6 +404,11 @@ blockquote > p:last-of-type {
   letter-spacing: normal;
 }
 
+/* Page layout with TOC sidebar */
+.page-content {
+  position: relative;
+}
+
 /* Reference layout - TOC outside on left */
 .reference-content {
   position: relative;
@@ -442,9 +447,9 @@ blockquote > p:last-of-type {
   position: sticky;
   top: 25px;
   float: left;
-  width: 200px;
+  width: 240px;
   margin-top: 8vmin !important;
-  margin-left: calc(-220px - 3rem);
+  margin-left: calc(-260px - 3rem);
   margin-right: 3rem;
   padding-left: 1.5rem;
   border-left: 4px solid var(--text-color-5);
@@ -453,7 +458,7 @@ blockquote > p:last-of-type {
   overflow-y: auto;
 }
 
-@media (max-width: 1400px) {
+@media (max-width: 1500px) {
   .toc-inline {
     display: none;
   }
@@ -508,6 +513,12 @@ blockquote > p:last-of-type {
 
 /* Member sections */
 .member-section {
+  scroll-margin-top: 2rem;
+}
+
+.page-main-content h2,
+.page-main-content h3,
+.page-main-content h4 {
   scroll-margin-top: 2rem;
 }
 
@@ -621,7 +632,7 @@ blockquote > p:last-of-type {
   display: none;
 }
 
-@media (max-width: 1400px) {
+@media (max-width: 1500px) {
   .toc-mobile {
     display: block;
     margin: 6vmin 0 4vmin;

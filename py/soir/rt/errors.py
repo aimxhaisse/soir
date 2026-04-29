@@ -1,6 +1,5 @@
 """
-The errors module contains exceptions raised by the Soir engine to
-signal errors at runtime.
+The **errors** module contains possible exceptions raised by soir at runtime.
 """
 
 
