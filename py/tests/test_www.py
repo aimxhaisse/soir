@@ -5,6 +5,7 @@ from collections.abc import Generator
 import pytest
 from flask.testing import FlaskClient
 from soir.www.app import create_app
+from werkzeug.test import TestResponse
 
 
 @pytest.fixture
@@ -17,7 +18,7 @@ def client() -> Generator[FlaskClient]:
 
 
 @pytest.fixture
-def search_response(client: FlaskClient):
+def search_response(client: FlaskClient) -> TestResponse:
     """Fetch search index and return response."""
     return client.get("/search-index.json")
 
@@ -55,15 +56,15 @@ class TestRoutes:
         response = client.get("/nonexistent")
         assert response.status_code == 404
 
-    def test_search_index_status(self, search_response) -> None:
+    def test_search_index_status(self, search_response: TestResponse) -> None:
         """Test /search-index.json returns 200."""
         assert search_response.status_code == 200
 
-    def test_search_index_content_type(self, search_response) -> None:
+    def test_search_index_content_type(self, search_response: TestResponse) -> None:
         """Test /search-index.json returns JSON."""
         assert search_response.content_type == "application/json"
 
-    def test_search_index_structure(self, search_response) -> None:
+    def test_search_index_structure(self, search_response: TestResponse) -> None:
         """Test /search-index.json returns a list of entries with expected keys."""
         import json
 
@@ -81,7 +82,7 @@ class TestRoutes:
             assert isinstance(entry["url"], str)
             assert isinstance(entry["module"], str)
 
-    def test_search_index_has_modules(self, search_response) -> None:
+    def test_search_index_has_modules(self, search_response: TestResponse) -> None:
         """Test /search-index.json contains module entries."""
         import json
 

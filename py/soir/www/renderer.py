@@ -123,9 +123,7 @@ def render_module(module_data: ModuleDoc, md: Markdown) -> dict[str, Any]:
     # Build unified TOC sections for shared template
     toc_sections: list[dict[str, Any]] = []
     if module_doc_html:
-        toc_sections.append(
-            {"title": "Overview", "href": "#overview", "items": []}
-        )
+        toc_sections.append({"title": "Overview", "href": "#overview", "items": []})
 
     members_by_type = sorted(members_rendered, key=itemgetter("type"))
     for type_name, group in groupby(members_by_type, key=itemgetter("type")):

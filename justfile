@@ -5,8 +5,8 @@ _default:
 setup:
     #!/usr/bin/env bash
 
-    uv python install 3.14.2t
-    uv venv --python 3.14.2t --relocatable
+    uv python install 3.14.4t
+    uv venv --python 3.14.4t --relocatable
 
 # Clean build files
 clean:
@@ -29,25 +29,35 @@ check:
 
 # Build C++ extension and install dependencies
 build:
+    #!/usr/bin/env bash
+
     uv pip install .[dev]
     uv run python setup.py build_ext --inplace --with-tests
 
 # Run unit tests only
 test-unit:
+    #!/usr/bin/env bash
+
     uv run python setup.py run_cpp_tests
     uv run pytest py/tests/test_config.py py/tests/test_vst.py py/tests/test_watcher.py py/tests/test_www.py -v
 
 # Run integration tests only
 test-integration pattern="":
+    #!/usr/bin/env bash
+
     uv run pytest -sv --timeout 360 py/tests/integration -v -x {{ if pattern != "" { "-k '" + pattern + "'" } else { "" } }}
 
 # Run all tests
 test:
+    #!/usr/bin/env bash
+
     just test-unit
     just test-integration
 
 # Build a wheel for the current platform + interpreter
 wheel:
+    #!/usr/bin/env bash
+
     rm -rf dist/
     uv build --wheel
-    @ls -lh dist/
+    ls -lh dist/
