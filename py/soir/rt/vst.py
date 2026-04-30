@@ -7,7 +7,6 @@ Plugins are automatically scanned when the engine starts.
 from typing import cast
 
 from soir._bindings import rt as _rt
-
 from soir.rt import errors
 
 

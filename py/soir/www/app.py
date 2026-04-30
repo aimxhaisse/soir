@@ -102,19 +102,33 @@ def create_app() -> Flask:
     def home() -> str:
         """Render the home page."""
         content, h1, toc_sections = render_markdown("home.md")
-        return render_template("page.html", content=content, title="Home", h1=h1, toc_sections=toc_sections)
+        return render_template(
+            "page.html", content=content, title="Home", h1=h1, toc_sections=toc_sections
+        )
 
     @app.route("/quickstart")
     def quickstart() -> str:
         """Render the quickstart page."""
         content, h1, toc_sections = render_markdown("quickstart.md")
-        return render_template("page.html", content=content, title="Quickstart", h1=h1, toc_sections=toc_sections)
+        return render_template(
+            "page.html",
+            content=content,
+            title="Quickstart",
+            h1=h1,
+            toc_sections=toc_sections,
+        )
 
     @app.route("/examples")
     def examples() -> str:
         """Render the examples page."""
         content, h1, toc_sections = render_markdown("examples.md")
-        return render_template("page.html", content=content, title="Examples", h1=h1, toc_sections=toc_sections)
+        return render_template(
+            "page.html",
+            content=content,
+            title="Examples",
+            h1=h1,
+            toc_sections=toc_sections,
+        )
 
     @app.route("/reference")
     def reference() -> str:
@@ -212,9 +226,10 @@ def create_app() -> Flask:
 
         # Build TOC sections from markdown tokens for shared template
         toc_sections: list[dict[str, Any]] | None = None
-        if md.toc_tokens:
+        toc_tokens = getattr(md, "toc_tokens", None)
+        if toc_tokens:
             toc_sections = []
-            for token in md.toc_tokens:
+            for token in toc_tokens:
                 if token["level"] == 2:
                     section: dict[str, Any] = {
                         "title": token["name"],

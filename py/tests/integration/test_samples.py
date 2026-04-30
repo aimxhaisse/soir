@@ -10,7 +10,6 @@ import tempfile
 import unittest
 import wave
 from pathlib import Path
-
 from unittest.mock import patch
 
 import click.exceptions

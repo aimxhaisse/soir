@@ -117,7 +117,7 @@ class Config(BaseModel):
     cast: CastConfig = Field(default_factory=CastConfig)
 
     @classmethod
-    def load_global(cls) -> "Config":
+    def load_global(cls) -> Config:
         """Load the global configuration from $SOIR_HOME.
 
         Returns:
@@ -126,7 +126,7 @@ class Config(BaseModel):
         return cls.load_from_path(get_soir_home() / "etc" / "config.json")
 
     @classmethod
-    def load_from_path(cls, path: str | Path) -> "Config":
+    def load_from_path(cls, path: str | Path) -> Config:
         """Load configuration from a JSON file.
 
         Args:
