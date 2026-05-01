@@ -11,8 +11,6 @@ from soir.config import Config
 
 from .base import SoirSessionTestCase
 
-_CAST_PORT = 15002
-
 
 def _wait_for_port(host: str, port: int, timeout: float = 10.0) -> bool:
     """Return True once the port accepts TCP connections, False on timeout."""
@@ -36,13 +34,14 @@ class TestCastServer(SoirSessionTestCase):
         cfg = Config(
             dsp=Config.DspConfig(),
             live=Config.LiveConfig(),
-            cast=Config.CastConfig(enabled=True, port=_CAST_PORT),
+            cast=Config.CastConfig(enabled=True, port=0),
         )
         self.cast_server = CastServer(cfg)
         self.cast_server.start()
+        self.port = self.cast_server.port
         self.assertTrue(
-            _wait_for_port("127.0.0.1", _CAST_PORT),
-            f"CastServer did not open port {_CAST_PORT} in time",
+            _wait_for_port("127.0.0.1", self.port),
+            f"CastServer did not open port {self.port} in time",
         )
 
     def tearDown(self) -> None:
@@ -51,7 +50,7 @@ class TestCastServer(SoirSessionTestCase):
 
     def test_index_returns_html(self) -> None:
         """GET / returns 200 with HTML content."""
-        conn = http.client.HTTPConnection("127.0.0.1", _CAST_PORT, timeout=5)
+        conn = http.client.HTTPConnection("127.0.0.1", self.port, timeout=5)
         conn.request("GET", "/")
         response = conn.getresponse()
         body = response.read()
@@ -62,7 +61,7 @@ class TestCastServer(SoirSessionTestCase):
 
     def test_state_returns_valid_json(self) -> None:
         """GET /state returns 200 with a valid JSON snapshot."""
-        conn = http.client.HTTPConnection("127.0.0.1", _CAST_PORT, timeout=5)
+        conn = http.client.HTTPConnection("127.0.0.1", self.port, timeout=5)
         conn.request("GET", "/state")
         response = conn.getresponse()
         body = response.read()
@@ -84,7 +83,7 @@ class TestCastServer(SoirSessionTestCase):
 
     def test_state_bpm_matches_config(self) -> None:
         """Snapshot BPM matches the initial_bpm set in the engine config."""
-        conn = http.client.HTTPConnection("127.0.0.1", _CAST_PORT, timeout=5)
+        conn = http.client.HTTPConnection("127.0.0.1", self.port, timeout=5)
         conn.request("GET", "/state")
         response = conn.getresponse()
         data = json.loads(response.read())
@@ -94,7 +93,7 @@ class TestCastServer(SoirSessionTestCase):
 
     def test_events_returns_sse_stream(self) -> None:
         """GET /events returns text/event-stream with at least one data frame."""
-        conn = http.client.HTTPConnection("127.0.0.1", _CAST_PORT, timeout=5)
+        conn = http.client.HTTPConnection("127.0.0.1", self.port, timeout=5)
         conn.request("GET", "/events")
         response = conn.getresponse()
 
