@@ -14,7 +14,7 @@ namespace vst {
 
 namespace fs = std::filesystem;
 
-VstScanner::VstScanner() : search_paths_(GetDefaultSearchPaths()) {}
+VstScanner::VstScanner(): search_paths_(GetDefaultSearchPaths()) {}
 
 std::vector<std::string> VstScanner::GetDefaultSearchPaths() {
   std::vector<std::string> paths;

@@ -65,6 +65,13 @@ class CastServer:
         self._thread: Thread | None = None
         self._stop_event = Event()
 
+    @property
+    def port(self) -> int:
+        """Return the actual port the server is listening on."""
+        if self._server is None:
+            raise RuntimeError("Server not started")
+        return self._server.server_address[1]
+
     def start(self) -> None:
         app = _make_flask_app(self._config, self._stop_event)
         self._server = make_server(

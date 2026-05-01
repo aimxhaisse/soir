@@ -84,6 +84,12 @@ FetchContent_Declare(
     GIT_TAG v0.18.3
 )
 
+FetchContent_Declare(
+    readerwriterqueue
+    GIT_REPOSITORY https://github.com/cameron314/readerwriterqueue.git
+    GIT_TAG v1.0.7
+)
+
 set(BUILD_GMOCK OFF CACHE BOOL "" FORCE)    # gtest
 set(BUILD_EXAMPLES OFF CACHE BOOL "" FORCE) # audiofile
 set(BUILD_TESTS OFF CACHE BOOL "" FORCE)    # audiofile, ogg
@@ -95,7 +101,7 @@ set(SMTG_ADD_VST3_HOSTING_SAMPLES OFF CACHE BOOL "" FORCE)
 set(SMTG_RUN_VST_VALIDATOR OFF CACHE BOOL "" FORCE)
 set(SMTG_CREATE_PLUGIN_LINK OFF CACHE BOOL "" FORCE)
 
-FetchContent_MakeAvailable(pybind11 nlohmann_json abseil-cpp googletest miniaudio audiofile libremidi vst3sdk)
+FetchContent_MakeAvailable(pybind11 nlohmann_json abseil-cpp googletest miniaudio audiofile libremidi vst3sdk readerwriterqueue)
 
 # vstgui's iplatformtaskexecutor.h uses uint64_t without including <cstdint>;
 # force-include it for all vstgui_standalone compilation units.

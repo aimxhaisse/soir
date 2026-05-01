@@ -5,8 +5,10 @@ _default:
 setup:
     #!/usr/bin/env bash
 
-    uv python install 3.14.4t
-    uv venv --python 3.14.4t --relocatable
+    if ! uv python find 3.14.2+freethreaded --system >/dev/null 2>&1; then
+        uv python install 3.14.2+freethreaded
+    fi
+    uv venv --python "$(uv python find 3.14.2+freethreaded --system)" --relocatable
 
 # Clean build files
 clean:
