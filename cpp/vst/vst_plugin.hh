@@ -12,12 +12,15 @@
 
 #include "audio/audio_buffer.hh"
 #include "core/common.hh"
+#include "pluginterfaces/gui/iplugview.h"
 #include "pluginterfaces/vst/ivstaudioprocessor.h"
 #include "pluginterfaces/vst/ivstcomponent.h"
 #include "pluginterfaces/vst/ivsteditcontroller.h"
 #include "pluginterfaces/vst/ivstevents.h"
 #include "public.sdk/source/vst/hosting/module.h"
+#include "public.sdk/source/vst/hosting/parameterchanges.h"
 #include "vst/vst_host.hh"
+#include "vst/vst_plug_frame.hh"
 
 namespace soir {
 
@@ -104,9 +107,13 @@ class VstPlugin {
   Steinberg::IPtr<Steinberg::Vst::IAudioProcessor> processor_;
   Steinberg::IPtr<Steinberg::Vst::IEditController> controller_;
   Steinberg::FUnknownPtr<Steinberg::IPlugView> view_;
+  Steinberg::IPtr<HostPlugFrame> plug_frame_;
 
   Steinberg::Vst::ProcessSetup process_setup_;
   Steinberg::Vst::ProcessData process_data_;
+  Steinberg::Vst::ProcessContext process_context_{};
+  Steinberg::Vst::ParameterChanges input_param_changes_;
+  Steinberg::Vst::ParameterChanges output_param_changes_;
   Steinberg::Vst::AudioBusBuffers input_buffers_;
   Steinberg::Vst::AudioBusBuffers output_buffers_;
 

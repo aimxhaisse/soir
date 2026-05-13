@@ -14,9 +14,30 @@ namespace vst {
 
 namespace fs = std::filesystem;
 
-VstScanner::VstScanner(): search_paths_(GetDefaultSearchPaths()) {}
+VstScanner::VstScanner() : search_paths_(GetDefaultSearchPaths()) {}
 
 std::vector<std::string> VstScanner::GetDefaultSearchPaths() {
+  // SOIR_VST_SEARCH_PATHS overrides the system defaults. Used by integration
+  // tests to scope scanning to a known-good plug-in directory; not intended
+  // for end users. Format: colon-separated absolute paths.
+  if (const char* override_paths = std::getenv("SOIR_VST_SEARCH_PATHS")) {
+    std::vector<std::string> paths;
+    std::string remaining = override_paths;
+    size_t pos = 0;
+    while ((pos = remaining.find(':')) != std::string::npos) {
+      if (pos > 0) {
+        paths.push_back(remaining.substr(0, pos));
+      }
+      remaining.erase(0, pos + 1);
+    }
+    if (!remaining.empty()) {
+      paths.push_back(remaining);
+    }
+    if (!paths.empty()) {
+      return paths;
+    }
+  }
+
   std::vector<std::string> paths;
 
 #if defined(__APPLE__)

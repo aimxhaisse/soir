@@ -12,6 +12,14 @@ from .soir_test_base import SoirTestEngine
 
 _PROJECT_ROOT = Path(__file__).parent.parent.parent.parent
 
+# Scope VST3 scanning to the SDK's sample plug-ins built under build/cmake/.
+# Without this, the scanner picks up every plug-in installed system-wide,
+# which makes tests non-deterministic and exposes them to plug-ins with bad
+# teardown behaviour (e.g. plug-ins that install global SIGSEGV handlers or
+# spawn threads that outlive the host instance). The SDK samples (`again`,
+# `note-expression-synth`, …) are vendored, controlled, and well-behaved.
+_TEST_VST_SEARCH_PATHS = str(_PROJECT_ROOT / "build" / "cmake" / "VST3" / "Release")
+
 _STANDALONE_TEST_CONFIG = {
     "dsp": {
         "enable_output": False,
@@ -38,6 +46,8 @@ class SoirSessionTestCase(unittest.TestCase):
 
     def setUp(self) -> None:
         """Set up test engine before each test."""
+        self._saved_vst_search_paths = os.environ.get("SOIR_VST_SEARCH_PATHS")
+        os.environ["SOIR_VST_SEARCH_PATHS"] = _TEST_VST_SEARCH_PATHS
         self.temp_dir = tempfile.mkdtemp()
         self.log_dir = Path(self.temp_dir) / "logs"
         self.engine = SoirTestEngine(
@@ -73,6 +83,11 @@ log("reset done")
             print("=" * 80)
 
         shutil.rmtree(self.temp_dir, ignore_errors=True)
+
+        if self._saved_vst_search_paths is None:
+            os.environ.pop("SOIR_VST_SEARCH_PATHS", None)
+        else:
+            os.environ["SOIR_VST_SEARCH_PATHS"] = self._saved_vst_search_paths
 
 
 class SoirStandaloneTestCase(unittest.TestCase):

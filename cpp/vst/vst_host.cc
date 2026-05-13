@@ -2,6 +2,8 @@
 
 #include <absl/log/log.h>
 
+#include "public.sdk/source/vst/hosting/hostclasses.h"
+#include "vst/vst_editor.hh"
 #include "vst/vst_plugin.hh"
 #include "vst/vst_scanner.hh"
 
@@ -22,8 +24,24 @@ tresult PLUGIN_API HostContext::getName(Vst::String128 name) {
   return kResultOk;
 }
 
-tresult PLUGIN_API HostContext::createInstance(TUID /*cid*/, TUID /*iid*/,
-                                               void** obj) {
+tresult PLUGIN_API HostContext::createInstance(TUID cid, TUID iid, void** obj) {
+  // The VST3 specification allows plug-ins to ask the host to instantiate
+  // IMessage and IAttributeList for inter-component communication. Several
+  // plug-in frameworks (DPF, JUCE) rely on this. We delegate to the SDK's
+  // reference implementations.
+  if (FUnknownPrivate::iidEqual(cid, Vst::IMessage::iid) &&
+      FUnknownPrivate::iidEqual(iid, Vst::IMessage::iid)) {
+    *obj = new Vst::HostMessage();
+    return kResultTrue;
+  }
+  if (FUnknownPrivate::iidEqual(cid, Vst::IAttributeList::iid) &&
+      FUnknownPrivate::iidEqual(iid, Vst::IAttributeList::iid)) {
+    if (auto al = Vst::HostAttributeList::make()) {
+      *obj = al.take();
+      return kResultTrue;
+    }
+    return kOutOfMemory;
+  }
   *obj = nullptr;
   return kNotImplemented;
 }
@@ -61,6 +79,11 @@ absl::Status VstHost::Init() {
   if (initialized_) {
     return absl::OkStatus();
   }
+
+  // Plugin scanning instantiates each plugin's IComponent, which on Linux
+  // can reach into XLib (e.g. Cardinal's MIT-SHM cleanup). Install our error
+  // handler before that happens so transient X errors do not kill the host.
+  EditorWindow::InitPlatform();
 
   host_context_ = std::make_unique<HostContext>();
   initialized_ = true;
