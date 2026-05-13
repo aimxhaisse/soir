@@ -25,6 +25,7 @@ dependencies = [
     "pip>=25.3",
     "textual>=7.0.0",
     "platformdirs>=4.3.0",
+    "soundfile>=0.13.1",
 ]
 
 [tool.setuptools.packages.find]

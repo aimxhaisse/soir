@@ -75,6 +75,7 @@ absl::Status VstPlugin::Shutdown() {
     auto view = std::move(view_);
     editor_open_ = false;
     try {
+      view->setFrame(nullptr);
       view->removed();
     } catch (const std::exception& e) {
       LOG(WARNING) << "VST view removal failed (bridge may have exited): "
@@ -83,6 +84,7 @@ absl::Status VstPlugin::Shutdown() {
       LOG(WARNING) << "VST view removal failed with unknown exception";
     }
   }
+  plug_frame_ = nullptr;
 
   if (activated_) {
     if (processor_) {
@@ -232,12 +234,15 @@ absl::Status VstPlugin::Activate(int sample_rate, int block_size) {
   }
 
   result = component_->setActive(true);
-  if (result != kResultOk) {
+  if (result != kResultOk && result != kNotImplemented) {
     return absl::InternalError("Failed to activate component");
   }
 
+  // setProcessing is optional per the VST3 spec — plug-ins that don't need to
+  // distinguish active-but-idle from actively-processing return kNotImplemented
+  // (e.g. the SDK's AGain sample). Treat both that and kResultOk as success.
   result = processor_->setProcessing(true);
-  if (result != kResultOk) {
+  if (result != kResultOk && result != kNotImplemented) {
     return absl::InternalError("Failed to start processing");
   }
 
@@ -268,6 +273,14 @@ absl::Status VstPlugin::Activate(int sample_rate, int block_size) {
   process_data_.outputs = &output_buffers_;
   process_data_.inputEvents = &input_events_;
   process_data_.outputEvents = &output_events_;
+  // The VST3 spec allows process data to carry parameter changes. Several
+  // plug-in frameworks assert that these pointers are non-null. Provide
+  // empty queues and a minimal process context so plug-ins can read the
+  // sample rate if they need it.
+  process_data_.inputParameterChanges = &input_param_changes_;
+  process_data_.outputParameterChanges = &output_param_changes_;
+  process_context_.sampleRate = sample_rate;
+  process_data_.processContext = &process_context_;
 
   activated_ = true;
   LOG(INFO) << "VST plugin activated at " << sample_rate << " Hz, "
@@ -373,6 +386,11 @@ void VstPlugin::Process(SampleTick tick, AudioBuffer& buffer,
   process_data_.numSamples = size;
   processor_->process(process_data_);
 
+  // Discard any parameter changes the plug-in emitted; we do not surface
+  // automated VST parameters back to the host. Clearing per-block keeps the
+  // queue from growing unboundedly.
+  output_param_changes_.clearQueue();
+
   std::copy(output_left_.begin(), output_left_.begin() + size, left_in);
   std::copy(output_right_.begin(), output_right_.begin() + size, right_in);
 }
@@ -465,6 +483,14 @@ absl::Status VstPlugin::OpenEditor(void* parent_window) {
     return absl::NotFoundError("Plugin does not have an editor");
   }
 
+  // Per VST3 spec, the host must provide an IPlugFrame before attaching the
+  // view so the plug-in can request resizes. Several frameworks assert on this
+  // and refuse to attach if no frame is set.
+  if (!plug_frame_) {
+    plug_frame_ = owned(CreateHostPlugFrame().release());
+  }
+  view_->setFrame(plug_frame_.get());
+
   ViewRect rect{};
   if (view_->getSize(&rect) == kResultOk) {
     editor_size_ = {rect.right - rect.left, rect.bottom - rect.top};
@@ -476,6 +502,7 @@ absl::Status VstPlugin::OpenEditor(void* parent_window) {
   auto result = view_->attached(parent_window, kPlatformTypeX11EmbedWindowID);
 #endif
   if (result != kResultOk) {
+    view_->setFrame(nullptr);
     view_ = nullptr;
     return absl::InternalError("Failed to attach editor view");
   }

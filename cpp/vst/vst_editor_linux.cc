@@ -12,31 +12,23 @@ namespace vst {
 std::mutex LinuxEditorWindow::registry_mutex_;
 std::vector<LinuxEditorWindow*> LinuxEditorWindow::registry_;
 
-namespace {
-
-// XInitThreads() must be called once before any other Xlib call.
-void EnsureXInitThreads() {
-  static std::once_flag flag;
-  std::call_once(flag, [] { XInitThreads(); });
-}
-
-// Install a custom X11 error handler. During VST plugin teardown, embedded
-// plugin code (e.g. yabridge running inside our process) may attempt X11
-// operations on windows that are already destroyed, producing BadDrawable
-// errors. These are benign: the default handler would call exit(1), which
-// is the wrong behaviour for cleanup-time noise. This matches the approach
-// used by GTK (gdk_error_trap_push), JUCE, and Ardour for plugin hosting.
+// One-shot platform setup. Installs XInitThreads (required before any other
+// Xlib call) and an XLib error handler that swallows non-fatal errors from
+// plugin code. Without the handler, the default Xlib behaviour is to call
+// exit(1) — which kills the host process when a plugin's destructor issues
+// X_ShmDetach for a never-attached segment, or when yabridge code touches a
+// window that has already been destroyed. This matches the approach used by
+// GTK (gdk_error_trap_push), JUCE, and Ardour for plugin hosting.
 //
 // Note: X11 error handlers are called while XLib holds internal locks, so
 // only async-signal-safe operations (e.g. write(2)) are safe to call here.
-void EnsureErrorHandler() {
+void EditorWindow::InitPlatform() {
   static std::once_flag flag;
   std::call_once(flag, [] {
+    XInitThreads();
     XSetErrorHandler([](Display*, XErrorEvent*) -> int { return 0; });
   });
 }
-
-}  // namespace
 
 LinuxEditorWindow::LinuxEditorWindow(Display* display, Window window,
                                      Atom wm_delete_window)
@@ -104,8 +96,7 @@ void LinuxEditorWindow::PumpAll() {
 
 std::unique_ptr<EditorWindow> EditorWindow::Create(int width, int height,
                                                    const char* title) {
-  EnsureXInitThreads();
-  EnsureErrorHandler();
+  InitPlatform();
 
   Display* display = XOpenDisplay(nullptr);
   if (!display) {

@@ -72,6 +72,8 @@ void MacOsEditorWindow::Hide() {
   }
 }
 
+void EditorWindow::InitPlatform() {}
+
 std::unique_ptr<EditorWindow> EditorWindow::Create(int width, int height,
                                                    const char* title) {
   @autoreleasepool {

@@ -236,12 +236,14 @@ target_link_libraries(soir_inst
 add_library(soir_vst
     cpp/vst/vst_host.cc
     cpp/vst/vst_plugin.cc
+    cpp/vst/vst_plug_frame.cc
     cpp/vst/vst_scanner.cc
 )
 
 if(APPLE)
     target_sources(soir_vst PRIVATE
         cpp/vst/vst_editor_macos.mm
+        cpp/vst/vst_plug_frame_macos.mm
         ${vst3sdk_SOURCE_DIR}/public.sdk/source/vst/hosting/module_mac.mm
     )
     set_source_files_properties(
@@ -251,7 +253,12 @@ if(APPLE)
 elseif(UNIX)
     target_sources(soir_vst PRIVATE
         cpp/vst/vst_editor_linux.cc
+        cpp/vst/vst_plug_frame_linux.cc
         ${vst3sdk_SOURCE_DIR}/public.sdk/source/vst/hosting/module_linux.cpp
+    )
+else()
+    target_sources(soir_vst PRIVATE
+        cpp/vst/vst_plug_frame_win.cc
     )
 endif()
 
