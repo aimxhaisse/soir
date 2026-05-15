@@ -112,9 +112,15 @@ class Config(BaseModel):
         enabled: bool = Field(default=False)
         port: int = Field(default=5002)
 
+    class VstConfig(BaseModel):
+        """VST configuration."""
+
+        scan_at_startup: bool = Field(default=True)
+
     dsp: DspConfig = Field()
     live: LiveConfig = Field()
     cast: CastConfig = Field(default_factory=CastConfig)
+    vst: VstConfig = Field(default_factory=VstConfig)
 
     @classmethod
     def load_global(cls) -> Config:

@@ -59,11 +59,13 @@ absl::Status Engine::Init(const utils::Config& config) {
   status = vst_host_->Init();
   if (!status.ok()) {
     LOG(WARNING) << "Failed to initialize VST host: " << status;
-  } else {
+  } else if (config.GetOrDefault<bool>("vst.scan_at_startup", true)) {
     status = vst_host_->ScanPlugins();
     if (!status.ok()) {
       LOG(WARNING) << "Failed to scan VST plugins: " << status;
     }
+  } else {
+    LOG(INFO) << "VST plugin scanning disabled";
   }
 
   audio_recorder_ = std::make_unique<AudioRecorder>();

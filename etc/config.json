@@ -11,5 +11,8 @@
     "live": {
         "directory": ".",
         "initial_bpm": 130
+    },
+    "vst": {
+        "scan_at_startup": true
     }
 }
