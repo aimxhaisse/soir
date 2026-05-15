@@ -15,3 +15,5 @@ CPackConfig.cmake
 CPackSourceConfig.cmake
 _deps
 .cocoindex_code
+# CocoIndex Code (ccc)
+/.cocoindex_code/

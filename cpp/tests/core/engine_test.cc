@@ -13,6 +13,9 @@ constexpr const char* kTestConfig = R"({
     "streaming_port": 5001,
     "sample_directory": "/tmp",
     "sample_packs": []
+  },
+  "vst": {
+    "scan_at_startup": false
   }
 })";
 

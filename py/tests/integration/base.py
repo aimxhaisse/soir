@@ -34,6 +34,9 @@ _STANDALONE_TEST_CONFIG = {
         "directory": ".",
         "initial_bpm": 120,
     },
+    "vst": {
+        "scan_at_startup": False,
+    },
 }
 
 

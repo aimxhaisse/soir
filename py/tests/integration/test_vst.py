@@ -13,11 +13,18 @@ requirements are not met.
 
 import os
 import unittest
+from typing import ClassVar
 
 from .base import SoirSessionTestCase
 
 
-class TestVstPluginDiscovery(SoirSessionTestCase):
+class VstTestCase(SoirSessionTestCase):
+    """Base class for VST tests that require plugin scanning."""
+
+    config_overrides: ClassVar[dict[str, bool]] = {"vst_scan_at_startup": True}
+
+
+class TestVstPluginDiscovery(VstTestCase):
     """Test VST3 plugin discovery and listing."""
 
     def test_vst_plugins_returns_list(self) -> None:
@@ -61,7 +68,7 @@ log(f"consistent={same_count}")
         self.assertTrue(self.engine.wait_for_notification("consistent=True"))
 
 
-class TestVstEffectSetup(SoirSessionTestCase):
+class TestVstEffectSetup(VstTestCase):
     """Test adding VST effects to tracks.
 
     These tests require VST plugins to be installed and the VST host to be
@@ -193,7 +200,7 @@ except Exception as e:
 """)
 
 
-class TestVstEffectChain(SoirSessionTestCase):
+class TestVstEffectChain(VstTestCase):
     """Test VST effects in effect chains."""
 
     def _run_vst_test(self, code: str) -> None:
@@ -338,7 +345,7 @@ except Exception as e:
 """)
 
 
-class TestVstEffectReordering(SoirSessionTestCase):
+class TestVstEffectReordering(VstTestCase):
     """Test reordering effects including VST plugins."""
 
     def test_reorder_vst_in_chain(self) -> None:
@@ -422,7 +429,7 @@ except Exception as e:
             return  # Test passes - error was handled gracefully
 
 
-class TestVstMultipleTracks(SoirSessionTestCase):
+class TestVstMultipleTracks(VstTestCase):
     """Test VST effects across multiple tracks."""
 
     def _run_vst_test(self, code: str) -> None:
@@ -502,7 +509,7 @@ except Exception as e:
 """)
 
 
-class TestVstInstrumentDiscovery(SoirSessionTestCase):
+class TestVstInstrumentDiscovery(VstTestCase):
     """Test VST3 instrument plugin discovery."""
 
     def test_vst_instruments_returns_list(self) -> None:
@@ -580,7 +587,7 @@ log(f"total_match={total_match}")
         self.assertTrue(self.engine.wait_for_notification("total_match=True"))
 
 
-class TestVstInstrumentSetup(SoirSessionTestCase):
+class TestVstInstrumentSetup(VstTestCase):
     """Test creating VST instrument tracks."""
 
     def _run_vst_test(self, code: str) -> None:
@@ -790,7 +797,7 @@ except Exception as e:
 """)
 
 
-class TestVstInstrumentMultipleTracks(SoirSessionTestCase):
+class TestVstInstrumentMultipleTracks(VstTestCase):
     """Test multiple VST instrument tracks."""
 
     def _run_vst_test(self, code: str) -> None:
@@ -922,7 +929,7 @@ except Exception as e:
             return
 
 
-class TestVstEditorOpenClose(SoirSessionTestCase):
+class TestVstEditorOpenClose(VstTestCase):
     """Test VST editor open/close/reopen lifecycle.
 
     These tests require an X11 display and at least one VST plugin to be

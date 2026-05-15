@@ -15,5 +15,8 @@
   "cast": {
     "enabled": {{ cast_enabled | default(false) | lower }},
     "port": {{ cast_port | default(5002) }}
+  },
+  "vst": {
+    "scan_at_startup": {{ vst_scan_at_startup | default(false) | lower }}
   }
 }
