@@ -14,3 +14,4 @@ playground
 CPackConfig.cmake
 CPackSourceConfig.cmake
 _deps
+.cocoindex_code
