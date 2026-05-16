@@ -968,6 +968,11 @@ try:
             _rt.vst_close_fx_editor_('synth', 'vst_fx')
             _rt.vst_open_fx_editor_('synth', 'vst_fx')
             log("editor_test=done")
+except RuntimeError as e:
+    if "does not have an editor" in str(e):
+        log("editor_test=skipped:no_editor")
+    else:
+        log(f"editor_test=error:{e}")
 except Exception as e:
     log(f"editor_test=error:{e}")
 """)
@@ -1011,6 +1016,11 @@ try:
             _rt.vst_close_inst_editor_('synth')
             _rt.vst_open_inst_editor_('synth')
             log("inst_editor_test=done")
+except RuntimeError as e:
+    if "does not have an editor" in str(e):
+        log("inst_editor_test=skipped:no_editor")
+    else:
+        log(f"inst_editor_test=error:{e}")
 except Exception as e:
     log(f"inst_editor_test=error:{e}")
 """)

@@ -121,7 +121,8 @@ absl::Status VstPlugin::Shutdown() {
   return absl::OkStatus();
 }
 
-absl::Status VstPlugin::Init(const std::string& path, FUnknown* host_context,
+absl::Status VstPlugin::Init(const std::string& path,
+                             const std::string& uid, FUnknown* host_context,
                              VstPluginType type) {
   std::lock_guard<std::mutex> lock(mutex_);
   type_ = type;
@@ -139,9 +140,11 @@ absl::Status VstPlugin::Init(const std::string& path, FUnknown* host_context,
 
   for (auto& info : factory.classInfos()) {
     if (info.category() == kVstAudioEffectClass) {
-      component_ = factory.createInstance<IComponent>(info.ID());
-      if (component_) {
-        break;
+      if (info.ID().toString() == uid) {
+        component_ = factory.createInstance<IComponent>(info.ID());
+        if (component_) {
+          break;
+        }
       }
     }
   }
