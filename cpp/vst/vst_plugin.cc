@@ -121,9 +121,8 @@ absl::Status VstPlugin::Shutdown() {
   return absl::OkStatus();
 }
 
-absl::Status VstPlugin::Init(const std::string& path,
-                             const std::string& uid, FUnknown* host_context,
-                             VstPluginType type) {
+absl::Status VstPlugin::Init(const std::string& path, const std::string& uid,
+                             FUnknown* host_context, VstPluginType type) {
   std::lock_guard<std::mutex> lock(mutex_);
   type_ = type;
 

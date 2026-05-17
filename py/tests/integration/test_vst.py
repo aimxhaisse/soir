@@ -18,6 +18,23 @@ from typing import ClassVar
 from .base import SoirSessionTestCase
 
 
+def use_vsts(vst_names):
+    """Decorator to run a test for each specified VST plugin.
+
+    The decorated test method will be run once for each VST in the list.
+    The test method receives the VST name as a keyword argument `vst_name`.
+
+    Args:
+        vst_names: List of VST plugin names to test.
+    """
+
+    def decorator(func):
+        func._use_vsts = vst_names
+        return func
+
+    return decorator
+
+
 class VstTestCase(SoirSessionTestCase):
     """Base class for VST tests that require plugin scanning."""
 
@@ -942,39 +959,35 @@ class TestVstEditorOpenClose(VstTestCase):
         if not os.environ.get("DISPLAY"):
             self.skipTest("No X11 display available (DISPLAY not set)")
 
-    def test_fx_editor_open_close_reopen(self) -> None:
+    @use_vsts(["AGain VST3", "Panner"])
+    def test_fx_editor_open_close_reopen(self, *, vst_name: str) -> None:
         """Test that a VST FX editor can be opened, closed, and reopened."""
         self._skip_if_no_display()
 
-        self.engine.push_code("""
+        self.engine.push_code(f"""
 from soir._bindings import rt as _rt
 
 try:
-    effects = vst.effects()
-    if not effects:
-        log("editor_test=skipped:no_fx_plugins")
+    tracks.setup({{
+        'synth': tracks.mk('sampler', fxs={{
+            'vst_fx': fx.mk_vst('{vst_name}'),
+        }}),
+    }})
+    layout = tracks.layout()
+    if not layout or 'synth' not in layout:
+        log("editor_test=skipped:vst_broken")
     else:
-        plugin_name = effects[0]['name']
-        tracks.setup({
-            'synth': tracks.mk('sampler', fxs={
-                'vst_fx': fx.mk_vst(plugin_name),
-            }),
-        })
-        layout = tracks.layout()
-        if not layout or 'synth' not in layout:
-            log("editor_test=skipped:vst_broken")
-        else:
-            _rt.vst_open_fx_editor_('synth', 'vst_fx')
-            _rt.vst_close_fx_editor_('synth', 'vst_fx')
-            _rt.vst_open_fx_editor_('synth', 'vst_fx')
-            log("editor_test=done")
+        _rt.vst_open_fx_editor_('synth', 'vst_fx')
+        _rt.vst_close_fx_editor_('synth', 'vst_fx')
+        _rt.vst_open_fx_editor_('synth', 'vst_fx')
+        log("editor_test=done")
 except RuntimeError as e:
     if "does not have an editor" in str(e):
         log("editor_test=skipped:no_editor")
     else:
-        log(f"editor_test=error:{e}")
+        log(f"editor_test=error:{{e}}")
 except Exception as e:
-    log(f"editor_test=error:{e}")
+    log(f"editor_test=error:{{e}}")
 """)
 
         result = self.engine.wait_for_notification("editor_test=", timeout=15.0)
@@ -992,37 +1005,33 @@ except Exception as e:
         self.assertEqual(len(opened), 2, "Expected 2 open events (open + reopen)")
         self.assertEqual(len(closed), 1, "Expected 1 close event")
 
-    def test_inst_editor_open_close_reopen(self) -> None:
+    @use_vsts(["Note Expression Synth With UI", "Note Expression Text"])
+    def test_inst_editor_open_close_reopen(self, *, vst_name: str) -> None:
         """Test that a VST instrument editor can be opened, closed, and reopened."""
         self._skip_if_no_display()
 
-        self.engine.push_code("""
+        self.engine.push_code(f"""
 from soir._bindings import rt as _rt
 
 try:
-    insts = vst.instruments()
-    if not insts:
-        log("inst_editor_test=skipped:no_instruments")
+    tracks.setup({{
+        'synth': tracks.mk_vst('{vst_name}'),
+    }})
+    layout = tracks.layout()
+    if not layout or 'synth' not in layout:
+        log("inst_editor_test=skipped:vst_broken")
     else:
-        plugin_name = insts[0]['name']
-        tracks.setup({
-            'synth': tracks.mk_vst(plugin_name),
-        })
-        layout = tracks.layout()
-        if not layout or 'synth' not in layout:
-            log("inst_editor_test=skipped:vst_broken")
-        else:
-            _rt.vst_open_inst_editor_('synth')
-            _rt.vst_close_inst_editor_('synth')
-            _rt.vst_open_inst_editor_('synth')
-            log("inst_editor_test=done")
+        _rt.vst_open_inst_editor_('synth')
+        _rt.vst_close_inst_editor_('synth')
+        _rt.vst_open_inst_editor_('synth')
+        log("inst_editor_test=done")
 except RuntimeError as e:
     if "does not have an editor" in str(e):
         log("inst_editor_test=skipped:no_editor")
     else:
-        log(f"inst_editor_test=error:{e}")
+        log(f"inst_editor_test=error:{{e}}")
 except Exception as e:
-    log(f"inst_editor_test=error:{e}")
+    log(f"inst_editor_test=error:{{e}}")
 """)
 
         result = self.engine.wait_for_notification("inst_editor_test=", timeout=15.0)
@@ -1039,6 +1048,34 @@ except Exception as e:
         closed = [n for n in notifications if "Closing VST instrument editor:" in n]
         self.assertEqual(len(opened), 2, "Expected 2 open events (open + reopen)")
         self.assertEqual(len(closed), 1, "Expected 1 close event")
+
+
+# Generate parameterized test methods for @use_vsts decorator.
+# This must run after the class is defined.
+def _generate_vst_tests():
+    for cls in [TestVstEditorOpenClose]:
+        for name, method in list(cls.__dict__.items()):
+            if hasattr(method, "_use_vsts"):
+                # Remove the original method
+                delattr(cls, name)
+                # Generate a test method for each VST
+                for vst_name in method._use_vsts:
+                    safe_name = vst_name.replace(" ", "_").replace("-", "_")
+                    test_name = f"{name}_{safe_name}"
+
+                    def make_test(vst_name, original_method):
+                        def test(self):
+                            return original_method(self, vst_name=vst_name)
+
+                        return test
+
+                    test_method = make_test(vst_name, method)
+                    test_method.__name__ = test_name
+                    test_method.__doc__ = f"{method.__doc__} [vst={vst_name!r}]"
+                    setattr(cls, test_name, test_method)
+
+
+_generate_vst_tests()
 
 
 if __name__ == "__main__":
