@@ -7,6 +7,7 @@
 #include <memory>
 #include <mutex>
 #include <string>
+#include <vector>
 
 #include "pluginterfaces/base/funknown.h"
 #include "pluginterfaces/vst/ivsthostapplication.h"
@@ -29,7 +30,9 @@ struct PluginInfo {
 
 class VstPlugin;
 
-// Simple host application context for VST3 plugins.
+// Base host application context for VST3 plugins.
+// Platform-specific extensions (e.g. Linux IRunLoop) are provided by derived
+// classes in the per-platform translation units.
 class HostContext : public Steinberg::Vst::IHostApplication {
  public:
   HostContext();
@@ -48,9 +51,17 @@ class HostContext : public Steinberg::Vst::IHostApplication {
   Steinberg::uint32 PLUGIN_API addRef() override;
   Steinberg::uint32 PLUGIN_API release() override;
 
+ protected:
+  // Hook for platform-specific interfaces (e.g. Linux::IRunLoop).
+  virtual Steinberg::tresult QueryPlatformInterface(const Steinberg::TUID iid,
+                                                    void** obj);
+
  private:
   std::atomic<Steinberg::int32> ref_count_{1};
 };
+
+// Factory — returns the appropriate concrete type for the platform.
+HostContext* CreateHostContext();
 
 class VstHost {
  public:
@@ -74,7 +85,7 @@ class VstHost {
   std::mutex mutex_;
   bool initialized_ = false;
   std::map<std::string, PluginInfo> plugins_;
-  std::unique_ptr<HostContext> host_context_;
+  HostContext* host_context_ = nullptr;
 };
 
 }  // namespace vst

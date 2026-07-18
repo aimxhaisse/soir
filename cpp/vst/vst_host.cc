@@ -53,6 +53,10 @@ tresult PLUGIN_API HostContext::queryInterface(const TUID iid, void** obj) {
     addRef();
     return kResultOk;
   }
+  return QueryPlatformInterface(iid, obj);
+}
+
+tresult HostContext::QueryPlatformInterface(const TUID iid, void** obj) {
   *obj = nullptr;
   return kNoInterface;
 }
@@ -85,7 +89,12 @@ absl::Status VstHost::Init() {
   // handler before that happens so transient X errors do not kill the host.
   EditorWindow::InitPlatform();
 
-  host_context_ = std::make_unique<HostContext>();
+  // Use a process-wide singleton HostContext so that VSTGUI's global
+  // RunLoop (which may outlive individual VstHost instances) never holds
+  // a dangling pointer to a destroyed context.
+  static HostContext* global_host_context = CreateHostContext();
+  host_context_ = global_host_context;
+
   initialized_ = true;
   LOG(INFO) << "VST host initialized";
 
@@ -100,14 +109,16 @@ absl::Status VstHost::Shutdown() {
   }
 
   plugins_.clear();
-  host_context_.reset();
+  host_context_ = nullptr;
   initialized_ = false;
   LOG(INFO) << "VST host shutdown";
 
   return absl::OkStatus();
 }
 
-FUnknown* VstHost::GetHostContext() { return host_context_.get(); }
+FUnknown* VstHost::GetHostContext() {
+  return static_cast<Steinberg::Vst::IHostApplication*>(host_context_);
+}
 
 absl::Status VstHost::ScanPlugins() {
   std::lock_guard<std::mutex> lock(mutex_);
@@ -156,8 +167,10 @@ absl::StatusOr<std::unique_ptr<VstPlugin>> VstHost::LoadPlugin(
   }
 
   auto plugin = std::make_unique<VstPlugin>();
-  auto status = plugin->Init(it->second.path, it->second.uid,
-                             host_context_.get(), it->second.type);
+  auto status = plugin->Init(
+      it->second.path, it->second.uid,
+      static_cast<Steinberg::Vst::IHostApplication*>(host_context_),
+      it->second.type);
   if (!status.ok()) {
     return status;
   }

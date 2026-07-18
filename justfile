@@ -43,7 +43,9 @@ test-unit:
     uv run python setup.py run_cpp_tests
     uv run pytest py/tests/test_config.py py/tests/test_vst.py py/tests/test_watcher.py py/tests/test_www.py -v
 
-# Run integration tests only
+# Run integration tests only.
+# VST editor tests require an X11 display; they skip themselves when DISPLAY
+# is not set (headless/CI environments).
 test-integration pattern="":
     #!/usr/bin/env bash
 

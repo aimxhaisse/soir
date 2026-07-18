@@ -146,6 +146,7 @@ just test     # always
 - Namespaces: `namespace soir { ... }  // namespace soir` (nested: `namespace soir::vst`)
 - Headers: `#pragma once`, no inline implementation (trivial getters excepted)
 - Files in CMakeLists.txt: alphabetical order
+- **Platform-specific code must live in suffixed files, never behind `#ifdef` blocks in shared `.cc` files.** Use `_linux.cc`, `_macos.mm`, `_win.cc` (and matching `.hh` headers when needed). Add the platform files to the appropriate `target_sources` branch in `CMakeLists.txt`. Keep the base class / cross-platform interface in the unsuffixed file and provide a factory function (e.g. `CreateHostContext()`) that the shared code calls.
 
 ### Python
 - Standard: Python 3.14.2 (free-threaded build, `-Xgil=0`)
