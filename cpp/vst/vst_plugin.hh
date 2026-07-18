@@ -84,6 +84,11 @@ class VstPlugin {
   bool HasEditor();
   absl::Status OpenEditor(void* parent_window);
   absl::Status CloseEditor();
+
+  // Platform-specific editor attachment. Implemented in the per-platform
+  // translation unit (vst_plugin_linux.cc, vst_plugin_macos.mm, etc.).
+  Steinberg::tresult AttachEditorView(Steinberg::IPlugView* view,
+                                      void* parent_window);
   bool IsEditorOpen();
   std::pair<int, int> GetEditorSize() const;
 

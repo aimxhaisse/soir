@@ -2,10 +2,6 @@
 
 #include <absl/log/log.h>
 
-#ifdef __linux__
-#include <dlfcn.h>
-#endif
-
 #include <libremidi/message.hpp>
 
 #include "core/midi_event.hh"
@@ -66,7 +62,6 @@ VstPlugin::~VstPlugin() { Shutdown().IgnoreError(); }
 
 absl::Status VstPlugin::Shutdown() {
   std::lock_guard<std::mutex> lock(mutex_);
-
   // Per VST3 spec, call removed() before releasing the view. The bridge
   // process may have already exited (e.g. X11 error killed it), in which
   // case removed() throws std::system_error (EOF on the socket). Catch it
@@ -137,6 +132,16 @@ absl::Status VstPlugin::Init(const std::string& path, const std::string& uid,
     return absl::InternalError("Failed to get plugin factory");
   }
 
+  // Pass the host context to the plugin factory so VSTGUI-based plug-ins on
+  // Linux can retrieve the IRunLoop needed for their event loop integration.
+  // IPluginFactory3::setHostContext forwards the context to callbacks
+  // registered during module load (e.g. setupVSTGUIRunloop) and on Linux
+  // also stores it for the platform timer implementation.
+  FUnknownPtr<IPluginFactory3> factory3(factory.get());
+  if (factory3) {
+    factory3->setHostContext(host_context);
+  }
+
   for (auto& info : factory.classInfos()) {
     if (info.category() == kVstAudioEffectClass) {
       if (info.ID().toString() == uid) {
@@ -153,24 +158,12 @@ absl::Status VstPlugin::Init(const std::string& path, const std::string& uid,
   }
 
 #ifdef __linux__
-  // Mark the plugin .so as non-deletable so that dlclose() only decrements
-  // the reference count without unmapping the code. Bridge libraries such as
-  // yabridge spawn background threads that may still be running when
-  // Shutdown() calls dlclose(); RTLD_NODELETE keeps the code mapped for the
-  // lifetime of the process, preventing use-after-free crashes in those
-  // threads.
-  //
-  // On Linux the VST3 SDK dlopen()s the .so inside the .vst3 bundle, not the
-  // bundle path itself, so RTLD_NOLOAD with the bundle path returns null.
-  // Instead we obtain the real .so path by calling dladdr() on the component's
-  // vtable pointer, which always lives in the plugin .so's read-only data.
-  {
-    void* vtable = *reinterpret_cast<void**>(component_.get());
-    ::Dl_info dl_info{};
-    if (::dladdr(vtable, &dl_info) && dl_info.dli_fname) {
-      ::dlopen(dl_info.dli_fname, RTLD_NOLOAD | RTLD_NODELETE | RTLD_LAZY);
-    }
-  }
+  // Note: we intentionally do NOT use RTLD_NODELETE here. While it prevents
+  // use-after-free in bridge libraries (yabridge), it also keeps VSTGUI's
+  // global destructor registered until process exit, where it can run after
+  // the X11 connection is gone. By allowing dlclose() to unload the plugin,
+  // the VSTGUI destructor runs during Shutdown() instead, while the display
+  // connection is still valid.
 #endif
 
   auto result = component_->initialize(host_context);
@@ -459,7 +452,10 @@ bool VstPlugin::HasEditor() {
     return false;
   }
 
-  auto view = controller_->createView(ViewType::kEditor);
+  // createView transfers ownership of a new reference; adopt it so the view
+  // is released instead of leaked.
+  Steinberg::IPtr<Steinberg::IPlugView> view =
+      Steinberg::owned(controller_->createView(ViewType::kEditor));
   return view != nullptr;
 }
 
@@ -498,11 +494,7 @@ absl::Status VstPlugin::OpenEditor(void* parent_window) {
     editor_size_ = {rect.right - rect.left, rect.bottom - rect.top};
   }
 
-#if defined(__APPLE__)
-  auto result = view_->attached(parent_window, kPlatformTypeNSView);
-#else
-  auto result = view_->attached(parent_window, kPlatformTypeX11EmbedWindowID);
-#endif
+  auto result = AttachEditorView(view_.get(), parent_window);
   if (result != kResultOk) {
     view_->setFrame(nullptr);
     view_ = nullptr;

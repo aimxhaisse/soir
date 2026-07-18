@@ -16,7 +16,9 @@ FxVst::FxVst(Controls* controls, vst::VstHost* vst_host)
 FxVst::~FxVst() {
   if (plugin_ && initialized_) {
     try {
+      plugin_->CloseEditor().IgnoreError();
       plugin_->Deactivate().IgnoreError();
+      plugin_->Shutdown().IgnoreError();
     } catch (...) {
     }
   }
