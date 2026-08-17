@@ -1,4 +1,4 @@
-/* Soir - Sparanoid-inspired styling */
+/* Soir - Ocean flavor: deep sea slate, teal & cyan currents */
 
 :root {
   --fontstack: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
@@ -37,15 +37,15 @@
   --nav-margin-neg: calc(var(--nav-item-space) * -1);
   --nav-item-padding: .5em var(--nav-item-space);
 
-  --text-color: hsl(215, 12%, 75%);
-  --text-color-3: hsla(215, 12%, 75%, .03);
-  --text-color-5: hsla(215, 12%, 75%, .05);
-  --text-color-60: hsla(215, 12%, 75%, .6);
+  --text-color: hsl(190, 20%, 80%);
+  --text-color-3: hsla(190, 20%, 80%, .03);
+  --text-color-5: hsla(190, 20%, 80%, .05);
+  --text-color-60: hsla(190, 20%, 80%, .6);
 
-  --link-color: hsl(215, 45%, 65%);
-  --bg-color: hsl(215, 20%, 9%);
-  --code-color: hsl(245, 50%, 70%);
-  --code-color-5: hsla(245, 50%, 70%, .05);
+  --link-color: hsl(175, 70%, 55%);
+  --bg-color: hsl(206, 40%, 10%);
+  --code-color: hsl(200, 65%, 68%);
+  --code-color-5: hsla(200, 65%, 68%, .05);
 
   --border-sm: 1px;
   --border-md: 2px;
@@ -122,11 +122,9 @@ small {
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(to bottom, rgba(15, 18, 23, 0.3), rgba(15, 18, 23, 0.4)),
-    url('/static/img/header-1.jpg');
-  background-size: cover;
-  background-position: center 85%;
-  transform: scale(1.15);
+    radial-gradient(ellipse at 20% 80%, hsla(175, 65%, 40%, .35), transparent 60%),
+    radial-gradient(ellipse at 80% 20%, hsla(200, 65%, 45%, .3), transparent 60%),
+    linear-gradient(to bottom, hsl(206, 42%, 12%), hsl(206, 40%, 10%));
   z-index: -1;
 }
 
@@ -748,4 +746,18 @@ blockquote > p:last-of-type {
     padding-left: 1.5rem;
     font-size: 90%;
   }
+}
+
+/* Ocean flavor: deep & current */
+pre {
+  border: 1px solid hsla(175, 60%, 60%, .14);
+}
+
+blockquote > p {
+  border-left-color: hsl(200, 65%, 50%);
+}
+
+a:hover,
+a:focus {
+  text-shadow: 0 0 10px hsla(175, 70%, 55%, .25);
 }
