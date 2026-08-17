@@ -14,6 +14,15 @@
 
   if (!input || !resultsContainer) return;
 
+  // Focus the search box when arriving via the nav search button (#search)
+  function focusIfSearchHash() {
+    if (location.hash === '#search') {
+      input.focus();
+    }
+  }
+  focusIfSearchHash();
+  window.addEventListener('hashchange', focusIfSearchHash);
+
   function loadIndex() {
     if (indexLoaded) return Promise.resolve();
     return fetch(SEARCH_INDEX_URL)

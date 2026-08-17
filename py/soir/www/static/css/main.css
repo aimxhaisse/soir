@@ -230,6 +230,17 @@ a:focus-visible {
   text-decoration: none;
 }
 
+.nav-search {
+  display: inline-flex;
+  align-items: center;
+  margin-left: auto;
+}
+
+.nav-search svg {
+  width: 1.25em;
+  height: 1.25em;
+}
+
 /* Content */
 .content {
   margin-bottom: 16vmin;
