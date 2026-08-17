@@ -46,18 +46,21 @@ class TestVstPluginDiscovery(VstTestCase):
 
     def test_vst_plugins_returns_list(self) -> None:
         """Test that vst.plugins() returns a list."""
-        self.engine.push_code("""
+        self.engine.push_code(
+            """
 plugins = vst.plugins()
 log(f"type={type(plugins).__name__}")
 log(f"count={len(plugins)}")
-""")
+"""
+        )
 
         self.assertTrue(self.engine.wait_for_notification("type=list"))
         self.assertTrue(self.engine.wait_for_notification("count="))
 
     def test_vst_plugins_info_structure(self) -> None:
         """Test that plugin info has expected keys when plugins are available."""
-        self.engine.push_code("""
+        self.engine.push_code(
+            """
 plugins = vst.plugins()
 if plugins:
     p = plugins[0]
@@ -69,18 +72,21 @@ if plugins:
     log(f"structure_ok={has_uid and has_name and has_vendor and has_category and has_path}")
 else:
     log("structure_ok=skipped")
-""")
+"""
+        )
 
         self.assertTrue(self.engine.wait_for_notification("structure_ok="))
 
     def test_vst_plugins_multiple_calls_consistent(self) -> None:
         """Test that multiple calls to vst.plugins() return consistent results."""
-        self.engine.push_code("""
+        self.engine.push_code(
+            """
 plugins1 = vst.plugins()
 plugins2 = vst.plugins()
 same_count = len(plugins1) == len(plugins2)
 log(f"consistent={same_count}")
-""")
+"""
+        )
 
         self.assertTrue(self.engine.wait_for_notification("consistent=True"))
 
@@ -111,7 +117,8 @@ class TestVstEffectSetup(VstTestCase):
 
     def test_setup_track_with_vst_effect(self) -> None:
         """Test adding a VST effect to a track."""
-        self._run_vst_test("""
+        self._run_vst_test(
+            """
 try:
     plugins = vst.plugins()
     if not plugins:
@@ -134,11 +141,13 @@ try:
             log(f"vst_test_result=failed:fxs={fxs_types}")
 except Exception as e:
     log(f"vst_test_result=error:{e}")
-""")
+"""
+        )
 
     def test_setup_vst_effect_with_static_params(self) -> None:
         """Test adding a VST effect with static parameter values."""
-        self._run_vst_test("""
+        self._run_vst_test(
+            """
 try:
     plugins = vst.plugins()
     if not plugins:
@@ -160,11 +169,13 @@ try:
             log(f"vst_test_result=failed:fxs={fxs_types}")
 except Exception as e:
     log(f"vst_test_result=error:{e}")
-""")
+"""
+        )
 
     def test_setup_vst_effect_with_control_params(self) -> None:
         """Test adding a VST effect with control-based parameter automation."""
-        self._run_vst_test("""
+        self._run_vst_test(
+            """
 try:
     plugins = vst.plugins()
     if not plugins:
@@ -187,11 +198,13 @@ try:
             log(f"vst_test_result=failed:fxs={fxs_types}")
 except Exception as e:
     log(f"vst_test_result=error:{e}")
-""")
+"""
+        )
 
     def test_setup_vst_effect_with_lfo_param(self) -> None:
         """Test adding a VST effect with LFO-controlled parameter."""
-        self._run_vst_test("""
+        self._run_vst_test(
+            """
 try:
     plugins = vst.plugins()
     if not plugins:
@@ -214,7 +227,8 @@ try:
             log(f"vst_test_result=failed:fxs={fxs_types}")
 except Exception as e:
     log(f"vst_test_result=error:{e}")
-""")
+"""
+        )
 
 
 class TestVstEffectChain(VstTestCase):
@@ -238,7 +252,8 @@ class TestVstEffectChain(VstTestCase):
 
     def test_vst_with_builtin_effects(self) -> None:
         """Test mixing VST effects with built-in effects."""
-        self._run_vst_test("""
+        self._run_vst_test(
+            """
 try:
     plugins = vst.plugins()
     if not plugins:
@@ -262,11 +277,13 @@ try:
             log(f"vst_test_result=failed:fxs={fxs_types}")
 except Exception as e:
     log(f"vst_test_result=error:{e}")
-""")
+"""
+        )
 
     def test_multiple_vst_effects(self) -> None:
         """Test adding multiple VST effects to a single track."""
-        self._run_vst_test("""
+        self._run_vst_test(
+            """
 try:
     plugins = vst.plugins()
     if not plugins:
@@ -289,11 +306,13 @@ try:
             log(f"vst_test_result=failed:fxs={fxs_types}")
 except Exception as e:
     log(f"vst_test_result=error:{e}")
-""")
+"""
+        )
 
     def test_remove_vst_effect(self) -> None:
         """Test removing a VST effect from a track."""
-        self._run_vst_test("""
+        self._run_vst_test(
+            """
 try:
     plugins = vst.plugins()
     if not plugins:
@@ -323,11 +342,13 @@ try:
                 log(f"vst_test_result=failed:had_vst={had_vst},now_empty={now_empty}")
 except Exception as e:
     log(f"vst_test_result=error:{e}")
-""")
+"""
+        )
 
     def test_replace_vst_with_builtin(self) -> None:
         """Test replacing a VST effect with a built-in effect."""
-        self._run_vst_test("""
+        self._run_vst_test(
+            """
 try:
     plugins = vst.plugins()
     if not plugins:
@@ -359,7 +380,8 @@ try:
                 log(f"vst_test_result=failed:had_vst={had_vst},now_chorus={now_chorus}")
 except Exception as e:
     log(f"vst_test_result=error:{e}")
-""")
+"""
+        )
 
 
 class TestVstEffectReordering(VstTestCase):
@@ -367,7 +389,8 @@ class TestVstEffectReordering(VstTestCase):
 
     def test_reorder_vst_in_chain(self) -> None:
         """Test reordering VST effect in the effect chain."""
-        self.engine.push_code("""
+        self.engine.push_code(
+            """
 try:
     plugins = vst.plugins()
     if not plugins:
@@ -403,7 +426,8 @@ try:
                 log(f"vst_test_result=failed:order1_ok={order1_ok},order2_ok={order2_ok}")
 except Exception as e:
     log(f"vst_test_result=error:{e}")
-""")
+"""
+        )
 
         self.assertTrue(self.engine.wait_for_notification("vst_test_result="))
         for n in self.engine.get_notifications():
@@ -424,7 +448,8 @@ class TestVstInvalidPlugin(SoirSessionTestCase):
 
     def test_invalid_plugin_name(self) -> None:
         """Test that using an invalid plugin name is handled gracefully."""
-        self.engine.push_code("""
+        self.engine.push_code(
+            """
 try:
     tracks.setup({
         'synth': tracks.mk('sampler', fxs={
@@ -437,7 +462,8 @@ try:
     log(f"track_count={len(layout)}")
 except Exception as e:
     log(f"vst_error={e}")
-""")
+"""
+        )
 
         # Either the track is created or we get an error - both are acceptable
         if self.engine.wait_for_notification("track_count=", timeout=5.0):
@@ -467,7 +493,8 @@ class TestVstMultipleTracks(VstTestCase):
 
     def test_same_vst_on_multiple_tracks(self) -> None:
         """Test using the same VST plugin on multiple tracks."""
-        self._run_vst_test("""
+        self._run_vst_test(
+            """
 try:
     plugins = vst.plugins()
     if not plugins:
@@ -495,11 +522,13 @@ try:
                 log(f"vst_test_result=failed:has_two={has_two},t1_ok={t1_ok},t2_ok={t2_ok}")
 except Exception as e:
     log(f"vst_test_result=error:{e}")
-""")
+"""
+        )
 
     def test_different_params_same_plugin(self) -> None:
         """Test using same VST plugin with different parameters on different tracks."""
-        self._run_vst_test("""
+        self._run_vst_test(
+            """
 try:
     plugins = vst.plugins()
     if not plugins:
@@ -523,7 +552,8 @@ try:
             log(f"vst_test_result=failed:len={len(layout)}")
 except Exception as e:
     log(f"vst_test_result=error:{e}")
-""")
+"""
+        )
 
 
 class TestVstInstrumentDiscovery(VstTestCase):
@@ -531,29 +561,34 @@ class TestVstInstrumentDiscovery(VstTestCase):
 
     def test_vst_instruments_returns_list(self) -> None:
         """Test that vst.instruments() returns a list."""
-        self.engine.push_code("""
+        self.engine.push_code(
+            """
 instruments = vst.instruments()
 log(f"type={type(instruments).__name__}")
 log(f"count={len(instruments)}")
-""")
+"""
+        )
 
         self.assertTrue(self.engine.wait_for_notification("type=list"))
         self.assertTrue(self.engine.wait_for_notification("count="))
 
     def test_vst_effects_returns_list(self) -> None:
         """Test that vst.effects() returns a list."""
-        self.engine.push_code("""
+        self.engine.push_code(
+            """
 effects = vst.effects()
 log(f"type={type(effects).__name__}")
 log(f"count={len(effects)}")
-""")
+"""
+        )
 
         self.assertTrue(self.engine.wait_for_notification("type=list"))
         self.assertTrue(self.engine.wait_for_notification("count="))
 
     def test_vst_plugin_type_field(self) -> None:
         """Test that plugins have a type field (effect or instrument)."""
-        self.engine.push_code("""
+        self.engine.push_code(
+            """
 plugins = vst.plugins()
 if not plugins:
     log("type_check=skipped")
@@ -561,45 +596,52 @@ else:
     all_have_type = all('type' in p for p in plugins)
     valid_types = all(p['type'] in ('effect', 'instrument') for p in plugins)
     log(f"type_check={all_have_type and valid_types}")
-""")
+"""
+        )
 
         self.assertTrue(self.engine.wait_for_notification("type_check="))
 
     def test_vst_instruments_only_instruments(self) -> None:
         """Test that vst.instruments() only returns instrument-type plugins."""
-        self.engine.push_code("""
+        self.engine.push_code(
+            """
 instruments = vst.instruments()
 if not instruments:
     log("filter_check=skipped")
 else:
     all_instruments = all(p.get('type') == 'instrument' for p in instruments)
     log(f"filter_check={all_instruments}")
-""")
+"""
+        )
 
         self.assertTrue(self.engine.wait_for_notification("filter_check="))
 
     def test_vst_effects_only_effects(self) -> None:
         """Test that vst.effects() only returns effect-type plugins."""
-        self.engine.push_code("""
+        self.engine.push_code(
+            """
 effects = vst.effects()
 if not effects:
     log("filter_check=skipped")
 else:
     all_effects = all(p.get('type') == 'effect' for p in effects)
     log(f"filter_check={all_effects}")
-""")
+"""
+        )
 
         self.assertTrue(self.engine.wait_for_notification("filter_check="))
 
     def test_vst_instruments_plus_effects_equals_plugins(self) -> None:
         """Test that instruments + effects covers all plugins."""
-        self.engine.push_code("""
+        self.engine.push_code(
+            """
 all_plugins = vst.plugins()
 instruments = vst.instruments()
 effects = vst.effects()
 total_match = len(instruments) + len(effects) == len(all_plugins)
 log(f"total_match={total_match}")
-""")
+"""
+        )
 
         self.assertTrue(self.engine.wait_for_notification("total_match=True"))
 
@@ -625,7 +667,8 @@ class TestVstInstrumentSetup(VstTestCase):
 
     def test_setup_vst_instrument_track(self) -> None:
         """Test creating a track with a VST instrument."""
-        self._run_vst_test("""
+        self._run_vst_test(
+            """
 try:
     instruments = vst.instruments()
     if not instruments:
@@ -645,11 +688,13 @@ try:
             log(f"vst_test_result=failed:instrument={inst}")
 except Exception as e:
     log(f"vst_test_result=error:{e}")
-""")
+"""
+        )
 
     def test_setup_vst_instrument_with_static_params(self) -> None:
         """Test creating a VSTi track with static parameter values."""
-        self._run_vst_test("""
+        self._run_vst_test(
+            """
 try:
     instruments = vst.instruments()
     if not instruments:
@@ -669,11 +714,13 @@ try:
             log(f"vst_test_result=failed:instrument={inst}")
 except Exception as e:
     log(f"vst_test_result=error:{e}")
-""")
+"""
+        )
 
     def test_setup_vst_instrument_with_control_params(self) -> None:
         """Test creating a VSTi track with control-based parameter automation."""
-        self._run_vst_test("""
+        self._run_vst_test(
+            """
 try:
     instruments = vst.instruments()
     if not instruments:
@@ -694,11 +741,13 @@ try:
             log(f"vst_test_result=failed:instrument={inst}")
 except Exception as e:
     log(f"vst_test_result=error:{e}")
-""")
+"""
+        )
 
     def test_setup_vst_instrument_with_fxs(self) -> None:
         """Test creating a VSTi track with effects chain."""
-        self._run_vst_test("""
+        self._run_vst_test(
+            """
 try:
     instruments = vst.instruments()
     if not instruments:
@@ -724,11 +773,13 @@ try:
             log(f"vst_test_result=failed:instrument={inst}")
 except Exception as e:
     log(f"vst_test_result=error:{e}")
-""")
+"""
+        )
 
     def test_setup_vst_instrument_with_vst_fx(self) -> None:
         """Test creating a VSTi track with a VST effect in the FX chain."""
-        self._run_vst_test("""
+        self._run_vst_test(
+            """
 try:
     instruments = vst.instruments()
     fx_plugins = vst.effects()
@@ -758,11 +809,13 @@ try:
             log(f"vst_test_result=failed:instrument={inst}")
 except Exception as e:
     log(f"vst_test_result=error:{e}")
-""")
+"""
+        )
 
     def test_setup_vst_instrument_volume_pan(self) -> None:
         """Test creating a VSTi track with custom volume and pan."""
-        self._run_vst_test("""
+        self._run_vst_test(
+            """
 try:
     instruments = vst.instruments()
     if not instruments:
@@ -787,11 +840,13 @@ try:
             log(f"vst_test_result=failed:instrument={inst}")
 except Exception as e:
     log(f"vst_test_result=error:{e}")
-""")
+"""
+        )
 
     def test_setup_vst_instrument_muted(self) -> None:
         """Test creating a muted VSTi track."""
-        self._run_vst_test("""
+        self._run_vst_test(
+            """
 try:
     instruments = vst.instruments()
     if not instruments:
@@ -811,7 +866,8 @@ try:
             log(f"vst_test_result=failed:muted={muted}")
 except Exception as e:
     log(f"vst_test_result=error:{e}")
-""")
+"""
+        )
 
 
 class TestVstInstrumentMultipleTracks(VstTestCase):
@@ -835,7 +891,8 @@ class TestVstInstrumentMultipleTracks(VstTestCase):
 
     def test_multiple_vst_instrument_tracks(self) -> None:
         """Test creating multiple VSTi tracks."""
-        self._run_vst_test("""
+        self._run_vst_test(
+            """
 try:
     instruments = vst.instruments()
     if not instruments:
@@ -859,11 +916,13 @@ try:
                 log(f"vst_test_result=failed:has_two={has_two},lead_ok={lead_ok},bass_ok={bass_ok}")
 except Exception as e:
     log(f"vst_test_result=error:{e}")
-""")
+"""
+        )
 
     def test_vst_instrument_alongside_sampler(self) -> None:
         """Test VSTi track alongside a sampler track."""
-        self._run_vst_test("""
+        self._run_vst_test(
+            """
 try:
     instruments = vst.instruments()
     if not instruments:
@@ -887,11 +946,13 @@ try:
                 log(f"vst_test_result=failed:has_two={has_two},synth_ok={synth_ok},drums_ok={drums_ok}")
 except Exception as e:
     log(f"vst_test_result=error:{e}")
-""")
+"""
+        )
 
     def test_replace_sampler_with_vst_instrument(self) -> None:
         """Test replacing a sampler track with a VSTi track."""
-        self._run_vst_test("""
+        self._run_vst_test(
+            """
 try:
     instruments = vst.instruments()
     if not instruments:
@@ -919,7 +980,8 @@ try:
                 log(f"vst_test_result=failed:was_sampler={was_sampler},now_vst={now_vst}")
 except Exception as e:
     log(f"vst_test_result=error:{e}")
-""")
+"""
+        )
 
 
 class TestVstInstrumentInvalidPlugin(SoirSessionTestCase):
@@ -927,7 +989,8 @@ class TestVstInstrumentInvalidPlugin(SoirSessionTestCase):
 
     def test_invalid_vst_instrument_name(self) -> None:
         """Test that using an invalid plugin name for VSTi is handled gracefully."""
-        self.engine.push_code("""
+        self.engine.push_code(
+            """
 try:
     tracks.setup({
         'synth': tracks.mk_vst('NonExistentVSTi99999'),
@@ -937,7 +1000,8 @@ try:
     log(f"track_count={len(layout)}")
 except Exception as e:
     log(f"vst_error={e}")
-""")
+"""
+        )
 
         # Either the track is created or we get an error - both are acceptable
         if self.engine.wait_for_notification("track_count=", timeout=5.0):
@@ -964,7 +1028,8 @@ class TestVstEditorOpenClose(VstTestCase):
         """Test that a VST FX editor can be opened, closed, and reopened."""
         self._skip_if_no_display()
 
-        self.engine.push_code(f"""
+        self.engine.push_code(
+            f"""
 from soir._bindings import rt as _rt
 
 try:
@@ -988,7 +1053,8 @@ except RuntimeError as e:
         log(f"editor_test=error:{{e}}")
 except Exception as e:
     log(f"editor_test=error:{{e}}")
-""")
+"""
+        )
 
         result = self.engine.wait_for_notification("editor_test=", timeout=15.0)
         self.assertTrue(result)
@@ -1010,7 +1076,8 @@ except Exception as e:
         """Test that a VST instrument editor can be opened, closed, and reopened."""
         self._skip_if_no_display()
 
-        self.engine.push_code(f"""
+        self.engine.push_code(
+            f"""
 from soir._bindings import rt as _rt
 
 try:
@@ -1032,7 +1099,8 @@ except RuntimeError as e:
         log(f"inst_editor_test=error:{{e}}")
 except Exception as e:
     log(f"inst_editor_test=error:{{e}}")
-""")
+"""
+        )
 
         result = self.engine.wait_for_notification("inst_editor_test=", timeout=15.0)
         self.assertTrue(result)

@@ -21,17 +21,21 @@ class TestAudioRecording(SoirSessionTestCase):
         test_file.unlink(missing_ok=True)
         self.assertFalse(test_file.exists())
 
-        self.engine.push_code(f"""
+        self.engine.push_code(
+            f"""
 sys.record("{test_file}")
 log("recording_started")
-""")
+"""
+        )
 
         self.assertTrue(self.engine.wait_for_notification("recording_started"))
         time.sleep(0.5)
 
-        self.engine.push_code("""
+        self.engine.push_code(
+            """
 log("recording_stopped")
-""")
+"""
+        )
 
         self.assertTrue(self.engine.wait_for_notification("recording_stopped"))
         time.sleep(0.5)
@@ -45,17 +49,21 @@ log("recording_stopped")
 
         test_file.unlink(missing_ok=True)
 
-        self.engine.push_code(f"""
+        self.engine.push_code(
+            f"""
 sys.record("{test_file}")
 log("recording_started")
-""")
+"""
+        )
 
         self.assertTrue(self.engine.wait_for_notification("recording_started"))
         time.sleep(0.5)
 
-        self.engine.push_code("""
+        self.engine.push_code(
+            """
 log("recording_stopped")
-""")
+"""
+        )
 
         self.assertTrue(self.engine.wait_for_notification("recording_stopped"))
         time.sleep(0.5)
@@ -76,17 +84,21 @@ log("recording_stopped")
 
         test_file.unlink(missing_ok=True)
 
-        self.engine.push_code(f"""
+        self.engine.push_code(
+            f"""
 sys.record("{test_file}")
 log("recording_started")
-""")
+"""
+        )
 
         self.assertTrue(self.engine.wait_for_notification("recording_started"))
         time.sleep(0.5)
 
-        self.engine.push_code("""
+        self.engine.push_code(
+            """
 log("code_updated_without_record")
-""")
+"""
+        )
 
         self.assertTrue(
             self.engine.wait_for_notification("code_updated_without_record")
@@ -112,25 +124,31 @@ log("code_updated_without_record")
 
         test_file.unlink(missing_ok=True)
 
-        self.engine.push_code(f"""
+        self.engine.push_code(
+            f"""
 sys.record("{test_file}")
 log("recording_started")
-""")
+"""
+        )
 
         self.assertTrue(self.engine.wait_for_notification("recording_started"))
         time.sleep(0.3)
 
-        self.engine.push_code(f"""
+        self.engine.push_code(
+            f"""
 sys.record("{test_file}")
 log("recording_continued")
-""")
+"""
+        )
 
         self.assertTrue(self.engine.wait_for_notification("recording_continued"))
         time.sleep(0.3)
 
-        self.engine.push_code("""
+        self.engine.push_code(
+            """
 log("recording_stopped")
-""")
+"""
+        )
 
         self.assertTrue(self.engine.wait_for_notification("recording_stopped"))
         time.sleep(0.3)
@@ -150,25 +168,31 @@ log("recording_stopped")
         test_file1.unlink(missing_ok=True)
         test_file2.unlink(missing_ok=True)
 
-        self.engine.push_code(f"""
+        self.engine.push_code(
+            f"""
 sys.record("{test_file1}")
 log("recording_file1_started")
-""")
+"""
+        )
 
         self.assertTrue(self.engine.wait_for_notification("recording_file1_started"))
         time.sleep(0.3)
 
-        self.engine.push_code(f"""
+        self.engine.push_code(
+            f"""
 sys.record("{test_file2}")
 log("recording_file2_started")
-""")
+"""
+        )
 
         self.assertTrue(self.engine.wait_for_notification("recording_file2_started"))
         time.sleep(0.3)
 
-        self.engine.push_code("""
+        self.engine.push_code(
+            """
 log("recording_stopped")
-""")
+"""
+        )
 
         self.assertTrue(self.engine.wait_for_notification("recording_stopped"))
         time.sleep(0.3)
