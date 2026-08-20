@@ -1,0 +1,59 @@
+{
+  "name": "std-drums",
+  "description": "Standard neutral drum kit (CC0/CC-BY)",
+  "author": "Soir",
+  "samples": [
+    {
+      "name": "clap-1",
+      "path": "std-drums/clap-1.wav"
+    },
+    {
+      "name": "crash-2",
+      "path": "std-drums/crash-2.wav"
+    },
+    {
+      "name": "kick-808",
+      "path": "std-drums/kick-808.wav"
+    },
+    {
+      "name": "crash-1",
+      "path": "std-drums/crash-1.wav"
+    },
+    {
+      "name": "hat-open",
+      "path": "std-drums/hat-open.wav"
+    },
+    {
+      "name": "snare-crack",
+      "path": "std-drums/snare-crack.wav"
+    },
+    {
+      "name": "tom-low",
+      "path": "std-drums/tom-low.wav"
+    },
+    {
+      "name": "tom-mid",
+      "path": "std-drums/tom-mid.wav"
+    },
+    {
+      "name": "snare-909",
+      "path": "std-drums/snare-909.wav"
+    },
+    {
+      "name": "kick-punchy",
+      "path": "std-drums/kick-punchy.wav"
+    },
+    {
+      "name": "clap-2",
+      "path": "std-drums/clap-2.wav"
+    },
+    {
+      "name": "hat-closed",
+      "path": "std-drums/hat-closed.wav"
+    },
+    {
+      "name": "tom-high",
+      "path": "std-drums/tom-high.wav"
+    }
+  ]
+}
