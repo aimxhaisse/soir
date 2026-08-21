@@ -36,8 +36,8 @@ include = ["soir*"]
 "soir" = [
     "_data/etc/*",
     "_data/lib/samples/*.json",
-    "_data/lib/samples/default/*.json",
-    "_data/lib/samples/default/*.wav",
+    "_data/lib/samples/std-*/*.json",
+    "_data/lib/samples/std-*/*.wav",
 ]
 "soir.www" = [
     "content/*.md",

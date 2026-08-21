@@ -13,7 +13,7 @@
 def setup():
     tracks.setup({"main": inst.mk_sampler()})
 
-sp = sampler.new('basics')
+sp = sampler.new('std-drums')
 
 @loop
 def example(beats=4):

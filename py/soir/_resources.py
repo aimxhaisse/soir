@@ -28,8 +28,23 @@ class Resources:
         return self.root / "lib" / "samples" / "registry.json"
 
     @property
-    def default_pack_dir(self) -> Path:
-        return self.root / "lib" / "samples" / "default"
+    def samples_data_dir(self) -> Path:
+        return self.root / "lib" / "samples"
+
+    def std_pack_names(self) -> list[str]:
+        """Return the names of standard sample packs shipped with the wheel.
+
+        Standard packs are directories under ``lib/samples/`` whose names
+        start with ``std-`` and contain a ``<name>.pack.json`` file.
+
+        Returns:
+            Sorted list of standard pack names.
+        """
+        return sorted(
+            d.name
+            for d in self.samples_data_dir.glob("std-*")
+            if d.is_dir() and (d / f"{d.name}.pack.json").is_file()
+        )
 
 
 def _wheel_root() -> Path:

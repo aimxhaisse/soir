@@ -9,7 +9,6 @@ __pycache__
 Dockerfile
 .*
 *.pyc
-lib/samples
 playground
 CPackConfig.cmake
 CPackSourceConfig.cmake

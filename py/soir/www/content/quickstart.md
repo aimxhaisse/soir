@@ -64,7 +64,7 @@ Replace the contents with:
 def setup():
     tracks.setup({"kick": inst.mk_sampler()})
 
-sp = sampler.new("default")
+sp = sampler.new("std-drums")
 
 @loop(track="kick", beats=4, align=True)
 def beat():
@@ -79,7 +79,8 @@ Save the file. You should hear a kick drum on every beat.
 - `@loop()` schedules a function to run repeatedly. `sleep(1)` advances one beat inside the loop.
 - `tracks.setup()` creates named instrument tracks.
 - `inst.mk_sampler()` gives you a sample player.
-- `sampler.new("default")` loads the built-in "default" sample pack.
+- `sampler.new("std-drums")` loads the standard `std-drums` sample pack that ships with Soir.
+  New sessions list it in `etc/config.json` (`dsp.sample_packs`), so you can remove it there if you don't need it.
 
 Press **Ctrl+C** in the TUI to stop the engine.
 

@@ -1,3 +1,4 @@
+import json
 import shutil
 import signal
 import threading
@@ -93,9 +94,13 @@ def mk(name: Path) -> None:
         (session_path / "lib" / "samples").mkdir(parents=True)
         (session_path / "var" / "log").mkdir(parents=True)
 
-        shutil.copy(
-            _resources.resources.config_path, session_path / "etc" / "config.json"
-        )
+        config_path = session_path / "etc" / "config.json"
+        with open(_resources.resources.config_path, encoding="utf-8") as f:
+            config: dict[str, Any] = json.load(f)
+        config.setdefault("dsp", {})[
+            "sample_packs"
+        ] = _resources.resources.std_pack_names()
+        config_path.write_text(json.dumps(config, indent=4) + "\n")
         shutil.copy(_resources.resources.live_template_path, session_path / "live.py")
 
         typer.echo(f"Session '{session_name}' created at {session_path}")

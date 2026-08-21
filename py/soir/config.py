@@ -76,11 +76,12 @@ def ensure_soir_home() -> Path:
 
     (home / "var" / "log").mkdir(parents=True, exist_ok=True)
 
-    default_pack_json = samples / "default.pack.json"
-    default_pack_src = _resources.resources.default_pack_dir
-    if not default_pack_json.exists() and default_pack_src.exists():
-        shutil.copytree(default_pack_src, samples / "default")
-        shutil.copy(default_pack_src / "default.pack.json", default_pack_json)
+    for name in _resources.resources.std_pack_names():
+        pack_json = samples / f"{name}.pack.json"
+        pack_src = _resources.resources.samples_data_dir / name
+        if not pack_json.exists():
+            shutil.copytree(pack_src, samples / name)
+            shutil.copy(pack_src / f"{name}.pack.json", pack_json)
 
     return home
 
