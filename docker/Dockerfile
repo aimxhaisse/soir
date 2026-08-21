@@ -39,6 +39,9 @@ RUN apt-get update && apt-get install -q -y --no-install-recommends \
         libglib2.0-dev \
         libcairo2-dev \
         libpango1.0-dev \
+        # vstgui's standalone cmake module hard-requires gtkmm at configure
+        # time; the linker drops it (unused), so it's builder-only.
+        libgtkmm-3.0-dev \
         libfontconfig1-dev \
         libdb-dev \
     && rm -rf /var/lib/apt/lists/*
