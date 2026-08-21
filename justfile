@@ -62,6 +62,7 @@ test:
 wheel:
     #!/usr/bin/env bash
 
+    set -euo pipefail
     rm -rf dist/
     uv build --wheel
     ls -lh dist/

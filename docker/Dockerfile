@@ -11,15 +11,36 @@ FROM ubuntu:24.04 AS builder
 
 ENV DEBIAN_FRONTEND=noninteractive
 
+# CMakeLists.txt hardcodes /usr/bin/clang(+); lld is needed for LTO
+# (INTERPROCEDURAL_OPTIMIZATION on the _bindings module).
+# -dev packages for the native libs the extension links against:
+# X11/XCB/fontconfig (VST3 SDK / vstgui), jack+asound (libremidi), db.
 RUN apt-get update && apt-get install -q -y --no-install-recommends \
         build-essential \
         cmake \
         git \
         g++ \
+        clang \
+        lld \
         pkg-config \
         curl \
         ca-certificates \
         python3 \
+        libasound2-dev \
+        libjack-jackd2-dev \
+        libx11-dev \
+        libxcb1-dev \
+        libxcb-util-dev \
+        libxcb-cursor-dev \
+        libxcb-keysyms1-dev \
+        libxcb-xkb-dev \
+        libxkbcommon-dev \
+        libxkbcommon-x11-dev \
+        libglib2.0-dev \
+        libcairo2-dev \
+        libpango1.0-dev \
+        libfontconfig1-dev \
+        libdb-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # uv (static binary) + just
@@ -44,7 +65,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -q -y --no-install-recommends \
         ca-certificates \
         libjack-jackd2-0 \
-        libasound2 \
+        libasound2t64 \
         libx11-6 \
         libxcb1 \
         libdb5.3 \
