@@ -101,7 +101,7 @@ set(SMTG_ADD_VST3_HOSTING_SAMPLES OFF CACHE BOOL "" FORCE)
 set(SMTG_RUN_VST_VALIDATOR OFF CACHE BOOL "" FORCE)
 set(SMTG_CREATE_PLUGIN_LINK OFF CACHE BOOL "" FORCE)
 
-FetchContent_MakeAvailable(pybind11 nlohmann_json abseil-cpp googletest miniaudio audiofile rwq libremidi vst3sdk)
+FetchContent_MakeAvailable(pybind11 nlohmann_json abseil-cpp googletest miniaudio audiofile rwq libremidi vst3sdk ogg opus cpp-httplib)
 
 # vstgui's iplatformtaskexecutor.h uses uint64_t without including <cstdint>;
 # force-include it for all vstgui_standalone compilation units.
@@ -140,15 +140,21 @@ target_link_libraries(soir_utils
 
 add_library(soir_audio
     cpp/audio/audio_buffer.cc
+    cpp/audio/audio_http_server.cc
     cpp/audio/audio_output.cc
     cpp/audio/audio_recorder.cc
+    cpp/audio/audio_stream.cc
+    cpp/audio/ogg_opus_encoder.cc
     cpp/audio/pcm_stream.cc
 )
 
-target_include_directories(soir_audio PUBLIC cpp ${miniaudio_SOURCE_DIR} ${audiofile_SOURCE_DIR})
+target_include_directories(soir_audio PUBLIC cpp ${miniaudio_SOURCE_DIR} ${audiofile_SOURCE_DIR} ${opus_SOURCE_DIR}/include ${ogg_SOURCE_DIR}/include ${cpp-httplib_SOURCE_DIR})
+target_include_directories(soir_audio PUBLIC ${ogg_BINARY_DIR}/include)
 
 target_link_libraries(soir_audio
     soir_dsp
+    ogg
+    opus
     absl::log
     absl::status
     absl::statusor

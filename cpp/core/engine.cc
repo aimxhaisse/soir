@@ -2,7 +2,9 @@
 
 #include <absl/log/log.h>
 
+#include "audio/audio_http_server.hh"
 #include "audio/audio_recorder.hh"
+#include "audio/audio_stream.hh"
 #include "audio/pcm_stream.hh"
 #include "vst/vst_host.hh"
 
@@ -18,6 +20,12 @@ absl::Status Engine::Init(const utils::Config& config) {
   current_tick_ = 0;
 
   audio_output_enabled_ = config.Get<bool>("dsp.enable_output");
+  enable_streaming_ = config.GetOrDefault<bool>("dsp.enable_streaming", false);
+  streaming_host_ =
+      config.GetOrDefault<std::string>("dsp.streaming_host", "localhost");
+  streaming_port_ = config.GetOrDefault<int>("dsp.streaming_port", 5001);
+  streaming_bitrate_ =
+      config.GetOrDefault<int>("dsp.streaming_bitrate", 128000);
   const std::string raw_device =
       config.GetOrDefault<std::string>("dsp.audio_output_device", "");
   audio_output_device_ = raw_device.empty() ? "default" : raw_device;
@@ -77,6 +85,9 @@ absl::Status Engine::Init(const utils::Config& config) {
     return pcm_status;
   }
 
+  audio_stream_ = std::make_unique<audio::AudioStream>();
+  http_server_ = std::make_unique<audio::AudioHttpServer>();
+
   return absl::OkStatus();
 }
 
@@ -110,11 +121,27 @@ absl::Status Engine::Start() {
 
   RegisterConsumer(pcm_stream_.get());
 
+  if (enable_streaming_) {
+    auto status = StartStreaming();
+    if (!status.ok()) {
+      LOG(WARNING) << "Failed to start audio streaming: " << status;
+    } else {
+      status = http_server_->Start(audio_stream_.get(), streaming_host_,
+                                   streaming_port_);
+      if (!status.ok()) {
+        LOG(WARNING) << "Failed to start audio HTTP server: " << status;
+      }
+    }
+  }
+
   return absl::OkStatus();
 }
 
 absl::Status Engine::Stop() {
   LOG(INFO) << "Stopping engine";
+
+  http_server_->Stop().IgnoreError();
+  StopStreaming().IgnoreError();
 
   RemoveConsumer(pcm_stream_.get());
 
@@ -514,5 +541,35 @@ absl::Status Engine::SetAudioOutput(const std::string& device) {
 }
 
 audio::PcmStream* Engine::GetPcmStream() { return pcm_stream_.get(); }
+
+absl::Status Engine::StartStreaming() {
+  if (streaming_active_) {
+    return absl::OkStatus();
+  }
+
+  auto status =
+      audio_stream_->Init(kSampleRate, kNumChannels, streaming_bitrate_);
+  if (!status.ok()) {
+    return status;
+  }
+
+  RegisterConsumer(audio_stream_.get());
+  streaming_active_ = true;
+
+  LOG(INFO) << "Started audio streaming";
+  return absl::OkStatus();
+}
+
+absl::Status Engine::StopStreaming() {
+  if (!streaming_active_) {
+    return absl::OkStatus();
+  }
+
+  RemoveConsumer(audio_stream_.get());
+  streaming_active_ = false;
+
+  LOG(INFO) << "Stopped audio streaming";
+  return absl::OkStatus();
+}
 
 }  // namespace soir

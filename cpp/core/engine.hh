@@ -8,8 +8,10 @@
 #include <mutex>
 #include <thread>
 
+#include "audio/audio_http_server.hh"
 #include "audio/audio_output.hh"
 #include "audio/audio_recorder.hh"
+#include "audio/audio_stream.hh"
 #include "audio/pcm_stream.hh"
 #include "core/common.hh"
 #include "core/controls.hh"
@@ -70,6 +72,8 @@ class Engine {
  private:
   absl::Status Run();
   void SetTicks(std::list<MidiEventAt>& events);
+  absl::Status StartStreaming();
+  absl::Status StopStreaming();
 
   // Helper to print some statistics about CPU usage.
   void Stats(const absl::Time& next_block_at,
@@ -93,6 +97,16 @@ class Engine {
   std::unique_ptr<audio::AudioOutput> audio_output_;
   std::unique_ptr<AudioRecorder> audio_recorder_;
   std::unique_ptr<audio::PcmStream> pcm_stream_;
+
+  // Ogg/Opus HTTP streaming (stream.opus endpoint).
+  bool enable_streaming_ = false;
+  std::string streaming_host_ = "localhost";
+  int streaming_port_ = 5001;
+  int streaming_bitrate_ = 128000;
+  bool streaming_active_ = false;
+  std::unique_ptr<audio::AudioStream> audio_stream_;
+  std::unique_ptr<audio::AudioHttpServer> http_server_;
+
   std::list<SampleConsumer*> consumers_;
 
   // Tracks are created/updated by the Runtime engine, and locked
