@@ -10,6 +10,7 @@ constexpr const char* kTestConfig = R"({
   "dsp": {
     "enable_output": false,
     "enable_streaming": false,
+    "streaming_host": "localhost",
     "streaming_port": 5001,
     "sample_directory": "/tmp",
     "sample_packs": []

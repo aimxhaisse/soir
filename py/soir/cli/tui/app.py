@@ -199,7 +199,9 @@ class SoirTuiApp(App[None]):
         if cfg and cfg.cast.enabled:
             self.query_one(HeaderWidget).cast_url = f"http://localhost:{cfg.cast.port}"
         elif cfg and cfg.dsp.enable_streaming:
-            url = f"http://localhost:{cfg.dsp.streaming_port}/stream.opus"
+            url = (
+                f"http://{cfg.dsp.streaming_host}:{cfg.dsp.streaming_port}/stream.opus"
+            )
             self.query_one(HeaderWidget).streaming_url = url
 
     def _pump_ui_events(self) -> None:
