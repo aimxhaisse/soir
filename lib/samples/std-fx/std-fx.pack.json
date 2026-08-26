@@ -1,0 +1,55 @@
+{
+  "name": "std-fx",
+  "description": "Standard transition & FX one-shots: risers, impacts, whooshes (CC0)",
+  "author": "Soir",
+  "samples": [
+    {
+      "name": "fx-riser-2",
+      "path": "std-fx/fx-riser-2.wav"
+    },
+    {
+      "name": "fx-downer-1",
+      "path": "std-fx/fx-downer-1.wav"
+    },
+    {
+      "name": "fx-impact-1",
+      "path": "std-fx/fx-impact-1.wav"
+    },
+    {
+      "name": "fx-whoosh-1",
+      "path": "std-fx/fx-whoosh-1.wav"
+    },
+    {
+      "name": "fx-impact-2",
+      "path": "std-fx/fx-impact-2.wav"
+    },
+    {
+      "name": "fx-vinylstop",
+      "path": "std-fx/fx-vinylstop.wav"
+    },
+    {
+      "name": "fx-boom",
+      "path": "std-fx/fx-boom.wav"
+    },
+    {
+      "name": "fx-downer-2",
+      "path": "std-fx/fx-downer-2.wav"
+    },
+    {
+      "name": "fx-riser-1",
+      "path": "std-fx/fx-riser-1.wav"
+    },
+    {
+      "name": "fx-whoosh-2",
+      "path": "std-fx/fx-whoosh-2.wav"
+    },
+    {
+      "name": "fx-sweep-1",
+      "path": "std-fx/fx-sweep-1.wav"
+    },
+    {
+      "name": "fx-glitch",
+      "path": "std-fx/fx-glitch.wav"
+    }
+  ]
+}

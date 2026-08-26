@@ -1,0 +1,55 @@
+{
+  "name": "std-leads",
+  "description": "Standard neutral lead one-shots, pitched around A3 (CC0)",
+  "author": "Soir",
+  "samples": [
+    {
+      "name": "lead-supersaw",
+      "path": "std-leads/lead-supersaw.wav"
+    },
+    {
+      "name": "lead-organ",
+      "path": "std-leads/lead-organ.wav"
+    },
+    {
+      "name": "lead-square",
+      "path": "std-leads/lead-square.wav"
+    },
+    {
+      "name": "lead-glass",
+      "path": "std-leads/lead-glass.wav"
+    },
+    {
+      "name": "lead-pulse",
+      "path": "std-leads/lead-pulse.wav"
+    },
+    {
+      "name": "lead-marimba",
+      "path": "std-leads/lead-marimba.wav"
+    },
+    {
+      "name": "lead-bell",
+      "path": "std-leads/lead-bell.wav"
+    },
+    {
+      "name": "lead-fm",
+      "path": "std-leads/lead-fm.wav"
+    },
+    {
+      "name": "lead-stab",
+      "path": "std-leads/lead-stab.wav"
+    },
+    {
+      "name": "lead-saw",
+      "path": "std-leads/lead-saw.wav"
+    },
+    {
+      "name": "lead-vox",
+      "path": "std-leads/lead-vox.wav"
+    },
+    {
+      "name": "lead-pluck",
+      "path": "std-leads/lead-pluck.wav"
+    }
+  ]
+}

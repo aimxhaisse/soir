@@ -68,6 +68,17 @@ class TestEnsureSoirHome(unittest.TestCase):
             samples = home / "lib" / "samples"
             self.assertTrue((samples / "std-drums" / "kick-808.wav").is_file())
             self.assertTrue((samples / "std-drums.pack.json").is_file())
+            self.assertTrue((samples / "std-bass" / "bass-808.wav").is_file())
+            self.assertTrue((samples / "std-bass.pack.json").is_file())
+            self.assertTrue((samples / "std-leads" / "lead-saw.wav").is_file())
+            self.assertTrue((samples / "std-leads.pack.json").is_file())
+            self.assertTrue((samples / "std-pads" / "pad-warm.wav").is_file())
+            self.assertTrue((samples / "std-pads.pack.json").is_file())
+            self.assertTrue((samples / "std-guitar" / "guitar-clean.wav").is_file())
+            self.assertTrue((samples / "std-piano" / "piano-clean.wav").is_file())
+            self.assertTrue((samples / "std-voices" / "voice-ah.wav").is_file())
+            self.assertTrue((samples / "std-fx" / "fx-impact-1.wav").is_file())
+            self.assertTrue((samples / "std-loops" / "loop-house-124.wav").is_file())
 
             # A second call must be a no-op for already-seeded packs.
             with mock.patch.dict(os.environ, {"SOIR_HOME": str(home)}):
@@ -75,8 +86,24 @@ class TestEnsureSoirHome(unittest.TestCase):
             self.assertTrue((samples / "std-drums.pack.json").is_file())
 
     def test_std_pack_names(self) -> None:
-        """The wheel ships at least the std-drums pack."""
-        self.assertIn("std-drums", _resources.resources.std_pack_names())
+        """The wheel ships all nine std-* packs."""
+        names = _resources.resources.std_pack_names()
+        self.assertEqual(
+            sorted(names),
+            sorted(
+                [
+                    "std-drums",
+                    "std-bass",
+                    "std-leads",
+                    "std-pads",
+                    "std-guitar",
+                    "std-piano",
+                    "std-voices",
+                    "std-fx",
+                    "std-loops",
+                ]
+            ),
+        )
 
 
 if __name__ == "__main__":

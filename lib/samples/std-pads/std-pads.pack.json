@@ -1,0 +1,55 @@
+{
+  "name": "std-pads",
+  "description": "Standard neutral pad one-shots, pitched around A3 (CC0)",
+  "author": "Soir",
+  "samples": [
+    {
+      "name": "pad-sine",
+      "path": "std-pads/pad-sine.wav"
+    },
+    {
+      "name": "pad-tape",
+      "path": "std-pads/pad-tape.wav"
+    },
+    {
+      "name": "pad-airy",
+      "path": "std-pads/pad-airy.wav"
+    },
+    {
+      "name": "pad-choir",
+      "path": "std-pads/pad-choir.wav"
+    },
+    {
+      "name": "pad-dream",
+      "path": "std-pads/pad-dream.wav"
+    },
+    {
+      "name": "pad-pulse",
+      "path": "std-pads/pad-pulse.wav"
+    },
+    {
+      "name": "pad-sweep",
+      "path": "std-pads/pad-sweep.wav"
+    },
+    {
+      "name": "pad-retro",
+      "path": "std-pads/pad-retro.wav"
+    },
+    {
+      "name": "pad-space",
+      "path": "std-pads/pad-space.wav"
+    },
+    {
+      "name": "pad-analog",
+      "path": "std-pads/pad-analog.wav"
+    },
+    {
+      "name": "pad-film",
+      "path": "std-pads/pad-film.wav"
+    },
+    {
+      "name": "pad-warm",
+      "path": "std-pads/pad-warm.wav"
+    }
+  ]
+}

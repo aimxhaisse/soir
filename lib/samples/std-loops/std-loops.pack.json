@@ -1,0 +1,27 @@
+{
+  "name": "std-loops",
+  "description": "Standard CC0 drum/bass loops: house 124, techno 132, dnb 174, break 90, ambient 112",
+  "author": "Soir",
+  "samples": [
+    {
+      "name": "loop-house-124",
+      "path": "std-loops/loop-house-124.wav"
+    },
+    {
+      "name": "loop-dnb-174",
+      "path": "std-loops/loop-dnb-174.wav"
+    },
+    {
+      "name": "loop-ambient-112",
+      "path": "std-loops/loop-ambient-112.wav"
+    },
+    {
+      "name": "loop-break-90",
+      "path": "std-loops/loop-break-90.wav"
+    },
+    {
+      "name": "loop-techno-132",
+      "path": "std-loops/loop-techno-132.wav"
+    }
+  ]
+}

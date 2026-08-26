@@ -1,0 +1,55 @@
+{
+  "name": "std-bass",
+  "description": "Standard neutral bass one-shots, pitched around A1 (CC0)",
+  "author": "Soir",
+  "samples": [
+    {
+      "name": "bass-square",
+      "path": "std-bass/bass-square.wav"
+    },
+    {
+      "name": "bass-finger",
+      "path": "std-bass/bass-finger.wav"
+    },
+    {
+      "name": "bass-pwm",
+      "path": "std-bass/bass-pwm.wav"
+    },
+    {
+      "name": "bass-sub",
+      "path": "std-bass/bass-sub.wav"
+    },
+    {
+      "name": "bass-pluck",
+      "path": "std-bass/bass-pluck.wav"
+    },
+    {
+      "name": "bass-saw",
+      "path": "std-bass/bass-saw.wav"
+    },
+    {
+      "name": "bass-808",
+      "path": "std-bass/bass-808.wav"
+    },
+    {
+      "name": "bass-acid",
+      "path": "std-bass/bass-acid.wav"
+    },
+    {
+      "name": "bass-sub-fat",
+      "path": "std-bass/bass-sub-fat.wav"
+    },
+    {
+      "name": "bass-808-long",
+      "path": "std-bass/bass-808-long.wav"
+    },
+    {
+      "name": "bass-slap",
+      "path": "std-bass/bass-slap.wav"
+    },
+    {
+      "name": "bass-pick",
+      "path": "std-bass/bass-pick.wav"
+    }
+  ]
+}
