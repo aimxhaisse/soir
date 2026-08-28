@@ -70,7 +70,10 @@ class External : public Instrument {
   std::list<AudioBuffer> buffers_;
   SampleTick current_tick_ = 0;
 
-  libremidi::midi_out midi_out_;
+  // Only constructed when the MIDI backend is available: a libremidi
+  // midi_out whose backend initialization failed (e.g. inaccessible ALSA
+  // sequencer) segfaults in its destructor.
+  std::optional<libremidi::midi_out> midi_out_;
   int audio_in_chans_ = -1;
   ma_context audio_in_context_;
   ma_device audio_in_device_;

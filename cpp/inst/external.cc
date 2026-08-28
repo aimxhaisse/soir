@@ -6,6 +6,7 @@
 #include <nlohmann/json.hpp>
 
 #include "core/common.hh"
+#include "inst/midi_backend.hh"
 
 namespace {
 
@@ -112,6 +113,11 @@ External::~External() {
 
 absl::Status External::GetMidiDevices(
     std::vector<std::pair<int, std::string>>* out) {
+  if (!MidiBackendAvailable()) {
+    LOG(WARNING) << "MIDI backend unavailable, no MIDI out devices listed";
+    return absl::OkStatus();
+  }
+
   libremidi::midi_out midi_out;
   auto ports =
       libremidi::observer{
@@ -183,10 +189,19 @@ absl::Status External::ConfigureMidiPort(
     return absl::OkStatus();
   }
 
-  midi_out_.close_port();
+  if (!MidiBackendAvailable()) {
+    LOG(ERROR) << "MIDI backend unavailable, cannot open MIDI port "
+               << *midi_out_device;
+    return absl::OkStatus();
+  }
+
+  if (!midi_out_.has_value()) {
+    midi_out_.emplace();
+  }
+  midi_out_->close_port();
   LOG(INFO) << "Trying to open MIDI port " << *midi_out_device << "...";
 
-  if (!useMidiPort(*midi_out_device, midi_out_)) {
+  if (!useMidiPort(*midi_out_device, *midi_out_)) {
     LOG(WARNING) << "Failed to open MIDI port " << *midi_out_device;
     return absl::OkStatus();
   }
@@ -374,9 +389,9 @@ void External::ScheduleMidiEvents(const absl::Time& block_at) {
     events.EventsAtTick(current_tick + (1 + chunk) * nsamples, events_at);
     {
       std::lock_guard<std::mutex> lock(mutex_);
-      if (settings_midi_out_.has_value()) {
+      if (settings_midi_out_.has_value() && midi_out_.has_value()) {
         for (auto& ev : events_at) {
-          midi_out_.send_message(ev.Msg());
+          midi_out_->send_message(ev.Msg());
         }
       }
     }
@@ -466,8 +481,8 @@ absl::Status External::Stop() {
     audio_in_context_initialized_ = false;
   }
 
-  if (midi_out_.is_port_open()) {
-    midi_out_.close_port();
+  if (midi_out_.has_value() && midi_out_->is_port_open()) {
+    midi_out_->close_port();
   }
 
   return absl::OkStatus();

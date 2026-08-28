@@ -223,6 +223,14 @@ add_library(soir_inst
     cpp/inst/sampler.cc
 )
 
+if(APPLE)
+    target_sources(soir_inst PRIVATE cpp/inst/midi_backend_macos.mm)
+elseif(UNIX)
+    target_sources(soir_inst PRIVATE cpp/inst/midi_backend_linux.cc)
+else()
+    target_sources(soir_inst PRIVATE cpp/inst/midi_backend_win.cc)
+endif()
+
 target_include_directories(soir_inst PUBLIC cpp ${audiofile_SOURCE_DIR} ${libremidi_SOURCE_DIR}/include ${miniaudio_SOURCE_DIR})
 
 target_link_libraries(soir_inst
@@ -447,6 +455,7 @@ target_link_libraries(engine_test
 add_test(NAME EngineTest COMMAND engine_test)
 
 add_executable(inst_test
+    cpp/tests/inst/midi_backend_test.cc
     cpp/tests/inst/sampler_test.cc
 )
 
