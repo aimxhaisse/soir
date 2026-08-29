@@ -1,7 +1,7 @@
-#include "inst/midi_backend.hh"
-
 #include <sys/stat.h>
 #include <unistd.h>
+
+#include "inst/midi_backend.hh"
 
 namespace soir {
 namespace inst {

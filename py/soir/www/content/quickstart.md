@@ -80,7 +80,7 @@ Save the file. You should hear a kick drum on every beat.
 - `tracks.setup()` creates named instrument tracks.
 - `inst.mk_sampler()` gives you a sample player.
 - `sampler.new("std-drums")` loads the standard `std-drums` sample pack that ships with Soir.
-  There are also `std-bass` (root E2), `std-guitar` (root E2), `std-piano` (root C4), `std-leads`, `std-pads` and `std-voices` (root A3) packs of pitched one-shots — re-pitch them with `play(…)`'s `rate` parameter (`rate=2.0` = up an octave). Plus `std-fx` (risers, impacts, whooshes) and `std-loops` (tiling house/techno/dnb/break/ambient beds).
+  There are also `std-bass` (root E2), `std-leads` and `std-pads` packs of pitched one-shots — re-pitch them with `play(…)`'s `rate` parameter (`rate=2.0` = up an octave). Plus `std-fx` (risers, impacts, whooshes) and `std-loops` (tiling house/techno/dnb/break/ambient beds).
   New sessions list shipped packs in `etc/config.json` (`dsp.sample_packs`), so you can remove them there if you don't need them.
 
 Press **Ctrl+C** in the TUI to stop the engine.

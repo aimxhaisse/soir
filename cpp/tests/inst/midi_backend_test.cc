@@ -3,7 +3,6 @@
 #include <gtest/gtest.h>
 
 #include <libremidi/libremidi.hpp>
-
 #include <utility>
 #include <vector>
 

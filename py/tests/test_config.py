@@ -74,9 +74,6 @@ class TestEnsureSoirHome(unittest.TestCase):
             self.assertTrue((samples / "std-leads.pack.json").is_file())
             self.assertTrue((samples / "std-pads" / "pad-warm.wav").is_file())
             self.assertTrue((samples / "std-pads.pack.json").is_file())
-            self.assertTrue((samples / "std-guitar" / "guitar-clean.wav").is_file())
-            self.assertTrue((samples / "std-piano" / "piano-clean.wav").is_file())
-            self.assertTrue((samples / "std-voices" / "voice-ah.wav").is_file())
             self.assertTrue((samples / "std-fx" / "fx-impact-1.wav").is_file())
             self.assertTrue((samples / "std-loops" / "loop-house-124.wav").is_file())
 
@@ -86,7 +83,7 @@ class TestEnsureSoirHome(unittest.TestCase):
             self.assertTrue((samples / "std-drums.pack.json").is_file())
 
     def test_std_pack_names(self) -> None:
-        """The wheel ships all nine std-* packs."""
+        """The wheel ships all six std-* packs."""
         names = _resources.resources.std_pack_names()
         self.assertEqual(
             sorted(names),
@@ -96,9 +93,6 @@ class TestEnsureSoirHome(unittest.TestCase):
                     "std-bass",
                     "std-leads",
                     "std-pads",
-                    "std-guitar",
-                    "std-piano",
-                    "std-voices",
                     "std-fx",
                     "std-loops",
                 ]
