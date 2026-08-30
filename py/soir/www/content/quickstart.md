@@ -4,7 +4,7 @@
 
 Soir runs on **Linux only** for now.
 
-We recommend installing it inside a sandboxed environment such as a virtual machine or container. Soir performs real-time audio synthesis and runs Python code with the GIL disabled (`-Xgil=0`), which gives it full access to your system. A VM provides an extra layer of isolation while you experiment.
+We recommend installing it inside a sandboxed environment such as a virtual machine or container. Soir performs real-time audio synthesis and runs your Python code, which gives it full access to your system. A VM provides an extra layer of isolation while you experiment.
 
 Soir requires **Python 3.14.2** (free-threaded build). If your distribution packages it, install it first; otherwise use [pyenv](https://github.com/pyenv/pyenv) or [uv](https://docs.astral.sh/uv/):
 
@@ -21,8 +21,6 @@ Then install Soir from PyPI:
 ```bash
 pip install soir
 ```
-
-The `soir` command will automatically re-execute under `-Xgil=0` for you.
 
 ## Directories
 
