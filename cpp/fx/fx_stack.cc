@@ -3,6 +3,7 @@
 #include <absl/log/log.h>
 
 #include "fx_chorus.hh"
+#include "fx_compressor.hh"
 #include "fx_hpf.hh"
 #include "fx_lpf.hh"
 #include "fx_reverb.hh"
@@ -11,8 +12,8 @@
 namespace soir {
 namespace fx {
 
-FxStack::FxStack(Controls* controls, vst::VstHost* vst_host)
-    : controls_(controls), vst_host_(vst_host) {}
+FxStack::FxStack(Controls* controls, vst::VstHost* vst_host, SignalBus* bus)
+    : controls_(controls), vst_host_(vst_host), bus_(bus) {}
 
 absl::Status FxStack::Init(const std::list<Fx::Settings> fx_settings) {
   std::lock_guard<std::mutex> lock(mutex_);
@@ -35,6 +36,9 @@ absl::Status FxStack::Init(const std::list<Fx::Settings> fx_settings) {
         break;
       case Type::VST:
         fx = std::make_unique<FxVst>(controls_, vst_host_);
+        break;
+      case Type::COMPRESSOR:
+        fx = std::make_unique<Compressor>(controls_, bus_);
         break;
       default:
         return absl::InvalidArgumentError("Unknown FX type");

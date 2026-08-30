@@ -2,6 +2,8 @@
 
 #include <absl/log/log.h>
 
+#include <set>
+
 #include "audio/audio_http_server.hh"
 #include "audio/audio_recorder.hh"
 #include "audio/audio_stream.hh"
@@ -62,6 +64,9 @@ absl::Status Engine::Init(const utils::Config& config) {
     return status;
   }
   LOG(INFO) << "Controls initialized";
+
+  signal_bus_ = std::make_unique<SignalBus>();
+  signal_bus_->Declare(std::string(kMasterSignal));
 
   vst_host_ = std::make_unique<vst::VstHost>();
   status = vst_host_->Init();
@@ -293,6 +298,10 @@ absl::Status Engine::Run() {
         }
       }
 
+      signal_bus_->Publish(std::string(kMasterSignal), current_tick_,
+                           buffer.GetChannel(kLeftChannel),
+                           buffer.GetChannel(kRightChannel), buffer.Size());
+
       master_meter_.Process(buffer.GetChannel(kLeftChannel),
                             buffer.GetChannel(kRightChannel), buffer.Size());
     }
@@ -347,10 +356,17 @@ absl::Status Engine::SetupTracks(const std::list<Track::Settings>& settings) {
   // times.
   std::map<std::string, Track::Settings> tracks_to_add;
   std::map<std::string, Track::Settings> tracks_to_update;
+  std::list<std::string> tracks_to_remove;
 
   // Check what we need to do.
   {
     std::scoped_lock<std::mutex> lock(tracks_mutex_);
+
+    std::set<std::string> requested_names;
+    for (auto& track_settings : settings) {
+      requested_names.insert(track_settings.name_);
+    }
+
     for (auto& track_settings : settings) {
       auto name = track_settings.name_;
       auto it = tracks_.find(name);
@@ -361,15 +377,27 @@ absl::Status Engine::SetupTracks(const std::list<Track::Settings>& settings) {
         tracks_to_update[name] = track_settings;
       }
     }
+
+    // Tracks that are present but not requested anymore are removed.
+    for (const auto& [name, _] : tracks_) {
+      if (requested_names.find(name) == requested_names.end()) {
+        tracks_to_remove.push_back(name);
+      }
+    }
   }
 
   std::map<std::string, std::unique_ptr<Track>> updated_tracks;
 
   // Perform slow operations here.
   for (auto& track : tracks_to_add) {
+    // Every track name is automatically a sidechain source: declare its
+    // signal on the bus before the track's thread can publish to it.
+    signal_bus_->Declare(track.first);
+
     auto new_track = std::make_unique<Track>();
-    auto status = new_track->Init(track.second, sample_manager_.get(),
-                                  controls_.get(), vst_host_.get());
+    auto status =
+        new_track->Init(track.second, sample_manager_.get(), controls_.get(),
+                        vst_host_.get(), signal_bus_.get());
     if (!status.ok()) {
       LOG(ERROR) << "Failed to initialize track: " << status;
       return status;
@@ -400,6 +428,15 @@ absl::Status Engine::SetupTracks(const std::list<Track::Settings>& settings) {
     }
 
     tracks_.swap(updated_tracks);
+  }
+
+  // Remove the bus signals of the removed tracks. Their threads are
+  // joined when the old track map (held by `updated_tracks`) is
+  // destroyed; the bus keeps the storage of a dying signal for a few
+  // blocks so in-flight readers of the last published block can't
+  // dangle, and drops any late publish from a not-yet-joined thread.
+  for (const auto& name : tracks_to_remove) {
+    signal_bus_->Undeclare(name);
   }
 
   return absl::OkStatus();

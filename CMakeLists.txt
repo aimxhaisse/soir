@@ -172,6 +172,8 @@ add_library(soir_core_utils
     cpp/core/sample.cc
     cpp/core/sample_manager.cc
     cpp/core/sample_pack.cc
+    cpp/core/signal_bus.cc
+    cpp/core/signal_bus.hh
 )
 
 target_include_directories(soir_core_utils PUBLIC cpp ${audiofile_SOURCE_DIR} ${libremidi_SOURCE_DIR}/include)
@@ -194,6 +196,8 @@ target_link_libraries(soir_core_utils
 
 add_library(soir_fx
     cpp/fx/fx_chorus.cc
+    cpp/fx/fx_compressor.cc
+    cpp/fx/fx_compressor.hh
     cpp/fx/fx_echo.cc
     cpp/fx/fx_hpf.cc
     cpp/fx/fx_lpf.cc
@@ -337,6 +341,8 @@ add_library(soir_dsp
     cpp/dsp/biquad_filter.cc
     cpp/dsp/chorus.cc
     cpp/dsp/comb_filter.cc
+    cpp/dsp/compressor.cc
+    cpp/dsp/compressor.hh
     cpp/dsp/delay.cc
     cpp/dsp/delayed_apf.cc
     cpp/dsp/high_pass_filter.cc
@@ -428,6 +434,7 @@ add_test(NAME AudioTest COMMAND audio_test)
 
 add_executable(core_test
     cpp/tests/core/core_test.cc
+    cpp/tests/core/signal_bus_test.cc
 )
 
 target_link_libraries(core_test
@@ -469,6 +476,7 @@ target_link_libraries(inst_test
 add_test(NAME InstTest COMMAND inst_test)
 
 add_executable(dsp_test
+    cpp/tests/dsp/compressor_test.cc
     cpp/tests/dsp/delay_test.cc
     cpp/tests/dsp/effects_test.cc
     cpp/tests/dsp/filters_test.cc

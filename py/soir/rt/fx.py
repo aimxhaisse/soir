@@ -101,6 +101,71 @@ def mk_reverb(
     return mk("reverb", mix=mix, extra={"time": time, "dry": dry, "wet": wet})
 
 
+def mk_compressor(
+    source: str | None = None,
+    threshold: float | Control = 0.25,
+    ratio: float | Control = 4.0,
+    attack: float | Control = 0.005,
+    release: float | Control = 0.15,
+    knee: float | Control = 6.0,
+    makeup: float | Control = 1.0,
+    wet: float | Control = 1.0,
+) -> Fx:
+    """Creates a new Compressor FX.
+
+    @public
+
+    The compressor can be keyed on its own input (plain in-line
+    compression), on the master mix, or on the output of another track
+    (sidechain compression, e.g. the kick track ducking the pads).
+
+    External sources are tapped after the source track's own FX, before
+    its fader and mute: a muted (or zero-volume) track keeps driving the
+    sidechain while never being heard, which makes it a useful
+    inaudible "ghost" trigger. Muting the source therefore does not
+    stop the ducking; to turn the effect off live, automate `wet` to 0.
+
+    External sources are read with a deterministic one block delay
+    (~10.7 ms), which is inaudible for sidechain use.
+
+    Args:
+        source: The signal used to compute the gain reduction. A track
+                name for sidechain compression, "master" for the master
+                mix, or None for the compressor's own input (plain
+                in-line compression). Defaults to None.
+        threshold: The threshold in the [0.0, 1.0] range.
+        ratio: The compression ratio (1.0 = no compression).
+        attack: The attack time in seconds.
+        release: The release time in seconds.
+        knee: The width of the soft knee around the threshold in dB
+              (0.0 = hard knee). Defaults to 6.0.
+        makeup: The makeup gain.
+        wet: The dry/wet blend in the [0.0, 1.0] range.
+
+    Example:
+        ```python
+        tracks.setup({
+            'kick': tracks.mk_sampler(),
+            'pads': tracks.mk_sampler(fxs={
+                'duck': fx.mk_compressor(source='kick', ratio=8.0,
+                                         attack=0.001, release=0.3),
+            }),
+        })
+        ```
+    """
+    extra: dict[str, Any] = {
+        "source": source if source is not None else "self",
+        "threshold": threshold,
+        "ratio": ratio,
+        "attack": attack,
+        "release": release,
+        "knee": knee,
+        "makeup": makeup,
+        "wet": wet,
+    }
+    return mk("compressor", extra=extra)
+
+
 def mk_lpf(
     mix: float | Control | None = None,
     cutoff: float | Control = 0.5,

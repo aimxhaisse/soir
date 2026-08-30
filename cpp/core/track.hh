@@ -26,6 +26,7 @@
 #include "vst/vst_editor.hh"
 
 namespace soir {
+class SignalBus;
 namespace vst {
 class VstHost;
 }  // namespace vst
@@ -48,7 +49,7 @@ struct Track {
   ~Track();
 
   absl::Status Init(const Settings& settings, SampleManager* sample_manager,
-                    Controls* controls, vst::VstHost* vst_host);
+                    Controls* controls, vst::VstHost* vst_host, SignalBus* bus);
   absl::Status Start();
   absl::Status Stop();
 
@@ -79,6 +80,7 @@ struct Track {
   Controls* controls_;
   SampleManager* sample_manager_;
   vst::VstHost* vst_host_;
+  SignalBus* bus_;
 
   std::mutex mutex_;
   Settings settings_;

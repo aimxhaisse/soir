@@ -17,6 +17,7 @@
 #include "core/controls.hh"
 #include "core/level_meter.hh"
 #include "core/sample_manager.hh"
+#include "core/signal_bus.hh"
 #include "core/track.hh"
 #include "utils/config.hh"
 
@@ -123,6 +124,7 @@ class Engine {
 
   std::unique_ptr<SampleManager> sample_manager_;
   std::unique_ptr<vst::VstHost> vst_host_;
+  std::unique_ptr<SignalBus> signal_bus_;
   LevelMeter master_meter_;
 };
 

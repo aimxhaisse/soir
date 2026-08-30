@@ -5,6 +5,7 @@
 
 #include <filesystem>
 
+#include "core/signal_bus.hh"
 #include "utils/tools.hh"
 #include "vst/vst_host.hh"
 
@@ -16,11 +17,12 @@ Track::~Track() { Stop().IgnoreError(); }
 
 absl::Status Track::Init(const Settings& settings,
                          SampleManager* sample_manager, Controls* controls,
-                         vst::VstHost* vst_host) {
+                         vst::VstHost* vst_host, SignalBus* bus) {
   settings_ = settings;
   controls_ = controls;
   sample_manager_ = sample_manager;
   vst_host_ = vst_host;
+  bus_ = bus;
 
   switch (settings_.instrument_) {
     case inst::Type::SAMPLER: {
@@ -55,7 +57,7 @@ absl::Status Track::Init(const Settings& settings,
     return status;
   }
 
-  fx_stack_ = std::make_unique<fx::FxStack>(controls_, vst_host_);
+  fx_stack_ = std::make_unique<fx::FxStack>(controls_, vst_host_, bus_);
 
   status = fx_stack_->Init(settings_.fxs_);
   if (!status.ok()) {
@@ -298,6 +300,18 @@ absl::Status Track::ProcessLoop() {
       level_meter_.Process(track_buffer_.GetChannel(kLeftChannel),
                            track_buffer_.GetChannel(kRightChannel),
                            track_buffer_.Size());
+
+      // Publish the post-FX, pre-fader, pre-mute output to the signal
+      // bus: it is the sidechain source of this track. Mute and
+      // volume are mixing decisions and never affect the source
+      // signal, which makes muted ("ghost") tracks usable as
+      // inaudible triggers.
+      if (bus_ != nullptr) {
+        bus_->Publish(GetTrackName(), current_tick_,
+                      track_buffer_.GetChannel(kLeftChannel),
+                      track_buffer_.GetChannel(kRightChannel),
+                      track_buffer_.Size());
+      }
     }
 
     {

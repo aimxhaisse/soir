@@ -126,6 +126,10 @@ void Bind::PyRt(py::module_& m) {
             type = "vst";
             break;
 
+          case fx::Type::COMPRESSOR:
+            type = "compressor";
+            break;
+
           default:
             type = "unknown";
             break;
@@ -196,6 +200,8 @@ void Bind::PyRt(py::module_& m) {
           fx_settings.type_ = fx::Type::HPF;
         } else if (it["type"].cast<std::string>() == "vst") {
           fx_settings.type_ = fx::Type::VST;
+        } else if (it["type"].cast<std::string>() == "compressor") {
+          fx_settings.type_ = fx::Type::COMPRESSOR;
         } else {
           fx_settings.type_ = fx::Type::UNKNOWN;
         }

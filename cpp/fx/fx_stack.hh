@@ -13,6 +13,7 @@
 #include "fx.hh"
 
 namespace soir {
+class SignalBus;
 namespace vst {
 class VstHost;
 }  // namespace vst
@@ -22,7 +23,7 @@ namespace fx {
 struct FxVst;
 class FxStack {
  public:
-  FxStack(Controls* controls, vst::VstHost* vst_host);
+  FxStack(Controls* controls, vst::VstHost* vst_host, SignalBus* bus);
 
   absl::Status Init(const std::list<Fx::Settings> fx_settings);
 
@@ -44,6 +45,7 @@ class FxStack {
 
   Controls* controls_;
   vst::VstHost* vst_host_;
+  SignalBus* bus_;
 
   std::mutex mutex_;
   std::list<std::string> order_;
