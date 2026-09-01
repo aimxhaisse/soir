@@ -8,6 +8,7 @@ from dataclasses import dataclass
 from soir._bindings.rt import (
     get_audio_in_devices_,
     get_audio_out_devices_,
+    get_audio_underruns_,
     get_midi_out_devices_,
     set_force_kill_at_shutdown_,
 )
@@ -89,6 +90,27 @@ def get_audio_in_devices() -> list[AudioDeviceInfo]:
     return [AudioDeviceInfo(**d) for d in raw]
 
 
+def get_audio_underruns() -> int:
+    """Get the number of audio output underruns since the device opened.
+
+    @public
+
+    An underrun means the output device ran out of audio because the
+    engine did not push a block in time: the device inserted silence,
+    which is audible as a click or crackle. A count that grows while
+    you listen confirms the crackles come from the engine not keeping
+    up (input-side problems, like the external audio ring dropping
+    frames, are reported in the log instead).
+
+    The counter belongs to the current output device instance, so
+    switching the output device resets it.
+
+    Returns:
+        Number of underrun callbacks.
+    """
+    return int(get_audio_underruns_())
+
+
 def get_midi_out_devices() -> list[tuple[int, str]]:
     """Get the current MIDI output devices.
 
@@ -140,3 +162,4 @@ def info() -> None:
     midi_out = get_midi_out_devices()
     for idx, name in midi_out:
         log(f"  {idx}: {name}")
+    log(f"=== Audio output underruns: {get_audio_underruns()} ===")

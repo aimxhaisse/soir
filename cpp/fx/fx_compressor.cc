@@ -5,6 +5,13 @@
 namespace soir {
 namespace fx {
 
+namespace {
+// Cadence (in blocks) at which a compressor whose source is still
+// unknown re-looks it up, so a source track created after the FX is
+// picked up without reloading the settings. About 107 ms at kSampleRate.
+constexpr int kMissingRetryBlocks = 10;
+}  // namespace
+
 Compressor::Compressor(Controls* controls, SignalBus* bus)
     : controls_(controls), bus_(bus) {}
 
@@ -68,6 +75,19 @@ void Compressor::ReloadParams() {
   from_json(knee_, "knee", 6.0f, 0.0f, 12.0f);
   from_json(makeup_, "makeup", 1.0f, 0.0f, 4.0f);
   from_json(wet_, "wet", 1.0f, 0.0f, 1.0f);
+
+  ResolveSource();
+}
+
+void Compressor::ResolveSource() {
+  source_signal_ = nullptr;
+  if (source_ == "self" || bus_ == nullptr) {
+    return;
+  }
+
+  const std::string name =
+      (source_ == "master") ? std::string(kMasterSignal) : source_;
+  source_signal_ = bus_->Find(name);
 }
 
 void Compressor::Render(SampleTick tick, AudioBuffer& buffer,
@@ -81,17 +101,29 @@ void Compressor::Render(SampleTick tick, AudioBuffer& buffer,
   const float* src_l = nullptr;
   const float* src_r = nullptr;
   if (source_ != "self") {
-    const std::string signal_name =
-        (source_ == "master") ? std::string(kMasterSignal) : source_;
-    const Block* src = bus_->Latest(signal_name, tick);
-    if (src == nullptr) {
+    SignalBus::Signal* source = source_signal_;
+    if (source == nullptr) {
+      // The source was not present when the settings were last
+      // loaded; retry on a slow cadence so a source track created
+      // later is picked up without reloading the settings.
+      if ((tick / kBlockSize) % kMissingRetryBlocks == 0) {
+        ResolveSource();
+        source = source_signal_;
+      }
+    }
+    // Copy the previous block of the source out of the bus.
+    if (!SignalBus::Latest(source, tick, src_left_.data(), src_right_.data())) {
       // Missing source (typo, or track removed): pass through
-      // unchanged rather than killing the track's audio.
-      WarnSourceMissing();
+      // unchanged rather than killing the track's audio. The very
+      // first block has no previous block to read, so it is not a
+      // missing source.
+      if (tick >= kBlockSize) {
+        WarnSourceMissing();
+      }
       return;
     }
-    src_l = src->left;
-    src_r = src->right;
+    src_l = src_left_.data();
+    src_r = src_right_.data();
     warned_missing_ = false;
   }
 
@@ -117,16 +149,14 @@ void Compressor::Render(SampleTick tick, AudioBuffer& buffer,
 }
 
 void Compressor::WarnSourceMissing() {
-  const absl::Time now = absl::Now();
-  if (warned_missing_ && now - last_missing_warn_ < absl::Seconds(1)) {
+  if (warned_missing_) {
     return;
   }
 
+  warned_missing_ = true;
   LOG(WARNING) << "Compressor FX '" << settings_.name_
                << "': sidechain source '" << source_
                << "' is not available, passing audio through";
-  warned_missing_ = true;
-  last_missing_warn_ = now;
 }
 
 }  // namespace fx

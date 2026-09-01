@@ -4,115 +4,63 @@
 
 namespace soir {
 
-void SignalBus::Declare(const std::string& name) {
-  std::lock_guard<std::mutex> lock(mutex_);
-
-  auto it = signals_.find(name);
-  if (it != signals_.end()) {
-    // Revive a dying signal in place: its storage must outlive readers
-    // of its last published block, so it is reused rather than
-    // replaced. Stale slots are not returned by Latest() because they
-    // no longer match the expected tick.
-    it->second->dying_since = kNotDying;
-    return;
-  }
-
-  auto signal = std::make_unique<Signal>();
-  for (auto& slot : signal->slots) {
-    slot.left.resize(kBlockSize);
-    slot.right.resize(kBlockSize);
-  }
-
-  signals_[name] = std::move(signal);
-  ReapDying();
-}
-
-void SignalBus::Undeclare(const std::string& name) {
+SignalBus::Signal* SignalBus::Declare(const std::string& name) {
   std::lock_guard<std::mutex> lock(mutex_);
 
   auto it = signals_.find(name);
   if (it == signals_.end()) {
-    return;
+    auto signal = std::make_unique<Signal>();
+    for (auto& slot : signal->slots) {
+      slot.left.resize(kBlockSize);
+      slot.right.resize(kBlockSize);
+    }
+    it = signals_.emplace(name, std::move(signal)).first;
   }
 
-  if (it->second->dying_since == kNotDying) {
-    it->second->dying_since = latest_tick_;
-  }
-
-  ReapDying();
+  return it->second.get();
 }
 
-bool SignalBus::Declared(const std::string& name) const {
+SignalBus::Signal* SignalBus::Find(const std::string& name) const {
   std::lock_guard<std::mutex> lock(mutex_);
 
   auto it = signals_.find(name);
-  return it != signals_.end() && it->second->dying_since == kNotDying;
+  return (it != signals_.end()) ? it->second.get() : nullptr;
 }
 
-void SignalBus::Publish(const std::string& name, SampleTick tick,
-                        const float* left, const float* right, int size) {
-  std::lock_guard<std::mutex> lock(mutex_);
-
-  if (tick > latest_tick_) {
-    latest_tick_ = tick;
-  }
-  ReapDying();
-
-  auto it = signals_.find(name);
-  if (it == signals_.end() || it->second->dying_since != kNotDying) {
-    // The signal was never declared (or is dying): drop the block.
+void SignalBus::Publish(Signal* signal, SampleTick tick, const float* left,
+                        const float* right, int size) {
+  if (signal == nullptr || left == nullptr || right == nullptr || size <= 0 ||
+      size > kBlockSize) {
     return;
   }
 
-  Signal& signal = *it->second;
-  Slot& slot = signal.slots[(tick / kBlockSize) % kDepth];
+  std::lock_guard<std::mutex> lock(signal->mutex_);
 
-  if (slot.left.size() != static_cast<size_t>(size)) {
-    slot.left.resize(static_cast<size_t>(size));
-    slot.right.resize(static_cast<size_t>(size));
-  }
-
-  std::copy(left, left + size, slot.left.begin());
-  std::copy(right, right + size, slot.right.begin());
-
+  Slot& slot = signal->slots[(tick / kBlockSize) % kDepth];
+  std::copy_n(left, size, slot.left.data());
+  std::copy_n(right, size, slot.right.data());
   slot.tick = tick;
-  slot.block.tick = tick;
-  slot.block.left = slot.left.data();
-  slot.block.right = slot.right.data();
 }
 
-const Block* SignalBus::Latest(const std::string& name, SampleTick tick) const {
-  std::lock_guard<std::mutex> lock(mutex_);
-
-  if (tick < kBlockSize) {
-    return nullptr;
+bool SignalBus::Latest(const Signal* signal, SampleTick tick, float* left,
+                       float* right) {
+  if (signal == nullptr || tick < kBlockSize) {
+    return false;
   }
 
-  auto it = signals_.find(name);
-  if (it == signals_.end() || it->second->dying_since != kNotDying) {
-    return nullptr;
-  }
+  std::lock_guard<std::mutex> lock(signal->mutex_);
 
-  const Slot& slot =
-      it->second->slots[(tick - kBlockSize) / kBlockSize % kDepth];
+  const Slot& slot = signal->slots[(tick - kBlockSize) / kBlockSize % kDepth];
   if (slot.tick != tick - kBlockSize) {
     // The source never published a block at that position (not present
     // yet, or just created): treat it as missing.
-    return nullptr;
+    return false;
   }
 
-  return &slot.block;
-}
+  std::copy_n(slot.left.data(), kBlockSize, left);
+  std::copy_n(slot.right.data(), kBlockSize, right);
 
-void SignalBus::ReapDying() {
-  for (auto it = signals_.begin(); it != signals_.end();) {
-    if (it->second->dying_since != kNotDying &&
-        latest_tick_ >= it->second->dying_since + kDepth * kBlockSize) {
-      it = signals_.erase(it);
-    } else {
-      ++it;
-    }
-  }
+  return true;
 }
 
 }  // namespace soir

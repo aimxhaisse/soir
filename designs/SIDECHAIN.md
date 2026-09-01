@@ -67,42 +67,50 @@ preferred over a 0–1 block jitter (which would happen if we published inside
 
 ### 1. Signal bus (`core/signal_bus.hh/.cc`, new)
 
-A registry of named per-track (plus `master`) audio outputs, double-buffered
-with a small ring per name:
+A registry of named per-track (plus `master`) audio outputs, with a small
+ring of the last `kDepth` blocks per name:
 
 ```cpp
 // core/signal_bus.hh
 namespace soir {
 
-struct Block {
-  SampleTick tick;  // tick of the first sample in this block
-  const float* left;
-  const float* right;
-};
-
 class SignalBus {
  public:
-  // Pre-allocate slots for a signal name (called from SetupTracks for
-  // every track name, and once for kMasterSignal).
-  void Declare(const std::string& name);
-  void Undeclare(const std::string& name);
+  // Per-signal ring; the mutex protects the ring.
+  struct Signal {
+    mutable std::mutex mutex_;
+    std::array<Slot, kDepth> slots;  // tick + two std::vector<float>
+  };
 
-  // Publish the block starting at `tick`. Called by the track thread at
-  // the end of Track::ProcessLoop for track signals, and by the engine
-  // thread after the join phase for the master signal. Slots are indexed
-  // by (tick / kBlockSize) % kDepth.
-  void Publish(const std::string& name, SampleTick tick,
-               const float* left, const float* right, int size);
+  // Setup threads only (take the registry lock): intern a signal name,
+  // pre-allocating its ring on first use (called from SetupTracks for
+  // every track name, and once for kMasterSignal). Idempotent: the
+  // registry is append-only, so the same name always returns the same
+  // stable handle, which publishers and readers cache for the
+  // lifetime of the bus.
+  Signal* Declare(const std::string& name);
+  Signal* Find(const std::string& name) const;  // nullptr if never declared
 
-  // Read the block at (tick - kBlockSize), i.e. the most recent fully
-  // rendered block, or nullptr if that name has never published a block
-  // at that position (source track not present yet / just created).
-  const Block* Latest(const std::string& name, SampleTick tick) const;
+  // Audio threads (take only the signal's own mutex, for the duration
+  // of one kBlockSize-sample copy in or out):
+  // publish the block starting at `tick`, called by the track thread
+  // at the end of Track::ProcessLoop for track signals, and by the
+  // engine thread after the join phase for the master signal. Slots
+  // are indexed by (tick / kBlockSize) % kDepth.
+  static void Publish(Signal* signal, SampleTick tick,
+                      const float* left, const float* right, int size);
+
+  // Copy the block at (tick - kBlockSize), i.e. the most recent fully
+  // rendered block, into left/right. Returns false if the signal is
+  // null, or has never published a block at that position (source
+  // track not present yet / just created / removed).
+  static bool Latest(const Signal* signal, SampleTick tick,
+                     float* left, float* right);
 
  private:
   static constexpr int kDepth = 4;
-  // name -> ring of kDepth slots, each a pair of std::vector<float>
-  std::mutex mutex_;  // protects the map only, never the sample data
+  // name -> ring of kDepth slots
+  mutable std::mutex mutex_;  // protects the registry only
   std::map<std::string, std::unique_ptr<Signal>> signals_;
 };
 
@@ -117,19 +125,38 @@ Key properties:
   the key's block N-1. This is guaranteed by the existing engine
   synchronisation: the engine only dispatches block N+1 to any track after
   it has joined (observed completion of) block N for *all* tracks, and
-  publishes the master after the join loop. `kDepth = 4` guarantees a
-  writer never overwrites a slot a reader may still be consuming.
-- **No locks on the sample path.** The map mutex is taken once per
-  `Latest()`/`Publish()` for name resolution; the float data is written
-  exactly once per block per slot (happens-before via the
-  cv/mutex handoff of the engine loop), so readers read stable memory
-  without copying.
+  publishes the master after the join loop. `kDepth >= 2` so the slot of
+  block N-1 (read) is never the slot of block N (written); we use 4.
+- **Short per-signal locks on the sample path.** Callers cache the
+  `Signal*` handle returned by `Declare()`/`Find()` (tracks at `Init`,
+  the engine for the master, the compressor in `ReloadParams`), so per
+  block there is no name lookup and no registry lock: `Publish()` copies
+  the floats into the slot under the signal's mutex, and `Latest()`
+  copies the block *out* into caller-provided buffers under the same
+  mutex (a few microseconds of lock hold, bounded by one 4 KB copy). A
+  signal is only ever published by one thread and read by its
+  sidechain consumers, so **different signals never contend**: a slow
+  consumer of one track can never delay another track's publish; setup
+  threads (Declare/Find) only ever take the registry lock, never a
+  signal's mutex. Copying the block out (rather than returning a
+  pointer into the ring) means no pointer into the bus ever escapes
+  the lock.
 - **Missing source = silence.** If the source track doesn't exist (typo, or
-  removed), `Latest()` returns `nullptr` and the compressor passes audio
-  through unchanged (plus a rate-limited warning log). A live coding
-  environment should never kill a track because its source disappeared.
-- **Memory.** 4 slots × 512 samples × 2 ch × 4 B = 16 KB per signal name —
-  negligible.
+  removed), `Latest()` returns `false` and the compressor passes audio
+  through unchanged (plus a warning log emitted once per transition
+  into "missing", never repeatedly from the audio path). A compressor
+  whose source is not present when its settings load keeps re-looking
+  it up on a slow cadence (~10 blocks, only while missing) so a source
+  track created later is picked up even when the compressor's own
+  settings are untouched (its fast update only re-resolves when its
+  own `extra_` changes). A live coding environment
+  should never kill a track because its source disappeared.
+- **Stable handles, no reclamation.** Signal storage (4 slots × 512
+  samples × 2 ch × 4 B = 16 KB per signal name — negligible) is never
+  freed — the registry is append-only: a cached `Signal*` stays valid
+  for the lifetime of the bus, and a signal whose track was removed is
+  simply not served (its blocks no longer match `Latest()`'s expected
+  tick, so it reports "no block"), so in-flight readers can't dangle.
 
 ### 2. What gets published, and when
 
@@ -243,15 +270,22 @@ The wiring layer, following `fx_echo`/`fx_reverb` structure:
   (`"self"` (default) | track name | `"master"`); changing it is a
   `FastUpdate`-safe no-op on DSP state (only the lookup name changes), so
   it round-trips through `layout()`/`setup()` idempotently.
+- `ReloadParams` (settings load / `FastUpdate` only, never the audio
+  path) resolves the source name to a stable `Signal*` handle via
+  `bus_->Find()` — `"master"` maps to `kMasterSignal`, anything else is
+  used verbatim as a track name.
 - `Render(tick, buffer, events)` takes `mutex_` like the other FX, then:
   - **`source == "self"`** — plain feedforward compressor, *sample-accurate*:
     the envelope follows the current input sample, so there is no extra
     delay. `out[i] = comp.Process(in[i], in[i])` in place.
   - **`source` = track name or `"master"`** — the FX asks
-    `bus_->Latest(source, tick)` for the 1-block-delayed block and runs
-    the same DSP with the source samples:
+    `SignalBus::Latest(source_signal_, tick, …)` (cached handle, copies
+    the 1-block-delayed block into its own scratch buffers under the
+    signal's mutex) and runs the same DSP with the source samples:
     `out[i] = comp.Process(src_l[i], src_r[i], in[i], in[i])`. If the
-    lookup returns `nullptr`, pass through untouched.
+    read returns `false` (handle unknown — re-looked-up on a slow
+    cadence — or no block at that position), pass through untouched
+    and warn once per transition into "missing".
 - Constructor takes `Controls*` and `SignalBus*` (the bus is created in
   `Engine::Init` and handed to `FxStack`, mirroring how `VstHost*` flows
   `Engine → Track → FxStack → Fx`).
@@ -270,7 +304,7 @@ a sidechain device.
 | `fx/fx.hh` | `Type` enum: add `COMPRESSOR` |
 | `fx/fx_stack.hh/.cc` | Constructor takes `SignalBus*`; `Init` switch gets a `COMPRESSOR` case |
 | `core/track.hh/.cc` | `Init` takes `SignalBus*`; `ProcessLoop` publishes its post-FX block (unconditionally, pre-mute) |
-| `core/engine.hh/.cc` | Owns `SignalBus`; `Run()` publishes the master block after join; `SetupTracks` declares/undeclares track names |
+| `core/engine.hh/.cc` | Owns `SignalBus`; `Run()` publishes the master block after join; `SetupTracks` declares track names (append-only) |
 | `bindings/rt.cc` | `"compressor"` ↔ `fx::Type::COMPRESSOR` in both `setup_tracks_` and `get_tracks_` |
 | `CMakeLists.txt` | Add the four new files (alphabetical order) |
 
@@ -281,8 +315,9 @@ a sidechain device.
 - Readers: any FX in any track thread, only ever the *previous* block's
   slot.
 - Synchronisation: the existing engine cv/mutex hand-off already orders
-  "all of block N published" before "any of block N+1 rendered". No new
-  locks on the sample path.
+  "all of block N published" before "any of block N+1 rendered". The only
+  locks on the sample path are the short per-signal locks of the bus
+  (see above); no registry lock is ever taken per block.
 
 ## Python design
 
@@ -428,9 +463,9 @@ existing docstring extraction (`py/soir/www`).
 
 | Case | Behaviour |
 |------|-----------|
-| Source track doesn't exist (typo / removed later) | Pass-through + rate-limited warning log. No setup failure. |
+| Source track doesn't exist (typo / removed later) | Pass-through + warning log (once per transition into "missing"). No setup failure. |
 | Source track is muted (or `volume=0`) | Source signal is **unaffected** (pre-mute/pre-fader tap) → ducking continues. This is the ghost trigger pattern; stop the ducking by stopping the source track's triggers or automating `wet` to 0. |
-| Source track created after the compressor | `Latest()` returns `nullptr` until the source's first block publishes → clean transition from no-ducking to ducking. |
+| Source track created after the compressor | `Latest()` returns `false` until the source's first block publishes → clean transition from no-ducking to ducking. |
 | Chained sidechains (A keys B, B keys C) | Each hop adds 1 block; fine. |
 | `source="self"` with other FX in the same chain | The envelope uses the buffer *as received by the compressor* (post any preceding FX), which is the correct "input" semantics. |
 | Knob changes on compressor params | Interpolated by `Parameter`, no glitches (same as all other FX). |

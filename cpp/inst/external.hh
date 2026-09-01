@@ -1,8 +1,12 @@
 #pragma once
 
 #include <absl/status/status.h>
+#include <absl/time/time.h>
 
+#include <atomic>
+#include <chrono>
 #include <condition_variable>
+#include <cstdint>
 #include <libremidi/libremidi.hpp>
 #include <list>
 #include <memory>
@@ -45,8 +49,18 @@ class External : public Instrument {
       std::vector<std::pair<int, std::string>>* out);
 
  private:
-  void ScheduleMidiEvents(const absl::Time& next_block_at);
+  // The capture device's period is negotiated with the driver and is
+  // not guaranteed to be kBlockSize frames; a single callback can
+  // therefore deliver several blocks at once. These bounds keep the
+  // input path bounded in both directions.
+  static constexpr int kMaxDrainBlocks = 8;       // per ProcessAudioInput call
+  static constexpr size_t kMaxInputBacklog = 16;  // blocks waiting in buffers_
+
+  void ScheduleMidiEvents(std::chrono::steady_clock::time_point next_block_at);
   void WaitForInitialTick();
+  // Diagnostics, called from the capture device thread only.
+  void NoteCallbackSize(ma_uint32 frame_count);
+  void CountDroppedFrames(uint64_t frames);
 
   absl::Status ParseAndValidateSettings(
       const std::string& settings, std::optional<std::string>* midi_out_device,
@@ -69,6 +83,13 @@ class External : public Instrument {
   std::vector<float> consumed_;
   std::list<AudioBuffer> buffers_;
   SampleTick current_tick_ = 0;
+
+  // Capture diagnostics. All three are touched only from the miniaudio
+  // capture device thread, so no extra locking is needed (the atomics
+  // make that single-threaded access well-defined anyway).
+  std::atomic<bool> callback_logged_{false};
+  std::atomic<uint64_t> dropped_frames_{0};
+  absl::Time last_drop_warn_;
 
   // Only constructed when the MIDI backend is available: a libremidi
   // midi_out whose backend initialization failed (e.g. inaccessible ALSA

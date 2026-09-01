@@ -1,8 +1,8 @@
 #pragma once
 
 #include <absl/status/status.h>
-#include <absl/time/time.h>
 
+#include <array>
 #include <mutex>
 #include <string>
 
@@ -33,6 +33,7 @@ struct Compressor : public Fx {
 
  private:
   void ReloadParams();
+  void ResolveSource();
   void WarnSourceMissing();
 
   Controls* controls_;
@@ -43,6 +44,8 @@ struct Compressor : public Fx {
 
   // The sidechain source: "self", "master", or a track name.
   std::string source_ = "self";
+  // Stable bus handle of the source signal, nullptr while unknown.
+  SignalBus::Signal* source_signal_ = nullptr;
 
   Parameter threshold_;
   Parameter ratio_;
@@ -55,9 +58,17 @@ struct Compressor : public Fx {
   dsp::Compressor::Parameters params_;
   dsp::Compressor comp_;
 
-  // Rate-limited "source missing" warning state.
+  // Scratch buffers for the sidechain key: Latest() copies the source
+  // block into them each block, so the render loop never reads the
+  // bus ring directly.
+  std::array<float, kBlockSize> src_left_;
+  std::array<float, kBlockSize> src_right_;
+
+  // Set once the missing-source warning has been emitted since the
+  // last time the source was found: the warning is logged on the
+  // transition into "missing" only, never repeatedly from the audio
+  // path.
   bool warned_missing_ = false;
-  absl::Time last_missing_warn_{};
 };
 
 }  // namespace fx

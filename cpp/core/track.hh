@@ -17,6 +17,7 @@
 #include "core/midi_stack.hh"
 #include "core/parameter.hh"
 #include "core/sample_manager.hh"
+#include "core/signal_bus.hh"
 #include "fx/fx_stack.hh"
 #include "inst/external.hh"
 #include "inst/inst_vst.hh"
@@ -60,6 +61,13 @@ struct Track {
 
   Settings GetSettings();
   const std::string& GetTrackName();
+
+  // The track's name is its identity: it is set in Init() and never
+  // changed for the lifetime of the Track object (a rename is a
+  // remove+add as far as the engine is concerned). It is stored
+  // outside settings_ so the audio path (the engine's per-block
+  // dispatch loop) can read it without taking mutex_.
+  const std::string& Name() const { return name_; }
   Levels GetLevels() const;
 
   absl::Status OpenVstFxEditor(const std::string& fx_name);
@@ -81,6 +89,13 @@ struct Track {
   SampleManager* sample_manager_;
   vst::VstHost* vst_host_;
   SignalBus* bus_;
+  // Stable handle of this track's sidechain signal (the post-FX tap
+  // published on the bus). Kept instead of the name so the audio path
+  // never resolves names or takes locks for it.
+  SignalBus::Signal* signal_ = nullptr;
+
+  // See Name(): immutable identity, read lock-free on the audio path.
+  std::string name_;
 
   std::mutex mutex_;
   Settings settings_;

@@ -2,7 +2,7 @@
 
 #include <absl/log/log.h>
 
-#include <set>
+#include <chrono>
 
 #include "audio/audio_http_server.hh"
 #include "audio/audio_recorder.hh"
@@ -66,7 +66,7 @@ absl::Status Engine::Init(const utils::Config& config) {
   LOG(INFO) << "Controls initialized";
 
   signal_bus_ = std::make_unique<SignalBus>();
-  signal_bus_->Declare(std::string(kMasterSignal));
+  master_signal_ = signal_bus_->Declare(std::string(kMasterSignal));
 
   vst_host_ = std::make_unique<vst::VstHost>();
   status = vst_host_->Init();
@@ -230,10 +230,16 @@ absl::Status Engine::Run() {
   LOG(INFO) << "Engine running";
 
   AudioBuffer buffer(kBlockSize);
-  absl::Duration block_duration =
-      absl::Microseconds((1e6 * kBlockSize) / kSampleRate);
-  absl::Time next_block_at = absl::Now();
-  absl::Time initial_time = next_block_at;
+  // Steady clock: the wall clock (absl::Now / absl::ToChronoTime ->
+  // system_clock) can be stepped by NTP or VM time synchronisation,
+  // which would stretch or skip the block schedule and underrun the
+  // output device. The schedule stays an absolute grid (block N is
+  // due at initial + N * block_duration) so a slow block is
+  // compensated by a fast-forward burst, never by drifting.
+  const auto block_duration =
+      std::chrono::microseconds((1000000LL * kBlockSize) / kSampleRate);
+  auto next_block_at = std::chrono::steady_clock::now();
+  const auto initial_time = next_block_at;
   uint64_t block_count = 0;
 
   while (true) {
@@ -241,8 +247,7 @@ absl::Status Engine::Run() {
       SOIR_TRACING_ZONE_COLOR("dsp::wait", SOIR_BLUE);
 
       std::unique_lock<std::mutex> lock(mutex_);
-      cv_.wait_until(lock, absl::ToChronoTime(next_block_at),
-                     [this]() { return stop_; });
+      cv_.wait_until(lock, next_block_at, [this]() { return stop_; });
       if (stop_) {
         break;
       }
@@ -277,7 +282,11 @@ absl::Status Engine::Run() {
         std::scoped_lock<std::mutex> lock(tracks_mutex_);
         for (auto& it : tracks_) {
           auto track = it.second.get();
-          auto evlist = events[track->GetTrackName()];
+          // Name() (not GetTrackName()): the name is immutable, so no
+          // Track::mutex_ is taken here. GetTrackName() would block
+          // the whole engine on any concurrent FastUpdate (live-code
+          // edit), which is a direct underrun.
+          auto evlist = events[track->Name()];
           SetTicks(evlist);
           track->RenderAsync(current_tick_, evlist);
         }
@@ -298,9 +307,9 @@ absl::Status Engine::Run() {
         }
       }
 
-      signal_bus_->Publish(std::string(kMasterSignal), current_tick_,
-                           buffer.GetChannel(kLeftChannel),
-                           buffer.GetChannel(kRightChannel), buffer.Size());
+      SignalBus::Publish(master_signal_, current_tick_,
+                         buffer.GetChannel(kLeftChannel),
+                         buffer.GetChannel(kRightChannel), buffer.Size());
 
       master_meter_.Process(buffer.GetChannel(kLeftChannel),
                             buffer.GetChannel(kRightChannel), buffer.Size());
@@ -356,16 +365,11 @@ absl::Status Engine::SetupTracks(const std::list<Track::Settings>& settings) {
   // times.
   std::map<std::string, Track::Settings> tracks_to_add;
   std::map<std::string, Track::Settings> tracks_to_update;
-  std::list<std::string> tracks_to_remove;
 
-  // Check what we need to do.
+  // Check what we need to do. Tracks already present but not requested
+  // anymore are dropped when the layout is swapped in below.
   {
     std::scoped_lock<std::mutex> lock(tracks_mutex_);
-
-    std::set<std::string> requested_names;
-    for (auto& track_settings : settings) {
-      requested_names.insert(track_settings.name_);
-    }
 
     for (auto& track_settings : settings) {
       auto name = track_settings.name_;
@@ -377,23 +381,21 @@ absl::Status Engine::SetupTracks(const std::list<Track::Settings>& settings) {
         tracks_to_update[name] = track_settings;
       }
     }
-
-    // Tracks that are present but not requested anymore are removed.
-    for (const auto& [name, _] : tracks_) {
-      if (requested_names.find(name) == requested_names.end()) {
-        tracks_to_remove.push_back(name);
-      }
-    }
   }
 
   std::map<std::string, std::unique_ptr<Track>> updated_tracks;
 
   // Perform slow operations here.
-  for (auto& track : tracks_to_add) {
-    // Every track name is automatically a sidechain source: declare its
-    // signal on the bus before the track's thread can publish to it.
-    signal_bus_->Declare(track.first);
 
+  // Every track name is automatically a sidechain source: declare all
+  // the new signals first so that FX on any track created in this
+  // batch can resolve their source to a bus handle, whatever the
+  // order in which the tracks are created.
+  for (auto& track : tracks_to_add) {
+    signal_bus_->Declare(track.first);
+  }
+
+  for (auto& track : tracks_to_add) {
     auto new_track = std::make_unique<Track>();
     auto status =
         new_track->Init(track.second, sample_manager_.get(), controls_.get(),
@@ -427,16 +429,13 @@ absl::Status Engine::SetupTracks(const std::list<Track::Settings>& settings) {
       updated_tracks[name] = std::move(track);
     }
 
+    // Swapping in the new layout drops the removed tracks: their
+    // threads are joined when `updated_tracks` (holding the old map)
+    // is destroyed, and their bus signal simply stops being
+    // published — the bus registry is append-only, so in-flight
+    // readers can't dangle, and the signal reports "no block" until
+    // the name is created again.
     tracks_.swap(updated_tracks);
-  }
-
-  // Remove the bus signals of the removed tracks. Their threads are
-  // joined when the old track map (held by `updated_tracks`) is
-  // destroyed; the bus keeps the storage of a dying signal for a few
-  // blocks so in-flight readers of the last published block can't
-  // dangle, and drops any late publish from a not-yet-joined thread.
-  for (const auto& name : tracks_to_remove) {
-    signal_bus_->Undeclare(name);
   }
 
   return absl::OkStatus();
@@ -578,6 +577,10 @@ absl::Status Engine::SetAudioOutput(const std::string& device) {
 }
 
 audio::PcmStream* Engine::GetPcmStream() { return pcm_stream_.get(); }
+
+uint64_t Engine::GetAudioUnderruns() const {
+  return (audio_output_ != nullptr) ? audio_output_->GetUnderrunCount() : 0;
+}
 
 absl::Status Engine::StartStreaming() {
   if (streaming_active_) {

@@ -47,10 +47,50 @@ void External::AudioInputCallback(ma_device* device, void* output,
     return;
   }
 
-  const float* input_buffer = static_cast<const float*>(input);
+  ext->NoteCallbackSize(frame_count);
+
+  float* write_ptr;
+  const ma_uint32 requested = frame_count;
   ma_pcm_rb_acquire_write(&ext->audio_ringbuffer_, &frame_count,
-                          (void**)&input_buffer);
-  ma_pcm_rb_commit_write(&ext->audio_ringbuffer_, frame_count);
+                          (void**)&write_ptr);
+  if (frame_count > 0) {
+    memcpy(write_ptr, input,
+           frame_count * ext->audio_in_chans_ * sizeof(float));
+    ma_pcm_rb_commit_write(&ext->audio_ringbuffer_, frame_count);
+  }
+
+  if (frame_count < requested) {
+    // The ring buffer was not empty enough to take the whole callback:
+    // the missing frames are dropped input.
+    ext->CountDroppedFrames(requested - frame_count);
+  }
+}
+
+void External::NoteCallbackSize(ma_uint32 frame_count) {
+  // Log the negotiated period once (from the first callback, before
+  // acquire_write can reduce frame_count): it determines how much
+  // input a single callback delivers, which the ring buffer must be
+  // able to absorb.
+  if (!callback_logged_.exchange(true)) {
+    LOG(INFO) << "Audio input callback delivers " << frame_count
+              << " frames per period (" << (frame_count * 1000) / kSampleRate
+              << " ms)";
+  }
+}
+
+void External::CountDroppedFrames(uint64_t frames) {
+  const uint64_t total =
+      dropped_frames_.fetch_add(frames, std::memory_order_relaxed) + frames;
+  const absl::Time now = absl::Now();
+  // Rate-limited: at most one warning every 2 seconds, and only while
+  // input is actually being lost.
+  if (now - last_drop_warn_ >= absl::Seconds(2)) {
+    last_drop_warn_ = now;
+    LOG(WARNING) << "Audio input ring buffer is full: dropped " << total
+                 << " frames of input so far. The capture period is "
+                    "larger than the input path can absorb; the "
+                    "external audio will crackle until this stops";
+  }
 }
 
 void External::ProcessAudioInput() {
@@ -58,39 +98,56 @@ void External::ProcessAudioInput() {
     return;
   }
 
-  ma_uint32 available_frames = ma_pcm_rb_available_read(&audio_ringbuffer_);
-  if (available_frames < kBlockSize) {
+  if (ma_pcm_rb_available_read(&audio_ringbuffer_) < kBlockSize) {
     return;
   }
-
-  std::vector<float> input_buffer(kBlockSize * audio_in_chans_);
-  void* read_ptr;
-  ma_uint32 frames_to_read = kBlockSize;
-  ma_pcm_rb_acquire_read(&audio_ringbuffer_, &frames_to_read, &read_ptr);
-  if (frames_to_read < kBlockSize) {
-    ma_pcm_rb_commit_read(&audio_ringbuffer_, frames_to_read);
-    return;
-  }
-
-  memcpy(input_buffer.data(), read_ptr,
-         kBlockSize * audio_in_chans_ * sizeof(float));
-  ma_pcm_rb_commit_read(&audio_ringbuffer_, kBlockSize);
-
-  AudioBuffer output_buffer(kBlockSize);
 
   int left_channel = channel_map_[0];
   int right_channel = channel_map_[1];
-  float* left = output_buffer.GetChannel(kLeftChannel);
-  float* right = output_buffer.GetChannel(kRightChannel);
 
-  for (int i = 0; i < kBlockSize; ++i) {
-    left[i] = input_buffer[i * audio_in_chans_ + left_channel];
-    right[i] = input_buffer[i * audio_in_chans_ + right_channel];
-  }
+  // The capture device's period is negotiated with the driver and may
+  // be several kBlockSize frames, so a single callback can deliver
+  // several blocks at once: drain as many full blocks as are
+  // available (bounded, so a burst of input can't stall the External
+  // thread for long).
+  std::vector<float> input_buffer(kBlockSize * audio_in_chans_);
+  for (int drained = 0; drained < kMaxDrainBlocks; ++drained) {
+    ma_uint32 available_frames = ma_pcm_rb_available_read(&audio_ringbuffer_);
+    if (available_frames < kBlockSize) {
+      break;
+    }
 
-  {
-    std::lock_guard<std::mutex> lock(mutex_);
-    buffers_.push_back(output_buffer);
+    void* read_ptr;
+    ma_uint32 frames_to_read = kBlockSize;
+    ma_pcm_rb_acquire_read(&audio_ringbuffer_, &frames_to_read, &read_ptr);
+    if (frames_to_read < kBlockSize) {
+      ma_pcm_rb_commit_read(&audio_ringbuffer_, frames_to_read);
+      break;
+    }
+
+    memcpy(input_buffer.data(), read_ptr,
+           kBlockSize * audio_in_chans_ * sizeof(float));
+    ma_pcm_rb_commit_read(&audio_ringbuffer_, kBlockSize);
+
+    AudioBuffer output_buffer(kBlockSize);
+    float* left = output_buffer.GetChannel(kLeftChannel);
+    float* right = output_buffer.GetChannel(kRightChannel);
+
+    for (int i = 0; i < kBlockSize; ++i) {
+      left[i] = input_buffer[i * audio_in_chans_ + left_channel];
+      right[i] = input_buffer[i * audio_in_chans_ + right_channel];
+    }
+
+    {
+      std::lock_guard<std::mutex> lock(mutex_);
+      buffers_.push_back(std::move(output_buffer));
+      // Cap the backlog: if the consumer (Render) is not keeping up
+      // (engine stalled), drop the oldest blocks instead of growing
+      // unboundedly or adding unbounded latency.
+      while (buffers_.size() > kMaxInputBacklog) {
+        buffers_.pop_front();
+      }
+    }
   }
 }
 
@@ -185,7 +242,8 @@ absl::Status External::ConfigureMidiPort(
     return absl::OkStatus();
   }
 
-  if (midi_out_device == settings_midi_out_) {
+  if (midi_out_device == settings_midi_out_ && midi_out_.has_value() &&
+      midi_out_->is_port_open()) {
     return absl::OkStatus();
   }
 
@@ -221,7 +279,7 @@ absl::Status External::ConfigureAudioDevice(
   const bool chans_changed = (settings_chans_ != channels);
   const bool device_changed = (audio_in_device != settings_audio_in_);
 
-  if (!device_changed && !chans_changed) {
+  if (!device_changed && !chans_changed && audio_in_device_initialized_) {
     return absl::OkStatus();
   }
 
@@ -247,7 +305,12 @@ absl::Status External::ConfigureAudioDevice(
   int max_channel = *std::max_element(channels.begin(), channels.end());
   int required_channels = max_channel + 1;
 
-  ma_uint32 ringbuffer_size = kBlockSize * 4 * required_channels;
+  // The ring must absorb at least the largest period the driver might
+  // negotiate for the capture device (we request kBlockSize, but the
+  // driver is free to give more). 16 blocks (170 ms) covers periods
+  // up to 8 blocks; ProcessAudioInput drains several blocks per call
+  // to stay ahead of larger ones.
+  ma_uint32 ringbuffer_size = kBlockSize * 16 * required_channels;
   ma_result result =
       ma_pcm_rb_init(ma_format_f32, required_channels, ringbuffer_size, nullptr,
                      nullptr, &audio_ringbuffer_);
@@ -260,6 +323,12 @@ absl::Status External::ConfigureAudioDevice(
   config.capture.format = ma_format_f32;
   config.capture.channels = required_channels;
   config.sampleRate = kSampleRate;
+  // Request the same period as the engine's block size. Without this,
+  // miniaudio's ALSA backend defaults to a 100 ms period, and a
+  // single 4800-frame callback would overflow the input ring and drop
+  // most of the external audio.
+  config.periodSizeInFrames = kBlockSize;
+  config.periods = 2;
   config.dataCallback = AudioInputCallback;
   config.pUserData = this;
 
@@ -274,8 +343,8 @@ absl::Status External::ConfigureAudioDevice(
   }
   audio_in_context_initialized_ = true;
 
-  result = ma_context_get_devices(&audio_in_context_, &capture_devices,
-                                  &capture_device_count, nullptr, nullptr);
+  result = ma_context_get_devices(&audio_in_context_, nullptr, nullptr,
+                                  &capture_devices, &capture_device_count);
   if (result != MA_SUCCESS) {
     LOG(WARNING) << "Failed to enumerate audio devices: " << result;
     ma_context_uninit(&audio_in_context_);
@@ -366,7 +435,8 @@ absl::Status External::Init(const std::string& settings,
   return absl::OkStatus();
 }
 
-void External::ScheduleMidiEvents(const absl::Time& block_at) {
+void External::ScheduleMidiEvents(
+    std::chrono::steady_clock::time_point block_at) {
   uint32_t current_tick;
   MidiStack events;
   {
@@ -378,13 +448,13 @@ void External::ScheduleMidiEvents(const absl::Time& block_at) {
   }
 
   const uint32_t nsamples = std::min(kMidiExtChunkSize, kBlockSize);
-  const float nus =
-      (static_cast<float>(nsamples) / static_cast<float>(kSampleRate)) * 1e6;
+  const int64_t nus = (static_cast<int64_t>(nsamples) * 1000000) / kSampleRate;
 
   int chunk = 0;
   do {
-    absl::Time chunk_at = block_at + absl::Microseconds(chunk * nus);
-    std::this_thread::sleep_until(absl::ToChronoTime(chunk_at));
+    const auto chunk_at =
+        block_at + std::chrono::microseconds(static_cast<int64_t>(chunk) * nus);
+    std::this_thread::sleep_until(chunk_at);
     std::list<MidiEventAt> events_at;
     events.EventsAtTick(current_tick + (1 + chunk) * nsamples, events_at);
     {
@@ -428,17 +498,19 @@ void External::WaitForInitialTick() {
 absl::Status External::Run() {
   WaitForInitialTick();
 
-  absl::Duration block_duration =
-      absl::Microseconds((1e6 * kBlockSize) / kSampleRate);
-  absl::Time next_block_at = absl::Now();
-  absl::Time initial_time = next_block_at;
+  // Steady clock: the wall clock (absl::Now) can be stepped by NTP or
+  // VM time synchronisation, which would stretch or skip the soft
+  // clock and drop/duplicate blocks of MIDI events and input audio.
+  const auto block_duration =
+      std::chrono::microseconds((1000000LL * kBlockSize) / kSampleRate);
+  auto next_block_at = std::chrono::steady_clock::now();
+  const auto initial_time = next_block_at;
   uint32_t block_count = 0;
 
   while (true) {
     {
       std::unique_lock<std::mutex> lock(mutex_);
-      cv_.wait_until(lock, absl::ToChronoTime(next_block_at),
-                     [this]() { return stop_; });
+      cv_.wait_until(lock, next_block_at, [this]() { return stop_; });
       if (stop_) {
         break;
       }

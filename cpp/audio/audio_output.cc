@@ -101,28 +101,56 @@ static void data_callback(ma_device* device, void* output, const void* input,
   ma_uint32 samples_needed = frame_count * device->playback.channels;
 
   if (audio_output) {
-    std::lock_guard<std::mutex> lock(audio_output->buffer_mutex_);
+    bool underrun = false;
+    size_t missing_samples = 0;
 
-    // Consume from buffer if available
-    size_t available = audio_output->audio_buffer_.size();
-    size_t to_copy = std::min(static_cast<size_t>(samples_needed), available);
+    {
+      std::lock_guard<std::mutex> lock(audio_output->buffer_mutex_);
 
-    if (to_copy > 0) {
-      memcpy(output_buffer, audio_output->audio_buffer_.data(),
-             to_copy * sizeof(float));
-      audio_output->audio_buffer_.erase(
-          audio_output->audio_buffer_.begin(),
-          audio_output->audio_buffer_.begin() + to_copy);
+      // Consume from buffer if available
+      size_t available = audio_output->audio_buffer_.size();
+      size_t to_copy = std::min(static_cast<size_t>(samples_needed), available);
+
+      if (to_copy > 0) {
+        memcpy(output_buffer, audio_output->audio_buffer_.data(),
+               to_copy * sizeof(float));
+        audio_output->audio_buffer_.erase(
+            audio_output->audio_buffer_.begin(),
+            audio_output->audio_buffer_.begin() + to_copy);
+      }
+
+      // Fill remainder with silence if buffer underrun
+      if (to_copy < samples_needed) {
+        memset(output_buffer + to_copy, 0,
+               (samples_needed - to_copy) * sizeof(float));
+        underrun = true;
+        missing_samples = samples_needed - to_copy;
+      }
     }
 
-    // Fill remainder with silence if buffer underrun
-    if (to_copy < samples_needed) {
-      memset(output_buffer + to_copy, 0,
-             (samples_needed - to_copy) * sizeof(float));
+    // Outside the lock: OnUnderrun may log, and taking the global log
+    // lock while holding buffer_mutex_ could block the engine's push.
+    if (underrun) {
+      audio_output->OnUnderrun(missing_samples);
     }
   } else {
     // No audio_output, output silence
     memset(output_buffer, 0, samples_needed * sizeof(float));
+  }
+}
+
+void AudioOutput::OnUnderrun(size_t missing_samples) {
+  const uint64_t total = underruns_.fetch_add(1, std::memory_order_relaxed) + 1;
+  const absl::Time now = absl::Now();
+  // Rate-limited to one warning per second, and only while underruns
+  // are actually happening: the steady state must stay log-free.
+  if (now - last_underrun_warn_ >= absl::Seconds(1)) {
+    last_underrun_warn_ = now;
+    LOG(WARNING) << "Audio output underrun: inserted " << missing_samples
+                 << " samples of silence (" << total
+                 << " underrun callbacks so far). The engine is not "
+                    "pushing audio fast enough; check the log for "
+                    "long FastUpdate durations or stalls";
   }
 }
 
@@ -234,6 +262,18 @@ absl::Status AudioOutput::PushAudioBuffer(AudioBuffer& buffer) {
   for (size_t i = 0; i < size; i++) {
     audio_buffer_.push_back(buffer.GetChannel(kLeftChannel)[i]);
     audio_buffer_.push_back(buffer.GetChannel(kRightChannel)[i]);
+  }
+
+  // Bound the backlog. After a long engine stall the loop fast-forwards
+  // to catch up and can push many seconds of audio at once; without a
+  // cap the vector would balloon (more latency, and a longer O(n)
+  // erase on the device thread). Beyond the cap the oldest samples are
+  // dropped. In steady state the buffer holds only a few blocks, so
+  // this never triggers.
+  const size_t cap = static_cast<size_t>(kSampleRate) * kNumChannels;
+  if (audio_buffer_.size() > cap) {
+    audio_buffer_.erase(audio_buffer_.begin(),
+                        audio_buffer_.begin() + (audio_buffer_.size() - cap));
   }
 
   return absl::OkStatus();

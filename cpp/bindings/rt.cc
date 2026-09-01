@@ -364,6 +364,8 @@ void Bind::PyRt(py::module_& m) {
         "rms_left"_a = levels.rms_left, "rms_right"_a = levels.rms_right);
   });
 
+  rt.def("get_audio_underruns_", []() { return gDsp_->GetAudioUnderruns(); });
+
   rt.def("pump_ui_events_", []() { soir::vst::EditorWindow::PumpEvents(); });
 
   rt.def("vst_open_fx_editor_",

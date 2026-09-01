@@ -3,6 +3,7 @@
 #include <absl/log/log.h>
 #include <absl/status/status.h>
 
+#include <chrono>
 #include <filesystem>
 
 #include "core/signal_bus.hh"
@@ -18,11 +19,22 @@ Track::~Track() { Stop().IgnoreError(); }
 absl::Status Track::Init(const Settings& settings,
                          SampleManager* sample_manager, Controls* controls,
                          vst::VstHost* vst_host, SignalBus* bus) {
+  // The name is set before any other thread can observe the Track
+  // (the engine publishes it into its tracks map only after Init
+  // returns), so it can be read without a lock from then on.
+  name_ = settings.name_;
+
   settings_ = settings;
   controls_ = controls;
   sample_manager_ = sample_manager;
   vst_host_ = vst_host;
   bus_ = bus;
+
+  // Every track name is automatically a sidechain source: declare its
+  // signal on the bus and keep the stable handle for the audio path.
+  // (The engine declares new track names up front as well; Declare is
+  // idempotent and returns the same handle.)
+  signal_ = (bus_ != nullptr) ? bus_->Declare(settings_.name_) : nullptr;
 
   switch (settings_.instrument_) {
     case inst::Type::SAMPLER: {
@@ -117,6 +129,11 @@ bool Track::CanFastUpdate(const Settings& settings) {
 }
 
 void Track::FastUpdate(const Settings& settings) {
+  // The full instrument + FX re-init runs under mutex_: the engine's
+  // dispatch/join and the track's render block on it for as long as
+  // this takes, so any time spent here is directly audible as a
+  // potential underrun. Log the duration to keep that in sight.
+  const auto start = std::chrono::steady_clock::now();
   std::scoped_lock<std::mutex> lock(mutex_);
 
   settings_ = settings;
@@ -127,6 +144,14 @@ void Track::FastUpdate(const Settings& settings) {
   }
 
   fx_stack_->FastUpdate(settings_.fxs_);
+
+  const auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(
+                           std::chrono::steady_clock::now() - start)
+                           .count();
+  if (elapsed >= 1) {
+    LOG(WARNING) << "FastUpdate of track '" << name_ << "' took " << elapsed
+                 << " ms (engine blocked on the track lock meanwhile)";
+  }
 }
 
 Track::Settings Track::GetSettings() {
@@ -305,12 +330,12 @@ absl::Status Track::ProcessLoop() {
       // bus: it is the sidechain source of this track. Mute and
       // volume are mixing decisions and never affect the source
       // signal, which makes muted ("ghost") tracks usable as
-      // inaudible triggers.
-      if (bus_ != nullptr) {
-        bus_->Publish(GetTrackName(), current_tick_,
-                      track_buffer_.GetChannel(kLeftChannel),
-                      track_buffer_.GetChannel(kRightChannel),
-                      track_buffer_.Size());
+      // inaudible triggers. Lock-free: the handle is resolved at
+      // init, so the audio path never takes a registry lock here.
+      if (signal_ != nullptr) {
+        SignalBus::Publish(
+            signal_, current_tick_, track_buffer_.GetChannel(kLeftChannel),
+            track_buffer_.GetChannel(kRightChannel), track_buffer_.Size());
       }
     }
 

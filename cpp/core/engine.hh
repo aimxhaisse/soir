@@ -70,6 +70,11 @@ class Engine {
 
   audio::PcmStream* GetPcmStream();
 
+  // Diagnostics: number of output device callbacks that had to insert
+  // silence because the engine was not keeping up (underruns). A
+  // growing count while listening means audible crackles.
+  uint64_t GetAudioUnderruns() const;
+
  private:
   absl::Status Run();
   void SetTicks(std::list<MidiEventAt>& events);
@@ -110,6 +115,12 @@ class Engine {
 
   std::list<SampleConsumer*> consumers_;
 
+  // Sidechain signal bus. Declared before the tracks (and thus
+  // destroyed after them) so the stable Signal* handles cached by
+  // tracks and FX stay valid for their whole lifetime.
+  std::unique_ptr<SignalBus> signal_bus_;
+  SignalBus::Signal* master_signal_ = nullptr;
+
   // Tracks are created/updated by the Runtime engine, and locked
   // during the processing of a block.
   std::mutex setup_tracks_mutex_;
@@ -124,7 +135,6 @@ class Engine {
 
   std::unique_ptr<SampleManager> sample_manager_;
   std::unique_ptr<vst::VstHost> vst_host_;
-  std::unique_ptr<SignalBus> signal_bus_;
   LevelMeter master_meter_;
 };
 
