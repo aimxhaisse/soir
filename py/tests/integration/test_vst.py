@@ -13,12 +13,17 @@ requirements are not met.
 
 import os
 import unittest
-from typing import ClassVar
+from collections.abc import Callable
+from typing import ClassVar, TypeVar, cast
 
 from .base import SoirSessionTestCase
 
+_VstTestFunc = TypeVar("_VstTestFunc", bound=Callable[..., None])
 
-def use_vsts(vst_names):
+
+def use_vsts(
+    vst_names: list[str],
+) -> Callable[[_VstTestFunc], _VstTestFunc]:
     """Decorator to run a test for each specified VST plugin.
 
     The decorated test method will be run once for each VST in the list.
@@ -28,8 +33,8 @@ def use_vsts(vst_names):
         vst_names: List of VST plugin names to test.
     """
 
-    def decorator(func):
-        func._use_vsts = vst_names
+    def decorator(func: _VstTestFunc) -> _VstTestFunc:
+        setattr(func, "_use_vsts", vst_names)
         return func
 
     return decorator
@@ -1120,27 +1125,32 @@ except Exception as e:
 
 # Generate parameterized test methods for @use_vsts decorator.
 # This must run after the class is defined.
-def _generate_vst_tests():
+def _generate_vst_tests() -> None:
     for cls in [TestVstEditorOpenClose]:
         for name, method in list(cls.__dict__.items()):
-            if hasattr(method, "_use_vsts"):
-                # Remove the original method
-                delattr(cls, name)
-                # Generate a test method for each VST
-                for vst_name in method._use_vsts:
-                    safe_name = vst_name.replace(" ", "_").replace("-", "_")
-                    test_name = f"{name}_{safe_name}"
+            vst_names: object = getattr(method, "_use_vsts", None)
+            if not isinstance(vst_names, list):
+                continue
+            # Remove the original method
+            delattr(cls, name)
+            # Generate a test method for each VST
+            for vst_name in vst_names:
+                safe_name = vst_name.replace(" ", "_").replace("-", "_")
+                test_name = f"{name}_{safe_name}"
 
-                    def make_test(vst_name, original_method):
-                        def test(self):
-                            return original_method(self, vst_name=vst_name)
+                def make_test(
+                    vst_name: str,
+                    original_method: Callable[..., object],
+                ) -> Callable[[object], object]:
+                    def test(self: object) -> object:
+                        return original_method(self, vst_name=vst_name)
 
-                        return test
+                    return test
 
-                    test_method = make_test(vst_name, method)
-                    test_method.__name__ = test_name
-                    test_method.__doc__ = f"{method.__doc__} [vst={vst_name!r}]"
-                    setattr(cls, test_name, test_method)
+                test_method = make_test(vst_name, cast("Callable[..., object]", method))
+                test_method.__name__ = test_name
+                test_method.__doc__ = f"{method.__doc__} [vst={vst_name!r}]"
+                setattr(cls, test_name, test_method)
 
 
 _generate_vst_tests()
