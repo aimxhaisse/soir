@@ -119,7 +119,6 @@ class Engine {
   // destroyed after them) so the stable Signal* handles cached by
   // tracks and FX stay valid for their whole lifetime.
   std::unique_ptr<SignalBus> signal_bus_;
-  SignalBus::Signal* master_signal_ = nullptr;
 
   // Tracks are created/updated by the Runtime engine, and locked
   // during the processing of a block.

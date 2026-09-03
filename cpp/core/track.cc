@@ -30,12 +30,6 @@ absl::Status Track::Init(const Settings& settings,
   vst_host_ = vst_host;
   bus_ = bus;
 
-  // Every track name is automatically a sidechain source: declare its
-  // signal on the bus and keep the stable handle for the audio path.
-  // (The engine declares new track names up front as well; Declare is
-  // idempotent and returns the same handle.)
-  signal_ = (bus_ != nullptr) ? bus_->Declare(settings_.name_) : nullptr;
-
   switch (settings_.instrument_) {
     case inst::Type::SAMPLER: {
       settings_.instrument_ = inst::Type::SAMPLER;
@@ -326,15 +320,12 @@ absl::Status Track::ProcessLoop() {
                            track_buffer_.GetChannel(kRightChannel),
                            track_buffer_.Size());
 
-      // Publish the post-FX, pre-fader, pre-mute output to the signal
-      // bus: it is the sidechain source of this track. Mute and
-      // volume are mixing decisions and never affect the source
-      // signal, which makes muted ("ghost") tracks usable as
-      // inaudible triggers. Lock-free: the handle is resolved at
-      // init, so the audio path never takes a registry lock here.
-      if (signal_ != nullptr) {
-        SignalBus::Publish(
-            signal_, current_tick_, track_buffer_.GetChannel(kLeftChannel),
+      // Sidechain source tap: post-FX, pre-fader, pre-mute. Mute and
+      // volume never affect it, so a muted ("ghost") track can drive a
+      // sidechain inaudibly.
+      if (bus_ != nullptr) {
+        bus_->Publish(
+            name_, current_tick_, track_buffer_.GetChannel(kLeftChannel),
             track_buffer_.GetChannel(kRightChannel), track_buffer_.Size());
       }
     }

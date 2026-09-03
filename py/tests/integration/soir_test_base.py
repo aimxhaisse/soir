@@ -113,6 +113,14 @@ class SoirTestEngine:
         """Get all captured notifications."""
         return self._notifications
 
+    def drain_log_lines(self) -> list[str]:
+        """Read and return log lines written since the last read.
+
+        For negative assertions: wait for a positive marker, sleep, then
+        check this output for the absence of a line.
+        """
+        return self._read_new_log_lines()
+
     def wait_for_notification(
         self, expected: str, timeout: float = 5.0, exact_match: bool = False
     ) -> bool:

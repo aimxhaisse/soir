@@ -89,11 +89,6 @@ struct Track {
   SampleManager* sample_manager_;
   vst::VstHost* vst_host_;
   SignalBus* bus_;
-  // Stable handle of this track's sidechain signal (the post-FX tap
-  // published on the bus). Kept instead of the name so the audio path
-  // never resolves names or takes locks for it.
-  SignalBus::Signal* signal_ = nullptr;
-
   // See Name(): immutable identity, read lock-free on the audio path.
   std::string name_;
 

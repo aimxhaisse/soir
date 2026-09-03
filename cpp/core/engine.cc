@@ -66,7 +66,7 @@ absl::Status Engine::Init(const utils::Config& config) {
   LOG(INFO) << "Controls initialized";
 
   signal_bus_ = std::make_unique<SignalBus>();
-  master_signal_ = signal_bus_->Declare(std::string(kMasterSignal));
+  signal_bus_->Declare(std::string(kMasterSignal));
 
   vst_host_ = std::make_unique<vst::VstHost>();
   status = vst_host_->Init();
@@ -307,9 +307,9 @@ absl::Status Engine::Run() {
         }
       }
 
-      SignalBus::Publish(master_signal_, current_tick_,
-                         buffer.GetChannel(kLeftChannel),
-                         buffer.GetChannel(kRightChannel), buffer.Size());
+      signal_bus_->Publish(std::string(kMasterSignal), current_tick_,
+                           buffer.GetChannel(kLeftChannel),
+                           buffer.GetChannel(kRightChannel), buffer.Size());
 
       master_meter_.Process(buffer.GetChannel(kLeftChannel),
                             buffer.GetChannel(kRightChannel), buffer.Size());
@@ -387,10 +387,8 @@ absl::Status Engine::SetupTracks(const std::list<Track::Settings>& settings) {
 
   // Perform slow operations here.
 
-  // Every track name is automatically a sidechain source: declare all
-  // the new signals first so that FX on any track created in this
-  // batch can resolve their source to a bus handle, whatever the
-  // order in which the tracks are created.
+  // Declare the new names before creating the tracks so that any FX
+  // in the batch can resolve its source, whatever the order.
   for (auto& track : tracks_to_add) {
     signal_bus_->Declare(track.first);
   }

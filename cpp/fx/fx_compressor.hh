@@ -17,11 +17,8 @@ namespace fx {
 
 // Compressor effect.
 //
-// The gain reduction can be computed from the compressor's own input
-// (source "self", plain in-line compression), from the master mix
-// (source "master"), or from the rendered output of another track
-// (source = track name, sidechain compression). External sources are
-// read from the SignalBus with a deterministic one-block delay.
+// source: "self" (in-line, sample-accurate), "master", or a track
+// name (sidechain, one-block delay via the SignalBus).
 struct Compressor : public Fx {
   Compressor(Controls* controls, SignalBus* bus);
 
@@ -33,8 +30,7 @@ struct Compressor : public Fx {
 
  private:
   void ReloadParams();
-  void ResolveSource();
-  void WarnSourceMissing();
+  void HandleMissingSource(const std::string& name, SampleTick tick);
 
   Controls* controls_;
   SignalBus* bus_;
@@ -42,10 +38,10 @@ struct Compressor : public Fx {
   std::mutex mutex_;
   Fx::Settings settings_;
 
-  // The sidechain source: "self", "master", or a track name.
+  // The key source: "self", "master", or a track name. Looked up by
+  // name in Render(); a source created after this FX is picked up
+  // from its first published block.
   std::string source_ = "self";
-  // Stable bus handle of the source signal, nullptr while unknown.
-  SignalBus::Signal* source_signal_ = nullptr;
 
   Parameter threshold_;
   Parameter ratio_;
@@ -64,11 +60,12 @@ struct Compressor : public Fx {
   std::array<float, kBlockSize> src_left_;
   std::array<float, kBlockSize> src_right_;
 
-  // Set once the missing-source warning has been emitted since the
-  // last time the source was found: the warning is logged on the
-  // transition into "missing" only, never repeatedly from the audio
-  // path.
+  // Latched per missing-source transition, cleared on the next
+  // successful read.
   bool warned_missing_ = false;
+  // Set once the source delivered a block: separates ramp-up (quiet)
+  // from a stopped source (warns).
+  bool had_source_ = false;
 };
 
 }  // namespace fx

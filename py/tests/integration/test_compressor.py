@@ -275,6 +275,93 @@ class TestCompressorSidechain(_CompressorAudioTestBase):
         )
 
 
+class TestCompressorMissingSource(SoirSessionTestCase):
+    """Missing-source warning policy.
+
+    Warns: source never existed (typo), or was driving the FX and was
+    removed. Quiet: source just created (one-block ramp-up, including
+    forward references in the same setup() call).
+    """
+
+    def test_forward_reference_source_stays_quiet(self) -> None:
+        """A source defined later in the same setup() call does not
+        log a missing-source warning."""
+        self.engine.push_code(
+            """
+tracks.setup({
+    'pads': tracks.mk_sampler(fxs={
+        'duck': fx.mk_compressor(source='ghost-kick', ratio=8.0),
+    }),
+    'ghost-kick': tracks.mk_sampler(muted=True),
+})
+log("forward-ref-setup-done")
+"""
+        )
+        self.assertTrue(self.engine.wait_for_notification("forward-ref-setup-done"))
+        # The warning, if any, fires on the first block after the swap.
+        time.sleep(0.5)
+        seen = "\n".join(
+            self.engine.get_notifications() + self.engine.drain_log_lines()
+        )
+        self.assertNotIn("is not available", seen)
+
+    def test_never_created_source_warns(self) -> None:
+        """A source name that was never a track (typo) warns."""
+        self.engine.push_code(
+            """
+tracks.setup({
+    'pads': tracks.mk_sampler(fxs={
+        'duck': fx.mk_compressor(source='no-such-track', ratio=8.0),
+    }),
+})
+log("typo-setup-done")
+"""
+        )
+        self.assertTrue(self.engine.wait_for_notification("typo-setup-done"))
+        self.assertTrue(
+            self.engine.wait_for_notification(
+                "sidechain source 'no-such-track' is not available",
+                timeout=2.0,
+            )
+        )
+
+    def test_removed_source_warns(self) -> None:
+        """A source track removed after having driven the FX warns once."""
+        self.engine.push_code(
+            """
+tracks.setup({
+    'kick': tracks.mk_sampler(),
+    'pads': tracks.mk_sampler(fxs={
+        'duck': fx.mk_compressor(source='kick', ratio=8.0),
+    }),
+})
+log("removed-src-setup-1")
+"""
+        )
+        self.assertTrue(self.engine.wait_for_notification("removed-src-setup-1"))
+        # Let the compressor receive blocks from the source.
+        time.sleep(0.3)
+
+        # Drop the source track; pads settings are unchanged, so the FX
+        # is fast-updated and keeps its had_source_ state.
+        self.engine.push_code(
+            """
+tracks.setup({
+    'pads': tracks.mk_sampler(fxs={
+        'duck': fx.mk_compressor(source='kick', ratio=8.0),
+    }),
+})
+log("removed-src-setup-2")
+"""
+        )
+        self.assertTrue(self.engine.wait_for_notification("removed-src-setup-2"))
+        self.assertTrue(
+            self.engine.wait_for_notification(
+                "sidechain source 'kick' is not available", timeout=2.0
+            )
+        )
+
+
 class TestCompressorMasterSource(_CompressorAudioTestBase):
     """Test source='master': a track ducked by the whole mix."""
 
