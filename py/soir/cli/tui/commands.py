@@ -41,7 +41,7 @@ class CommandInterpreter:
         "audio-out": "list audio output devices",
         "audio-in": "list audio input devices",
         "midi-out": "list MIDI output devices",
-        "vst list|open|close|open-fx|close-fx": "manage VST plugins and editors",
+        "vst ls|open|close|open-fx|close-fx": "manage VST plugins and editors",
         "set-audio-out <name|index>": "select audio output device",
         "record start <file.wav>": "start recording to file",
         "record stop": "stop recording",
@@ -297,7 +297,7 @@ class CommandInterpreter:
             Formatted VST information
         """
         usage = (
-            "usage: vst list | vst open <track> | vst close <track> "
+            "usage: vst ls | vst open <track> | vst close <track> "
             "| vst open-fx <track>/<fx> | vst close-fx <track>/<fx>"
         )
         if not args:
@@ -305,8 +305,8 @@ class CommandInterpreter:
 
         subcmd = args[0].lower()
 
-        if subcmd == "list":
-            return self._vst_list()
+        if subcmd == "ls":
+            return self._vst_ls()
         elif subcmd in ("open", "close"):
             return self._vst_inst_editor(subcmd, args[1:])
         elif subcmd in ("open-fx", "close-fx"):
@@ -315,7 +315,7 @@ class CommandInterpreter:
         else:
             return usage
 
-    def _vst_list(self) -> str:
+    def _vst_ls(self) -> str:
         """List available and instantiated VST plugins."""
         lines: list[str] = []
 
