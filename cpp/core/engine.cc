@@ -360,14 +360,35 @@ absl::Status Engine::SetupTracks(const std::list<Track::Settings>& settings) {
   // do (add new tracks, initialize instruments, initialize effects,
   // ...), then we prepare everything, and take the lock to update the
   // tracks with everything pre-loaded.
+  //
+  // The order of the slow operations matters for VST plugins hosted
+  // through yabridge: all instances of the same bridged plugin in
+  // this process share a single Wine coprocess, and tearing an old
+  // plugin instance down while freshly created instances of the same
+  // plugin are already live on that shared coprocess can crash the
+  // coprocess (unhandled exception inside the bridge), after which
+  // every remaining plugin instance blocks forever on its socket and
+  // hangs the whole session. We therefore destroy the old tracks
+  // (joining their threads and shutting down their VST plugins)
+  // BEFORE initialising the replacements. The cost is a brief audio
+  // gap on replaced tracks while the new ones initialise, which is
+  // acceptable compared to a hang.
 
   // Use maps here to ensure we don't override the same track multiple
   // times.
   std::map<std::string, Track::Settings> tracks_to_add;
   std::map<std::string, Track::Settings> tracks_to_update;
 
-  // Check what we need to do. Tracks already present but not requested
-  // anymore are dropped when the layout is swapped in below.
+  // Detached tracks: removed from the layout but not destroyed yet.
+  std::vector<std::unique_ptr<Track>> old_tracks;
+
+  // Check what we need to do, and detach the tracks that are being
+  // replaced or removed. Detaching under the tracks lock makes sure
+  // the engine thread can no longer grab them (it iterates over
+  // tracks_ under the same lock), so destroying them right after is
+  // safe. The bus registry is append-only, so in-flight readers of a
+  // detached track's signal can't dangle, and the signal reports
+  // "no block" until the name is created again.
   {
     std::scoped_lock<std::mutex> lock(tracks_mutex_);
 
@@ -381,11 +402,25 @@ absl::Status Engine::SetupTracks(const std::list<Track::Settings>& settings) {
         tracks_to_update[name] = track_settings;
       }
     }
+
+    for (auto it = tracks_.begin(); it != tracks_.end();) {
+      if (tracks_to_update.count(it->first) == 0) {
+        old_tracks.push_back(std::move(it->second));
+        it = tracks_.erase(it);
+      } else {
+        ++it;
+      }
+    }
   }
 
-  std::map<std::string, std::unique_ptr<Track>> updated_tracks;
-
   // Perform slow operations here.
+
+  // Shut the old tracks down first (yabridge, see above): this joins
+  // their processing threads and terminates their VST plugin
+  // instances before any replacement is constructed. Note that if a
+  // new track fails to initialise below, the replaced tracks are not
+  // restored — the layout simply stays until the next setup.
+  old_tracks.clear();
 
   // Declare the new names before creating the tracks so that any FX
   // in the batch can resolve its source, whatever the order.
@@ -393,6 +428,7 @@ absl::Status Engine::SetupTracks(const std::list<Track::Settings>& settings) {
     signal_bus_->Declare(track.first);
   }
 
+  std::map<std::string, std::unique_ptr<Track>> new_tracks;
   for (auto& track : tracks_to_add) {
     auto new_track = std::make_unique<Track>();
     auto status =
@@ -410,7 +446,7 @@ absl::Status Engine::SetupTracks(const std::list<Track::Settings>& settings) {
       return status;
     }
 
-    updated_tracks[track.first] = std::move(new_track);
+    new_tracks[track.first] = std::move(new_track);
   }
 
   // Update the layout without holding the lock for too long.
@@ -423,17 +459,11 @@ absl::Status Engine::SetupTracks(const std::list<Track::Settings>& settings) {
       // This can't fail otherwise the design is not atomic, we don't
       // want partial upgrades to be possible.
       track->FastUpdate(track_request.second);
-
-      updated_tracks[name] = std::move(track);
     }
 
-    // Swapping in the new layout drops the removed tracks: their
-    // threads are joined when `updated_tracks` (holding the old map)
-    // is destroyed, and their bus signal simply stops being
-    // published — the bus registry is append-only, so in-flight
-    // readers can't dangle, and the signal reports "no block" until
-    // the name is created again.
-    tracks_.swap(updated_tracks);
+    for (auto& track : new_tracks) {
+      tracks_[track.first] = std::move(track.second);
+    }
   }
 
   return absl::OkStatus();

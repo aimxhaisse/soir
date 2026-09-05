@@ -7,6 +7,7 @@
 #include <map>
 #include <mutex>
 #include <thread>
+#include <vector>
 
 #include "audio/audio_http_server.hh"
 #include "audio/audio_output.hh"

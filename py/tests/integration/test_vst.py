@@ -388,6 +388,64 @@ except Exception as e:
 """
         )
 
+    def test_replace_track_with_two_vst_effects(self) -> None:
+        """Test replacing a track whose VST FX is replaced by two VST FXs.
+
+        This is a full track rebuild while the old VST plugin instance is
+        still alive: for plugins bridged with yabridge all instances of
+        the same plugin share a single Wine coprocess, and the old
+        instance must be fully shut down before the new ones are created
+        or the coprocess can crash and hang the session (see the
+        digitone-pad session with two ValhallaShimmer instances).
+        """
+        self._run_vst_test(
+            """
+try:
+    plugins = vst.plugins()
+    if not plugins:
+        log("vst_test_result=skipped")
+    else:
+        plugin_name = plugins[0]['name']
+        # One VST effect on the track.
+        tracks.setup({
+            'synth': tracks.mk('sampler', fxs={
+                'v': fx.mk_vst(plugin_name),
+            }),
+        })
+        layout = tracks.layout()
+        if len(layout) == 0:
+            log("vst_test_result=vst_broken")
+        else:
+            had_vst = 'synth' in layout and [f.type for f in layout['synth'].fxs.values()] == ['vst']
+            # Replace the track with two VST effects: forces a full
+            # rebuild while the old plugin instance is still alive.
+            tracks.setup({
+                'synth': tracks.mk('sampler', fxs={
+                    'v': fx.mk_vst(plugin_name),
+                    'v2': fx.mk_vst(plugin_name),
+                }),
+            })
+            layout = tracks.layout()
+            now_two = 'synth' in layout and [f.type for f in layout['synth'].fxs.values()] == ['vst', 'vst']
+            # The engine must still be responsive after the rebuild.
+            tracks.setup({
+                'synth': tracks.mk('sampler', fxs={
+                    'v': fx.mk_vst(plugin_name),
+                    'v2': fx.mk_vst(plugin_name),
+                    'chorus': fx.mk_chorus(),
+                }),
+            })
+            layout = tracks.layout()
+            now_three = 'synth' in layout and [f.type for f in layout['synth'].fxs.values()] == ['vst', 'vst', 'chorus']
+            if had_vst and now_two and now_three:
+                log("vst_test_result=passed")
+            else:
+                log(f"vst_test_result=failed:had_vst={had_vst},now_two={now_two},now_three={now_three}")
+except Exception as e:
+    log(f"vst_test_result=error:{e}")
+"""
+        )
+
 
 class TestVstEffectReordering(VstTestCase):
     """Test reordering effects including VST plugins."""
