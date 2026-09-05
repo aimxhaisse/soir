@@ -202,6 +202,7 @@ def mk_hpf(
 
 def mk_vst(
     plugin: str,
+    mix: float | Control = 1.0,
     params: dict[str, float | Control] | None = None,
 ) -> Fx:
     """Creates a new VST3 effect.
@@ -212,6 +213,9 @@ def mk_vst(
 
     Args:
         plugin: The plugin UID or name.
+        mix: The dry/wet mix of the effect in the [0.0, 1.0] range: 0.0 is
+             fully dry (bypasses the plugin), 1.0 is fully wet. Can be a
+             Control for live automation. Defaults to 1.0.
         params: Parameter values to set. Keys are parameter names, values are
                 floats in [0.0, 1.0] range or Control references.
 
@@ -224,7 +228,7 @@ def mk_vst(
         })
         ```
     """
-    extra: dict[str, Any] = {"plugin": plugin}
+    extra: dict[str, Any] = {"plugin": plugin, "mix": mix}
     if params:
         extra["params"] = params
     return mk("vst", extra=extra)

@@ -4,6 +4,7 @@
 #include <memory>
 #include <mutex>
 #include <string>
+#include <vector>
 
 #include "core/parameter.hh"
 #include "fx/fx.hh"
@@ -51,6 +52,12 @@ struct FxVst : public Fx {
     uint32_t vst_param_id;
   };
   std::map<std::string, AutomatedParam> automated_params_;
+
+  // Dry/wet mix of the plugin output: 0.0 is fully dry (bypass), 1.0 is
+  // fully wet. The dry block copies used to compute the blend.
+  Parameter mix_;
+  std::vector<float> dry_left_;
+  std::vector<float> dry_right_;
 
   bool initialized_ = false;
 };

@@ -2,6 +2,7 @@
 
 #include <absl/log/log.h>
 
+#include <algorithm>
 #include <nlohmann/json.hpp>
 
 #include "core/common.hh"
@@ -96,6 +97,12 @@ void FxVst::ReloadParams() {
 
   automated_params_.clear();
 
+  mix_ = Parameter::FromJSON(controls_, doc, "mix");
+  if (!doc.contains("mix")) {
+    mix_.SetConstant(1.0f);
+  }
+  mix_.SetRange(0.0f, 1.0f);
+
   if (!doc.contains("params") || !plugin_) {
     return;
   }
@@ -133,7 +140,36 @@ void FxVst::Render(SampleTick tick, AudioBuffer& buffer,
     plugin_->SetParameter(ap.vst_param_id, value);
   }
 
+  // The mix blends the dry input with the processed output: 0.0 is fully
+  // dry (the plugin output is discarded), 1.0 is fully wet (the plugin
+  // output replaces the input). When the mix is a constant 1.0 the blend
+  // is skipped entirely, which keeps the default path allocation-free.
+  const ParameterRaw mix_raw = mix_.Raw();
+  const bool full_wet = std::holds_alternative<float>(mix_raw) &&
+                        std::get<float>(mix_raw) >= 1.0f;
+
+  if (full_wet) {
+    plugin_->Process(tick, buffer, events);
+    return;
+  }
+
+  auto lch = buffer.GetChannel(kLeftChannel);
+  auto rch = buffer.GetChannel(kRightChannel);
+  const int size = static_cast<int>(buffer.Size());
+
+  dry_left_.resize(size);
+  dry_right_.resize(size);
+  std::copy(lch, lch + size, dry_left_.begin());
+  std::copy(rch, rch + size, dry_right_.begin());
+
   plugin_->Process(tick, buffer, events);
+
+  for (int i = 0; i < size; ++i) {
+    const float mix = mix_.GetValue(tick + i);
+    const float dry = 1.0f - mix;
+    lch[i] = lch[i] * mix + dry_left_[i] * dry;
+    rch[i] = rch[i] * mix + dry_right_[i] * dry;
+  }
 }
 
 absl::Status FxVst::OpenEditor() {
