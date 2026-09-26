@@ -11,6 +11,7 @@ with midi.use_chan(1):
 """
 
 from soir._bindings.rt import (
+    midi_cc_,
     midi_note_off_,
     midi_note_on_,
     schedule_,
@@ -127,6 +128,29 @@ def note_off(note: int, velocity: int = 127, chan: int | None = None) -> None:
         raise UnknownMidiTrackException()
 
     schedule_(loop.current_offset, lambda: midi_note_off_(track, chan, note, velocity))
+
+
+def cc(cc: int, value: int, chan: int | None = None) -> None:
+    """Send a MIDI control change to the external synthesizer configured on the track.
+
+    @public
+
+    Args:
+        cc: The control change number in the [0, 127] range.
+        value: The control value in the [0, 127] range.
+        chan: The MIDI chan to send the CC to. Uses the value from use_chan() if not provided.
+
+    Raises:
+        NotInLoopException: If called from outside a loop.
+    """
+    loop = assert_in_loop()
+    chan = _get_chan(chan)
+
+    track = loop.track
+    if not track:
+        raise UnknownMidiTrackException()
+
+    schedule_(loop.current_offset, lambda: midi_cc_(track, chan, cc, value))
 
 
 def note(
