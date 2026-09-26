@@ -199,6 +199,13 @@ just test     # always
 - Error handling: custom exceptions from `soir.rt.errors`
 - mypy: strict mode enabled
 
+### Comments
+- Default to no comment. Add one only when the *why* is not obvious from the code: protocol/spec constraints, workarounds for specific misbehaving components, non-obvious invariants or ordering assumptions.
+- Maximum 1-2 short lines. If a comment needs more, fix the code (rename, split) instead of writing a paragraph.
+- Never restate what the code does in prose, and never narrate history ("regression test for X", "fixed the bug where..."). State the invariant a future reader needs, in one line.
+- Prefer a better name over a comment. If a member's name makes a comment redundant (e.g. `pending_events_`), use the name and drop the comment.
+- Docstrings: one-line summary; add a body only for non-obvious contracts or behavior.
+
 ## Key Technologies
 
 ### C++ Dependencies (via CMake FetchContent)

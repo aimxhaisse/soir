@@ -6,10 +6,8 @@ import time
 from pathlib import Path
 from typing import Any, ClassVar
 
-import numpy as np
-import soundfile as sf  # type: ignore[import-untyped]
-
 from .base import SoirSessionTestCase
+from .dsp import read_wav, rms_segment
 
 _PROJECT_ROOT = Path(__file__).parent.parent.parent.parent
 
@@ -34,14 +32,6 @@ def _test_packs_dir() -> Path:
         _TEST_PACKS_DIR = dest
 
     return _TEST_PACKS_DIR
-
-
-def rms_of_segment(
-    data: np.ndarray, start: float, end: float, sample_rate: int
-) -> float:
-    """RMS of a [start, end] time window of a mono signal."""
-    segment = data[int(start * sample_rate) : int(end * sample_rate)]
-    return float(np.sqrt(np.mean(np.square(segment))))
 
 
 # Kick on the left, pads on the right, for 16 beats (8 s at 120 bpm).
@@ -214,13 +204,13 @@ class TestCompressorSidechain(_CompressorAudioTestBase):
         reference = self._record("", "{}", "sidechain_reference.wav")
 
         def analyse(path: Path) -> dict[str, float]:
-            data, sr = sf.read(path, always_2d=True)
+            data, sr = read_wav(path)
             left = data[:, 0]
             right = data[:, 1]
             return {
-                "kick": rms_of_segment(left, 0.3, 1.9, sr),
-                "pads_ducked": rms_of_segment(right, 0.3, 1.9, sr),
-                "pads_silent": rms_of_segment(right, 4.5, 7.5, sr),
+                "kick": rms_segment(left, 0.3, 1.9, sr),
+                "pads_ducked": rms_segment(right, 0.3, 1.9, sr),
+                "pads_silent": rms_segment(right, 4.5, 7.5, sr),
             }
 
         ducked_levels = analyse(ducked)
@@ -257,16 +247,16 @@ class TestCompressorSidechain(_CompressorAudioTestBase):
         pre-mute) while the master contains none of its content."""
         ghost = self._record(", muted=True", _DUCK_FX, "sidechain_ghost.wav")
 
-        data, sr = sf.read(ghost, always_2d=True)
+        data, sr = read_wav(ghost)
         left = data[:, 0]
         right = data[:, 1]
 
         # The (muted) kick panned hard left is not in the master at all.
-        self.assertLess(rms_of_segment(left, 0.3, 1.9, sr), 1e-6)
+        self.assertLess(rms_segment(left, 0.3, 1.9, sr), 1e-6)
 
         # The pads are still ducked by the inaudible trigger.
-        pads_ducked = rms_of_segment(right, 0.3, 1.9, sr)
-        pads_silent = rms_of_segment(right, 4.5, 7.5, sr)
+        pads_ducked = rms_segment(right, 0.3, 1.9, sr)
+        pads_silent = rms_segment(right, 4.5, 7.5, sr)
         self.assertGreater(pads_silent, 0.01)
         self.assertLess(
             pads_ducked,
@@ -417,8 +407,8 @@ log("compressor-record-start")
         reference = self._record("{}", "master_reference.wav")
 
         def right_rms(path: Path) -> float:
-            data, sr = sf.read(path, always_2d=True)
-            return rms_of_segment(data[:, 1], 0.5, 3.5, sr)
+            data, sr = read_wav(path)
+            return rms_segment(data[:, 1], 0.5, 3.5, sr)
 
         ducked_rms = right_rms(ducked)
         reference_rms = right_rms(reference)

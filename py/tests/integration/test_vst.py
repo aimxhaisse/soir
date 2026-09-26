@@ -12,11 +12,16 @@ requirements are not met.
 """
 
 import os
+import subprocess
+import sys
+import time
 import unittest
 from collections.abc import Callable
+from pathlib import Path
 from typing import ClassVar, TypeVar, cast
 
 from .base import SoirSessionTestCase
+from .dsp import read_wav, rms
 
 _VstTestFunc = TypeVar("_VstTestFunc", bound=Callable[..., None])
 
@@ -1077,20 +1082,60 @@ class TestVstEditorOpenClose(VstTestCase):
     """Test VST editor open/close/reopen lifecycle.
 
     These tests require an X11 display and at least one VST plugin to be
-    installed. They verify that the editor can be opened, closed, and
-    reopened without errors.
+    installed. The lifecycle runs in a subprocess: native editor code can
+    abort() the host on display problems, which must not take down the
+    whole suite.
     """
+
+    _SUBPROCESS_ENV_KEY = "SOIR_EDITOR_SUBPROCESS"
 
     def _skip_if_no_display(self) -> None:
         """Skip the test if no X11 display is available."""
         if not os.environ.get("DISPLAY"):
             self.skipTest("No X11 display available (DISPLAY not set)")
 
+    def _run_in_subprocess(self, method_name: str) -> None:
+        """Re-run this method in a fresh interpreter so a native editor
+        crash fails this test instead of taking down the suite."""
+        node_id = f"{Path(__file__).resolve()}::{type(self).__name__}::{method_name}"
+        env = dict(os.environ, **{self._SUBPROCESS_ENV_KEY: "1"})
+        try:
+            proc = subprocess.run(
+                [
+                    sys.executable,
+                    "-m",
+                    "pytest",
+                    node_id,
+                    "-x",
+                    "-q",
+                    "-p",
+                    "no:cacheprovider",
+                ],
+                capture_output=True,
+                text=True,
+                timeout=180,
+                env=env,
+            )
+        except subprocess.TimeoutExpired:
+            self.fail(f"{method_name} timed out in subprocess")
+            return
+        if proc.returncode == 0:
+            return
+        detail = "\n".join(p for p in (proc.stdout[-2000:], proc.stderr[-2000:]) if p)
+        if proc.returncode < 0:
+            self.fail(
+                f"{method_name} killed by signal {-proc.returncode} in "
+                f"subprocess (native editor crash):\n{detail}"
+            )
+        self.fail(f"{method_name} failed in subprocess:\n{detail}")
+
     @use_vsts(["AGain VST3", "Panner"])
     def test_fx_editor_open_close_reopen(self, *, vst_name: str) -> None:
         """Test that a VST FX editor can be opened, closed, and reopened."""
         self._skip_if_no_display()
-
+        if not os.environ.get(self._SUBPROCESS_ENV_KEY):
+            self._run_in_subprocess(self._testMethodName)
+            return
         self.engine.push_code(
             f"""
 from soir._bindings import rt as _rt
@@ -1138,7 +1183,9 @@ except Exception as e:
     def test_inst_editor_open_close_reopen(self, *, vst_name: str) -> None:
         """Test that a VST instrument editor can be opened, closed, and reopened."""
         self._skip_if_no_display()
-
+        if not os.environ.get(self._SUBPROCESS_ENV_KEY):
+            self._run_in_subprocess(self._testMethodName)
+            return
         self.engine.push_code(
             f"""
 from soir._bindings import rt as _rt
@@ -1179,6 +1226,126 @@ except Exception as e:
         closed = [n for n in notifications if "Closing VST instrument editor:" in n]
         self.assertEqual(len(opened), 2, "Expected 2 open events (open + reopen)")
         self.assertEqual(len(closed), 1, "Expected 1 close event")
+
+
+class TestVstInstrumentAudio(VstTestCase):
+    """MIDI notes must produce audio (events buffered until tick is due)."""
+
+    def test_midi_notes_produce_audio(self) -> None:
+        """Notes scheduled via midi.note() must reach the VST plug-in."""
+        wav_path = Path(self.temp_dir) / "vst_midi_audio.wav"
+        wav_path.unlink(missing_ok=True)
+
+        self.engine.push_code(
+            f"""
+tracks.setup({{
+    'synth': tracks.mk_vst('Note Expression Synth', volume=1.0),
+}})
+
+@loop('synth', beats=8)
+def notes():
+    with midi.use_chan(1):
+        for n in [48, 55, 60, 64, 67, 72, 76, 79]:
+            midi.note(n, 0.9, 110)
+            sleep(1.0)
+
+sys.record("{wav_path}")
+log("vst-audio-record-start")
+"""
+        )
+        self.assertTrue(self.engine.wait_for_notification("vst-audio-record-start"))
+        # 8 beats at 120 bpm = 4 s per loop; record two full loops.
+        time.sleep(8.0)
+        self.engine.push_code('log("vst-audio-record-stop")')
+        self.assertTrue(self.engine.wait_for_notification("vst-audio-record-stop"))
+        time.sleep(0.5)
+
+        self.assertTrue(wav_path.exists())
+        data, sr = read_wav(wav_path)
+        self.assertGreater(len(data), 0)
+        level = rms(data[:, 0])
+        self.assertGreater(
+            level, 0.01, f"VST instrument produced silence (rms={level})"
+        )
+        wav_path.unlink(missing_ok=True)
+
+
+class TestVstParameterDelivery(VstTestCase):
+    """Parameters must reach the plug-in via inputParameterChanges."""
+
+    def test_master_volume_mutes_instrument(self) -> None:
+        """Master Volume=0 must silence the plug-in output."""
+        wav_path = Path(self.temp_dir) / "vst_param_mute.wav"
+        wav_path.unlink(missing_ok=True)
+
+        self.engine.push_code(
+            f"""
+tracks.setup({{
+    'synth': tracks.mk_vst('Note Expression Synth', volume=1.0,
+                           params={{'Master Volume': 0.0}}),
+}})
+
+@loop('synth', beats=8)
+def notes():
+    with midi.use_chan(1):
+        for n in [48, 55, 60, 64, 67, 72, 76, 79]:
+            midi.note(n, 0.9, 110)
+            sleep(1.0)
+
+sys.record("{wav_path}")
+log("vst-param-record-start")
+"""
+        )
+        self.assertTrue(self.engine.wait_for_notification("vst-param-record-start"))
+        time.sleep(8.0)
+        self.engine.push_code('log("vst-param-record-stop")')
+        self.assertTrue(self.engine.wait_for_notification("vst-param-record-stop"))
+        time.sleep(0.5)
+
+        self.assertTrue(wav_path.exists())
+        data, sr = read_wav(wav_path)
+        self.assertGreater(len(data), 0)
+        level = rms(data[:, 0])
+        self.assertLess(level, 0.001, f"Master Volume=0 was ignored (rms={level})")
+        wav_path.unlink(missing_ok=True)
+
+    def test_master_volume_keeps_instrument_audible(self) -> None:
+        """Master Volume=1.0 must leave the plug-in output audible."""
+        wav_path = Path(self.temp_dir) / "vst_param_loud.wav"
+        wav_path.unlink(missing_ok=True)
+
+        self.engine.push_code(
+            f"""
+tracks.setup({{
+    'synth': tracks.mk_vst('Note Expression Synth', volume=1.0,
+                           params={{'Master Volume': 1.0}}),
+}})
+
+@loop('synth', beats=8)
+def notes():
+    with midi.use_chan(1):
+        for n in [48, 55, 60, 64, 67, 72, 76, 79]:
+            midi.note(n, 0.9, 110)
+            sleep(1.0)
+
+sys.record("{wav_path}")
+log("vst-param-record-start")
+"""
+        )
+        self.assertTrue(self.engine.wait_for_notification("vst-param-record-start"))
+        time.sleep(8.0)
+        self.engine.push_code('log("vst-param-record-stop")')
+        self.assertTrue(self.engine.wait_for_notification("vst-param-record-stop"))
+        time.sleep(0.5)
+
+        self.assertTrue(wav_path.exists())
+        data, sr = read_wav(wav_path)
+        self.assertGreater(len(data), 0)
+        level = rms(data[:, 0])
+        self.assertGreater(
+            level, 0.01, f"Master Volume=1.0 produced silence (rms={level})"
+        )
+        wav_path.unlink(missing_ok=True)
 
 
 # Generate parameterized test methods for @use_vsts decorator.

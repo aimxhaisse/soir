@@ -96,7 +96,7 @@ class VstPlugin {
   absl::Status LoadState(const std::vector<uint8_t>& state);
 
  private:
-  void PopulateEventList(SampleTick block_start_tick,
+  void PopulateEventList(SampleTick block_start_tick, int block_size,
                          const std::list<MidiEventAt>& events);
 
   std::mutex mutex_;
@@ -106,6 +106,7 @@ class VstPlugin {
   std::pair<int, int> editor_size_ = {800, 600};
   EventList input_events_;
   EventList output_events_;
+  std::list<MidiEventAt> pending_events_;
 
   VST3::Hosting::Module::Ptr module_;
   Steinberg::IPtr<Steinberg::Vst::IComponent> component_;

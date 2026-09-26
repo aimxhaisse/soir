@@ -2,6 +2,7 @@
 
 #include <absl/log/log.h>
 
+#include <algorithm>
 #include <libremidi/message.hpp>
 
 #include "core/midi_event.hh"
@@ -89,6 +90,7 @@ absl::Status VstPlugin::Shutdown() {
       component_->setActive(false);
     }
     activated_ = false;
+    pending_events_.clear();
   }
 
   // Per VST3 spec, disconnect connection points before calling terminate().
@@ -298,12 +300,15 @@ absl::Status VstPlugin::Deactivate() {
   }
 
   activated_ = false;
+  pending_events_.clear();
   LOG(INFO) << "VST plugin deactivated";
 
   return absl::OkStatus();
 }
 
-void VstPlugin::PopulateEventList(SampleTick block_start_tick,
+// VST3 requires sampleOffset inside the current block, but events may carry
+// future ticks; buffer them until due. Incoming events are tick-ordered.
+void VstPlugin::PopulateEventList(SampleTick block_start_tick, int block_size,
                                   const std::list<MidiEventAt>& events) {
   input_events_.Clear();
   output_events_.Clear();
@@ -313,6 +318,18 @@ void VstPlugin::PopulateEventList(SampleTick block_start_tick,
     if (msg.bytes.empty()) {
       continue;
     }
+    if (midi_event.Tick() >= block_start_tick) {
+      pending_events_.push_back(midi_event);
+    }
+  }
+
+  auto end_tick = block_start_tick + block_size;
+  while (!pending_events_.empty() &&
+         pending_events_.front().Tick() < end_tick) {
+    MidiEventAt midi_event = pending_events_.front();
+    pending_events_.pop_front();
+
+    const auto& msg = midi_event.Msg();
 
     Event vst_event{};
     vst_event.busIndex = 0;
@@ -376,14 +393,13 @@ void VstPlugin::Process(SampleTick tick, AudioBuffer& buffer,
     std::copy(right_in, right_in + size, input_right_.begin());
   }
 
-  PopulateEventList(tick, events);
+  PopulateEventList(tick, size, events);
 
   process_data_.numSamples = size;
   processor_->process(process_data_);
 
-  // Discard any parameter changes the plug-in emitted; we do not surface
-  // automated VST parameters back to the host. Clearing per-block keeps the
-  // queue from growing unboundedly.
+  // Consume this block's parameter queues.
+  input_param_changes_.clearQueue();
   output_param_changes_.clearQueue();
 
   std::copy(output_left_.begin(), output_left_.begin() + size, left_in);
@@ -421,13 +437,26 @@ std::map<std::string, VstParameter> VstPlugin::GetParameters() {
 absl::Status VstPlugin::SetParameter(uint32_t id, float value) {
   std::lock_guard<std::mutex> lock(mutex_);
 
-  if (!controller_) {
-    return absl::FailedPreconditionError("No edit controller available");
+  if (!controller_ && !processor_) {
+    return absl::FailedPreconditionError("No VST instance available");
   }
 
-  auto result = controller_->setParamNormalized(id, value);
-  if (result != kResultOk) {
-    return absl::InternalError("Failed to set parameter");
+  // Also queue via inputParameterChanges: some controllers (e.g. JUCE)
+  // reject setParamNormalized.
+  if (controller_ != nullptr) {
+    controller_->setParamNormalized(id, value);
+  }
+
+  ParamID param_id = static_cast<ParamID>(id);
+  int32 queue_index = 0;
+  IParamValueQueue* queue =
+      input_param_changes_.addParameterData(param_id, queue_index);
+  if (queue == nullptr) {
+    return absl::InternalError("Failed to queue parameter change");
+  }
+  int32 point_index = 0;
+  if (queue->addPoint(0, value, point_index) != kResultOk) {
+    return absl::InternalError("Failed to queue parameter point");
   }
 
   return absl::OkStatus();

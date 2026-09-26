@@ -106,7 +106,11 @@ void InstVst::Render(SampleTick tick, const std::list<MidiEventAt>& events,
 
   for (auto& [name, ap] : automated_params_) {
     float value = ap.param.GetValue(tick);
-    plugin_->SetParameter(ap.vst_param_id, value);
+    auto status = plugin_->SetParameter(ap.vst_param_id, value);
+    if (!status.ok()) {
+      LOG_EVERY_N_SEC(WARNING, 10) << "Failed to set VST parameter '" << name
+                                   << "': " << status.message();
+    }
   }
 
   plugin_->Process(tick, buffer, events);

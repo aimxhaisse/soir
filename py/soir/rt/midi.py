@@ -77,7 +77,7 @@ def _get_chan(chan: int | None = None) -> int:
         return chan
 
     midi_chan = loop.extra.get("midi_chan")
-    if midi_chan:
+    if midi_chan is not None:
         return int(midi_chan)
 
     raise UnknownMidiTrackException()
