@@ -12,13 +12,27 @@ from .soir_test_base import SoirTestEngine
 
 _PROJECT_ROOT = Path(__file__).parent.parent.parent.parent
 
-# Scope VST3 scanning to the SDK's sample plug-ins built under build/cmake/.
-# Without this, the scanner picks up every plug-in installed system-wide,
-# which makes tests non-deterministic and exposes them to plug-ins with bad
-# teardown behaviour (e.g. plug-ins that install global SIGSEGV handlers or
-# spawn threads that outlive the host instance). The SDK samples (`again`,
+# Plug-ins that integration tests depend on, by their usual install
+# locations. Only existing paths are added, so machines without them stay
+# deterministic and the dependent tests skip themselves.
+_TEST_PLUGIN_LOCATIONS = [
+    Path("/usr/lib/vst3/Dexed.vst3"),
+    Path("/usr/local/lib/vst3/Dexed.vst3"),
+    Path.home() / ".vst3/Dexed.vst3",
+    Path.home() / "Library/Audio/Plug-Ins/VST3/Dexed.vst3",
+]
+
+# Scope VST3 scanning to the SDK's sample plug-ins built under build/cmake/
+# plus the parents of the test plug-ins above. Without this, the scanner
+# picks up every plug-in installed system-wide, which makes tests
+# non-deterministic and exposes them to plug-ins with bad teardown behaviour
+# (e.g. plug-ins that install global SIGSEGV handlers or spawn threads that
+# outlive the host instance). The SDK samples (`again`,
 # `note-expression-synth`, …) are vendored, controlled, and well-behaved.
-_TEST_VST_SEARCH_PATHS = str(_PROJECT_ROOT / "build" / "cmake" / "VST3" / "Release")
+_TEST_VST_SEARCH_PATHS = ":".join(
+    [str(_PROJECT_ROOT / "build" / "cmake" / "VST3" / "Release")]
+    + [str(p.parent) for p in _TEST_PLUGIN_LOCATIONS if p.exists()]
+)
 
 _STANDALONE_TEST_CONFIG = {
     "dsp": {

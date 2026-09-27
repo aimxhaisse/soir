@@ -98,6 +98,17 @@ class TrackNotFoundException(SoirException):
     """
 
 
+class PresetNotFoundException(SoirException):
+    """Raised when trying to use an unknown synth preset.
+
+    @public
+
+    In Soir, synth tracks can be created from named presets, for
+    example through `tracks.mk_dexed()`. Referencing a preset that
+    doesn't exist triggers this exception.
+    """
+
+
 class VSTNotFoundException(SoirException):
     """Raised when trying to refer to a non-existing VST plug-in.
 

@@ -92,6 +92,9 @@ void InstVst::ReloadParams() {
       ap.param.SetRange(0.0f, 1.0f);
 
       automated_params_[param_name] = ap;
+    } else {
+      LOG(WARNING) << "Unknown VST parameter '" << param_name
+                   << "' for instrument " << plugin_name_;
     }
   }
 }

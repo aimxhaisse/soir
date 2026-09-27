@@ -26,8 +26,14 @@ from soir._bindings.rt import (
     get_tracks_,
     setup_tracks_,
 )
+from soir.rt import errors
 from soir.rt._ctrls import (
     controls_registry_,
+)
+from soir.rt._dexed import (
+    DEFAULT_PATCH as DEXED_DEFAULT_PATCH,
+    PRESETS as DEXED_PRESETS,
+    params as dexed_params,
 )
 from soir.rt._helpers import serialize_parameters
 from soir.rt._internals import (
@@ -251,5 +257,72 @@ def mk_vst(
     extra: dict[str, Any] = {"plugin": plugin}
     if params is not None:
         extra["params"] = params
+
+    return mk("vst", muted, volume, pan, fxs, extra=extra)
+
+
+def mk_dexed(
+    patch: str | dict[str, object] | None = None,
+    muted: bool | None = None,
+    volume: float | Control = 1.0,
+    pan: float | Control = 0.0,
+    fxs: dict[str, Fx] | None = None,
+) -> Track:
+    """Creates a new Dexed VST instrument track.
+
+    @public
+
+    Dexed is a DX7-style FM synthesizer. The patch fully defines the
+    sound of the track.
+
+    Available presets:
+
+    - warm_pad: neutral warm pad (default patch).
+    - vangelis_pad: warm, dark sustained pad with gentle FM.
+    - dark_bass: low, dark sustained bass.
+    - glass_lead: bright, singing lead.
+    - soft_bell: glassy sustained voice for slow arpeggios.
+    - sub_drone: near-invisible single-operator sub drone.
+    - wide_drone: two heavily detuned operators.
+    - pluck: percussive FM pluck for sequenced bass lines.
+    - bell: inharmonic FM bell.
+    - brass_stab: punchy sustained stab with LFO wobble.
+    - singing_lead: breathy sustained lead with slow tremolo.
+    - metallic: bright, metallic voice with high feedback.
+
+    ```python
+    tracks.setup({
+        'bass': tracks.mk_dexed('dark_bass'),
+        'pad': tracks.mk_dexed('vangelis_pad', volume=0.7, pan=-0.25),
+    })
+    ```
+
+    Args:
+        patch: The Dexed patch. Either the name of a preset or a
+            custom patch dict. Defaults to the `warm_pad` preset.
+        muted: The muted state.
+        volume: The volume in [0.0, 1.0].
+        pan: The pan in [-1.0, 1.0] range.
+        fxs: The effects to apply to the track, as an ordered dict.
+
+    Raises:
+        PresetNotFoundException: If patch is the name of an unknown preset.
+    """
+    if patch is None:
+        patch = DEXED_DEFAULT_PATCH
+    if isinstance(patch, str):
+        if patch not in DEXED_PRESETS:
+            raise errors.PresetNotFoundException(
+                f"unknown Dexed preset '{patch}', available presets: "
+                + ", ".join(PRESETS)
+            )
+        spec = DEXED_PRESETS[patch]
+    else:
+        spec = patch
+
+    extra: dict[str, Any] = {
+        "plugin": "Dexed",
+        "params": dexed_params(spec),
+    }
 
     return mk("vst", muted, volume, pan, fxs, extra=extra)
