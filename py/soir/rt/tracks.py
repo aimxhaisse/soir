@@ -277,18 +277,18 @@ def mk_dexed(
 
     Available presets:
 
-    - warm_pad: neutral warm pad (default patch).
-    - vangelis_pad: warm, dark sustained pad with gentle FM.
-    - dark_bass: low, dark sustained bass.
-    - glass_lead: bright, singing lead.
-    - soft_bell: glassy sustained voice for slow arpeggios.
-    - sub_drone: near-invisible single-operator sub drone.
-    - wide_drone: two heavily detuned operators.
-    - pluck: percussive FM pluck for sequenced bass lines.
-    - bell: inharmonic FM bell.
-    - brass_stab: punchy sustained stab with LFO wobble.
-    - singing_lead: breathy sustained lead with slow tremolo.
-    - metallic: bright, metallic voice with high feedback.
+    - **warm_pad****: neutral warm pad (default patch).
+    - **vangelis_pad**: warm, dark sustained pad with gentle FM.
+    - **dark_bass**: low, dark sustained bass.
+    - **glass_lead**: bright, singing lead.
+    - **soft_bell**: glassy sustained voice for slow arpeggios.
+    - **sub_drone**: near-invisible single-operator sub drone.
+    - **wide_drone**: two heavily detuned operators.
+    - **pluck**: percussive FM pluck for sequenced bass lines.
+    - **bell**: inharmonic FM bell.
+    - **brass_stab**: punchy sustained stab with LFO wobble.
+    - **singing_lead**: breathy sustained lead with slow tremolo.
+    - **metallic**: bright, metallic voice with high feedback.
 
     ```python
     tracks.setup({
