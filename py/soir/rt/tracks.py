@@ -314,7 +314,7 @@ def mk_dexed(
         if patch not in DEXED_PRESETS:
             raise errors.PresetNotFoundException(
                 f"unknown Dexed preset '{patch}', available presets: "
-                + ", ".join(PRESETS)
+                + ", ".join(DEXED_PRESETS)
             )
         spec = DEXED_PRESETS[patch]
     else:
