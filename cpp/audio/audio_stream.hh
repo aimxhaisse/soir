@@ -1,12 +1,15 @@
 #pragma once
 
+#include <atomic>
 #include <condition_variable>
 #include <memory>
 #include <mutex>
+#include <thread>
 #include <vector>
 
 #include "absl/status/status.h"
 #include "core/common.hh"
+#include "readerwriterqueue.h"
 
 namespace soir {
 namespace audio {
@@ -16,10 +19,12 @@ class OggOpusEncoder;
 class AudioStream : public SampleConsumer {
  public:
   AudioStream();
-  ~AudioStream();
+  ~AudioStream() override;
 
-  // Initialize the stream encoder and ring buffer.
   absl::Status Init(int sample_rate, int channels, int bitrate = 128000);
+
+  // Stop the encoder thread. Idempotent.
+  void Stop();
 
   absl::Status PushAudioBuffer(AudioBuffer& buffer) override;
 
@@ -37,21 +42,24 @@ class AudioStream : public SampleConsumer {
 
  private:
   void WriteToRingBuffer(const std::vector<uint8_t>& data);
+  void EncoderLoop();
 
   std::unique_ptr<OggOpusEncoder> encoder_;
-  bool initialized_ = false;
+  bool initialized_;
 
-  // Ring buffer for encoded audio data.
   mutable std::mutex buffer_mutex_;
   mutable std::condition_variable buffer_cv_;
   std::vector<uint8_t> ring_buffer_;
-  size_t ring_capacity_ = 0;
-  size_t write_pos_ = 0;
+  size_t ring_capacity_;
+  size_t write_pos_;
 
-  // Accumulator for building complete Opus frames.
-  std::vector<float> accumulator_;
-  int channels_ = 0;
-  int frame_size_ = 960;
+  // Engine (sole producer) -> encoder thread (sole consumer): Opus
+  // encoding stays off the engine thread so it can't underrun the device.
+  moodycamel::BlockingReaderWriterQueue<float> pcm_queue_;
+  std::thread encoder_thread_;
+  std::atomic<bool> stop_;
+  int channels_;
+  int frame_size_;
 };
 
 }  // namespace audio

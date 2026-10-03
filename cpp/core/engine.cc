@@ -115,13 +115,15 @@ absl::Status Engine::Start() {
   });
 
   if (audio_output_.get() != nullptr && audio_output_enabled_) {
-    RegisterConsumer(audio_output_.get());
-
+    // Started before it is fed: the ring is cleared on start, so the
+    // engine thread must not be pushing yet.
     auto status = audio_output_->Start();
     if (!status.ok()) {
       LOG(ERROR) << "Failed to start audio output: " << status;
       return status;
     }
+
+    RegisterConsumer(audio_output_.get());
   }
 
   RegisterConsumer(pcm_stream_.get());
@@ -230,14 +232,12 @@ absl::Status Engine::Run() {
   LOG(INFO) << "Engine running";
 
   AudioBuffer buffer(kBlockSize);
-  // Steady clock: the wall clock (absl::Now / absl::ToChronoTime ->
-  // system_clock) can be stepped by NTP or VM time synchronisation,
-  // which would stretch or skip the block schedule and underrun the
-  // output device. The schedule stays an absolute grid (block N is
-  // due at initial + N * block_duration) so a slow block is
-  // compensated by a fast-forward burst, never by drifting.
-  const auto block_duration =
-      std::chrono::microseconds((1000000LL * kBlockSize) / kSampleRate);
+  // Steady clock (not wall clock: NTP/VM steps would stretch the schedule)
+  // on an absolute grid, so a slow block is compensated by a fast-forward
+  // burst, never drift. Kept in fractional ns: truncating 10666.67 µs per
+  // block to whole µs makes the engine run fast and inflate the queue.
+  const long double ns_per_block =
+      1000000000.0L * static_cast<long double>(kBlockSize) / kSampleRate;
   auto next_block_at = std::chrono::steady_clock::now();
   const auto initial_time = next_block_at;
   uint64_t block_count = 0;
@@ -329,7 +329,9 @@ absl::Status Engine::Run() {
     }
 
     block_count++;
-    next_block_at = initial_time + block_count * block_duration;
+    next_block_at = initial_time +
+                    std::chrono::nanoseconds(static_cast<long long>(
+                        ns_per_block * static_cast<long double>(block_count)));
 
     SOIR_TRACING_FRAME("dsp::frame");
   }
@@ -634,6 +636,7 @@ absl::Status Engine::StopStreaming() {
   }
 
   RemoveConsumer(audio_stream_.get());
+  audio_stream_->Stop();
   streaming_active_ = false;
 
   LOG(INFO) << "Stopped audio streaming";

@@ -155,6 +155,7 @@ target_link_libraries(soir_audio
     soir_dsp
     ogg
     opus
+    readerwriterqueue
     absl::log
     absl::status
     absl::statusor
@@ -422,6 +423,8 @@ add_test(NAME UtilsTest COMMAND utils_test)
 add_executable(audio_test
     cpp/tests/audio/audio_buffer_test.cc
     cpp/tests/audio/audio_output_test.cc
+    cpp/tests/audio/audio_stream_test.cc
+    cpp/tests/audio/ogg_opus_encoder_test.cc
 )
 
 target_link_libraries(audio_test

@@ -40,7 +40,7 @@ class SoirTestEngine:
         Args:
             log_dir: Directory where log files will be written
             config_overrides: Optional dict to override template variables
-                             (e.g., {"initial_bpm": 600, "block_size": 2048})
+                             (e.g., {"initial_bpm": 600, "enable_streaming": True})
         """
         self.log_dir = Path(log_dir)
         self.log_dir.mkdir(parents=True, exist_ok=True)

@@ -5,7 +5,6 @@
     "streaming_bitrate": 128000,
     "streaming_host": "{{ streaming_host | default('localhost') }}",
     "streaming_port": {{ streaming_port | default(5001) }},
-    "block_size": {{ block_size | default(4096) }},
     "sample_directory": "{{ sample_directory | default('.') }}",
     "sample_packs": {{ sample_packs | default([]) | tojson }}
   },

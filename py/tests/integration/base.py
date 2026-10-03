@@ -41,7 +41,6 @@ _STANDALONE_TEST_CONFIG = {
         "streaming_bitrate": 128000,
         "streaming_host": "localhost",
         "streaming_port": 5001,
-        "block_size": 4096,
         "sample_directory": str(_PROJECT_ROOT / "lib" / "samples"),
         "sample_packs": [],
     },

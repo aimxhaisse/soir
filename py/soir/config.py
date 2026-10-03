@@ -103,7 +103,6 @@ class Config(BaseModel):
         streaming_bitrate: int = Field(default=128000)
         streaming_host: str = Field(default="localhost")
         streaming_port: int = Field(default=5001)
-        block_size: int = Field(default=4096)
         audio_output_device: str = Field(default="")
         sample_directory: str = Field(default="")
         sample_packs: list[str] = Field(default_factory=list)

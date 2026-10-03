@@ -1,25 +1,27 @@
 #pragma once
 
-#include <AudioFile.h>
 #include <absl/status/status.h>
 
-#include <memory>
-#include <mutex>
+#include <atomic>
+#include <cstdint>
+#include <fstream>
 #include <string>
+#include <thread>
 #include <vector>
 
 #include "audio/audio_buffer.hh"
 #include "core/common.hh"
+#include "readerwriterqueue.h"
 
 namespace soir {
 
 // AudioRecorder consumes audio samples and writes them to a WAV file.
-// It implements the SampleConsumer interface to receive audio data from
-// the engine and outputs it in WAV format for end-to-end testing purposes.
+// Samples go through a queue to a dedicated writer thread, so disk I/O
+// never runs on the engine thread and cannot stall the audio output.
 class AudioRecorder : public SampleConsumer {
  public:
   AudioRecorder();
-  virtual ~AudioRecorder();
+  ~AudioRecorder() override;
 
   absl::Status Init(const std::string& file_path);
   absl::Status MaybeStop();
@@ -27,10 +29,22 @@ class AudioRecorder : public SampleConsumer {
   absl::Status PushAudioBuffer(AudioBuffer& buffer) override;
 
  private:
+  void WriterLoop();
+  bool WriteChunk(const std::vector<float>& chunk);
+  static void WriteWavHeader(std::ofstream& out, uint64_t frames);
+
   std::string file_path_;
-  std::mutex buffer_mutex_;
-  bool is_recording_ = false;
-  AudioFile<float> audio_file_;
+  std::atomic<bool> is_recording_;
+  std::atomic<bool> stop_;
+  std::atomic<bool> write_failed_;
+  std::ofstream file_;
+  std::thread writer_thread_;
+
+  // Engine (sole producer) -> writer thread (sole consumer).
+  moodycamel::BlockingReaderWriterQueue<float> queue_;
+
+  // Written by the writer thread, read after the thread is joined.
+  uint64_t total_frames_;
 };
 
 }  // namespace soir

@@ -17,7 +17,6 @@ class TestConfig(unittest.TestCase):
     def test_audio_config_defaults(self) -> None:
         """Test AudioConfig with default values."""
         config = Config(dsp=Config.DspConfig(), live=Config.LiveConfig())
-        self.assertEqual(config.dsp.block_size, 4096)
         self.assertEqual(config.live.directory, ".")
 
     def test_app_config_from_json(self) -> None:
@@ -25,7 +24,7 @@ class TestConfig(unittest.TestCase):
         json_str = """
         {
             "dsp": {
-                "block_size": 8192
+                "enable_output": false
             },
             "live": {
                  "directory": "/live"
@@ -34,14 +33,14 @@ class TestConfig(unittest.TestCase):
         """
         config = Config.model_validate_json(json_str)
 
-        self.assertEqual(config.dsp.block_size, 8192)
+        self.assertFalse(config.dsp.enable_output)
         self.assertEqual(config.live.directory, "/live")
 
     def test_load_from_path(self) -> None:
         """Test loading configuration from file."""
         with tempfile.TemporaryDirectory() as tmp_dir:
             config_data = {
-                "dsp": {"enable_output": False, "block_size": 2048},
+                "dsp": {"enable_output": False},
                 "live": {"directory": "/music"},
             }
 
@@ -51,7 +50,6 @@ class TestConfig(unittest.TestCase):
             config = Config.load_from_path(config_file)
 
             self.assertFalse(config.dsp.enable_output)
-            self.assertEqual(config.dsp.block_size, 2048)
 
 
 class TestEnsureSoirHome(unittest.TestCase):

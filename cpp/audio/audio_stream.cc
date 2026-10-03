@@ -1,6 +1,5 @@
 #include "audio/audio_stream.hh"
 
-#include <algorithm>
 #include <chrono>
 
 #include "absl/log/log.h"
@@ -10,9 +9,15 @@
 namespace soir {
 namespace audio {
 
-AudioStream::AudioStream() = default;
+AudioStream::AudioStream()
+    : initialized_(false),
+      ring_capacity_(0),
+      write_pos_(0),
+      stop_(false),
+      channels_(0),
+      frame_size_(960) {}
 
-AudioStream::~AudioStream() = default;
+AudioStream::~AudioStream() { Stop(); }
 
 absl::Status AudioStream::Init(int sample_rate, int channels, int bitrate) {
   encoder_ = std::make_unique<OggOpusEncoder>();
@@ -28,12 +33,12 @@ absl::Status AudioStream::Init(int sample_rate, int channels, int bitrate) {
   ring_buffer_.resize(ring_capacity_);
   write_pos_ = 0;
 
-  // Seed the ring buffer with Ogg headers so late-joining clients
-  // can start from the beginning of valid Ogg data.
+  // Seed the ring with Ogg headers so late-joining clients get valid Ogg.
   const auto& headers = encoder_->GetHeaderPages();
   WriteToRingBuffer(headers);
 
-  accumulator_.reserve(frame_size_ * channels_);
+  stop_ = false;
+  encoder_thread_ = std::thread([this]() { EncoderLoop(); });
 
   initialized_ = true;
 
@@ -41,6 +46,17 @@ absl::Status AudioStream::Init(int sample_rate, int channels, int bitrate) {
             << " channels, " << bitrate << " bps";
 
   return absl::OkStatus();
+}
+
+void AudioStream::Stop() {
+  if (!initialized_) {
+    return;
+  }
+
+  stop_ = true;
+  if (encoder_thread_.joinable()) {
+    encoder_thread_.join();
+  }
 }
 
 absl::Status AudioStream::PushAudioBuffer(AudioBuffer& buffer) {
@@ -53,33 +69,46 @@ absl::Status AudioStream::PushAudioBuffer(AudioBuffer& buffer) {
     return absl::OkStatus();
   }
 
-  // Interleave stereo samples into the accumulator.
-  float* left = buffer.GetChannel(kLeftChannel);
-  float* right = buffer.GetChannel(kRightChannel);
+  const float* left = buffer.GetChannel(kLeftChannel);
+  const float* right = buffer.GetChannel(kRightChannel);
   for (size_t i = 0; i < size; i++) {
-    accumulator_.push_back(left[i]);
-    accumulator_.push_back(right[i]);
-  }
-
-  // Encode complete frames.
-  size_t samples_per_frame = static_cast<size_t>(frame_size_ * channels_);
-  while (accumulator_.size() >= samples_per_frame) {
-    std::vector<uint8_t> encoded;
-    auto status = encoder_->Encode(accumulator_.data(), frame_size_, &encoded);
-    if (!status.ok()) {
-      LOG(WARNING) << "Failed to encode audio frame: " << status;
-      break;
-    }
-
-    if (!encoded.empty()) {
-      WriteToRingBuffer(encoded);
-    }
-
-    accumulator_.erase(accumulator_.begin(),
-                       accumulator_.begin() + samples_per_frame);
+    pcm_queue_.enqueue(left[i]);
+    pcm_queue_.enqueue(right[i]);
   }
 
   return absl::OkStatus();
+}
+
+void AudioStream::EncoderLoop() {
+  // Accumulator for building complete Opus frames. Encoder thread only.
+  std::vector<float> pending;
+  pending.reserve(static_cast<size_t>(frame_size_) * channels_);
+
+  const size_t frame_samples = static_cast<size_t>(frame_size_) * channels_;
+
+  while (true) {
+    float sample;
+    if (!pcm_queue_.wait_dequeue_timed(sample, 1000)) {
+      if (stop_) {
+        break;
+      }
+      continue;
+    }
+    pending.push_back(sample);
+
+    while (pending.size() >= frame_samples) {
+      std::vector<uint8_t> encoded;
+      auto status = encoder_->Encode(pending.data(), frame_size_, &encoded);
+      if (!status.ok()) {
+        // Skip the frame rather than retrying it forever on this thread.
+        LOG_EVERY_N_SEC(WARNING, 1)
+            << "Failed to encode audio frame: " << status;
+      } else if (!encoded.empty()) {
+        WriteToRingBuffer(encoded);
+      }
+      pending.erase(pending.begin(), pending.begin() + frame_samples);
+    }
+  }
 }
 
 void AudioStream::WriteToRingBuffer(const std::vector<uint8_t>& data) {
@@ -97,24 +126,22 @@ std::vector<uint8_t> AudioStream::GetHeaderPages() const {
   if (!encoder_) {
     return {};
   }
+
   return encoder_->GetHeaderPages();
 }
 
 AudioStream::ReadResult AudioStream::Read(size_t offset, int timeout_ms) const {
   std::unique_lock<std::mutex> lock(buffer_mutex_);
 
-  // If caller is caught up, wait for new data.
   if (offset >= write_pos_) {
     buffer_cv_.wait_for(lock, std::chrono::milliseconds(timeout_ms),
                         [this, offset]() { return offset < write_pos_; });
   }
 
-  // Still nothing after wait.
   if (offset >= write_pos_) {
     return {{}, offset};
   }
 
-  // If offset fell behind the ring buffer, skip forward.
   size_t earliest =
       (write_pos_ > ring_capacity_) ? (write_pos_ - ring_capacity_) : 0;
   if (offset < earliest) {

@@ -1,6 +1,8 @@
 #define MINIAUDIO_IMPLEMENTATION
 #include "audio/audio_output.hh"
 
+#include <algorithm>
+
 #include "absl/log/log.h"
 #include "audio/audio_buffer.hh"
 
@@ -8,6 +10,14 @@ namespace soir {
 namespace audio {
 
 namespace {
+
+// Device-side buffer headroom (in periods) for scheduling jitter; costs
+// monitoring latency (~43 ms at 48 kHz). A hint only on some backends.
+static constexpr int kDeviceBufferPeriods = 4;
+
+// Silence slots ahead of the first block: headroom for engine stalls on
+// top of the device buffer.
+static constexpr int kPrefillSlots = 2;
 
 void PopulateDevice(int id, const ma_device_info& info, Device* dev) {
   dev->id = id;
@@ -100,50 +110,59 @@ static void data_callback(ma_device* device, void* output, const void* input,
   float* output_buffer = static_cast<float*>(output);
   ma_uint32 samples_needed = frame_count * device->playback.channels;
 
-  if (audio_output) {
-    bool underrun = false;
-    size_t missing_samples = 0;
-
-    {
-      std::lock_guard<std::mutex> lock(audio_output->buffer_mutex_);
-
-      // Consume from buffer if available
-      size_t available = audio_output->audio_buffer_.size();
-      size_t to_copy = std::min(static_cast<size_t>(samples_needed), available);
-
-      if (to_copy > 0) {
-        memcpy(output_buffer, audio_output->audio_buffer_.data(),
-               to_copy * sizeof(float));
-        audio_output->audio_buffer_.erase(
-            audio_output->audio_buffer_.begin(),
-            audio_output->audio_buffer_.begin() + to_copy);
-      }
-
-      // Fill remainder with silence if buffer underrun
-      if (to_copy < samples_needed) {
-        memset(output_buffer + to_copy, 0,
-               (samples_needed - to_copy) * sizeof(float));
-        underrun = true;
-        missing_samples = samples_needed - to_copy;
-      }
-    }
-
-    // Outside the lock: OnUnderrun may log, and taking the global log
-    // lock while holding buffer_mutex_ could block the engine's push.
-    if (underrun) {
-      audio_output->OnUnderrun(missing_samples);
-    }
-  } else {
-    // No audio_output, output silence
+  if (audio_output == nullptr) {
     memset(output_buffer, 0, samples_needed * sizeof(float));
+    return;
+  }
+
+  audio_output->FillCallbackBuffer(output_buffer, samples_needed);
+}
+
+void AudioOutput::FillCallbackBuffer(float* output, size_t samples_needed) {
+  uint64_t read_seq = read_seq_local_;
+
+  // The engine may have dropped stale slots: skip to the oldest it still
+  // holds, on a slot boundary.
+  const uint64_t floor = drop_seq_.load(std::memory_order_acquire);
+  if (read_seq < floor) {
+    read_seq = floor;
+    read_offset_ = 0;
+  }
+
+  const uint64_t write_seq = write_seq_.load(std::memory_order_acquire);
+  size_t copied = 0;
+  uint64_t seq = read_seq;
+  while (copied < samples_needed && seq != write_seq) {
+    const float* src =
+        slots_[seq % kOutputSlotCount].samples + read_offset_ * kNumChannels;
+    const size_t available =
+        static_cast<size_t>(kOutputSlotFrames - read_offset_) * kNumChannels;
+    const size_t take = std::min(available, samples_needed - copied);
+
+    memcpy(output + copied, src, take * sizeof(float));
+    copied += take;
+
+    read_offset_ += static_cast<int>(take / kNumChannels);
+    if (read_offset_ == kOutputSlotFrames) {
+      read_offset_ = 0;
+      seq++;
+    }
+  }
+
+  read_seq_local_ = seq;
+  read_seq_.store(seq, std::memory_order_release);
+
+  if (copied < samples_needed) {
+    memset(output + copied, 0, (samples_needed - copied) * sizeof(float));
+    if (prefilled_.load(std::memory_order_relaxed)) {
+      OnUnderrun(samples_needed - copied);
+    }
   }
 }
 
 void AudioOutput::OnUnderrun(size_t missing_samples) {
   const uint64_t total = underruns_.fetch_add(1, std::memory_order_relaxed) + 1;
   const absl::Time now = absl::Now();
-  // Rate-limited to one warning per second, and only while underruns
-  // are actually happening: the steady state must stay log-free.
   if (now - last_underrun_warn_ >= absl::Seconds(1)) {
     last_underrun_warn_ = now;
     LOG(WARNING) << "Audio output underrun: inserted " << missing_samples
@@ -154,7 +173,55 @@ void AudioOutput::OnUnderrun(size_t missing_samples) {
   }
 }
 
-AudioOutput::AudioOutput() { device_ = new ma_device(); }
+void AudioOutput::WriteSlot(const float* left, const float* right,
+                            size_t frames) {
+  const uint64_t write_seq = write_seq_local_;
+
+  // The device thread may not have published its progress since our last
+  // trim, so never consider it below the floor we already gave it.
+  uint64_t read_seq = read_seq_.load(std::memory_order_acquire);
+  if (read_seq < drop_seq_local_) {
+    read_seq = drop_seq_local_;
+  }
+
+  // Cap the backlog: a fast-forward burst after a stall can push seconds
+  // at once, so drop the oldest slots past the cap and let the device
+  // thread skip forward. Never triggers in steady state.
+  if (write_seq - read_seq >= kOutputMaxBacklogSlots) {
+    drop_seq_local_ = write_seq - kOutputMaxBacklogSlots + 1;
+    drop_seq_.store(drop_seq_local_, std::memory_order_release);
+  }
+
+  float* dst = slots_[write_seq % kOutputSlotCount].samples;
+  size_t i = 0;
+  for (; i < frames; i++) {
+    dst[i * kNumChannels] = left[i];
+    dst[i * kNumChannels + 1] = right[i];
+  }
+  // A short tail must not leak the previous occupant of the slot.
+  for (; i < static_cast<size_t>(kOutputSlotFrames); i++) {
+    dst[i * kNumChannels] = 0.0f;
+    dst[i * kNumChannels + 1] = 0.0f;
+  }
+
+  write_seq_local_ = write_seq + 1;
+  write_seq_.store(write_seq_local_, std::memory_order_release);
+}
+
+AudioOutput::AudioOutput()
+    : context_initialized_(false),
+      device_(new ma_device()),
+      initialized_(false),
+      underruns_(0),
+      last_underrun_warn_{},
+      write_seq_(0),
+      read_seq_(0),
+      drop_seq_(0),
+      write_seq_local_(0),
+      drop_seq_local_(0),
+      read_seq_local_(0),
+      read_offset_(0),
+      prefilled_(false) {}
 
 AudioOutput::~AudioOutput() {
   if (initialized_) {
@@ -166,8 +233,28 @@ AudioOutput::~AudioOutput() {
   }
 }
 
+void AudioOutput::Reset() {
+  write_seq_local_ = 0;
+  drop_seq_local_ = 0;
+  read_seq_local_ = 0;
+  read_offset_ = 0;
+
+  write_seq_.store(0, std::memory_order_release);
+  read_seq_.store(0, std::memory_order_release);
+  drop_seq_.store(0, std::memory_order_release);
+
+  prefilled_.store(false, std::memory_order_relaxed);
+  underruns_.store(0, std::memory_order_relaxed);
+  last_underrun_warn_ = absl::Time();
+}
+
 absl::Status AudioOutput::Init(int sample_rate, int channels, int buffer_size,
                                const std::string& device_name) {
+  if (channels != kNumChannels) {
+    return absl::InvalidArgumentError(
+        "Audio output requires exactly 2 channels");
+  }
+
   ma_device_config config = ma_device_config_init(ma_device_type_playback);
   config.playback.format = ma_format_f32;
   config.playback.channels = channels;
@@ -175,6 +262,7 @@ absl::Status AudioOutput::Init(int sample_rate, int channels, int buffer_size,
   config.dataCallback = data_callback;
   config.pUserData = this;
   config.periodSizeInFrames = buffer_size;
+  config.periods = kDeviceBufferPeriods;
 
   if (!device_name.empty()) {
     if (ma_context_init(nullptr, 0, nullptr, &context_) == MA_SUCCESS) {
@@ -211,7 +299,6 @@ absl::Status AudioOutput::Init(int sample_rate, int channels, int buffer_size,
     }
   }
 
-  // Use the same context for device init (or NULL to let miniaudio create one)
   ma_context* pContext = context_initialized_ ? &context_ : nullptr;
   if (ma_device_init(pContext, &config, device_) != MA_SUCCESS) {
     return absl::InternalError("Failed to initialize audio device");
@@ -228,6 +315,10 @@ absl::Status AudioOutput::Start() {
   if (!initialized_) {
     return absl::FailedPreconditionError("Audio output not initialized");
   }
+
+  // Device callback not running yet: clear the ring so audio queued
+  // before the last Stop() does not play at startup.
+  Reset();
 
   if (ma_device_start(device_) != MA_SUCCESS) {
     return absl::InternalError("Failed to start audio device");
@@ -251,29 +342,24 @@ absl::Status AudioOutput::Stop() {
 }
 
 absl::Status AudioOutput::PushAudioBuffer(AudioBuffer& buffer) {
-  auto size = buffer.Size();
-  if (size == 0) {
+  const size_t frames = buffer.Size();
+  if (frames == 0) {
     return absl::OkStatus();
   }
 
-  std::lock_guard<std::mutex> lock(buffer_mutex_);
+  const float* left = buffer.GetChannel(kLeftChannel);
+  const float* right = buffer.GetChannel(kRightChannel);
 
-  // Interleave the audio data and append to buffer
-  for (size_t i = 0; i < size; i++) {
-    audio_buffer_.push_back(buffer.GetChannel(kLeftChannel)[i]);
-    audio_buffer_.push_back(buffer.GetChannel(kRightChannel)[i]);
+  if (!prefilled_.exchange(true)) {
+    for (int i = 0; i < kPrefillSlots; i++) {
+      WriteSlot(nullptr, nullptr, 0);
+    }
   }
 
-  // Bound the backlog. After a long engine stall the loop fast-forwards
-  // to catch up and can push many seconds of audio at once; without a
-  // cap the vector would balloon (more latency, and a longer O(n)
-  // erase on the device thread). Beyond the cap the oldest samples are
-  // dropped. In steady state the buffer holds only a few blocks, so
-  // this never triggers.
-  const size_t cap = static_cast<size_t>(kSampleRate) * kNumChannels;
-  if (audio_buffer_.size() > cap) {
-    audio_buffer_.erase(audio_buffer_.begin(),
-                        audio_buffer_.begin() + (audio_buffer_.size() - cap));
+  for (size_t offset = 0; offset < frames; offset += kOutputSlotFrames) {
+    const size_t chunk =
+        std::min(static_cast<size_t>(kOutputSlotFrames), frames - offset);
+    WriteSlot(left + offset, right + offset, chunk);
   }
 
   return absl::OkStatus();

@@ -185,6 +185,7 @@ just test     # always
 - Logging: abseil logging — `LOG(INFO)`, `LOG(ERROR)`, `LOG(WARNING)`
 - Namespaces: `namespace soir { ... }  // namespace soir` (nested: `namespace soir::vst`)
 - Headers: `#pragma once`, no inline implementation (trivial getters excepted)
+- Member initialization: no in-class initializers in headers. Initialize members in the constructor's initializer list in the `.cc` file, e.g. `Recorder() : is_recording_(false), total_frames_(0) {}` instead of `std::atomic<bool> is_recording_{false};` in the header
 - Files in CMakeLists.txt: alphabetical order
 - **Platform-specific code must live in suffixed files, never behind `#ifdef` blocks in shared `.cc` files.** Use `_linux.cc`, `_macos.mm`, `_win.cc` (and matching `.hh` headers when needed). Add the platform files to the appropriate `target_sources` branch in `CMakeLists.txt`. Keep the base class / cross-platform interface in the unsuffixed file and provide a factory function (e.g. `CreateHostContext()`) that the shared code calls.
 
@@ -200,10 +201,12 @@ just test     # always
 - mypy: strict mode enabled
 
 ### Comments
-- Default to no comment. Add one only when the *why* is not obvious from the code: protocol/spec constraints, workarounds for specific misbehaving components, non-obvious invariants or ordering assumptions.
+- Applies to C++ code. Default to no comment. Code should be explicit and easy to read; comments are rare and only add context the code cannot convey.
+- Add a comment only when the *why* is not obvious from the code: protocol/spec constraints, workarounds for specific misbehaving components, non-obvious invariants, thread-ownership or ordering assumptions, and the meaning of non-obvious magic numbers.
 - Maximum 1-2 short lines. If a comment needs more, fix the code (rename, split) instead of writing a paragraph.
 - Never restate what the code does in prose, and never narrate history ("regression test for X", "fixed the bug where..."). State the invariant a future reader needs, in one line.
 - Prefer a better name over a comment. If a member's name makes a comment redundant (e.g. `pending_events_`), use the name and drop the comment.
+- Documenting the role of a class in its header (one short block above the class) is fine and encouraged; do not repeat that role on every member.
 - Docstrings: one-line summary; add a body only for non-obvious contracts or behavior.
 
 ## Key Technologies
